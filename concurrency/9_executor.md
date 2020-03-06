@@ -26,16 +26,30 @@
 
 ![thread pool](images/threadpool.png)
 
+## 线程池 API
 
-# 线程池实现
+线程池的核心API如下所示：
+
+![Executor API](images/2019-09-25-12-36-49.png)
+
+说明：
+
+- `Executor` 是最基础的执行线程接口；
+- `ExecutorService` 接口扩展 `Executor`，并添加了管理方法 `submit()`, `shutdown()`等方法；
+- `AbstractExecutorService` 抽象类实现了 `ExecutorService` 接口中的大部分方法；
+- `ThreadPoolExecutor` 为线程池的具体实现类；
+- `ScheduledExecutorService` 接口扩展了 `ExecutorService` 接口，添加了周期执行的功能；
+- `ScheduledThreadPoolExecutor` 是 `ScheduledExecutorService` 的具体实现类；
+
+## 线程池实现
+
 为了更好的理解线程池，下面自定义实现一个简单的线程池。
 
-
-## 接口定义
 线程池接口定义：
+
 ```java
-public interface JThreadPool
-{
+public interface JThreadPool{
+
     /**
      * submit task to thread pool
      */
@@ -79,9 +93,10 @@ public interface JThreadPool
 ```
 
 任务队列接口：
+
 ```java
-public interface JTaskQueue
-{
+public interface JTaskQueue{
+
     /**
      * add a task to the queue
      */
@@ -100,9 +115,9 @@ public interface JTaskQueue
 ```
 
 线程工厂接口：
+
 ```java
-public interface JThreadFactory
-{
+public interface JThreadFactory{
     /**
      * Create a Thread for a task
      */
@@ -111,16 +126,15 @@ public interface JThreadFactory
 ```
 
 拒绝策略，当队列已满时，对新添加的任务采取的策略：
+
 ```java
-public interface JDenyPolicy
-{
+public interface JDenyPolicy{
     void reject(Runnable runnable, JThreadPool threadPool);
 
     /**
      * 直接舍弃，不作其它处理
      */
-    class JDiscardDenyPolicy implements JDenyPolicy
-    {
+    class JDiscardDenyPolicy implements JDenyPolicy{
         @Override
         public void reject(Runnable runnable, JThreadPool threadPool)
         {
@@ -131,12 +145,10 @@ public interface JDenyPolicy
     /**
      * 舍弃并抛出异常
      */
-    class JAbortDenyPolicy implements JDenyPolicy
-    {
+    class JAbortDenyPolicy implements JDenyPolicy{
 
         @Override
-        public void reject(Runnable runnable, JThreadPool threadPool)
-        {
+        public void reject(Runnable runnable, JThreadPool threadPool){
             throw new JRunnableDenyException("The task " + runnable + " is abort.");
         }
     }
@@ -144,11 +156,9 @@ public interface JDenyPolicy
     /**
      * 接受并执行
      */
-    class JRunnerDenyPolicy implements JDenyPolicy
-    {
+    class JRunnerDenyPolicy implements JDenyPolicy{
         @Override
-        public void reject(Runnable runnable, JThreadPool threadPool)
-        {
+        public void reject(Runnable runnable, JThreadPool threadPool){
             if (!threadPool.isShutdown()) {
                 runnable.run();
             }
@@ -158,6 +168,7 @@ public interface JDenyPolicy
 ```
 
 对应的异常为：
+
 ```java
 public class JRunnableDenyException extends RuntimeException
 {
@@ -169,6 +180,7 @@ public class JRunnableDenyException extends RuntimeException
 ```
 
 JInternalTask，用于从队列中取出任务执行：
+
 ```java
 public class JInternalTask implements Runnable
 {
@@ -203,4 +215,21 @@ public class JInternalTask implements Runnable
     }
 }
 ```
+
 其中添加的 stop 方法，方面停止当前线程，用在维护线程池线程数目和销毁线程池方面。
+
+## ExecutorService
+|方法|说明|
+|---|---|
+|invokeAny()|接收一个任务列表，运行任务，返回第一个没有抛出异常的任务的执行结果|
+
+## invokeAll
+一次提交多个 `Callable` 任务执行。
+
+## invokeAny
+类似于
+
+## submit vs. invokeAll
+`submit` 用于一次提交一个任务，`invokeAll` 用于一次提交多个任务。
+
+如果不需要等待所有任务完成，可以使用 `submit`，如果需要
