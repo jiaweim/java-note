@@ -1,134 +1,35 @@
-# 多线程问题
+# Java Concurrency API
 
-## 简介
+- [Java Concurrency API](#java-concurrency-api)
+  - [同步机制](#%e5%90%8c%e6%ad%a5%e6%9c%ba%e5%88%b6)
+  - [方法锁](#%e6%96%b9%e6%b3%95%e9%94%81)
+  - [synchronized 实现方案](#synchronized-%e5%ae%9e%e7%8e%b0%e6%96%b9%e6%a1%88)
+- [wait/notify](#waitnotify)
+  - [`wait` 与 `notify/notifyAll` 方法必须在同步代码块中使用](#wait-%e4%b8%8e-notifynotifyall-%e6%96%b9%e6%b3%95%e5%bf%85%e9%a1%bb%e5%9c%a8%e5%90%8c%e6%ad%a5%e4%bb%a3%e7%a0%81%e5%9d%97%e4%b8%ad%e4%bd%bf%e7%94%a8)
+  - [volatile](#volatile)
 
-线程之间主要通过共享对字段和引用的访问进行通信。这种通信方式十分有效，但是可能导致两种错误：
+## 同步机制
 
-- 线程干扰（thread interference）
-- 内存不一致的错误（memory consistency errors）
+Java 并发 API 包含了多种同步机制，可用于实现：
 
-而避免这两种错误的方法就是同步。
+- 定义临界区（critical section）用于访问共享资源。
+- 同步不同任务
 
-但是同步会导致线程争用（thread contention）的问题，当两个或多个线程尝试访问相同资源时会出现该问题，并使得某些线程运行缓慢，甚至挂起执行。
+下面是 Java API 中最重要的一些同步机制：
 
-如饥饿（starvation）和活锁（livelock）就是线程争用导致的问题。
+- `synchronized` 关键字：`synchronized` 关键字可以将代码块或整个方法定义为临界区。
+- `Lock` 接口：`Lock` 提供的同步操作比 `synchronized` 关键字更灵活。有不同类型的锁：和条件绑定的重入锁（ReentrantLock）；分离读写操作的 `ReentrantReadWriteLock`；以及 Java 8 引入的包含三种控制读写模式的 `StampedLock`。
+- `Semaphore` 类：实现了经典的信号量（semaphore）同步。Java 支持 binary 和通用信号量。
+- `CountDownLatch` 类：可以让一个任务等待多个操作的结束。
+- `CyclicBarrier` 类：同步多个线程。
+- `Phaser` 类：可以分阶段控制任务的执行，在所有任务到达当前阶段，才会有任务进入下一个阶段。
 
-## 线程干扰和数据争用
-
-一个或多个线程在临界区域外修改共享变量值，导致数据争用。此时，应用的结果依赖于线程执行的顺序。
-
-如下是一个简单的计数类：
-
-```java
-class Counter{
-    private int c = 0;
-
-    public void increment(){
-        c++;
-    }
-
-    public void decrement(){
-        c--;
-    }
-
-    public int value(){
-        return c;
-    }
-}
-```
-
-按照设计，调用 `increment` 将 c 加 1，调用 `decrement` 将 c 减 1。然而当多个线程访问 `Counter` 对象，线程之间的干扰会使结果和预期不一致。
-
-当不同线程作用于相同数据的操作出现交叉，就发生干扰。即线程对数据的一个操作包含多个步骤，步骤之间出现重叠。
-
-例如，`Counter` 对 `c` 的一个简单操作实际分为多步执行，例如 `c++` 操作可以分为三步：
-
-1. 获得 `c` 的当前值
-2. 将获得的值 +1
-3. 将新的值赋值给 c
-
-`c--` 操作也是如此。
-
-当多个线程访问 `Counter`，例如线程 A 调用 `increment`，线程 B 调用 `decrement`，`c` 的初始值为 0，步骤重叠的可能性如下：
-
-1) 线程 A: 取回 c
-2) 线程 B: 取回 c
-3) 线程 A: 将取回的值 +1，结果为 1
-4) 线程 B: 将取回的值 -1，结果为 -1
-5) 线程 A: 将结果保存到 c，c 此时为 1
-6) 线程 B: 将结果保存到 c，c 此时为 -1
-
-线程 A, B之间的干扰使得计数不正确。线程 A 执行的结果被线程B覆盖而丢失。
-
-这只是一种操作重叠的情形，只要是非原子操作，都可能导致该问题。这种操作的结果不可预测，很难发现。
-
-## 内存不一致错误
-
-不同线程查看相同数据获得不同结果的情况，称为内存不一致错误（Memory Consistency Errors）。内存不一致的原因很复杂，这里不予讨论。我们只看如何避免该情况的发生。
-
-避免内存不一致错误的关键是理解操作的前后关系，保证一个线程写入数据对另一个线程是可见的。
-
-假设我们初始化了一个 `int` 字段：
-
-```java
-int counter = 0;
-```
-
-该字段由两个线程 A 和 B 共享。假设线程 A 增加 `counter` 的值：
-
-```java
-counter++;
-```
-
-随后，线程 B 输出 `counter`:
-
-```java
-System.out.println(counter);
-```
-
-如果两个语句在同一个线程中执行，毫无疑问输出结果为 "1"。而在两个线程，输出可能是 "0"，因为不能保证线程 A 对 `counter` 的修改对 B 是可见的，除了程序员采用了措施保证连个语句发生的先后关系。
-
-创建 happens-before 关系的方式有多种，其中一个就是同步。
-
-## 死锁（deadlock）
-
-一个或多个线程互相等待，一直阻塞称之为死锁。当以下四种情况(Coffman's conditions)同时出现，就出现死锁:
-
-- 互斥条件(mutual exclusion)：死锁中涉及的资源是非共享的，一次只有一个线程可以获取该资源。
-- 持有并等待条件(hold and wait condition)：一个线程持有一个资源的互斥条件，并且需要另外一个资源的互斥条件。当该线程等待时，不释放任何资源。
-- 非抢占式(No pre-emption)：只能由持有资源的线程释放其资源。
-- 循环等待(Circular wait)：线程1需要线程2持有的资源，线程2需要线程3持有的资源…线程 n 需要线程1持有的资源。
-
-避免死锁的方式：
-
-- 忽略(Ignore them): 这是使用最广泛的方法。如果出现死锁，程序终止，必须重新运行。
-- 检测(Detection): 系统有一个特殊的线程，专门检查系统状态是否有死锁出现。如果检查到死锁，采取对应措施，如停止任务，或强制释放资源。
-- 预防(prevention): 要预防死锁，则需要预防 Coffman's conditions 中的一个或多个。
-- 避免(avoidance): 如果在执行前知道任务要使用的资源的信息，则可以避免死锁。
-
-## 饥饿（starvation）
-
-当一个任务无法获得对共享资源的访问而暂停运行，称之为**饥饿**。
-
-当多个任务同时等待一个资源，系统需要选择一个任务获得该资源并执行。如果系统选择任务的算法不好，会导致线程长时间等待。当共享资源被需要长时间运行的线程占用时，会出现这种情况。
-
-公平性(fairness) 是解决该问题的方法。所有的任务都有机会持有资源，不过公平实现算法本身也有开销。
-
-优先级反转(priority inversion)，当低优先级的任务持有的资源，高优先级任务也需要，就发生的优先级反转。
-
-# 锁和同步
 锁用于保护代码不被多个线程同时访问。锁有多种类型：内部锁、互斥锁、分离锁、闭锁、顺序锁、读写锁、独占锁、分拆锁、重入锁。
-
-Java 的同步机制：
-- Lock 接口，Lock 提供的同步方法比 synchronized 关键字更灵活。有多种不同的Lock：ReentrantLock, 和特定的 condition 关联；ReentrantReadWriteLock, 分离读写操作；StampedLock, Java 8的新特性，包括控制读写的三种模式。
-- Semaphore 类，实现了经典的 semaphore 机制。Java支持 binary 和 常规的 semaphore.
-- CountDownLatch 类，该类让一个任务等待多个其他操作的完成。
-- CyclicBarrier 类，允许多个线程在同一点同步。
-- Phaser 类
 
 **临界区(critical section)**, 在任何时候只能在一个线程中执行的一段代码。
 
 同步可以分为两种：
+
 1) 控制同步，一个任务依赖于另一个任务，一个任务没完成，另一个任务不能开始。
 2) 数据访问同步，多个线程可以访问一个共享变量，再任意时候，只有一个任务可以访问该变量。
 
@@ -142,6 +43,7 @@ Java 的同步机制：
 - 每个条件对象管理那些已经进入被保护的代码段但不能运行的线程。
 
 使用建议
+
 - 最好既不使用 Lock/Condition也不使用 synchronized 关键字。许多时候，可以使用 java.util.concurrent 包中的一种机制。
 - 如果synchronized 关键字适合你的程序，请尽量使用。
 
@@ -178,7 +80,7 @@ synchronized 比较简单，语义比较明确，尽管 `Lock` 推出后性能�
 
 > 注：当锁被释放，对共享变量的修改会写入主存；当获得锁，CPU缓存中的内容被置为无效。编译器在处理 synchronized 方法或代码块，不会把其中包含的代码移动到 `synchronized` 方法或代码块之外，从而避免了由于代码重排而造成的问题。
 
-`synchronized` 关键字会降低应用程序的性能，因此应该只在并发需要修改共享数据的方法中使用它。所以使用 `synchronized `关键字，应该使临界区尽可能小。
+`synchronized` 关键字会降低应用程序的性能，因此应该只在并发需要修改共享数据的方法中使用它。所以使用 `synchronized` 关键字，应该使临界区尽可能小。
 
 当使用 synchronized 关键字保护代码块时，需要将对象引用作为参数传入。通常使用 this 引用执行方法所属的对象，也可以使用其他的对象，一般来说，这些对象就是为了该目的而创建。
 
