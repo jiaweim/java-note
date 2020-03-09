@@ -2,6 +2,7 @@
 
 - [基本概念](1_intro.md)
   - [并发程序可能出现的问题](2_problem.md)
+  - [临界区](concept_critical_section.md)
   - [并发算法设计](3_methodology.md)
   - [Java 并发 API](4_concurrency_api.md)
 - [线程](2_thread.md)
