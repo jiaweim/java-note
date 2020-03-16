@@ -1,10 +1,19 @@
 # CountDownLatch
 
+- [CountDownLatch](#countdownlatch)
+  - [简介](#%e7%ae%80%e4%bb%8b)
+  - [功能](#%e5%8a%9f%e8%83%bd)
+  - [实例](#%e5%ae%9e%e4%be%8b)
+
+## 简介
+
 `CountDownLatch` 是一种同步辅助类，它使得一个或多个线程等待其它线程中特定操作完成。
 
-`CountDownLatch` 以一个数值初始化。`countDown` 方法用于降低数值，在数值到 0 之前，所有 `await` 方法阻塞，数值到0后，所有的等待线程释放，后面调用 `await` 方法也会立刻返回。
+`CountDownLatch` 有一个 `counter` 字段，初始化后。使用 `countDown` 方法可以降低该值，在数值到 0 之前，所有 `await` 方法阻塞，数值到0后，所有的等待线程释放，后面调用 `await` 方法也会立刻返回。
 
 计数是一次性的，即数值到0后无法重置，如果需要重置数值，可以考虑使用 `CyclicBarrier`。
+
+在并行处理中，可以使用和线程数目相同的数值实例化 `CountDownLatch`。然后在每个线程完成后调用 `countdown()`，这样其它依赖线程调用 `await()` 方法会阻塞，直到数值归零，即所有任务线程完成。
 
 ## 功能
 
