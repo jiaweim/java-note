@@ -1,11 +1,12 @@
-# 大纲
-- [大纲](#%e5%a4%a7%e7%ba%b2)
-- [概述](#%e6%a6%82%e8%bf%b0)
+# Node
+
+- [Node](#node)
+  - [概述](#%e6%a6%82%e8%bf%b0)
 - [属性](#%e5%b1%9e%e6%80%a7)
   - [layoutX, layoutY](#layoutx-layouty)
   - [String ID](#string-id)
   - [focusTraversableProperty](#focustraversableproperty)
-- [Node 的坐标系](#node-%e7%9a%84%e5%9d%90%e6%a0%87%e7%b3%bb)
+  - [Node 的坐标系](#node-%e7%9a%84%e5%9d%90%e6%a0%87%e7%b3%bb)
   - [转换](#%e8%bd%ac%e6%8d%a2)
     - [平移（translation）](#%e5%b9%b3%e7%a7%bbtranslation)
     - [旋转（rotation）](#%e6%97%8b%e8%bd%acrotation)
@@ -17,8 +18,11 @@
   - [Node 的边框](#node-%e7%9a%84%e8%be%b9%e6%a1%86)
   - [Group 的边界](#group-%e7%9a%84%e8%be%b9%e7%95%8c)
 - [CSS](#css)
-# 概述
+
+## 概述
+
 节点（Node）说明:
+
 - scene graph 是一棵结构树，`Node` 是 scene graph 上节点的基类，树的节点对应可视化组件（javafx.scene.Node）
 - 每个节点包含 0 或 1 个父节点
 - 不包含子节点的称为叶节点（leaf）
@@ -37,15 +41,16 @@ Node 位置具有唯一性：
 Node 对象在添加到 Scene 显示之前，可以在任意线程构建和修改。添加之后，则只可以在 JavaFX Application Thread 修改。
 
 # 属性
-|属性|说明|
-|---|---|
-|id|节点的 id，用于在 scene graph 中查找特定 Node。如果节点 id 为 "myId"，则可以使用 scene.lookup("#myId") 查找该节点|
-|parent|节点的父节点。如果该节点还未添加到 Scene graph 中，则为 null|
-|scene|节点所在的 scene。如果该节点还未添加到 scene 中，则为 null|
-|style|该节点 CSS 的字符串表示|
-|visible|是否作为 scene graph 的内容进行渲染|
+| 属性    | 说明                                                                                                              |
+| ------- | ----------------------------------------------------------------------------------------------------------------- |
+| id      | 节点的 id，用于在 scene graph 中查找特定 Node。如果节点 id 为 "myId"，则可以使用 scene.lookup("#myId") 查找该节点 |
+| parent  | 节点的父节点。如果该节点还未添加到 Scene graph 中，则为 null                                                      |
+| scene   | 节点所在的 scene。如果该节点还未添加到 scene 中，则为 null                                                        |
+| style   | 该节点 CSS 的字符串表示                                                                                           |
+| visible | 是否作为 scene graph 的内容进行渲染                                                                               |
 
 ## layoutX, layoutY
+
 相对 layoutBounds minX 在 x 轴方向的偏移值。例如，节点位置在 `finalX`：
 ```java
 textnode.setLayoutX(finalX - textnode.getLayoutBounds().getMinX());
@@ -80,10 +85,11 @@ public Node lookup(String selector)
 
 每个 scene 最多只有一个 node 获得 focus，不过获得焦点还不能够输入，除非 node 所在的 scene 归属的 `Stage` 可见且处于活动状态。
 
-# Node 的坐标系
+## Node 的坐标系
+
 相对坐标系在 GUI 中应用十分广泛。如下图，在计算机中，坐标系一般如此定义：
 
-![](images/2019-06-05-15-54-27.png)
+![axis](images/2019-06-05-15-54-27.png)
 
 Node 类定义了该 "local" 坐标系。Node 的具体实现子类提供变量定义其形状和以及在坐标系中的位置。例如，`Rectangle`提供了x, y, width, heigth 变量，`Circle` 提供了 centerX, centerY 和 radius。
 
@@ -147,15 +153,15 @@ _resizable_ 节点通过三个属性设置其大小范围：
 绝大多数情况使用 `USE_COMPUTED_SIZE`，即自动计算的大小就可以。只有在不满足要求时，才覆盖自动计算的尺寸。
 
 _resizable_ 节点大小相关的属性和方法：
-|方法/属性|类|使用|
-|---|---|---|
-|属性|||
-|prefWidth|Region,Control|定义节点 preferred, minimum, maximum 大小。|
-|prefHeight|||
-|minWidth|
-|minHeight|
-|maxWidth|
-|maxHeight|
+| 方法/属性  | 类             | 使用                                        |
+| ---------- | -------------- | ------------------------------------------- |
+| 属性       |                |                                             |
+| prefWidth  | Region,Control | 定义节点 preferred, minimum, maximum 大小。 |
+| prefHeight |                |                                             |
+| minWidth   |
+| minHeight  |
+| maxWidth   |
+| maxHeight  |
 
 # 边框（Bounding Rectangle）
 每个node都有一个几何形状，并且在其父节点的坐标系中，有一个具体的位置。node的大小和位置统称为边界（bounds）。边界以一个完全包含节点的矩形定义，如下图所示：

@@ -6,7 +6,7 @@
     - [DataFX](#datafx)
     - [ControlsFX](#controlsfx)
     - [ScenicView](#scenicview)
-    - [ScenicView 运行](#scenicview-%e8%bf%90%e8%a1%8c)
+      - [ScenicView 运行](#scenicview-%e8%bf%90%e8%a1%8c)
   - [References](#references)
 
 ## Notes
@@ -31,7 +31,7 @@
   - [Alert](08_alert.md)
 - [Layout](11_layout.md)
   - [TabPane](11_tabpane.md)
-- [Event](10.event.md)
+- [事件处理](13_event.md)
 - [Transformation](11.transformation.md)
 - [Concurrency](12.concurrency.md)
 - [Chart](13.chart.md)
@@ -55,11 +55,12 @@ http://fxexperience.com/controlsfx/
 http://fxexperience.com/2011/12/styling-fx-buttons-with-css/
 
 ### ScenicView
+
 http://fxexperience.com/scenic-view/
 
 用于 debugging JavaFX 程序，可以很方便的查看 `Node` 属性，查看当前 scenegraph 的状态。
 
-### ScenicView 运行
+#### ScenicView 运行
 
 运行 Scenic View 有三种方法。
 
@@ -79,8 +80,7 @@ ScenicView.show(scene);
 
 2. Java Agent
 
-使用如下命令：
-`-javaagent:ScenicView.jar`
+命令：`-javaagent:ScenicView.jar`
 
 Scenic View 会自动查找运行程序中的JavaFX Stage.
 
