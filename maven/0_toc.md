@@ -1,6 +1,6 @@
 # Maven
 
-- [简介](02_intro.md)
+- [简介](1_intro.md)
 - [仓库](03_repository.md)
 - [Profile](04_profile.md)
 - [插件](05_plugins.md)
