@@ -2,6 +2,7 @@
 
 - [JavaFX Events](#javafx-events)
   - [简介](#%e7%ae%80%e4%bb%8b)
+    - [事件类型](#%e4%ba%8b%e4%bb%b6%e7%b1%bb%e5%9e%8b)
   - [事件传递过程](#%e4%ba%8b%e4%bb%b6%e4%bc%a0%e9%80%92%e8%bf%87%e7%a8%8b)
     - [Target Selection](#target-selection)
     - [构建路径](#%e6%9e%84%e5%bb%ba%e8%b7%af%e5%be%84)
@@ -25,7 +26,7 @@ JavaFX 的事件由 `javafx.event.Event` 类表示。每个事件至少包含三
 
 ![Event Source](images/2019-06-05-18-33-11.png)
 
-事件类型：
+### 事件类型
 
 ![Event Type](images/2019-06-05-18-33-22.png)
 
