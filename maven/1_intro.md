@@ -5,12 +5,14 @@
     - [POM文件](#pom%e6%96%87%e4%bb%b6)
     - [生命周期、阶段和目标](#%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f%e9%98%b6%e6%ae%b5%e5%92%8c%e7%9b%ae%e6%a0%87)
     - [依赖项和仓库](#%e4%be%9d%e8%b5%96%e9%a1%b9%e5%92%8c%e4%bb%93%e5%ba%93)
-- [构建生命周期](#%e6%9e%84%e5%bb%ba%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f)
-  - [构建生命周期（Build Life cycles）](#%e6%9e%84%e5%bb%ba%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9fbuild-life-cycles)
-  - [构建阶段（Build Phases）](#%e6%9e%84%e5%bb%ba%e9%98%b6%e6%ae%b5build-phases)
-  - [Build Goals](#build-goals)
+    - [构建插件](#%e6%9e%84%e5%bb%ba%e6%8f%92%e4%bb%b6)
+    - [构建配置](#%e6%9e%84%e5%bb%ba%e9%85%8d%e7%bd%ae)
+  - [构建生命周期](#%e6%9e%84%e5%bb%ba%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f)
+    - [Life cycle](#life-cycle)
+    - [Phase](#phase)
+    - [Goal](#goal)
   - [插件](#%e6%8f%92%e4%bb%b6)
-- [Maven 安装](#maven-%e5%ae%89%e8%a3%85)
+  - [Maven 安装](#maven-%e5%ae%89%e8%a3%85)
   - [Maven 目录结构](#maven-%e7%9b%ae%e5%bd%95%e7%bb%93%e6%9e%84)
 
 ***
@@ -49,79 +51,95 @@ Maven 的构建过程可以分为不同的生命周期（life cycle）、阶段�
 
 本地仓库是当前电脑上的一个目录，可以通过配置指定本地仓库的位置；还可以指定远程仓库的位置。
 
-1) **构建插件**（Build Plugins）
+### 构建插件
 
-构建插件用于将额外的构建目标（goals）插入到构建阶段（phase）中。
+构建插件（Build Plugins）用于将额外的 goals 插入到 phase 中。
 
-如果标准的 Maven 构建生命周期中不包含你所需的功能，可以通过在 POM 中添加包含该功能的插件。Maven 包含许多标准插件，基本涵盖了构建所需的所有功能，如果没有，也可以自定义实现 Maven 插件。
+通过在 POM 中添加插件，可以在标准的 Maven 构建生命周期中添加额外功能。Maven 包含许多标准插件，基本涵盖了构建所需的所有功能，如果没有你要的功能，还可以自定义实现 Maven 插件。
 
-5) **构建配置**（Build Profiles）
+### 构建配置
 
-如果需要以不同的方式构建项目，可以使用构建配置。例如，你可能需要为开发、测试和发布定义不同的构建选项，此时可以在 POM 中添加不同的构建配置，在执行时选择对应的配置。
+如果需要以不同的方式构建项目，可以使用构建配置（Build Profiles）。例如，你可能需要为开发、测试和发布定义不同的构建选项，此时可以在 POM 中添加不同的构建配置，在执行时选择对应的配置。
 
-# 构建生命周期
+## 构建生命周期
+
 基本概念：
+
 - 构建生命周期（build life cycle）由多个构建阶段（build phases）组成;
 - 每个构建阶段（build phases）由多个构建目标（build goals）组成。
 
-## 构建生命周期（Build Life cycles）
-Maven 包含3个标准 build life cycles:
-1) default (or build)，处理所有和编译打包相关的事
-2) clean，移除输出目录下所有的临时文件，包括省从源码，编译类，之前的JAR文件等
+### Life cycle
+
+Maven 包含3个标准构建声明周期（build life cycles）:
+
+1) default (or build)，处理所有和编译、打包相关的事
+2) clean，移除 maven 输出目录下所有的临时文件，包括编译类和之前的JAR文件等
 3) site，生成文档相关的业务，实际上，site可以根据项目文档生成一个完整的网站。
 
 这三个 build life cycles 用于构建项目的不同方面，它们相互独立。
 
-## 构建阶段（Build Phases）
-不能直接执行 default life cycle，可以指定 default life cycle 中的某个 build phase or goal.
+### Phase
+
+生命周期不能直接执行，而是执行某个 phase 或 goal 。
 
 当执行特定的 phase, 该 phase 之前的所有 phases 都会依次执行。
-default life cycle中最常见的build phases如下：
 
-| Build Phase | Description                                                                                                                                              |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| validate    | Validates that the proejct is correct and all necessary information is available. This also makes sure the dependencies are downloaded                   |
-| compile     | Compiles the source code of the project                                                                                                                  |
-| test        | Runs the tests against the compiled source code using a suitable unit testing framework. These tests should not require the code be packaged or deployed |
-| package     | Packs the compiled code in its distributable format, such as a JAR                                                                                       |
-| verify      | run any checks to verify the package is valid and meets quality criteria                                                                                 |
-| install     | Install the package into the local repository, for use as a dependency in other projects locally.                                                        |
-| deploy      | Copies the final package to the remote repository for sharing with other developers and projects.                                                        |
+默认生命周期中常见的 phases 如下：
 
-阶段实际上映射到底层的目标（goal），每个阶段执行的目标取决于项目类型。例如，对 `package`，如果项目类型为 JAR，执行 `jar:jar`，如果项目类型为 WAR，则执行 `war:war`。
+| Build Phase | Description                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| validate    | 验证项目是否正确，包括所需资源是否可用，所需依赖性是否已下载                             |
+| compile     | 编译项目的源代码                                                                         |
+| test        | 使用合适的单元测试框架对已编译的源代码运行测试。运行测试不需要将代码打包或部署（deploy） |
+| package     | 将编译后的代码打包为可分发的格式，如 JAR                                                 |
+| verify      | 验证包是否有效                                                                           |
+| install     | 将包安装到本地 maven 仓库，从而可以作为其它本地项目的依赖性                              |
+| deploy      | 将最终的软件包复制到远程仓库，以便与其他人共享                                           |
 
-mvn install
+phase 实际上映射到底层的 goal，每个 phase 执行的 goal 取决于项目类型。例如，对 `package`，如果项目类型为 JAR，执行 `jar:jar`，如果项目类型为 WAR，则执行 `war:war`。
+
+- `mvn install`
+
 编译，构建并安装到 local repository.
 
-mvn clean install
-To ensure that the build target is removed before a new build, add the clean target.
-mvn clean install
+- `mvn clean install`
 
-mvn package
-打包JAR、
+在 `install` 前 `clean` 以确保新构建前删除之前构建生成的文件。
 
-mvn clean
-remove the target directory with all the build data before starting so that it is fresh.
+- `mvn package`
 
-mvn idea:idea
-generate an intellij idea descriptor for the project
+打包JAR。
 
-mvn eclipse:eclipse
-生成eclipse 项目文件
+- `mvn clean`
 
-jar:jar
-will not recompile sources- it will simply just create a JAR from the target/classes directory, under the assumption everything else had already been done.
+在开始构建之前，删除包含所有构建数据的目录，以确保每次构建内容都是最新的。
 
-## Build Goals
+- `mvn idea:idea`
+
+生成 intellij idea 项目文件。
+
+- `mvn eclipse:eclipse`
+
+生成eclipse 项目文件。
+
+- `jar:jar`
+
+该命令不会重新编译源码，而是直接将 target/classes 目录打包为 JAR 文件。
+
+### Goal
+
 Build goals,最细小的执行步骤。
 
 ## 插件
+
 插件用于实现标准 Maven 流程中没有的功能，每个插件包含多个 goals，用于实现某个功能。
 
-# Maven 安装
+## Maven 安装
+
 Maven 安装十分简单，下载解压后设置环境变量即可。
 
 ## Maven 目录结构
+
 | 目录                        | 说明                                                                       |
 | --------------------------- | -------------------------------------------------------------------------- |
 | src/main/java               | 源码目录                                                                   |

@@ -1,10 +1,14 @@
 # Maven
 
 - [简介](1_intro.md)
-- [仓库](03_repository.md)
-- [Profile](04_profile.md)
+- [仓库](2_repository.md)
+  - [镜像仓库](7_mirror.md)
+- [Profile](3_profile.md)
 - [插件](05_plugins.md)
+  - [Maven Assembly Plugin](plugin_assembly.md)
+  - [Maven Source Plugin](plugin_source.md)
 - [部署](deploy.md)
+- 
 - [POM 参考](06_pom.md)
 - [Maven 命令](07_cmds.md)
 
