@@ -4,6 +4,8 @@
   - [简介](#%e7%ae%80%e4%bb%8b)
   - [描述符](#%e6%8f%8f%e8%bf%b0%e7%ac%a6)
     - [assembly](#assembly)
+    - [`fileSets/fileSet`](#filesetsfileset)
+    - [fileSet](#fileset)
   - [预定义描述符](#%e9%a2%84%e5%ae%9a%e4%b9%89%e6%8f%8f%e8%bf%b0%e7%ac%a6)
     - [bin](#bin)
     - [Assembly](#assembly-1)
@@ -31,9 +33,9 @@
 
 ## 描述符
 
-Assembly 插件根据指定的描述符执行。其包含的预定义描述符可以满足一些常见的打包需求。理解打包描述符后还能灵活的使用 assembly 插件自定义打包。
+Assembly 插件根据描述符执行。其包含的预定义描述符可以满足一些常见的打包需求。还能使用打包描述符完全自定义打包。
 
-assembly描述符指定压缩包类型、内容以及指定打包依赖项的方式。
+assembly描述符指定压缩包类型、内容以及指定打包依赖项的方式。其格式如下所示：
 
 ```xml
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -199,10 +201,58 @@ assembly描述符指定压缩包类型、内容以及指定打包依赖项的方
 
 assembly 定义从项目生成的文件集合，并打包为一个压缩文件，如 zip, tar 或 tar.gz 等。
 
-|元素|类型|功能|
-|---|---|---|
-|`id`|`String`|assembly id。除了用在归档文件命名外，还可以用作部署时的分类器|
-|`formats/format*`|`List<String>`|设置 assembly 格式。不过在 goal 参数处指定更合适|
+- `id`
+
+assembly id。除了用在归档文件命名外，还可以用作部署时的分类器
+
+- `formats/format*`
+
+设置 assembly 格式。不过在 goal 参数处指定更合适
+
+### `fileSets/fileSet`
+
+类型：`List<FileSet>`
+
+指定 assembly 包含的文件。通过一个或多个 `<fileSet>` 子元素指定。例如 `bin` 的 `<fileSets>`
+
+```xml
+<fileSets>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site</directory>
+      <outputDirectory>docs</outputDirectory>
+    </fileSet>
+</fileSets>
+```
+
+### fileSet
+
+`fileSet` 用于指定 assembly 包含的文件。
+
+- `useDefaultExcludes`
+
+类型：boolean。
+
+- `directory`
+
+类型：String
+
+设置
 
 ## 预定义描述符
 
@@ -217,6 +267,44 @@ Assembly 插件包含四个预定义的描述符。它们的 ID 分别为：
 
 使用 `bin` 作为 `descriptorRef` 的参数创建二进制分发存档。该描述符支持三种存档格式：tar.gz, tar.bz2 和 zip。
 
+通过 `mvn package` 创建的归档文件包括二进制JAR以及根目录的 README,LICENSE和NOTICE文件。
+
+下面是 `bin` 描述符格式：
+
+```xml
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>bin</id>
+  <formats>
+    <format>tar.gz</format>
+    <format>tar.bz2</format>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site</directory>
+      <outputDirectory>docs</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
+```
 
 ### Assembly
 

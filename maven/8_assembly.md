@@ -2,7 +2,7 @@
 
 ## 简介
 
-通过 assembly 插件创建程序集，例如一种配置：
+通过 assembly 插件创建程序集，例如：
 
 ```xml
 <project>
@@ -42,3 +42,6 @@
 
 其中的程序集描述符（assembly descriptor）位于 `${project.basedir}/src/assembly`，是标准的程序集描述符位置。
 
+## 创建二进制 assembly
+
+这是

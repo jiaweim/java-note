@@ -1,7 +1,8 @@
-# Java Study Notes
+# Java 学习笔记
 
 ## 基础
 
+- [数据类型](basic/primitive_type.md)
 - [JVM 内存模型](basic/memory_model.md)
 
 ## JDK notes
