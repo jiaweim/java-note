@@ -13,7 +13,6 @@
 - [文字装饰](#%e6%96%87%e5%ad%97%e8%a3%85%e9%a5%b0)
 - [字体平滑](#%e5%ad%97%e4%bd%93%e5%b9%b3%e6%bb%91)
 - [使用CSS](#%e4%bd%bf%e7%94%a8css)
-- [TextField](#textfield)
 
 ## 概述
 
@@ -161,24 +160,3 @@ t2.setStrikethrough(true);
 - `-fx-text-alignment`
 - `-fx-strikethrought`
 - `-fx-underline`
-
-# TextField
-用于输入单行文本。对多行文本，使用 `TextArea` 方法。
-
-文本中的换行符和 tab 字符被移除。
-
-TextField 提供了一个默认的 Context Menu.
-
-|属性|功能|
-|---|---|
-|alignment|文本对齐方式，默认值 CENTER_LEFT|
-|onAction|ActionEvent handler, 用于处理输入事件|
-|prefColmnCount|宽度。默认值 12，宽度 1 可以显示一个大写的 W|
-|text|存储显示的文本|
-
-方法：
-|方法|功能|
-|---|---|
-|setPrefColumnCount||
-|getText()|获得文本|
-|setText(String newText)|设置文本|

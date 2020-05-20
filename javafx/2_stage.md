@@ -1,9 +1,10 @@
-# 大纲
-- [大纲](#%e5%a4%a7%e7%ba%b2)
+# Stage
+
+- [Stage](#stage)
 - [JavaFX 程序基本结构](#javafx-%e7%a8%8b%e5%ba%8f%e5%9f%ba%e6%9c%ac%e7%bb%93%e6%9e%84)
   - [第一个 JavaFX 程序](#%e7%ac%ac%e4%b8%80%e4%b8%aa-javafx-%e7%a8%8b%e5%ba%8f)
   - [传递参数](#%e4%bc%a0%e9%80%92%e5%8f%82%e6%95%b0)
-- [Stage](#stage)
+- [Stage](#stage-1)
   - [显示主 Stage](#%e6%98%be%e7%a4%ba%e4%b8%bb-stage)
   - [设置 Stage 的边界](#%e8%ae%be%e7%bd%ae-stage-%e7%9a%84%e8%be%b9%e7%95%8c)
   - [Stage 样式](#stage-%e6%a0%b7%e5%bc%8f)
@@ -11,7 +12,6 @@
   - [Stage 透明度设置](#stage-%e9%80%8f%e6%98%8e%e5%ba%a6%e8%ae%be%e7%bd%ae)
   - [Stage 大小设置](#stage-%e5%a4%a7%e5%b0%8f%e8%ae%be%e7%bd%ae)
   - [拖动 Stage](#%e6%8b%96%e5%8a%a8-stage)
-- [Scene](#scene)
 - [Screen](#screen)
   - [获得主屏幕](#%e8%8e%b7%e5%be%97%e4%b8%bb%e5%b1%8f%e5%b9%95)
   - [获得所有屏幕](#%e8%8e%b7%e5%be%97%e6%89%80%e6%9c%89%e5%b1%8f%e5%b9%95)
@@ -163,22 +163,6 @@ setMaxHeight()
 
 ## 拖动 Stage
 由于 Undecorated 和 Transparent 风格的Stage没有标题栏，无法用鼠标拖动移动窗口。此时只能通过添加鼠标事件实现拖动窗口功能
-
-# Scene
-Scene 是 JavaFX scene graph的顶级容器，是 scene graph 的容器，scene graph 是所有节点的树形结构表示，包含Stage中显示的所有元素。
-
-Scene 常用属性
-|Type|Name|Property and Description|
-|---|---|---|
-|ObjectProperty<Cursor>|cursor|It defines the mouse cursor for the scene|
-|ObjectProperty<Paint>|fill|It defines the background fill of the Scene|
-|ReadOnlyObjectProperty<Node>|focusOwner|It defines the node in the Scene that owns the focus|
-|ReadOnlyDoubleProperty|height|It defines the height of the Scene|
-|ObjectProperty<Parent>|root|It defines the root Node of the scene graph|
-|ReadOnlyDoubleProperty|width|It defines the width of the Scene|
-|ReadOnlyObjectProperty<Window>|window|It defines the Window for the Scene|
-|ReadOnlyDoubleProperty|x|It defines the horizontal location of the Scene on the window|
-|ReadOnlyDoubleProperty|y|It defines the vertical location of the Scene on the window|
 
 # Screen
 `javafx.stage.Screen` 类用于获得屏幕的详细信息，如DPI，大小、设置等。如果一个电脑有多个屏幕，则一个称为主屏幕，其他的为非主屏幕。

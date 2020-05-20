@@ -1,27 +1,29 @@
 # JavaFX Study Notes
 
 - [JavaFX Study Notes](#javafx-study-notes)
-  - [Notes](#notes)
+  - [学习笔记](#%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0)
   - [工具](#%e5%b7%a5%e5%85%b7)
     - [DataFX](#datafx)
-    - [ControlsFX](#controlsfx)
+  - [ControlsFX](#controlsfx)
     - [ScenicView](#scenicview)
       - [ScenicView 运行](#scenicview-%e8%bf%90%e8%a1%8c)
   - [References](#references)
 
-## Notes
+## 学习笔记
 
 - [概述](1.intro.md)
-- [Stage & Scene](2.stage_scene.md)
+- [Stage](2.stage_scene.md)
+- [Scene](scene.md)
 - [Node](3.node.md)
 - [Color](4.color.md)
 - [Data Binding](5.databinding.md)
 - [Shape](6.shapes.md)
 - [Text](7.text.md)
 - [组件](8.controls.md)
-  - [ChoiceBox](choiceBox.md)
+  - [ChoiceBox](control_choicebox.md)
   - [ComboBox](comboBox.md)
   - [Chooser](chooser.md)
+  - [TextField](control_textfield.md)
   - [ToolTip](toolTip.md)
   - [Scrolling](scrolling.md)
   - [ListView](listview.md)
@@ -31,6 +33,7 @@
   - [Alert](08_alert.md)
 - [Layout](11_layout.md)
   - [TabPane](11_tabpane.md)
+  - [TitledPane](pane_titledpane.md)
 - [事件处理](13_event.md)
 - [Transformation](11.transformation.md)
 - [Concurrency](12.concurrency.md)
@@ -48,11 +51,14 @@ https://bitbucket.org/datafx/datafx
 
 帮助JavaFXUI组件进行数据查找，更新和编辑等工作。
 
-### ControlsFX
+## ControlsFX
 
-http://fxexperience.com/controlsfx/  
+[ControlsFX 主页](http://fxexperience.com/controlsfx/)
+
 一个开源的UI组件库，对 JavaFX 进行补充。  
 http://fxexperience.com/2011/12/styling-fx-buttons-with-css/
+
+- [Font Awesome](font_awesome.md)
 
 ### ScenicView
 
