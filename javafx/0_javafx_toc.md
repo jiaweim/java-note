@@ -1,6 +1,6 @@
-# JavaFX Study Notes
+# JavaFX
 
-- [JavaFX Study Notes](#javafx-study-notes)
+- [JavaFX](#javafx)
   - [学习笔记](#%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0)
   - [工具](#%e5%b7%a5%e5%85%b7)
     - [DataFX](#datafx)
@@ -26,7 +26,7 @@
   - [TextField](control_textfield.md)
   - [ToolTip](toolTip.md)
   - [Scrolling](scrolling.md)
-  - [ListView](listview.md)
+  - [ListView](control_listview.md)
   - [TableView](tableview.md)
   - [Canvas](canvas.md)
   - [Spinner](spinner.md)
@@ -39,7 +39,7 @@
 - [Concurrency](12.concurrency.md)
 - [Chart](13.chart.md)
 - [CSS](css.md)
-- [FXML](fxml.md)
+- [FXML](19_fxml.md)
 
 ## 工具
 

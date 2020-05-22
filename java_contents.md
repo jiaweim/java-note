@@ -1,7 +1,6 @@
 **CONTENTS**
 - [自学路线](#%e8%87%aa%e5%ad%a6%e8%b7%af%e7%ba%bf)
   - [Java 基础](#java-%e5%9f%ba%e7%a1%80)
-  - [Java GUI](#java-gui)
   - [数据库](#%e6%95%b0%e6%8d%ae%e5%ba%93)
   - [Web 基础](#web-%e5%9f%ba%e7%a1%80)
   - [Web 主流框架](#web-%e4%b8%bb%e6%b5%81%e6%a1%86%e6%9e%b6)
@@ -31,10 +30,6 @@
 - [ ] 网络编程
 - [x] Java 8 新特性
 - [ ] [XML 解析](basic/java_xml.md)
-
-## Java GUI
-内容：
-- [x] [JavaFX](javafx\0.contents.md)
 
 ## 数据库
 内容：
