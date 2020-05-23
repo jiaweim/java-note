@@ -36,7 +36,7 @@
   - [TitledPane](pane_titledpane.md)
 - [事件处理](13_event.md)
 - [Transformation](11.transformation.md)
-- [Concurrency](12.concurrency.md)
+- [Concurrency](concurrency.md)
 - [Chart](13.chart.md)
 - [CSS](css.md)
 - [FXML](19_fxml.md)
