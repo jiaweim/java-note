@@ -1,4 +1,7 @@
-- [参考](#%e5%8f%82%e8%80%83)
+# CSS
+
+- [CSS](#css)
+  - [参考](#%e5%8f%82%e8%80%83)
 - [概述](#%e6%a6%82%e8%bf%b0)
 - [样式(style), 皮肤(skin) 和主题(theme)](#%e6%a0%b7%e5%bc%8fstyle-%e7%9a%ae%e8%82%a4skin-%e5%92%8c%e4%b8%bb%e9%a2%98theme)
 - [JavaFX CSS](#javafx-css)
@@ -17,7 +20,9 @@
     - [effect](#effect)
     - [font](#font)
     - [paint](#paint)
-# 参考
+
+## 参考
+
 - https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html
 - https://www.w3.org/TR/css-backgrounds-3/#backgrounds
 - https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html

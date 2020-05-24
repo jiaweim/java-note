@@ -4,22 +4,22 @@
   - [概述](#%e6%a6%82%e8%bf%b0)
   - [布局类](#%e5%b8%83%e5%b1%80%e7%b1%bb)
   - [添加子节点](#%e6%b7%bb%e5%8a%a0%e5%ad%90%e8%8a%82%e7%82%b9)
-- [工具类](#%e5%b7%a5%e5%85%b7%e7%b1%bb)
+  - [工具类](#%e5%b7%a5%e5%85%b7%e7%b1%bb)
   - [Insets](#insets)
-- [Group](#group)
+  - [Group](#group)
   - [创建 Group](#%e5%88%9b%e5%bb%ba-group)
   - [设置子节点位置](#%e8%ae%be%e7%bd%ae%e5%ad%90%e8%8a%82%e7%82%b9%e4%bd%8d%e7%bd%ae)
   - [Group CSS](#group-css)
-- [Region](#region)
+  - [Region](#region)
   - [background fills](#background-fills)
   - [Border](#border)
-- [Pane](#pane)
-- [HBox](#hbox)
-- [FlowPane](#flowpane)
-- [GridPane](#gridpane)
-- [TextFlow](#textflow)
-- [TabPane](#tabpane)
-  - [设置 Tab 大小](#%e8%ae%be%e7%bd%ae-tab-%e5%a4%a7%e5%b0%8f)
+  - [Pane](#pane)
+  - [HBox](#hbox)
+  - [FlowPane](#flowpane)
+  - [GridPane](#gridpane)
+  - [TextFlow](#textflow)
+  - [TabPane](#tabpane)
+    - [设置 Tab 大小](#%e8%ae%be%e7%bd%ae-tab-%e5%a4%a7%e5%b0%8f)
 
 ## 概述
 
@@ -83,6 +83,7 @@ JavaFX 包含如下所示的布局类：
 `protected <E extends Node> List<E> getManagedChildren()`|在使用自定义容器时使用|
 
 ## 添加子节点
+
 添加节点，主要有两种方法：
 |方法|说明|
 |---|---|
@@ -90,6 +91,7 @@ JavaFX 包含如下所示的布局类：
 |getChildren().addAll()|添加多个子节点|
 
 那些在构造时添加节点的构造函数，也是通过调用以上那个方法实现。
+
 ```java
 // Create two buttons
 Button okBtn = new Button("OK");
@@ -107,12 +109,15 @@ HBox hBox3 = new HBox();
 hBox3.getChildren().addAll(okBtn, cancelBtn);
 ```
 
-# 工具类
+## 工具类
+
 下面的工具类单独使用没有任何用，一般用于设置节点的布局属性。
+
 - `HPos` 包括三个常量：`LEFT`, `CENTER`, `RIGHT`，用于定义水平位置和对齐。
 - `VPos` 包括四个常量：`TOP`, `CENTER`, `BASELINE`, `BOTTOM`，用于定义垂直位置和对齐。
 
 `Pos` 定义水平和垂直位置和对齐。包括 `VPos` 和 `HPos`的所有可能组合。包括：`BASELINE_CENTER`, `BASELINE_LEFT`, `BASELINE_RIGHT`, `BOTTOM_CENTER`, `BOTTOM_LEFT`, `BOTTOM_RIGHT`, `CENTER`, `CENTER_LEFT`, `CENTER_RIGHT`, `TOP_CENTER`, `TOP_LEFT`, `TOP_RIGHT`。
+
 - getHpos(), 返回 HPos，获得水平定位和对齐策略
 - getVpos(), 返回 VPos, 获得垂直定位和对齐策略
 
@@ -122,11 +127,13 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 `Side` 包含四个常量：`TOP`, `RIGHT`, `BOTTOM`, `LEFT`，表示矩形的四个边。
 
 有时，容器包含的空间多余或少于子节点的 preferred size需要的空间。在容器缩放时，`Priority`用于指定子节点的缩放优先级。`Priority`包含三个值：`ALWAYS`, `NEVER`, `SOMETIMES`：
+
 - `ALWAYS`, 随着空余空间的缩放而缩放
 - `NEVER`, 不缩放
 - `SOMETIMES`, 当没有其他节点为 `ALWAYS`，或为 `ALWAYS`优先级的节点无法消耗所有变化的空间。
 
 ## Insets
+
 `Insets` 类表示两个矩形四个方向边的距离。如下图所示：
 
 ![](2019-06-05-16-58-36.png)
@@ -142,6 +149,7 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 `Insets.EMPTY()` 定义offsets 均为 0 的 Insets 对象。
 	
 在 JavaFX 中，在以下情况会用到 `Insets` ：
+
 - Border insets
 - Background insets
 - Outsets
@@ -151,7 +159,8 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 
 边框线或图片可能落在 `Region` 的 layout 边框之外。`Outsets` 表示
 
-# Group
+## Group
+
 Group 类具有容器类的诸多特性：具有其自身的布局策略、坐标系，是 Parent 的子类。但是，它不对子节点定位，只提供 preferred size。所以应该将它看作节点集合，而不是容器。它只是为了方便对多个节点同时进行操作，因为对 Group 进行的转换、特效及属性，均会应用到其子节点。
 
 Group 特征说明：
@@ -162,7 +171,9 @@ Group 特征说明：
 - 不定位子节点。所有的子节点默认都放在 (0,0) 位置，通过子节点的 `layoutX`和 `layoutY` 属性设置子节点在 Group 中的位置，如果不设置，子节点会互相重叠。
 
 ## 创建 Group
+
 容器的创建方式大同小异，Group 有 3 种构造函数：
+
 ```java
 // 1. 创建一个空的 Group
 Group emptyGroup = new Group();
@@ -181,6 +192,7 @@ Group group2 = new Group(initailList);
 ```
 
 ## 设置子节点位置
+
 ```java
 Button okBtn = new Button("OK");
 Button cancelBtn = new Button("Cancel");
@@ -189,15 +201,19 @@ okBtn.relocate(10, 10);
 cancelBtn.layoutXProperty().bind(okBtn.layoutXProperty().add(okBtn.widthProperty().add(10)));
 cancelBtn.layoutYProperty().bind(okBtn.layoutYProperty());
 ```
+
 两种设置位置的方式：
+
 - okBtn 是设置绝对位置
 - calcelBtn 是相对 okBtn 进行设置。
 
 ## Group CSS
+
 Group 自身没有多少 CSS 选项，从 Node 继承的 CSS 都可用。
 Group 没有外观设置，如 padding, backgrounds, borders 等。
 
-# Region
+## Region
+
 Regon 是包含背景和边框的Parent.
 Region 是所有 JavaFX Node UI Controls 和容器的基类。它是 resizable 的可用 CSS 个性化的 Parent node。它可以有多个背景和边框，该类是为了尽可能的支持 CSS3 中的背景和边框而设计。
 
@@ -211,6 +227,7 @@ Region 按照如下顺序渲染：
 |5|content|内容|
 
 说明
+
 - background filles, background images 和 border stroke, border images 都是可选的。
 - 内容在背景和边框之上绘制。如果存在 BorderImage，则实际上不绘制 BorderStrokes，不过在计算内容区域的时候会考虑其大小。这样设置的目的，在于当 ImageStroke 加载失败时，载入 BorderStroke。
 
@@ -238,8 +255,10 @@ Region 默认继承其父类 Parent 的 layout，即它会根据子节点的 pre
 Region 子类应该通过 `layoutX`, `layoutY` 设置子节点位置，`translateX`, `translateY` 保留作为调整和动画功能。
 
 ## background fills
+
 Region 背景，可以包含 Fill、图形或两者兼而有之。
 Fill 包括：颜色、四个角的半径，四边的 insets。Fills 根据添加顺序进行修饰。
+
 - Fill color 定义了背景填充颜色。
 - 半径定义了四个角，设置为 0 则为常规矩形。
 - insets 定义了 Region layout 边和 fill 边的距离，说明 fill 只填充 content area。inset 可以为负值，使得填充区域大于 layout 边框。
@@ -264,6 +283,7 @@ Fill 包括：颜色、四个角的半径，四边的 insets。Fills 根据添�
 ```
 
 ## Border
+
 Region 的边框包含 strokes, images or both。
 stoke 包含5个属性：color, style, width, Radii for four corners, Insets on four sides.
 style: solid, dashed, etc. inside, outside, centered.
@@ -280,10 +300,11 @@ insets 定义 stroke 和 layout 边界的距离。
 |-fx-border-radius|半径|5;|
 |-fx-border-insets|内边距|0;|
 
+## Pane
 
-# Pane
 所有Layout pane 的基类，子节点为 public, 方便扩展类添加、移除子节点。
 Pane 为绝对布局，除了将子节点设置为 preferred size，它不干其他事，所以需要手动设置节点位置。一般只在放置图表或图片时使用，其他情况均推荐使用布局管理器。所以，Pane 只干了两件事：
+
 - 所有子节点位置默认在 (0, 0)
 - 将子节点大小设置为 perferred size
 Pane 包含三个size:
@@ -302,7 +323,8 @@ Circle circle = new Circle(130, 130, 30);
 root.getChildren().addAll(rect, line, circle); // 添加子节点
 ```
 
-# HBox
+## HBox
+
 默认采用子节点的 prefWidth, preHeight。当 Parent 不是 resizable（如 Group），HBox 采用最高子节点的高度。
 |属性|类型|说明|
 |---|---|---|
@@ -310,11 +332,13 @@ root.getChildren().addAll(rect, line, circle); // 添加子节点
 |fillHeight|BooleaProperty|resizable 子节点是否 resize 以填充 HBox 的高度，默认为true，alignment=BASELINE 该属性被忽略|
 |spacing|DoubleProperty|水平相邻子节点之间的空隙|
 
-# FlowPane
+## FlowPane
+
 FlowPane(Orientation orientation, double hgap, double vgap)
 创建FlowPane，横向排列，指定组件间水平和垂直距离
 
-# GridPane
+## GridPane
+
 `GridPane` 是最强大的布局管理器之一。
 
 属性：
@@ -340,15 +364,18 @@ FlowPane(Orientation orientation, double hgap, double vgap)
 设置node占有的水平和垂直网格数
 
 node占有的网格数，可以添加node时设置后，也可以之后修改：
+
 - void add(Node child, int columnIndex, int rowIndex, int colspan, int rowspan)
 - static void setColumnSpan(Node child, Integer value)
 - static void setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan)
 
 修改 node 占用网格数的方法：
+
 - setRowSpan(Node child, Integer value)
 - setColumnSpan(Node child, Integer value)
 
-# TextFlow
+## TextFlow
+
 TextFlow 用于显示富文本。
 多个 Text 节点添加到 TextFlow 中，TextFlow 将这些 Text 合并显示。`Text` 有其位置，大小，换行宽度等，添加到 TextFlow后，这些属性均被忽略。
 
@@ -356,32 +383,37 @@ TextFlow 用于显示富文本。
 
 可以将 TextFlow 看做 FlowPane  的修改版，只是对 Text 特殊对待。
 
-# TabPane
+## TabPane
+
 `TabPane`包含两部分：标题和内容。标题包含多个组成部分，如下图所示：
 
 ![](2019-06-05-17-40-06.png)
 
 说明：
+
 - "Headers region" 是标题全部区域
 - Tabheaderbackground为标题背景
 - Controlbuttons则是在分栏太多无法显示时，用于选择特定tab
 - tab区域包含一个`Label`和一个closebutton，Label用于显示tab的标题和图标，closebutton为关闭tab的按钮
 
+### 设置 Tab 大小
 
-## 设置 Tab 大小
 `TabPane` 将其区域分为两部分：
+
 - 标题区
 - 内容区
 
 标题区显示 tab 的标题，内容区显示当前选择的 tab 的内容。
 
 内容区的大小根据其内容自动计算大小，`TabPane` 包含如下属性用于设置标题区的尺寸：
+
 - `tabMinHeight`
 - `tabMaxHeight`
 - `tabMinWidth`
 - `tabMaxWidth`
 
 默认宽度和高度的最小值为0，最大值为 `Double.MAX_VALUE`。而默认尺寸则是根据内容自动计算。如果你希望所有 tab 具有相同大小的标题区，可以将高度和宽度的最小值和最大值设置为相同值。如下所示：
+
 ```java
 TabPane tabPane = new TabPane();
 tabPane.setTabMinHeight(30);
