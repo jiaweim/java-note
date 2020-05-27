@@ -1,7 +1,7 @@
 # JavaFX Color
 
 - [JavaFX Color](#javafx-color)
-  - [概述](#%e6%a6%82%e8%bf%b0)
+  - [概述](#概述)
   - [Color](#color)
   - [ImagePattern](#imagepattern)
   - [Gradient](#gradient)

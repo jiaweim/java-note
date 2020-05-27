@@ -1,15 +1,15 @@
 # Chooser
 
 - [Chooser](#chooser)
-  - [概述](#%e6%a6%82%e8%bf%b0)
+  - [概述](#概述)
   - [FileChooser](#filechooser)
-    - [创建 FileChooser](#%e5%88%9b%e5%bb%ba-filechooser)
-    - [对话框属性设置](#%e5%af%b9%e8%af%9d%e6%a1%86%e5%b1%9e%e6%80%a7%e8%ae%be%e7%bd%ae)
-      - [标题](#%e6%a0%87%e9%a2%98)
-      - [初始目录](#%e5%88%9d%e5%a7%8b%e7%9b%ae%e5%bd%95)
-      - [初始文件名](#%e5%88%9d%e5%a7%8b%e6%96%87%e4%bb%b6%e5%90%8d)
-      - [添加过滤器](#%e6%b7%bb%e5%8a%a0%e8%bf%87%e6%bb%a4%e5%99%a8)
-    - [显示对话框](#%e6%98%be%e7%a4%ba%e5%af%b9%e8%af%9d%e6%a1%86)
+    - [创建 FileChooser](#创建-filechooser)
+    - [对话框属性设置](#对话框属性设置)
+      - [标题](#标题)
+      - [初始目录](#初始目录)
+      - [初始文件名](#初始文件名)
+      - [添加过滤器](#添加过滤器)
+    - [显示对话框](#显示对话框)
 
 ## 概述
 

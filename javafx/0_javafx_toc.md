@@ -1,12 +1,12 @@
 # JavaFX
 
 - [JavaFX](#javafx)
-  - [学习笔记](#%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0)
-  - [工具](#%e5%b7%a5%e5%85%b7)
+  - [学习笔记](#学习笔记)
+  - [工具](#工具)
     - [DataFX](#datafx)
-  - [ControlsFX](#controlsfx)
-    - [ScenicView](#scenicview)
-      - [ScenicView 运行](#scenicview-%e8%bf%90%e8%a1%8c)
+    - [ControlsFX](#controlsfx)
+      - [ScenicView](#scenicview)
+      - [ScenicView 运行](#scenicview-运行)
   - [References](#references)
 
 ## 学习笔记
@@ -23,6 +23,7 @@
   - [ChoiceBox](control_choicebox.md)
   - [ComboBox](comboBox.md)
   - [Chooser](chooser.md)
+  - [ColorPicker](control_colorpicker.md)
   - [TextField](control_textfield.md)
   - [ToolTip](toolTip.md)
   - [Scrolling](scrolling.md)
@@ -51,16 +52,15 @@ https://bitbucket.org/datafx/datafx
 
 帮助JavaFXUI组件进行数据查找，更新和编辑等工作。
 
-## ControlsFX
+### ControlsFX
 
 [ControlsFX 主页](http://fxexperience.com/controlsfx/)
 
-一个开源的UI组件库，对 JavaFX 进行补充。  
-http://fxexperience.com/2011/12/styling-fx-buttons-with-css/
+[ControlsFX 特征](https://github.com/controlsfx/controlsfx/wiki/ControlsFX-Features)
 
 - [Font Awesome](font_awesome.md)
 
-### ScenicView
+#### ScenicView
 
 http://fxexperience.com/scenic-view/
 
