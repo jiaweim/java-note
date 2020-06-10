@@ -1,17 +1,17 @@
 # poi-excel
 
 - [poi-excel](#poi-excel)
-  - [简介](#%e7%ae%80%e4%bb%8b)
+  - [简介](#简介)
   - [SXSSF](#sxssf)
-    - [限制方法](#%e9%99%90%e5%88%b6%e6%96%b9%e6%b3%95)
-  - [使用](#%e4%bd%bf%e7%94%a8)
+    - [限制方法](#限制方法)
+  - [使用](#使用)
     - [New Workbook](#new-workbook)
     - [New Sheet](#new-sheet)
     - [Creating Cells](#creating-cells)
     - [Creating Date Cells](#creating-date-cells)
-    - [不同 cell 类型](#%e4%b8%8d%e5%90%8c-cell-%e7%b1%bb%e5%9e%8b)
+    - [不同 cell 类型](#不同-cell-类型)
     - [Files vs InputStreams](#files-vs-inputstreams)
-  - [数据格式化](#%e6%95%b0%e6%8d%ae%e6%a0%bc%e5%bc%8f%e5%8c%96)
+  - [数据格式化](#数据格式化)
 
 2020-05-11, 14:01
 ***
