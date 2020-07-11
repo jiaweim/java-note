@@ -3,17 +3,28 @@
 - [Select](#select)
   - [简介](#简介)
   - [带参数查询](#带参数查询)
+  - [简单查询](#简单查询)
 
 2020-06-20, 13:16
 ***
 
 ## 简介
 
-`SELECT` 语句是 SQL 中最常用的语句。SQLite 的 `SELECT` 语句提供了标准 SQL 的 `SELECT` 语句的所有功能。
+`SELECT` 语句是 SQL 中最常用的语句。SQLite 的 `SELECT` 语句提供了标准 SQL 的 `SELECT` 语句的所有功能。语法：
+
+```sql
+SELECT column1, column2, columnN FROM table_name;
+```
+
+这里 `column1`, `column2` 等是表格的字段，对应你要查询的值。如果要获得表格的所有值，可以使用：
+
+```sql
+SELECT * FROM table_name;
+```
 
 使用 SQLite-jdbc 执行 `SELECT` 的步骤：
 
-1. 连接数据库
+1. 连接数据库，获得 `Connection` 对象
 2. 创建 `Statement`
 3. 使用 `Statement` 的 `executeQuery` 方法创建 `ResultSet`
 4. 使用 `ResultSet` 的 `next()` 方法查看结果

@@ -3,11 +3,11 @@
 - [Connect to SQLite Database](#connect-to-sqlite-database)
   - [下载 SQLite JDBC 驱动](#下载-sqlite-jdbc-驱动)
   - [连接格式](#连接格式)
-  - [JDBC 连接数据库](#jdbc-连接数据库)
+  - [使用 JDBC 连接数据库](#使用-jdbc-连接数据库)
   - [创建新的数据库](#创建新的数据库)
 
 2020-06-20, 09:44
-***
+****
 
 ## 下载 SQLite JDBC 驱动
 
@@ -33,25 +33,25 @@ sqlite-jdbc 包含 SQLite 和 Java 接口类。
 jdbc:sqlite:sqlite_database_file_path
 ```
 
-其中 `jdbc:sqlite:sqlite_database_file_path` 是指向 SQLite 数据库文件的路径，可以是相对路径：
+其中 `sqlite_database_file_path` 是指向 SQLite 数据库文件的路径，可以是相对路径：
 
 ```txt
 jdbc:sqlite:sample.db
 ```
 
-或绝对路径
+也可以是绝对路径：
 
 ```txt
 jdbc:sqlite:C:/sqlite/db/chinook.db
 ```
 
-或内存中数据库：
+也可以连接内存中数据库：
 
 ```txt
 jdbc:sqlite::memory:
 ```
 
-## JDBC 连接数据库
+## 使用 JDBC 连接数据库
 
 连接 `chinook.db` 文件指向的数据库：
 
