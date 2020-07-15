@@ -1,50 +1,57 @@
-# TOC
-- [TOC](#toc)
-- [文件操作](#%e6%96%87%e4%bb%b6%e6%93%8d%e4%bd%9c)
-  - [Files 方法](#files-%e6%96%b9%e6%b3%95)
-  - [移动文件](#%e7%a7%bb%e5%8a%a8%e6%96%87%e4%bb%b6)
-  - [复制文件](#%e5%a4%8d%e5%88%b6%e6%96%87%e4%bb%b6)
-  - [删除文件](#%e5%88%a0%e9%99%a4%e6%96%87%e4%bb%b6)
-  - [释放系统资源](#%e9%87%8a%e6%94%be%e7%b3%bb%e7%bb%9f%e8%b5%84%e6%ba%90)
-  - [捕获异常](#%e6%8d%95%e8%8e%b7%e5%bc%82%e5%b8%b8)
-  - [可变参数](#%e5%8f%af%e5%8f%98%e5%8f%82%e6%95%b0)
-  - [原子操作](#%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c)
-- [检查文件或目录](#%e6%a3%80%e6%9f%a5%e6%96%87%e4%bb%b6%e6%88%96%e7%9b%ae%e5%bd%95)
-  - [检查是否存在](#%e6%a3%80%e6%9f%a5%e6%98%af%e5%90%a6%e5%ad%98%e5%9c%a8)
-  - [检查是否可访问](#%e6%a3%80%e6%9f%a5%e6%98%af%e5%90%a6%e5%8f%af%e8%ae%bf%e9%97%ae)
-  - [检查两个路径是否对应同一个文件](#%e6%a3%80%e6%9f%a5%e4%b8%a4%e4%b8%aa%e8%b7%af%e5%be%84%e6%98%af%e5%90%a6%e5%af%b9%e5%ba%94%e5%90%8c%e4%b8%80%e4%b8%aa%e6%96%87%e4%bb%b6)
-- [文件元数据](#%e6%96%87%e4%bb%b6%e5%85%83%e6%95%b0%e6%8d%ae)
-- [文件的读写和创建](#%e6%96%87%e4%bb%b6%e7%9a%84%e8%af%bb%e5%86%99%e5%92%8c%e5%88%9b%e5%bb%ba)
-  - [`OpenOptions`](#openoptions)
-  - [小文件读写](#%e5%b0%8f%e6%96%87%e4%bb%b6%e8%af%bb%e5%86%99)
-    - [读取所有字节或行](#%e8%af%bb%e5%8f%96%e6%89%80%e6%9c%89%e5%ad%97%e8%8a%82%e6%88%96%e8%a1%8c)
-    - [写入所有字节或行](#%e5%86%99%e5%85%a5%e6%89%80%e6%9c%89%e5%ad%97%e8%8a%82%e6%88%96%e8%a1%8c)
-  - [文本文件的缓冲 I/O](#%e6%96%87%e6%9c%ac%e6%96%87%e4%bb%b6%e7%9a%84%e7%bc%93%e5%86%b2-io)
-    - [读缓冲流](#%e8%af%bb%e7%bc%93%e5%86%b2%e6%b5%81)
-    - [写缓冲流](#%e5%86%99%e7%bc%93%e5%86%b2%e6%b5%81)
-  - [无缓冲流以及和 `java.io` 的互操作](#%e6%97%a0%e7%bc%93%e5%86%b2%e6%b5%81%e4%bb%a5%e5%8f%8a%e5%92%8c-javaio-%e7%9a%84%e4%ba%92%e6%93%8d%e4%bd%9c)
-    - [无缓冲 Stream 读文件](#%e6%97%a0%e7%bc%93%e5%86%b2-stream-%e8%af%bb%e6%96%87%e4%bb%b6)
-    - [无缓冲流输出](#%e6%97%a0%e7%bc%93%e5%86%b2%e6%b5%81%e8%be%93%e5%87%ba)
-  - [Channels 和 ByteBuffers 方法](#channels-%e5%92%8c-bytebuffers-%e6%96%b9%e6%b3%95)
-    - [使用 Channel 读写文件](#%e4%bd%bf%e7%94%a8-channel-%e8%af%bb%e5%86%99%e6%96%87%e4%bb%b6)
-- [File Tree](#file-tree)
-  - [FileVisitor](#filevisitor)
-  - [执行过程](#%e6%89%a7%e8%a1%8c%e8%bf%87%e7%a8%8b)
-  - [创建 `FileVisitor` 的注意事项](#%e5%88%9b%e5%bb%ba-filevisitor-%e7%9a%84%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9)
-  - [控制流程](#%e6%8e%a7%e5%88%b6%e6%b5%81%e7%a8%8b)
-- [文件夹操作](#%e6%96%87%e4%bb%b6%e5%a4%b9%e6%93%8d%e4%bd%9c)
-  - [文件查找（`PathMatcher`）](#%e6%96%87%e4%bb%b6%e6%9f%a5%e6%89%bepathmatcher)
-  - [Glob](#glob)
-  - [监控文件夹](#%e7%9b%91%e6%8e%a7%e6%96%87%e4%bb%b6%e5%a4%b9)
-  - [列出文件夹内容](#%e5%88%97%e5%87%ba%e6%96%87%e4%bb%b6%e5%a4%b9%e5%86%85%e5%ae%b9)
-    - [列出全部内容](#%e5%88%97%e5%87%ba%e5%85%a8%e9%83%a8%e5%86%85%e5%ae%b9)
-    - [使用 Glob 模式过滤](#%e4%bd%bf%e7%94%a8-glob-%e6%a8%a1%e5%bc%8f%e8%bf%87%e6%bb%a4)
-- [老版 File I/O](#%e8%80%81%e7%89%88-file-io)
-  - [IO 映射 NIO](#io-%e6%98%a0%e5%b0%84-nio)
-# 文件操作
+# Files
+
+- [Files](#files)
+  - [文件操作](#文件操作)
+    - [Files 方法](#files-方法)
+    - [移动文件](#移动文件)
+    - [复制文件](#复制文件)
+    - [删除文件](#删除文件)
+    - [释放系统资源](#释放系统资源)
+    - [捕获异常](#捕获异常)
+    - [可变参数](#可变参数)
+    - [原子操作](#原子操作)
+  - [检查文件或目录](#检查文件或目录)
+    - [检查是否存在](#检查是否存在)
+    - [检查是否可访问](#检查是否可访问)
+    - [检查两个路径是否对应同一个文件](#检查两个路径是否对应同一个文件)
+  - [文件元数据](#文件元数据)
+  - [文件的读写和创建](#文件的读写和创建)
+    - [`OpenOptions`](#openoptions)
+    - [小文件读写](#小文件读写)
+      - [读取所有字节或行](#读取所有字节或行)
+      - [写入所有字节或行](#写入所有字节或行)
+    - [文本文件的缓冲 I/O](#文本文件的缓冲-io)
+      - [读缓冲流](#读缓冲流)
+      - [写缓冲流](#写缓冲流)
+    - [无缓冲流以及和 `java.io` 的互操作](#无缓冲流以及和-javaio-的互操作)
+      - [无缓冲 Stream 读文件](#无缓冲-stream-读文件)
+      - [无缓冲流输出](#无缓冲流输出)
+  - [Channels 和 ByteBuffers 方法](#channels-和-bytebuffers-方法)
+    - [使用 Channel 读写文件](#使用-channel-读写文件)
+  - [File Tree](#file-tree)
+    - [FileVisitor](#filevisitor)
+    - [执行过程](#执行过程)
+    - [创建 `FileVisitor` 的注意事项](#创建-filevisitor-的注意事项)
+    - [控制流程](#控制流程)
+  - [文件夹操作](#文件夹操作)
+    - [文件查找（`PathMatcher`）](#文件查找pathmatcher)
+    - [Glob](#glob)
+    - [监控文件夹](#监控文件夹)
+    - [列出文件夹内容](#列出文件夹内容)
+      - [列出全部内容](#列出全部内容)
+      - [使用 Glob 模式过滤](#使用-glob-模式过滤)
+  - [老版 File I/O](#老版-file-io)
+    - [IO 映射 NIO](#io-映射-nio)
+
+2020-07-14, 16:15
+****
+
+## 文件操作
+
 `Files` 类是 `java.nio.file` 包的另一个入口。该类提供了许多用于读取、写入和操作文件和目录的静态方法。`Files` 类针对 `Path` 对象进行操作。
 
-## Files 方法
+### Files 方法
+
 |方法|说明|
 |---|---|
 |`byte[] readAllBytes(Path path)`|读取文件所有内容|
@@ -65,7 +72,6 @@
 |`Files.move(fromPath, toPath, StandardCopyOption.ATOMIC_MOVE)`|原子操作剪切|
 |`Files.delete(path)`|删除文件|
 |`Files.deleteIfExists(path)`|删除文件，文件不存在不抛出异常|
-
 
 |选项|说明|
 |---|---|
@@ -88,7 +94,8 @@
 |`FileVisitOption`|应用于 `find`, `walk`, `walkFileTree`|
 |`FOLLOW_LINKS`|跟踪符号链接|
 
-## 移动文件
+### 移动文件
+
 `move(Path, Path, CopyOption...)` 方法可以移动文件或目录。如果目标文件存在，除非指定 `REPLACE_EXISTING` 选项，否则移动失败。
 
 可以移动空目录，如果目录中包含有文件，则只是移动目录，不移动目录中的内容。在 UNIX 系统中，在同一分区中移动目录效果等同于重命名，此时即使目录中有其它文件，也能成功运行。
@@ -99,7 +106,8 @@
 |`REPLACE_EXISTING`|目标文件存在也执行操作。如果目标为符号链接，符号链接被替换，但是符号链接指向的内容不变|
 |`ATOMIC_MOVE`|以原子操作执行移动操作。如果文件系统不支持原子移动，抛出异常|
 
-## 复制文件
+### 复制文件
+
 使用 `Files.copy(Path, Path, CopyOption...)` 方法可以复制文件或目录。如果目标文件已存在，除非指定 `REPLACE_EXISTING` 选择，否则复制失败。
 
 目录也可以复制，不过并不复制目录中的文件，所以即使原目录中包含许多文件，新目录也是空的。
@@ -114,14 +122,16 @@
 |`NOFOLLOW_LINKS`|复制链接，而不复制链接指向的文件|
 
 除了文件复制，`Files` 还有在文件和流之间复制的方法，如
+
 - `copy(InputStream, Path, CopyOptions...)` 可以将输入流复制到指定文件。
 - `copy(Path, OutputStream)` 可以将指定文件的所有字节复制到指定输出流。
 
+### 删除文件
 
-## 删除文件
 删除文件、目录或符号链接。对符号链接，删除的是链接而非目标文件；对目录，目录必须为空，否则删除失败。
 
 `Files` 类提供了两个删除方法。
+
 - `delete(Path)`, 删除文件或抛出异常，如果文件不存在抛出 `NoSuchFileException`
 
 ```java
@@ -139,13 +149,16 @@ try {
 
 - `deleteIfExists(Path)`，如果文件不存在不抛出异常。当多线程删除文件，该方法安静的删除文件特别有用。
 
-## 释放系统资源
+### 释放系统资源
+
 该 API 使用的许多资源，如流、通道等，都实现或扩展了 `java.io.Closeable` 接口。实现该接口的基本要求是，在不需要时，调用 `close` 方法释放资源。忘记关闭资源会导致许多负面效果，而使用 `try-with` 语法可以自动关闭资源。
 
-## 捕获异常
+### 捕获异常
+
 文件 I/O 中有很多因素会导致异常，如文件不存在，程序无法访问文件系统，默认文件系统不支持特定功能等，可能碰到各种错误。
 
 所有访问文件系统的方法都可以引发 `IOException`。最好的方式是使用 java7 引入的 `try-with-resources` 语句捕获这些异常。该语法的优点是在不再需要资源编译器会自动生成关闭资源的代码。例：
+
 ```java
 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(""), StandardCharsets.US_ASCII)) {
     writer.write("hello");
@@ -155,6 +168,7 @@ try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(""), StandardChar
 ```
 
 当然，也可以使用 try-catch-finally 方法：
+
 ```java
 BufferedWriter writer = null;
 try {
@@ -168,19 +182,21 @@ try {
 }
 ```
 
-## 可变参数
+### 可变参数
+
 `Files` 的许多方法都接收可变数目的参数。如 `move` 方法：
+
 ```java
 Path Files.move(Path, Path, CopyOption...)
 ```
 
 对包含可变参数的方法，可以传递给它逗号分隔的多个值或数组。
 
-## 原子操作
+### 原子操作
+
 `Files` 的几个方法，如 `move` 在部分文件系统上可以执行原子操作。
 
-
-# 检查文件或目录
+## 检查文件或目录
 
 |方法|说明|
 |---|---|
@@ -190,33 +206,39 @@ Path Files.move(Path, Path, CopyOption...)
 |`isRegularFile`, `isDirectory`, `isSymbolicLink`|
 |`size`|文件大小|
 
-## 检查是否存在
+### 检查是否存在
+
 - `Files.exists(Path, LinkOption...)`
 - `notExists(Path, LinkOption...)`
 
 当检查文件是否存在，结果有三种可能：
+
 - 文件存在
 - 文件不存在
 - 文件状态不可知。当程序无法访问文件时出现该结果。
 
 所以 `!Files.exists(path)` 不等于 `Files.notExists(path)`。
 
-## 检查是否可访问
+### 检查是否可访问
+
 - `isReadable(Path)`
 - `isWritable(Path)`
 - `isExecutable(Path)`
 
 如，检查文件存在并且程序可执行文件：
+
 ```java
 Path file = ...;
 boolean isRegularExecutableFile = Files.isRegularFile(file) &
          Files.isReadable(file) & Files.isExecutable(file);
 ```
 
-## 检查两个路径是否对应同一个文件
+### 检查两个路径是否对应同一个文件
+
 - `isSameFile(Path, Path)`
 
 例：
+
 ```java
 Path p1 = ...;
 Path p2 = ...;
@@ -226,9 +248,8 @@ if (Files.isSameFile(p1, p2)) {
 }
 ```
 
+## 文件元数据
 
-
-# 文件元数据
 文件系统的元数据一般指文件属性。`Files` 类支持元数据的获取和设置。
 
 |方法|说明|
@@ -263,22 +284,26 @@ if (Files.isSameFile(p1, p2)) {
 大多时候，你不需要和任何 `FileAttributeView` 借口打交道。如果有这需求，可以通过 `getFileAttributeView(Path, Class<V>, LinkOption...)` 方法获取。
 
 `readAttributes` 方法使用泛型，可用于读取任何文件属性视图的属性。例如：
+
 ```java
 BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
 ```
 
-# 文件的读写和创建
+## 文件的读写和创建
+
 文件 I/O 的方法有许多，下图方法从左到右，越来越复杂：
 
-![](images/2019-10-02-17-36-47.png)
+![IO](images/2019-10-02-17-36-47.png)
 
 说明：
+
 - `readAllBytes`, `readAllLines` 以及对应的 write 方法，用于简单的读写；
 - `newBufferedReader`, `newBufferedWriter`, `newInputStream` 和 `newOutputStream` 用于对流或文件进行迭代，这些方法可以和 `java.io` 包交互；
 - `ByteChannels`, `SeekableByteChannels`, `ByteBuffers` 等；
 - 最右边的 `FileChannel` 支持文件锁定或内存映射 I/O 等高级应用，最为复杂。
 
-## `OpenOptions`
+### `OpenOptions`
+
 许多文件读写方法都有 `OpenOptions` 可选参数，`OpenOptions` 支持如下 `StandardOpenOptions` enum 值：
 
 |选项|说明|
@@ -293,35 +318,41 @@ BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.
 |`SYNC`|文件和底层的存储设备同步（文件内容和元数据）|
 |`DSYNC`|文件内容和底层设备同步|
 
-## 小文件读写
+### 小文件读写
 
-### 读取所有字节或行
+#### 读取所有字节或行
+
 如果文件很小而你想一次性读取全文件内容，可以使用 `readAllBytes(Path)` 或 `readAllLines(Path, Charset)` 方法。如：
+
 ```java
 Path file = ...;
 byte[] fileArray;
 fileArray = Files.readAllBytes(file);
 ```
 
-### 写入所有字节或行
+#### 写入所有字节或行
+
 - `write(Path, byte[], OpenOption...)`
-- `write(Path, Iterable< extends CharSequence>, Charset, OpenOption...)` 
+- `write(Path, Iterable< extends CharSequence>, Charset, OpenOption...)`
 
 可以分别将字节和文本一次性写入文件。
 
 如：
+
 ```java
 Path file = ...;
 byte[] buf = ...;
 Files.write(file, buf);
 ```
 
-## 文本文件的缓冲 I/O
+### 文本文件的缓冲 I/O
+
 `java.nio.file` 包支持通道 I/O，通道将数据移动到缓冲区，从而绕过了一些会阻塞 I/O 的操作。
 
-### 读缓冲流
+#### 读缓冲流
 
 `newBufferedReader(Path, Charset)` 打开一个文件，返回 `BufferedReader` 对象，用于文本文件的缓冲读取。例如：
+
 ```java
 Charset charset = Charset.forName("US-ASCII");
 try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
@@ -334,7 +365,7 @@ try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
 }
 ```
 
-### 写缓冲流
+#### 写缓冲流
 
 `newBufferedWriter(Path, Charset, OpenOption...)` 创建一个 `BufferedWriter` 用于缓冲输出。
 
@@ -348,10 +379,12 @@ try (BufferedWriter writer = Files.newBufferedWriter(file, charset)) {
 }
 ```
 
-## 无缓冲流以及和 `java.io` 的互操作
+### 无缓冲流以及和 `java.io` 的互操作
 
-### 无缓冲 Stream 读文件
+#### 无缓冲 Stream 读文件
+
 `newInputStream(Path, OpenOption...)` 方法创建 `InputStream`，用于文件的无缓冲读取。例如：
+
 ```java
 Path file = ...;
 try (InputStream in = Files.newInputStream(file);
@@ -365,13 +398,14 @@ try (InputStream in = Files.newInputStream(file);
 }
 ```
 
-### 无缓冲流输出
+#### 无缓冲流输出
 
-使用 ` newOutputStream(Path, OpenOption...)` 创建无缓冲的输出流。该方法打开或创建一个文件用于输出字节，返回一个无缓冲的 `OutputStream`。
+使用 `newOutputStream(Path, OpenOption...)` 创建无缓冲的输出流。该方法打开或创建一个文件用于输出字节，返回一个无缓冲的 `OutputStream`。
 
 该方法带有一个可选的 `OpenOption` 参数。如果不指定选项，则当输出文件不存在时，创建一个新的文件；如果文件存在，则截断文件。该选项和 `CREATE` 和 `TRUNCATE_EXISTING` 选项等效。
 
 如下例所示，打开一个日志文件，如果文件不存在，创建一个新的文件，如果日志文件存在，则追加内容：
+
 ```java
 import static java.nio.file.StandardOpenOption.*;
 import java.nio.file.*;
@@ -400,9 +434,11 @@ public class LogFileTest {
 ## Channels 和 ByteBuffers 方法
 
 ### 使用 Channel 读写文件
+
 stream I/O 一次读取一个字符，而 channel I/O 一次读取一个缓冲区。`ByteChannel` 接口提供基本的读写功能。`SeekableByteChannel` 在 `ByteChannel` 的基础上提供了可用于定位的位置，`SeekableByteChannel` 还支持和通道相关文件的阶段以及文件大小查询。
 
 用于 channel I/O 读写的方法有两种：
+
 - `newByteChannel(Path, OpenOption...)`
 - `newByteChannel(Path, Set<? extends OpenOption>, FileAttribute<?>...)`
 
@@ -411,6 +447,7 @@ stream I/O 一次读取一个字符，而 channel I/O 一次读取一个缓冲�
 两个 `newByteChannel` 方法都可以指定 `OpenOption` 选项。支持，READ, WRITE, APPEND。
 
 下面的例子读取文件并输出到标准输出：
+
 ```java
 // Defaults to READ
 try (SeekableByteChannel sbc = Files.newByteChannel(file)) {
@@ -429,11 +466,14 @@ try (SeekableByteChannel sbc = Files.newByteChannel(file)) {
     System.out.println("caught exception: " + x);
 ```
 
-# File Tree
+## File Tree
+
 File Tree，递归访问文件夹树形结构的功能。
 
-## FileVisitor
+### FileVisitor
+
 递归访问目录，需要实现 `FileVisitor` 接口。`FileVisitor` 指定了在遇到文件、文件夹以及访问文件夹后的具体行为。源码如下：
+
 ```java
 public interface FileVisitor<T> {
 
@@ -454,6 +494,7 @@ public interface FileVisitor<T> {
 如果你不想实现所有四个方法，可以选择扩展 `SimpleFileVisitor` 类。该类实现了 `FileVisitor` 接口，访问所有问题，碰到错误抛出 `IOError`。你可以扩展该类，选择性的覆盖某些方法。
 
 下面示例扩展 `SimpleFileVisitor`，输出目录中所有的条目。
+
 ```java
 public class PrintFiles extends SimpleFileVisitor<Path>
 {
@@ -488,12 +529,15 @@ public class PrintFiles extends SimpleFileVisitor<Path>
 }
 ```
 
-## 执行过程
+### 执行过程
+
 实现 `FileVisitor` 后，如何使用？在 `Files` 类中有两个 `walkFileTree` 方法：
+
 - `walkFileTree(Path, FileVisitor)`
 - `walkFileTree(Path, Set<FileVisitOption>, int, FileVisitor)`
 
 第一个方法只需要两个参数，起始目录和 `FileVisitor`，使用方式如下：
+
 ```java
 Path startingDir = ...;
 PrintFiles pf = new PrintFiles();
@@ -504,7 +548,8 @@ Files.walkFileTree(startingDir, pf);
 
 添加 `FileVisitOption` enum `FOLLOW_LINKS` 表示跟随符号链接。
 
-## 创建 `FileVisitor` 的注意事项
+### 创建 `FileVisitor` 的注意事项
+
 目录树是深度优先访问，而且无法指定子目录访问顺序。
 
 如果程序会修改文件系统，则在实现 `FileVisitor` 的时候需要谨慎考虑。
@@ -512,6 +557,7 @@ Files.walkFileTree(startingDir, pf);
 例如，如果你要递归删除，首先删除目录中的文件，然后删除目录，此时，你就需要在 `postVisitDirectory` 中删除目录。
 
 如果你要递归复制，则在复制文件（在 `visitFiles` 方法中实现）前需要在 `preVisitDirectory` 中创建目录。如果你希望保留原目录的属性，则要在复制文件之后，在 `postVisitDirectory` 中实现。下面演示了具体实现：
+
 ```java
 import java.nio.file.*;
 import static java.nio.file.StandardCopyOption.*;
@@ -688,6 +734,7 @@ public class Copy {
 ```
 
 如果实现文件检索功能，则在 `visitFile` 方法中执行对比。该方法查找所有满足条件的文件，但是不查找目录。如果同时实现目录查找，则需要在 `preVisitDirectory` 或 `postVisitDirectory` 方法中执行对比。实例如下：
+
 ```java
 import java.io.*;
 import java.nio.file.*;
@@ -782,6 +829,7 @@ public class Find {
 还需要决定是否要跟随符号链接，对删除文件，跟随符号链接可能不好；对复制文件，则可以。`walkFileTree` 方法默认不跟随符号链接。
 
 对文件会调用 `visitFile` 方法。如果指定 `FOLLOW_LINKS` 选项，并且目录结构中存在指向父目录的循环裂解，在 `visitFileFailed` 中会抛出 `FileSystemLoopException`。如下是捕获循环链接的示例：
+
 ```java
 @Override
 public FileVisitResult visitFileFailed(Path file, IOException exc) {
@@ -793,9 +841,11 @@ public FileVisitResult visitFileFailed(Path file, IOException exc) {
     return CONTINUE;
 }
 ```
+
 这种错误只在启用 `FOLLOW_LINKS` 选项时才会抛出。
 
-## 控制流程
+### 控制流程
+
 在轮询目录时，你可能是为了找到一个指定目录，找到后，你希望停止执行。也可能你喜欢跳过某些目录。
 
 `FileVisitor` 方法返回 `FileVisitResult` 值。通过 `FileVisitor` 方法的返回值可以控制是否舍弃访问某些目录：
@@ -804,9 +854,10 @@ public FileVisitResult visitFileFailed(Path file, IOException exc) {
 |CONTINUE|继续遍历目录，如果 `preVisitDirecotry` 返回 `CONTINUE`，表示已访问完目录|
 |TERMINATE|继续文件遍历。返回该值后不再调用其它文件遍历方法|
 |SKIP_SUBTREE|当 `preVisitDirecotry` 返回该值，跳过该目录及其子目录|
-|SKIP_SIBLINGS|当 `preVisitDirecotry` 返回该值，不再访问该目录，并不再调用 `postVisitDirectory`，也不再访问姊妹文件。如果 `postVisitDirectory ` 返回该值，不再访问姊妹文件|
+|SKIP_SIBLINGS|当 `preVisitDirecotry` 返回该值，不再访问该目录，并不再调用 `postVisitDirectory`，也不再访问姊妹文件。如果 `postVisitDirectory` 返回该值，不再访问姊妹文件|
 
 如下，跳过 "SCCS" 目录：
+
 ```java
 import static java.nio.file.FileVisitResult.*;
 
@@ -819,6 +870,7 @@ public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 ```
 
 下面则是在发现特定文件后，输出文件名并停止遍历：
+
 ```java
 import static java.nio.file.FileVisitResult.*;
 
@@ -834,34 +886,41 @@ public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
 }
 ```
 
-# 文件夹操作
+## 文件夹操作
+
 |方法|说明|
 |---|---|
 |`Files.list`|读取文件夹内容，返回 `Stream<Path>`，因为是 lazily 读取，所以对包含许多文件的文件夹也没问题。该方法不进入子文件夹|
 |`Files.walk`|depth-first 方式访问文件，包括子文件夹|
 
-## 文件查找（`PathMatcher`）
+### 文件查找（`PathMatcher`）
+
 `PatchMatcher` 用于匹配满足指定规则的 `Path` 对象，匹配方法：
+
 ```java
 boolean matches(Path path);
 ```
 
 获得 `PathMatcher`:
+
 ```java
 FileSystem.getPathMatcher(String syntax);
 ```
 
 传递给 `getPathMatcher` 的参数格式为：
-```
+
+```java
 syntax:pattern
 ```
 
 其中 `syntax` 表示语法规则，目前支持两种语法，`regex` 和 `glob`。例如，以正则表达式匹配 "png" 或 "jpg" 文件：
-```
+
+```java
 regex:([^\s]+(\.(?i)(png|jpg))$)
 ```
 
 完整演示：
+
 ```java
 PathMatcher pm = FileSystems.getDefault().getPathMatcher("glob:*.java");
 assertTrue(pm.matches(Paths.get("PathMatcherDemo.java")));
@@ -873,7 +932,8 @@ assertTrue(pm.matches(Paths.get("figure.png")));
 assertFalse(pm.matches(Paths.get("figure.gif")));
 ```
 
-## Glob
+### Glob
+
 glob 相对正则表达式要简单许多，支持有限的一些规则。
 `Files` 类有两个方法支持 glob 参数。
 
@@ -887,22 +947,25 @@ glob 语法类似于正则表达式，但是要简单许多。
 |`[]`|方括号指定字符集合，用 `-` 指定字符范围。例如：<br>`[aeiou]` 匹配任意元音字母；<br>`[0-9]` 匹配任意数字；<br>`[A-Z]` 匹配任意大写字母；<br>`[a-z,A-Z]` 匹配大小和小写字母；<br>在方括号中，`*`, `?` 和 `\` 匹配自身|
 
 另外：
+
 - 所有其它字符匹配自身
 - 匹配 `*`, `?`和 `\` 等特殊字母，可以用转义。
 
 示例：
+
 - `*.html`，匹配以 `.html` 结尾的字符串；
 - `???`，匹配任意三个字符或数字的字符串；
 - `*[0-9]*`，匹配包含一个数字的字符；
 - `*.{htm,html,pdf}`，匹配以 *.htm*, *.html*, *.pdf* 结尾的字符串；
-- 
 
-## 监控文件夹
+### 监控文件夹
 
-## 列出文件夹内容
+### 列出文件夹内容
+
 我们经常需要循环访问目录里的内容。NIO.2 通过 `DirectoryStream` 提供该功能，`DirectoryStream` 扩展了 `Iterable` 接口，即可以通过 `for` 循环访问。可以直接通过 `Files.newDirectoryStream()` 方法访问目录流。
 
-### 列出全部内容
+#### 列出全部内容
+
 ```java
 DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("D:\\data"));
 for (Path path : stream) {
@@ -910,11 +973,12 @@ for (Path path : stream) {
 }
 ```
 
-### 使用 Glob 模式过滤
+#### 使用 Glob 模式过滤
 
+## 老版 File I/O
 
-# 老版 File I/O
 在 Java7 之前，文件I/O 由 `java.io.File` 实现，不过该类具有许多缺点：
+
 - 许多方法在失败后不抛出异常，这样无法得到有用的错误信息。例如文件删除失败，则获得 “删除失败”的消息，但是不知道为什么删除失败。
 - 重命名方法跨平台工作有问题。
 - 不支持符号链接
@@ -923,16 +987,19 @@ for (Path path : stream) {
 - 许多 `File` 的方法无法扩展。
 
 如果你有仍在使用 `java.io.File` 的旧代码，但是又想使用 `java.nio.file.Path` 的功能，而对代码的影响降到最低。可以将 `java.io.File` 转换为 `Path`:
+
 ```java
 Path input = file.toPath();
 ```
 
 也可以将 `Path` 转换为 `java.io.File`:
+
 ```java
 Path fp = file.toPath()
 ```
 
-## IO 映射 NIO
+### IO 映射 NIO
+
 由于 Java 实现的文件 I/O 方法在 Java7 种完全重新设计实现，所以这些方法不能互换。如果要使用 `java.nio.file` 的丰富功能，则最好通过 `File.toPath` 方法进行转换。
 
 两套 API 之间没有完全的一对一关系，下表大致列出对应的功能。
