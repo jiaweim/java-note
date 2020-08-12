@@ -1,14 +1,14 @@
 # Layout
 
 - [Layout](#layout)
-  - [概述](#%e6%a6%82%e8%bf%b0)
-  - [布局类](#%e5%b8%83%e5%b1%80%e7%b1%bb)
-  - [添加子节点](#%e6%b7%bb%e5%8a%a0%e5%ad%90%e8%8a%82%e7%82%b9)
-  - [工具类](#%e5%b7%a5%e5%85%b7%e7%b1%bb)
+  - [概述](#概述)
+  - [布局类](#布局类)
+  - [添加子节点](#添加子节点)
+  - [工具类](#工具类)
   - [Insets](#insets)
   - [Group](#group)
-  - [创建 Group](#%e5%88%9b%e5%bb%ba-group)
-  - [设置子节点位置](#%e8%ae%be%e7%bd%ae%e5%ad%90%e8%8a%82%e7%82%b9%e4%bd%8d%e7%bd%ae)
+  - [创建 Group](#创建-group)
+  - [设置子节点位置](#设置子节点位置)
   - [Group CSS](#group-css)
   - [Region](#region)
   - [background fills](#background-fills)
@@ -19,7 +19,7 @@
   - [GridPane](#gridpane)
   - [TextFlow](#textflow)
   - [TabPane](#tabpane)
-    - [设置 Tab 大小](#%e8%ae%be%e7%bd%ae-tab-%e5%a4%a7%e5%b0%8f)
+    - [设置 Tab 大小](#设置-tab-大小)
 
 ## 概述
 
@@ -49,7 +49,7 @@
 
 JavaFX 包含如下所示的布局类：
 
-![](2019-06-05-16-54-32.png)
+![classes](images/2019-06-05-16-54-32.png)
 
 说明：
 
