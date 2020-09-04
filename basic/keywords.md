@@ -1,11 +1,13 @@
-# TOC
-- [TOC](#toc)
-- [final](#final)
+# Java 关键字
+- [Java 关键字](#java-关键字)
+  - [final](#final)
   - [inner class](#inner-class)
-- [volatile](#volatile)
-- [native](#native)
+  - [volatile](#volatile)
+  - [static](#static)
+  - [native](#native)
 
-# final
+## final
+
 final 可以修饰非抽象类、非抽象成员变量和方法。
 final 方法不能被覆盖。
 
@@ -26,7 +28,8 @@ IntStream.range(0, params.size())
 ;
 ```
 
-# volatile
+## volatile
+
 在编程语言中，特别是C，C++，C# 以及 Java中，`volatile`关键字声明的变量一般和优化和多线程相关。
 
 简而言之，`volatile` 关键字会阻止编译器对其优化。
@@ -41,7 +44,12 @@ IntStream.range(0, params.size())
 
 使用 `volatile` 可能比锁快，不过某些场合可能无法使用。
 
-# native
+## static
+
+`static` 不能在方法内使用，否则编译错误。
+
+## native
+
 `native` 关键字说明其修饰的方法是一个原生方法，该方法的具体实现不在当前文件中，而是以其它语言（如C++）实现。比如 Java 语言本身不能对操作系统底层进行访问和控制，但是可以通过 JNI 接口调用其它语言来实现对底层的访问。
 
 JNI 是 Java 本机接口（Java Native Interface）的缩写，允许 Java 代码使用其它语言编写的代码库。

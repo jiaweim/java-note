@@ -136,7 +136,7 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 
 `Insets` 类表示两个矩形四个方向边的距离。如下图所示：
 
-![](2019-06-05-16-58-36.png)
+![inset](images/2019-06-05-16-58-36.png)
 
 在上图中，两个矩形可能交叉，此时，offsets 可能为负值。offsets 是相对值，所以要正确解析 offsets，需要知道相对的是哪个矩形。
 
@@ -147,7 +147,7 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 |`Insets(double top, double right, double bottom, double left)`|分别指定 offset值|
 
 `Insets.EMPTY()` 定义offsets 均为 0 的 Insets 对象。
-	
+
 在 JavaFX 中，在以下情况会用到 `Insets` ：
 
 - Border insets
@@ -164,6 +164,7 @@ hBox3.getChildren().addAll(okBtn, cancelBtn);
 Group 类具有容器类的诸多特性：具有其自身的布局策略、坐标系，是 Parent 的子类。但是，它不对子节点定位，只提供 preferred size。所以应该将它看作节点集合，而不是容器。它只是为了方便对多个节点同时进行操作，因为对 Group 进行的转换、特效及属性，均会应用到其子节点。
 
 Group 特征说明：
+
 - `Group` 将子节点保存在 `ObservableList` 中， 按照节点添加的顺序依次渲染节点
 - `Group` 采用所有子节点边框的加和作为其大小，不是 resizable
 - 对 `Group` 施加的转换、特效和属性修改会作用于其子节点，但是转换为特效不在 Group layout 边框内；但是如果单独给各个子节点添加转换、特效等，就会包含在 Group layout 边框内。
@@ -183,7 +184,7 @@ Button smallBtn = new Button("Small button");
 Button bigBtn = new Button("This is a big button");
 Group root = new Group();
 
-// 3. 通过集合添加节点 
+// 3. 通过集合添加节点
 List<Node> initailList = new ArrayList<>();
 initailList.add(smallBtn);
 initailList.add(bigBtn);
@@ -237,7 +238,7 @@ Region 默认为矩形，不过 BackgroundFill 半径可能会使矩形变为圆
 
 虽然 Region 的 layout 边框不受边框和背景影响，但是内容区域受影响。如下图所示：
 
-![](2019-06-05-17-02-13.png)
+![region](images/2019-06-05-17-02-13.png)
 
 |内容|功能|
 |---|---|
@@ -265,13 +266,13 @@ Fill 包括：颜色、四个角的半径，四边的 insets。Fills 根据添�
 
 |CSS属性|功能|
 |---|---|
-|-fx-background-color	|背景色|
-|-fx-background-radius	|边角半径|
-|-fx-background-insets	|内边距|
-|-fx-background-image	|背景图片的 CSS URL|
-|-fx-background-repeat	|图片重复填充方式|
+|-fx-background-color|背景色|
+|-fx-background-radius|边角半径|
+|-fx-background-insets|内边距|
+|-fx-background-image|背景图片的 CSS URL|
+|-fx-background-repeat|图片重复填充方式|
 |-fx-background-position|图片在 Region 中的填充方式|
-|-fx-background-size	|图片相对 Region 的大小|
+|-fx-background-size|图片相对 Region 的大小|
 
 -fx-background-color 包含由逗号分隔的多个颜色值，颜色值的个数，对应需要渲染的背景框的个数。
 
@@ -290,7 +291,7 @@ style: solid, dashed, etc. inside, outside, centered.
 
 insets 定义 stroke 和 layout 边界的距离。
 
-![](2019-06-05-17-34-11.png)
+![insets](images/2019-06-05-17-34-11.png)
 
 |CSS属性|说明|实例|
 |---|---|---|
@@ -328,7 +329,7 @@ root.getChildren().addAll(rect, line, circle); // 添加子节点
 默认采用子节点的 prefWidth, preHeight。当 Parent 不是 resizable（如 Group），HBox 采用最高子节点的高度。
 |属性|类型|说明|
 |---|---|---|
-|alignment|ObjectProperty<Pos>|子节点相对 HBox 的内容区域的对齐方式。如果垂直对齐方式为 BASELINE，fillHeight 被忽略，默认为 Pos.TOP_LEFT|
+|alignment|`ObjectProperty<Pos>`|子节点相对 HBox 的内容区域的对齐方式。如果垂直对齐方式为 BASELINE，fillHeight 被忽略，默认为 Pos.TOP_LEFT|
 |fillHeight|BooleaProperty|resizable 子节点是否 resize 以填充 HBox 的高度，默认为true，alignment=BASELINE 该属性被忽略|
 |spacing|DoubleProperty|水平相邻子节点之间的空隙|
 
@@ -387,7 +388,7 @@ TextFlow 用于显示富文本。
 
 `TabPane`包含两部分：标题和内容。标题包含多个组成部分，如下图所示：
 
-![](2019-06-05-17-40-06.png)
+![TabPane](images/2019-06-05-17-40-06.png)
 
 说明：
 

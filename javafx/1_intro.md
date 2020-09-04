@@ -1,11 +1,11 @@
 # Introduction
 
 - [Introduction](#introduction)
-  - [概述](#%e6%a6%82%e8%bf%b0)
-  - [JavaFX API 框架](#javafx-api-%e6%a1%86%e6%9e%b6)
-  - [JavaFX 程序结构](#javafx-%e7%a8%8b%e5%ba%8f%e7%bb%93%e6%9e%84)
+  - [概述](#概述)
+  - [JavaFX API 框架](#javafx-api-框架)
+  - [JavaFX 程序结构](#javafx-程序结构)
     - [Scene Graph](#scene-graph)
-  - [更新 java11](#%e6%9b%b4%e6%96%b0-java11)
+  - [更新 java11](#更新-java11)
 
 ## 概述
 

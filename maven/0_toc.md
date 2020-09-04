@@ -7,6 +7,7 @@
 - [插件](05_plugins.md)
   - [Maven Assembly Plugin](plugin_assembly.md)
   - [Maven Source Plugin](plugin_source.md)
+  - [Maven Compiler Plugin](plugin_compiler.md)
 - [打包](8_assembly.md)
 - [部署](deploy.md)
 - [标准目录布局](9_layout.md)

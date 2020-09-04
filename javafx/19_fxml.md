@@ -1,19 +1,19 @@
 # FXML
 
 - [FXML](#fxml)
-  - [简介](#%e7%ae%80%e4%bb%8b)
+  - [简介](#简介)
   - [Scene Builder](#scene-builder)
-  - [FXML 基础](#fxml-%e5%9f%ba%e7%a1%80)
-    - [创建 FXML 文件](#%e5%88%9b%e5%bb%ba-fxml-%e6%96%87%e4%bb%b6)
-  - [FXMLLoader 载入 FXML 文件](#fxmlloader-%e8%bd%bd%e5%85%a5-fxml-%e6%96%87%e4%bb%b6)
+  - [FXML 基础](#fxml-基础)
+    - [创建 FXML 文件](#创建-fxml-文件)
+  - [FXMLLoader 载入 FXML 文件](#fxmlloader-载入-fxml-文件)
   - [Controller](#controller)
     - [@FXML](#fxml-1)
     - [initialize()](#initialize)
-  - [在FXML中创建对象](#%e5%9c%a8fxml%e4%b8%ad%e5%88%9b%e5%bb%ba%e5%af%b9%e8%b1%a1)
-    - [使用工厂方法](#%e4%bd%bf%e7%94%a8%e5%b7%a5%e5%8e%82%e6%96%b9%e6%b3%95)
-  - [多个FXML文件](#%e5%a4%9a%e4%b8%aafxml%e6%96%87%e4%bb%b6)
-  - [自定义组件](#%e8%87%aa%e5%ae%9a%e4%b9%89%e7%bb%84%e4%bb%b6)
-  - [创建可重复利用控件](#%e5%88%9b%e5%bb%ba%e5%8f%af%e9%87%8d%e5%a4%8d%e5%88%a9%e7%94%a8%e6%8e%a7%e4%bb%b6)
+  - [在FXML中创建对象](#在fxml中创建对象)
+    - [使用工厂方法](#使用工厂方法)
+  - [多个FXML文件](#多个fxml文件)
+  - [自定义组件](#自定义组件)
+  - [创建可重复利用控件](#创建可重复利用控件)
 
 2020-05-20, 15:12
 ***
@@ -56,7 +56,7 @@ FXML 文件是后缀为 `.fxml` 的文本文件，所以可以直接编辑，更
 
 Scene Builder 是基于FXML构建 JavaFX 界面的工具，下载链接：
 
-https://gluonhq.com//products/scene-builder/
+[https://gluonhq.com//products/scene-builder/](https://gluonhq.com//products/scene-builder/)
 
 ## FXML 基础
 

@@ -1,12 +1,14 @@
 # maven-source-plugin
 
 - [maven-source-plugin](#maven-source-plugin)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [使用方法](#%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95)
-    - [和 build phase 绑定使用](#%e5%92%8c-build-phase-%e7%bb%91%e5%ae%9a%e4%bd%bf%e7%94%a8)
-    - [使用 profile](#%e4%bd%bf%e7%94%a8-profile)
-  - [自定义配置](#%e8%87%aa%e5%ae%9a%e4%b9%89%e9%85%8d%e7%bd%ae)
+  - [简介](#简介)
+  - [使用方法](#使用方法)
+    - [和 build phase 绑定使用](#和-build-phase-绑定使用)
+    - [使用 profile](#使用-profile)
+  - [自定义配置](#自定义配置)
 
+2020-09-02, 08:40
+@jiaweiM
 ***
 
 ## 简介

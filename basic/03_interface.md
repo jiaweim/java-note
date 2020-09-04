@@ -4,6 +4,7 @@
   - [默认方法冲突](#%e9%bb%98%e8%ae%a4%e6%96%b9%e6%b3%95%e5%86%b2%e7%aa%81)
 
 # Static, Default, Private
+
 早期的 Java 中所有的接口方法都是 `abstract`，即没有实现。现在接口中可以定义三种实现方法：static, default 和 private 方法。
 
 ## Static Method

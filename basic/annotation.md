@@ -1,21 +1,21 @@
 # Java Annotation
 
 - [Java Annotation](#java-annotation)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-    - [为什么使用 Annotation](#%e4%b8%ba%e4%bb%80%e4%b9%88%e4%bd%bf%e7%94%a8-annotation)
-    - [Annotation 工作方式](#annotation-%e5%b7%a5%e4%bd%9c%e6%96%b9%e5%bc%8f)
-    - [Annotation 使用](#annotation-%e4%bd%bf%e7%94%a8)
-    - [Annotation 类型](#annotation-%e7%b1%bb%e5%9e%8b)
-  - [自定义注释](#%e8%87%aa%e5%ae%9a%e4%b9%89%e6%b3%a8%e9%87%8a)
-  - [注释的元素声明](#%e6%b3%a8%e9%87%8a%e7%9a%84%e5%85%83%e7%b4%a0%e5%a3%b0%e6%98%8e)
-  - [标准注解](#%e6%a0%87%e5%87%86%e6%b3%a8%e8%a7%a3)
-  - [内置注解，元注解](#%e5%86%85%e7%bd%ae%e6%b3%a8%e8%a7%a3%e5%85%83%e6%b3%a8%e8%a7%a3)
+  - [简介](#简介)
+    - [为什么使用 Annotation](#为什么使用-annotation)
+    - [Annotation 工作方式](#annotation-工作方式)
+    - [Annotation 使用](#annotation-使用)
+    - [Annotation 类型](#annotation-类型)
+  - [自定义注释](#自定义注释)
+  - [注释的元素声明](#注释的元素声明)
+  - [标准注解](#标准注解)
+  - [内置注解，元注解](#内置注解元注解)
     - [@Target](#target)
     - [@Retention](#retention)
     - [@Documented](#documented)
     - [@Inherited](#inherited)
-  - [用于编译的注释](#%e7%94%a8%e4%ba%8e%e7%bc%96%e8%af%91%e7%9a%84%e6%b3%a8%e9%87%8a)
-  - [用于管理资源的注解](#%e7%94%a8%e4%ba%8e%e7%ae%a1%e7%90%86%e8%b5%84%e6%ba%90%e7%9a%84%e6%b3%a8%e8%a7%a3)
+  - [用于编译的注释](#用于编译的注释)
+  - [用于管理资源的注解](#用于管理资源的注解)
   
 2020-04-28, 10:15
 ***
@@ -161,7 +161,7 @@ Java 注释可以分为3类：
 
 ## 标准注解
 
-Java SE在java.lang.annotation 和javax.annotation包中定义了大量的注解接口，其中四个是元注解，用于描述注解接口的行为属性，其他三个为规则接口，用它们注解你的源代码中的项。
+Java SE在 `java.lang.annotation` 和 `javax.annotation` 包中定义了大量的注解接口，其中四个是元注解，用于描述注解接口的行为属性，其他三个为规则接口，用它们注解你的源代码中的项。
 
 |注解|应用范围|功能|
 |---|---|---|
