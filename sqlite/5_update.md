@@ -2,6 +2,7 @@
 
 - [Update Data](#update-data)
   - [简介](#简介)
+  - [UPDATE 语法](#update-语法)
 
 2020-06-20, 14:26
 ***
@@ -41,3 +42,23 @@ void testUpdate()
     update(3, "Finished Products", 5500);
 }
 ```
+
+## UPDATE 语法
+
+```sql
+UPDATE table
+SET column_1 = new_value_1,
+    column_2 = new_value_2
+WHERE
+    search_condition
+ORDER column_or_expression
+LIMIT row_count OFFSET offset;
+```
+
+说明：
+
+- `update` 后指定表格名称
+- 在 `set` 子句中指定新的值
+- 在 `where` 子句中指定条件。
+
+`where` 子句可选，如果不指定，则更新所有行。
