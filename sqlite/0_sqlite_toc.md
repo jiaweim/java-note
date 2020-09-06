@@ -13,3 +13,4 @@
 - [sqlite tutorial](https://www.sqlitetutorial.net/sqlite-java/)
 - [DB Browser for SQLite](https://sqlitebrowser.org/about/)
 - [SQLite 在线语法编辑](https://sqliteonline.com/)
+- [SQLite 中文网](https://www.sqlite.net.cn/)
