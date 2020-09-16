@@ -1,11 +1,11 @@
 # Java Concurrency API
 
 - [Java Concurrency API](#java-concurrency-api)
-  - [同步机制](#%e5%90%8c%e6%ad%a5%e6%9c%ba%e5%88%b6)
-  - [方法锁](#%e6%96%b9%e6%b3%95%e9%94%81)
-  - [synchronized 实现方案](#synchronized-%e5%ae%9e%e7%8e%b0%e6%96%b9%e6%a1%88)
+  - [同步机制](#同步机制)
+  - [方法锁](#方法锁)
+  - [synchronized 实现方案](#synchronized-实现方案)
 - [wait/notify](#waitnotify)
-  - [`wait` 与 `notify/notifyAll` 方法必须在同步代码块中使用](#wait-%e4%b8%8e-notifynotifyall-%e6%96%b9%e6%b3%95%e5%bf%85%e9%a1%bb%e5%9c%a8%e5%90%8c%e6%ad%a5%e4%bb%a3%e7%a0%81%e5%9d%97%e4%b8%ad%e4%bd%bf%e7%94%a8)
+  - [`wait` 与 `notify/notifyAll` 方法必须在同步代码块中使用](#wait-与-notifynotifyall-方法必须在同步代码块中使用)
   - [volatile](#volatile)
 
 ## 同步机制

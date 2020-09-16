@@ -1,13 +1,13 @@
 # 多线程问题
 
-- [多线程问题](#%e5%a4%9a%e7%ba%bf%e7%a8%8b%e9%97%ae%e9%a2%98)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [线程干扰和数据争用（Data race）](#%e7%ba%bf%e7%a8%8b%e5%b9%b2%e6%89%b0%e5%92%8c%e6%95%b0%e6%8d%ae%e4%ba%89%e7%94%a8data-race)
-  - [内存不一致错误](#%e5%86%85%e5%ad%98%e4%b8%8d%e4%b8%80%e8%87%b4%e9%94%99%e8%af%af)
-  - [死锁（deadlock）](#%e6%ad%bb%e9%94%81deadlock)
-  - [活锁（Livelock）](#%e6%b4%bb%e9%94%81livelock)
-  - [饥饿（Resource starvation）](#%e9%a5%a5%e9%a5%bfresource-starvation)
-  - [优先级反转（Priority inversion）](#%e4%bc%98%e5%85%88%e7%ba%a7%e5%8f%8d%e8%bd%acpriority-inversion)
+- [多线程问题](#多线程问题)
+  - [简介](#简介)
+  - [线程干扰和数据争用（Data race）](#线程干扰和数据争用data-race)
+  - [内存不一致错误](#内存不一致错误)
+  - [死锁（deadlock）](#死锁deadlock)
+  - [活锁（Livelock）](#活锁livelock)
+  - [饥饿（Resource starvation）](#饥饿resource-starvation)
+  - [优先级反转（Priority inversion）](#优先级反转priority-inversion)
 
 ## 简介
 

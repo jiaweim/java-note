@@ -1,5 +1,22 @@
 # 基本概念
 
+- [基本概念](#基本概念)
+  - [进程和线程](#进程和线程)
+    - [进程](#进程)
+    - [线程](#线程)
+  - [并发（Concurrency）和并行（Parallelism）](#并发concurrency和并行parallelism)
+    - [并发](#并发)
+  - [同步（synchronization）](#同步synchronization)
+  - [不可变对象（Immutable object）](#不可变对象immutable-object)
+  - [共享变量](#共享变量)
+  - [原子性（Atomicity）](#原子性atomicity)
+  - [共享内存和信息传递](#共享内存和信息传递)
+  - [可见性（Visibility）](#可见性visibility)
+
+2020-09-12, 14:43
+@jiawei
+***
+
 ## 进程和线程
 
 在并发编程中，有两个基本执行单元：进程（process）和线程（thread）。在 Java 语言中，并发编程主要和线程相关。
