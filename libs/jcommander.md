@@ -1,24 +1,31 @@
-- [概述](#%e6%a6%82%e8%bf%b0)
-- [类型](#%e7%b1%bb%e5%9e%8b)
-  - [基本类型](#%e5%9f%ba%e6%9c%ac%e7%b1%bb%e5%9e%8b)
-  - [List](#list)
-  - [Password](#password)
-- [自定义类型](#%e8%87%aa%e5%ae%9a%e4%b9%89%e7%b1%bb%e5%9e%8b)
-  - [单值](#%e5%8d%95%e5%80%bc)
-    - [通过注释](#%e9%80%9a%e8%bf%87%e6%b3%a8%e9%87%8a)
-    - [factory](#factory)
-- [多个选项名称](#%e5%a4%9a%e4%b8%aa%e9%80%89%e9%a1%b9%e5%90%8d%e7%a7%b0)
-- [必须参数和可选参数](#%e5%bf%85%e9%a1%bb%e5%8f%82%e6%95%b0%e5%92%8c%e5%8f%af%e9%80%89%e5%8f%82%e6%95%b0)
-- [Main parameter](#main-parameter)
-- [Parameter delegates](#parameter-delegates)
-- [参数分隔符](#%e5%8f%82%e6%95%b0%e5%88%86%e9%9a%94%e7%ac%a6)
-- [Usage](#usage)
-- [Default values](#default-values)
-- [Dynamic parameters](#dynamic-parameters)
-- [更复杂的语法](#%e6%9b%b4%e5%a4%8d%e6%9d%82%e7%9a%84%e8%af%ad%e6%b3%95)
-- [Reference](#reference)
+# JCommander
 
-# 概述
+- [JCommander](#jcommander)
+  - [简介](#简介)
+  - [类型](#类型)
+    - [基本类型](#基本类型)
+    - [List](#list)
+    - [Password](#password)
+  - [自定义类型](#自定义类型)
+    - [单值](#单值)
+    - [通过注释](#通过注释)
+    - [factory](#factory)
+  - [多个选项名称](#多个选项名称)
+  - [必须参数和可选参数](#必须参数和可选参数)
+  - [Main parameter](#main-parameter)
+  - [Parameter delegates](#parameter-delegates)
+  - [参数分隔符](#参数分隔符)
+  - [Usage](#usage)
+  - [Default values](#default-values)
+  - [Dynamic parameters](#dynamic-parameters)
+  - [更复杂的语法](#更复杂的语法)
+  - [参考](#参考)
+
+2021-03-13, 10:48
+***
+
+## 简介
+
 JCommander 是一个用于解析命令行的小的Java框架。对参数字段进行注释：
 ```java
 private static class Args1
@@ -74,10 +81,12 @@ public void testArgs2()
 }
 ```
 
-# 类型
+## 类型
+
 JCommander 默认支持基本类型，对其它类型需要自定义转换器。
 
-## 基本类型
+### 基本类型
+
 对 `Parameter` 注释的 boolean 类型，JCommander 将其解析为 arity=0 的选项，即后面不需要带参数：
 ```java
 @Parameter(names = "-debug", description = "Debug mode")
@@ -100,7 +109,8 @@ program -debug false
 private Integer verbose = 1;
 ```
 
-## List
+### List
+
 对 List 类型的参数，JCommander 以该参数可以出现多次来解析，如：
 ```java
 @Parameter(names = "-host", description = "The host")
@@ -111,7 +121,8 @@ private List<String> hosts = new ArrayList<>();
 $ java Main -host host1 -verbose -host host2
 ```
 
-## Password
+### Password
+
 如果你的参数为密码，可以将其类型设置为 password，这样在输入命令时，JCommander 会让你手动输入参数：
 ```java
 public class ArgsPassword {
@@ -125,10 +136,12 @@ Value for -password (Connection password):
 ```
 你需要输入对应的值，JCommander 才能继续执行。
 
-# 自定义类型
+## 自定义类型
+
 将参数和自定义类型绑定，或者自定义参数分隔符（默认是逗号），JCommander 提供了两个接口 `IStringConverter` 和 `IParameterSplitter`。
 
-## 单值
+### 单值
+
 对包含单个值的参数，可以使用 `@Parameter` 的 `converter=` 属性，或者实现 `IStringConverterFactory`。
 
 ### 通过注释
@@ -166,6 +179,7 @@ $ java App -files file1,file2,file3
 JCommander 会自动将 `file1,file2,file3` 分为三个字段存入 List.
 
 ### factory
+
 如果你使用的自定义类型需要在很多地方使用，在每个参数注释的地方都指定转换器就很无聊，此时可以使用 `IStringConverterFactory`：
 ```java
 public interface IStringConverterFactory {
@@ -230,14 +244,16 @@ Assert.assertEquals(a.hostPort.host, "example.com");
 Assert.assertEquals(a.hostPort.port.intValue(), 8080);
 ```
 
-# 多个选项名称
+## 多个选项名称
+
 可以指定多个选项名称，如：
 ```java
 @Parameter(names = { "-d", "--outputDirectory" }, description = "Directory")
 private String outputDirectory;
 ```
 
-# 必须参数和可选参数
+## 必须参数和可选参数
+
 如果有些参数是必须的，可以通过 `required` 属性指定，该属性默认为 `false`：
 ```java
 @Parameter(names = "-host", required = true)
@@ -245,7 +261,8 @@ private String host;
 ```
 必须参数如果没指定，JCommander 会抛出异常告诉你缺哪些参数。
 
-# Main parameter
+## Main parameter
+
 定义 main 参数相对其它参数的不同是，其 `@Parameter` 注释不需要 `names` 属性。可以定义一个且最多一个无需 `names` 属性的参数，可以是 `List<String>`，也可以是单个字段：
 ```java
 @Parameter(description = "Files")
@@ -261,8 +278,10 @@ $ java Main -debug file1 file2
 ```
 `files` 接受参数 "file1" 和 "file2"。
 
-# Parameter delegates
+## Parameter delegates
+
 参数代理，可以将参数传递到另外的类进行解析：
+
 ```java
 class Delegate {
   @Parameter(names = "-port")
@@ -287,7 +306,8 @@ Assert.assertEquals(p.delegate.port, 1234);
 ```
 
 
-# 参数分隔符
+## 参数分隔符
+
 参数默认以空格分隔，不过可以使用 `@`Parameters 设置不同的分隔符：
 ```java
 @Parameters(separators = "=")
@@ -297,7 +317,8 @@ public class SeparatorEqual {
 }
 ```
 
-# Usage
+## Usage
+
 通过 `JCommander` 实例的 `usage()` 方法可以输出参数相关的帮助信息，例如：
 ```java
 JCommander jCommander = JCommander.newBuilder().addObject(finder).build();
@@ -315,7 +336,8 @@ try {
 jCommander.setProgramName("Program Name");
 ```
 
-# Default values
+## Default values
+
 设置默认值的最方便的方式是在声明时提供值：
 ```java
 private Integer logLevel = 3;
@@ -352,7 +374,8 @@ JCommander jc = JCommander.newBuilder()
     .build()
 ```
 
-# Dynamic parameters
+## Dynamic parameters
+
 JCommander 允许指定编译时未知的参数，例如 "-Da=b -Dc=d"。这类参数通过 `@DynamicParameter` 指定，而且必须是 `Map<STring, String` 类型。动态参数可以在命令行中出现多次：
 ```java
 @DynamicParameter(names = "-D", description = "Dynamic parameters go here")
@@ -360,7 +383,8 @@ private Map<String, String> params = new HashMap<>();
 ```
 通过 `assignment` 属性可以指定不同的分隔符，而不必须是 `=`。
 
-# 更复杂的语法
+## 更复杂的语法
+
 很多工具如 *git* 或 *svn* 都有一整套命令，并语法各自不同：
 ```
 $ git commit --amend -m "Bug fix"
@@ -413,6 +437,7 @@ assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
 ```
 
 
-# Reference
+## 参考
+
 - http://jcommander.org/
 - [命名建议](http://catb.org/~esr/writings/taoup/html/ch10s05.html#id2948149)
