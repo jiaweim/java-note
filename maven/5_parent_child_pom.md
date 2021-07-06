@@ -1,7 +1,7 @@
 # Parent and Child POM
 
 - [Parent and Child POM](#parent-and-child-pom)
-  - [简介](#%e7%ae%80%e4%bb%8b)
+  - [简介](#简介)
 
 ***
 

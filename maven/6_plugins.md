@@ -1,16 +1,16 @@
-# Maven Plugin
+# Maven 插件
 
-- [Maven Plugin](#maven-plugin)
-- [总结](#%e6%80%bb%e7%bb%93)
-- [maven-javadoc-plugin](#maven-javadoc-plugin)
-- [maven-shade-plugin](#maven-shade-plugin)
-  - [Goal](#goal)
-  - [打包成可执行 JAR](#%e6%89%93%e5%8c%85%e6%88%90%e5%8f%af%e6%89%a7%e8%a1%8c-jar)
-  - [Resource Transformaters](#resource-transformaters)
-    - [ManifestResourceTransformer](#manifestresourcetransformer)
-  - [选择打包内容](#%e9%80%89%e6%8b%a9%e6%89%93%e5%8c%85%e5%86%85%e5%ae%b9)
+- [Maven 插件](#maven-插件)
+  - [总结](#总结)
+  - [maven-javadoc-plugin](#maven-javadoc-plugin)
+  - [maven-shade-plugin](#maven-shade-plugin)
+    - [Goal](#goal)
+    - [打包成可执行 JAR](#打包成可执行-jar)
+    - [Resource Transformaters](#resource-transformaters)
+      - [ManifestResourceTransformer](#manifestresourcetransformer)
+    - [选择打包内容](#选择打包内容)
 
-# 总结
+## 总结
 
 |插件|功能|
 |---|---|
@@ -18,16 +18,18 @@
 |maven-assembly-plugin|提取包括依赖 JARs 在内的所有类，可用于构建可执行 JAR。只适用于依赖项较少的项目，对包含许多依赖项的大型项目，无法处理类名称冲突的问题|
 |maven-shade-plugin|将所有依赖项打包为一个 uber-JAR。可用于构建可执行 JAR。能解决命名冲突问题|
 
+## maven-javadoc-plugin
 
-# maven-javadoc-plugin
 Apache Maven Javadoc Plugin 使用 Javadoc 工具生成指定项目的 javadocs。
 
-# maven-shade-plugin
+## maven-shade-plugin
+
 该插件用于将项目打包成一个 jar，可用于打包可执行 jar。并且对命名重叠的依赖项，会进行 shade 操作（如重命名对应的包）。
 
 Shade 插件只有一个 shade:shade goal，和 package phase 绑定，用于创建 shaded jar。
 
-## Goal
+### Goal
+
 ```xml
 <project>
 ...
@@ -57,9 +59,11 @@ Shade 插件只有一个 shade:shade goal，和 package phase 绑定，用于创
 </project>
 ```
 
-## 打包成可执行 JAR
+### 打包成可执行 JAR
+
 打包成可执行 JAR
 只需要指定 main 类即可，如下所示：
+
 ```xml
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
@@ -83,7 +87,8 @@ Shade 插件只有一个 shade:shade goal，和 package phase 绑定，用于创
 </plugin>
 ```
 
-## Resource Transformaters
+### Resource Transformaters
+
 如果没有重叠（如不同版本的相同包），将多个包合并为一个 JAR 很容易。否则，就需要以特定的方式将这些 JARs 合并，Resource transformers 就是干这事。
 
 org.apache.maven.plugins.shade.resource 中的 transformers:
@@ -102,14 +107,17 @@ org.apache.maven.plugins.shade.resource 中的 transformers:
 |ServicesResourceTransformer|Relocated class names in META-INF/services resources and merges them|
 |XmlAppendingTransformer|Adds XML content to an XML resource|
 
-### ManifestResourceTransformer
+#### ManifestResourceTransformer
+
 用于设置 MANIFEST 中的内容：
 - Main-Class 用于设置 app.main.class 属性
 - X-Compile-Source-JDK 用于设置 maven,compile.source 属性值
 - X-Compile-Target-JDK 用于设置maven.compile.target 属性值
 
-## 选择打包内容
+### 选择打包内容
+
 为了控制 JAR 文件大小，可以通过如下方式指定包含在JAR文件里的内置:
+
 ```xml
 <project>
     ...
@@ -183,6 +191,7 @@ org.apache.maven.plugins.shade.resource 中的 transformers:
 上面，对依赖项 `junit:junit` 只有指定的类和资源包含在 uber JAR 中。第二个过滤器在指定 artifact 处演示了通配符的使用，它移除了所有JAR的签名相关的文件。
 
 另外，还支持自动移除所有项目不依赖的类，从而最小化 uber JAR：
+
 ```xml
 <execution>
     <phase>package</phase>

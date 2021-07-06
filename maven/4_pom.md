@@ -1,10 +1,10 @@
 # POM
 
 - [POM](#pom)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [POM 文件内容](#pom-%e6%96%87%e4%bb%b6%e5%86%85%e5%ae%b9)
+  - [简介](#简介)
+  - [POM 文件内容](#pom-文件内容)
   - [Properties](#properties)
-  - [配置 encoding](#%e9%85%8d%e7%bd%ae-encoding)
+  - [配置 encoding](#配置-encoding)
   - [Developers](#developers)
 
 ## 简介

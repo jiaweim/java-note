@@ -1,4 +1,5 @@
 # VisualVM 入门
+
 VisualVM 提供 JVM 上运行程序的详细信息，以可视化的方式呈现出来。它整合了多种命令行工具，包括 jmap, jstack, jConsole, jstat 和 jinfo。这些工具在标准 JDK 版本中均有。
 
 它可以帮助我们发现内存泄漏，分析堆数据，监视垃圾回收和CPU。
