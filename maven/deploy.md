@@ -1,5 +1,5 @@
-
 # 概述
+
 要将 jar 发布到远程 maven 仓库，需要在 pom.xml 文件中配置 repository 地址，并在 settings.xml 中添加验证信息。
 
 maven 使用 **Apache Maven Deploy Plugin** 执行部署任务，该插件具有两个功能：

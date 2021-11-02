@@ -10,10 +10,10 @@
 2. 将当前任务与主线程隔离，能实现和主线程的异步执行，特别是很多可以分开重复执行的任务；
 3. 实现线程创建和管理的分离。
 
-- [线程池](#%e7%ba%bf%e7%a8%8b%e6%b1%a0)
-  - [线程池原理](#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e5%8e%9f%e7%90%86)
-  - [线程池 API](#%e7%ba%bf%e7%a8%8b%e6%b1%a0-api)
-  - [线程池实现](#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e5%ae%9e%e7%8e%b0)
+- [线程池](#线程池)
+  - [线程池原理](#线程池原理)
+  - [线程池 API](#线程池-api)
+  - [线程池实现](#线程池实现)
   - [ExecutorService](#executorservice)
   - [invokeAll](#invokeall)
   - [invokeAny](#invokeany)

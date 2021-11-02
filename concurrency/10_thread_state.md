@@ -2,7 +2,7 @@
 
 ![life cycle](images/2020-03-03-22-49-05.png)
 
-- [线程生命周期](#%e7%ba%bf%e7%a8%8b%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f)
+- [线程生命周期](#线程生命周期)
   - [NEW](#new)
   - [RUNNABLE](#runnable)
   - [BLOCKED](#blocked)

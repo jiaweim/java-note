@@ -1,14 +1,14 @@
 # Maven Plugin
 
 - [Maven Plugin](#maven-plugin)
-- [总结](#%e6%80%bb%e7%bb%93)
+- [总结](#总结)
 - [maven-javadoc-plugin](#maven-javadoc-plugin)
 - [maven-shade-plugin](#maven-shade-plugin)
   - [Goal](#goal)
-  - [打包成可执行 JAR](#%e6%89%93%e5%8c%85%e6%88%90%e5%8f%af%e6%89%a7%e8%a1%8c-jar)
+  - [打包成可执行 JAR](#打包成可执行-jar)
   - [Resource Transformaters](#resource-transformaters)
     - [ManifestResourceTransformer](#manifestresourcetransformer)
-  - [选择打包内容](#%e9%80%89%e6%8b%a9%e6%89%93%e5%8c%85%e5%86%85%e5%ae%b9)
+  - [选择打包内容](#选择打包内容)
 
 # 总结
 

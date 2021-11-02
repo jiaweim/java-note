@@ -1,19 +1,19 @@
 # Introduction
 
 - [Introduction](#introduction)
-  - [概述](#%e6%a6%82%e8%bf%b0)
-    - [POM文件](#pom%e6%96%87%e4%bb%b6)
-    - [生命周期、阶段和目标](#%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f%e9%98%b6%e6%ae%b5%e5%92%8c%e7%9b%ae%e6%a0%87)
-    - [依赖项和仓库](#%e4%be%9d%e8%b5%96%e9%a1%b9%e5%92%8c%e4%bb%93%e5%ba%93)
-    - [构建插件](#%e6%9e%84%e5%bb%ba%e6%8f%92%e4%bb%b6)
-    - [构建配置](#%e6%9e%84%e5%bb%ba%e9%85%8d%e7%bd%ae)
-  - [构建生命周期](#%e6%9e%84%e5%bb%ba%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f)
+  - [概述](#概述)
+    - [POM文件](#pom文件)
+    - [生命周期、阶段和目标](#生命周期阶段和目标)
+    - [依赖项和仓库](#依赖项和仓库)
+    - [构建插件](#构建插件)
+    - [构建配置](#构建配置)
+  - [构建生命周期](#构建生命周期)
     - [Life cycle](#life-cycle)
     - [Phase](#phase)
     - [Goal](#goal)
-  - [插件](#%e6%8f%92%e4%bb%b6)
-  - [Maven 安装](#maven-%e5%ae%89%e8%a3%85)
-  - [Maven 目录结构](#maven-%e7%9b%ae%e5%bd%95%e7%bb%93%e6%9e%84)
+  - [插件](#插件)
+  - [Maven 安装](#maven-安装)
+  - [Maven 目录结构](#maven-目录结构)
 
 ***
 
