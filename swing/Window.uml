@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>java.awt.Container</OriginalElement>
+  <nodes>
+    <node x="121.0" y="81.0">java.awt.Frame</node>
+    <node x="0.0" y="162.0">javax.swing.JDialog</node>
+    <node x="55.75" y="0.0">java.awt.Window</node>
+    <node x="119.0" y="162.0">javax.swing.JFrame</node>
+    <node x="2.5" y="81.0">java.awt.Dialog</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="javax.swing.JFrame" target="java.awt.Frame" relationship="GENERALIZATION">
+      <point x="0.0" y="-15.5" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="java.awt.Frame" target="java.awt.Window" relationship="GENERALIZATION">
+      <point x="0.0" y="-15.5" />
+      <point x="167.0" y="56.0" />
+      <point x="108.25" y="56.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="javax.swing.JDialog" target="java.awt.Dialog" relationship="GENERALIZATION">
+      <point x="0.0" y="-15.5" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="java.awt.Dialog" target="java.awt.Window" relationship="GENERALIZATION">
+      <point x="0.0" y="-15.5" />
+      <point x="49.5" y="56.0" />
+      <point x="108.25" y="56.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="1.0" showDependencies="false" x="107.5" y="96.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
