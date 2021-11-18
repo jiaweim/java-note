@@ -1,9 +1,43 @@
 # Swing 并发
 
 - [Swing 并发](#swing-并发)
+  - [初始线程](#初始线程)
   - [线程模式](#线程模式)
+    - [判断是否在 EDT](#判断是否在-edt)
+    - [添加任务到 EDT](#添加任务到-edt)
+    - [在 EDT 外可调用方法](#在-edt-外可调用方法)
+    - [PropertyChangeListener](#propertychangelistener)
+  - [鼠标事件判断](#鼠标事件判断)
   - [Timer](#timer)
   - [SwingWorker](#swingworker)
+    - [获得执行结果](#获得执行结果)
+    - [中间结果](#中间结果)
+    - [取消任务](#取消任务)
+    - [绑定属性和状态方法](#绑定属性和状态方法)
+      - [progress](#progress)
+      - [state](#state)
+  - [参考](#参考)
+
+2021-11-18, 12:52
+***
+
+## 初始线程
+
+每个程序都有一组线程，在标准程序中，只有一个这样的线程：调用程序类 `main` 方法的线程。该线程称为初始线程。
+
+在 Swing 程序中，初始线程执行的任务很少：创建一个 `Runnable` 对象，该对象初始化 GUI，并安排该对象在 EDT 线程上执行。一旦创建 GUI，程序主要由 GUI 事件驱动，每个GUI事件导致一个任务在 EDT 执行。应用程序代码可以在 EDT 执行（可以快速完成的任务，以免干扰事件处理），也可以在工作线程（长时间运行任务）执行。
+
+初始线程通过调用 `javax.swing.SwingUtilities.invokeLater` 或 `javax.swing.SwingUtilities.invokeAndWait` 调度 GUI 创建任务。这两个方法都有一个 `Runnable` 参数。
+
+在 Swing 中常能看到如下代码：
+
+```java
+SwingUtilities.invokeLater(new Runnable() {
+    public void run() {
+        createAndShowGUI();
+    }
+});
+```
 
 ## 线程模式
 
@@ -41,14 +75,207 @@ try {
 
 一般来说，`invokeAndWait` 用起来比 `invokeLater` 更简单，因为它是同步执行 `Runnable` 任务，似乎也不需要担心多个线程同时执行。不过一定要明确正在创建的线程和锁的依赖关系，确保无死锁出现。
 
-除了三个工具方法，每个 Swing 组件提供了两个可以在任何线程调用的方法：`repaint()` 和 `revalidate()`。
+### 判断是否在 EDT
+
+判断当前代码是否在 EDT 线程，可以使用 `EventQueue` 的：
+
+```java
+public static boolean isDispatchThread()
+```
+
+也可以使用 `SwingUtilities` 的：
+
+```java
+public static boolean isEventDispatchThread()
+```
+
+`SwingUtilities` 调用的是 `EventQueue` 的方法。
+
+### 添加任务到 EDT
+
+使用 `EventQueue` 的 `invokeLater` 提交任务到 EDT：
+
+```java
+public static void invokeLater(Runnable runnable)
+```
+
+以这种方法提交的任务在 EDT 排队等待执行，并立刻返回。
+
+如果需要等待任务完成，使用 `invokeAndWait` 方法，该方法会阻塞当前线程，直到任务在 EDT 完成并返回：
+
+```java
+public static void invokeAndWait(Runnable runnable)
+```
+
+下面是一个简单实例：
+
+```java
+public class ButtonSample
+{
+    public static void main(String[] args)
+    {
+        Runnable runner = () -> {
+            JFrame frame = new JFrame("Button Sample");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JButton button = new JButton("Select Me");
+            // Attach listeners
+            button.addActionListener(e -> System.out.println("I was selected."));
+            frame.add(button, BorderLayout.SOUTH);
+            frame.setSize(300, 100);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner); // 参数为 Runnable 类型
+    }
+}
+```
+
+> `invokeLater()`, `invokeAndWait()` 方法都在 `EventQueue` 中，在 `SwingUtilities` 也有它们的代理调用方法。`SwingUtilities` 是为早期 Swing 版本服务的，当时还没有 `EventQueue` 类，因此推荐直接使用 `EventQueue`。
+
+### 在 EDT 外可调用方法
+
+除了上面提到的三个工具方法：`invokeLater`、`invokeAndWait` 和 `isDispatchThread`。每个 Swing 组件提供了三个可以在任何线程调用的方法：
 
 - `revalidate` 强制一个组件布置它的子组件；
-- `repaint` 单纯的刷新显示。
+- `repaint` 单纯的刷新显示;
+- `revalidate`。
 
-两个方法都是在 EDT 上执行，不管在哪个线程调用它们。
+三个方法都是在 EDT 上执行，不管在哪个线程调用它们。
 
 `repaint` 方法在 Swing 中使用十分广泛，用来同步组件的属性和屏幕展示。例如，调用 `JButton.setForeground(Color)` 更改按钮的前景色，Swing 会存储新颜色，并调用 `repaint()` 显示新颜色。调用 `repaint()` 会触发 EDT 上其它几个方法的执行，包括 `paint()` 和 `paintComponent()`。
+
+### PropertyChangeListener
+
+除了基本的事件委托机制，JavaBeans 框架还引入了另一种 Observer 设计模式，即 `PropertyChangeListener`。
+
+每个 `Observer` 监听 `Subject` 的一个属性，当属性发生改变，通知 `Observer` 新的状态。
+
+## 鼠标事件判断
+
+`MouseInputListener` 接口包含 7 个方法，包括 `MouseListener` 的 5 个：
+
+```java
+public interface MouseListener extends EventListener {
+
+    public void mouseClicked(MouseEvent e);
+
+    public void mousePressed(MouseEvent e);
+
+    public void mouseReleased(MouseEvent e);
+
+    public void mouseEntered(MouseEvent e);
+
+    public void mouseExited(MouseEvent e);
+}
+```
+
+和 `MouseMotionListener` 的 2 个：
+
+```java
+public interface MouseMotionListener extends EventListener {
+
+    public void mouseDragged(MouseEvent e);
+
+    public void mouseMoved(MouseEvent e);
+}
+```
+
+如果要确定鼠标的哪个键被按下，可以检查 `MouseEvent` 的 `modifiers` 属性，并将其与 `InputEvent` 类的不同掩码常量对比。例如，在 `mousePressed()` 方法中检查是否鼠标中间按钮被按下：
+
+```java
+public void mousePressed(MouseEvent mouseEvent) {
+    int modifiers = mouseEvent.getModifiers();
+    if ((modifiers & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
+        System.out.println("Middle button pressed.");
+    }
+}
+```
+
+不过 `SwingUtilities` 中有更简单的方法：
+
+```java
+SwingUtilities.isLeftMouseButton(MouseEvent mouseEvent)
+SwingUtilities.isMiddleMouseButton(MouseEvent mouseEvent)
+SwingUtilities.isRightMouseButton(MouseEvent mouseEvent)
+```
+
+目前推荐使用 `public int getModifiersEx()` 方法获得鼠标事件的修饰掩码。
+
+对原来的修饰符进行了扩展，扩展修饰符以 `_DOWN_MASK` 后缀结尾。扩展修饰符用于支持模态键，如按下 ALT, CTRL, META 后按鼠标。
+
+例如，假设用户按顺序按下 button1，button 2，然后按同样的顺序释放，则生成如下事件序列：
+
+```txt
+MOUSE_PRESSED:   BUTTON1_DOWN_MASK
+MOUSE_PRESSED:   BUTTON1_DOWN_MASK | BUTTON2_DOWN_MASK
+MOUSE_RELEASED:  BUTTON2_DOWN_MASK
+MOUSE_CLICKED:   BUTTON2_DOWN_MASK
+MOUSE_RELEASED:
+MOUSE_CLICKED:
+```
+
+这里不建议使用 `==` 比较该方法返回的值，因为将来可能会添加新的修饰符。推荐方式是，如检查按下 SHIFT+BUTTON1，释放 CTRL：
+
+```java
+int onmask = SHIFT_DOWN_MASK | BUTTON1_DOWN_MASK;
+int offmask = CTRL_DOWN_MASK;
+if ((event.getModifiersEx() & (onmask | offmask)) == onmask) {
+    ...
+}
+```
+
+下面依然以 `Button` 为例演示这两种用法：
+
+```java
+public class ButtonSample
+{
+    public static void main(String[] args)
+    {
+        Runnable runner = () -> {
+            JFrame frame = new JFrame("Button Sample");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JButton button = new JButton("Select Me");
+            // Attach listeners
+            button.addActionListener(e -> System.out.println("I was selected."));
+            MouseListener mouseListener = new MouseAdapter()
+            {
+                @Override
+                public void mousePressed(MouseEvent e)
+                {
+                    int modifiers = e.getModifiersEx();
+                    if ((modifiers & InputEvent.BUTTON1_DOWN_MASK) == InputEvent.BUTTON1_DOWN_MASK) {
+                        System.out.println("Left button pressed.");
+                    }
+                    if ((modifiers & InputEvent.BUTTON2_DOWN_MASK) == InputEvent.BUTTON2_DOWN_MASK) {
+                        System.out.println("Middle button pressed.");
+                    }
+                    if ((modifiers & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
+                        System.out.println("Right button pressed.");
+                    }
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e)
+                {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        System.out.println("Left button released.");
+                    }
+                    if (SwingUtilities.isMiddleMouseButton(e)) {
+                        System.out.println("Middle button released.");
+                    }
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        System.out.println("Right button released.");
+                    }
+                }
+            };
+            button.addMouseListener(mouseListener);
+            frame.add(button, BorderLayout.SOUTH);
+            frame.setSize(300, 100);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
 
 ## Timer
 
@@ -104,9 +331,21 @@ Timer 选择：
 
 同时，我们希望通过显示已加载图像的名称，向用户展示进度信息。当后台线程完成时，要求返回它加载的图像列表。要在 `SwingWorker` 实现该任务，需要继承 `SwingWorker` 并覆盖 `doInBackground()` 方法。
 
-`SwingWorker` 是泛型类，有两个泛型参数 `T` 和 `V`。`T` 是 `doInBackground()` 的返回值，`V` 是中间值类型，可以使用 `publish(V...)` 发送到 EDT。然后 `SwingWorker` 在 EDT 上调用 `process(V...)` 方法。需要覆盖 `process` 方法从而在 GUI 上显示中间值。任务完成后，`SwingWorker` 在 EDT 上调用 `done()` 方法。
+`SwingWorker` 是泛型类，有两个泛型参数 `T` 和 `V`：
+
+- `T` 是 `doInBackground()` 的返回值；
+- `V` 是中间值类型，可以使用 `publish(V...)` 发送到 EDT。
+
+然后 `SwingWorker` 在 EDT 上调用 `process(V...)` 方法。需要覆盖 `process` 方法从而在 GUI 上显示中间值。任务完成后，`SwingWorker` 在 EDT 上调用 `done()` 方法。
 
 通常还会覆盖 `done()` 方法以显示最终结果。`doInBackground()` 完成后，`SwingWorker` 会自动在 EDT 中调用 `done()`。在 `done()` 中，可以使用 `get()` 方法获得 `doInBackground` 的返回值。
+
+总结：
+
+- `done` 方法在任务完成后，自动在 EDT 调用（可以在 done 里更新 UI）；
+- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口，提供了获取返回值、取消任务、检查任务是否完成、是否取消等功能；
+- 使用 `SwingWorker.publish` 可以发布中间结果，触发 `SwingWorker` 在 EDT 上调用；
+- 后台线程可以定义 bound 属性，修改属性触发事件，从而触发 EDT 上的事件处理方法的调用。
 
 ![](images/2021-11-16-13-17-15.png)
 
@@ -166,5 +405,275 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 }
 ```
 
+### 获得执行结果
+
+使用 `SwingWorker` 的 `get()` 方法获得 `doInBackground` 执行的返回值。
+
+之所以不直接在 `doInBackground` 直接使用计算结果，是因为 `doInBackground` 中的代码是在后台线程执行，而 `done` 方法是在 EDT 执行，所以为了线程安全，专门设计了 `done` 方法。
+
+获得 `doInBackground` 返回结果的`get` 方法有两个重载：
+
+- 无参数 `SwingWorker.get`，如果后台线程没执行完，`get` 阻塞直到获得返回值；
+- `Swing.get(long timeout, TimeUnit unit)`，如果后台线程没执行完，`get` 阻塞到指定时间，然后抛出 `java.util.concurrent.TimeoutException`。
+
+在 EDT 线程中调用 `get` 存在风险，很可能阻塞EDT。如果不确定任务执行进度，最好在 `done` 方法中调用。
+
+### 中间结果
+
+后台线程在执行过程中提供已计算出来的结果有时候很有用。可以通过调用 `SwingWorker.publish` 方法实现。该方法接受可变参数，参数类型为 `SwingWorker` 的第二个泛型参数类型。
+
+覆盖 `SwingWorker.process` 方法收集 `publish` 发布的结果。该方法在 EDT 中执行。出于性能考虑，往往多次调用的 `publish` 结果累计到一次 `process` 调用中。
+
+下面使用一个实例来演示该功能，该程序 `java.util.Random` 在后台生成一系列随机 `boolean` 值测试 `java.util.Random` 的公平性，和抛硬币一样，所以命名为 `Flipper`。后台任务使用 `FlipPair` 发布结果。
+
+```java
+public class Flipper extends JFrame implements ActionListener
+{
+    private final GridBagConstraints constraints;
+    private final JTextField headsText, totalText, devText;
+    private final Border border = BorderFactory.createLoweredBevelBorder();
+    private final JButton startButton, stopButton;
+    private FlipTask flipTask;
+
+    private JTextField makeText()
+    {
+        JTextField t = new JTextField(20);
+        t.setEditable(false);
+        t.setHorizontalAlignment(JTextField.RIGHT);
+        t.setBorder(border);
+        getContentPane().add(t, constraints);
+        return t;
+    }
+
+    private JButton makeButton(String caption)
+    {
+        JButton b = new JButton(caption);
+        b.setActionCommand(caption);
+        b.addActionListener(this);
+        getContentPane().add(b, constraints);
+        return b;
+    }
+
+    public Flipper()
+    {
+        super("Flipper");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Make text boxes
+        getContentPane().setLayout(new GridBagLayout());
+        constraints = new GridBagConstraints();
+        constraints.insets = new Insets(3, 10, 3, 10);
+        headsText = makeText();
+        totalText = makeText();
+        devText = makeText();
+
+        //Make buttons
+        startButton = makeButton("Start");
+        stopButton = makeButton("Stop");
+        stopButton.setEnabled(false);
+
+        //Display the window.
+        pack();
+        setVisible(true);
+    }
+
+    private static class FlipPair
+    {
+        private final long heads, total;
+
+        FlipPair(long heads, long total)
+        {
+            this.heads = heads;
+            this.total = total;
+        }
+    }
+
+    private class FlipTask extends SwingWorker<Void, FlipPair>
+    {
+        @Override
+        protected Void doInBackground()
+        {
+            long heads = 0; // 结果为 true 的次数
+            long total = 0; // 总随机次数
+            Random random = new Random();
+            while (!isCancelled()) {
+                total++;
+                if (random.nextBoolean()) {
+                    heads++;
+                }
+                publish(new FlipPair(heads, total)); // 发布目前的 heads 数和总试验次数
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(List<FlipPair> pairs)
+        {
+            // 处理临时结果
+            FlipPair pair = pairs.get(pairs.size() - 1);
+            headsText.setText(String.format("%d", pair.heads));
+            totalText.setText(String.format("%d", pair.total));
+            devText.setText(String.format("%.10g",
+                    ((double) pair.heads) / ((double) pair.total) - 0.5));
+        }
+    }
 
 
+    public void actionPerformed(ActionEvent e)
+    {
+        if ("Start" == e.getActionCommand()) {
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            (flipTask = new FlipTask()).execute();
+        } else if ("Stop" == e.getActionCommand()) {
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            flipTask.cancel(true);
+            flipTask = null;
+        }
+
+    }
+
+    public static void main(String[] args)
+    {
+        SwingUtilities.invokeLater(Flipper::new);
+    }
+}
+```
+
+后台线程以 `FlipTask` 实现：
+
+```java
+private class FlipTask extends SwingWorker<Void, FlipPair> {
+```
+
+由于该任务不用返回最终结果，因此第一个参数为 `Void`。每生成一个随机数，该任务使用 `publish` 发布一次结果：
+
+```java
+@Override
+protected Void doInBackground() {
+    long heads = 0;
+    long total = 0;
+    Random random = new Random();
+    while (!isCancelled()) {
+        total++;
+        if (random.nextBoolean()) {
+            heads++;
+        }
+        publish(new FlipPair(heads, total));
+    }
+    return null;
+}
+```
+
+其中 `isCancelled` 方法用于判断当前任务是否取消。
+
+由于调用 `publish` 十分频繁，在 EDT 中调用 `process` 前会累计许多 `FlipPair` 值传递给。`process` 每次只对最后一个值感兴趣，并用该值更新 UI：
+
+```java
+protected void process(List<FlipPair> pairs) {
+    FlipPair pair = pairs.get(pairs.size() - 1);
+    headsText.setText(String.format("%d", pair.heads));
+    totalText.setText(String.format("%d", pair.total));
+    devText.setText(String.format("%.10g", 
+            ((double) pair.heads)/((double) pair.total) - 0.5));
+}
+```
+
+如果 `Random` 足够公平，随着 `Flipper` 运行 `devText` 值会接近 0.
+
+### 取消任务
+
+调用 `SwingWorker.cancel` 取消正在运行的后台任务。需要自定义取消逻辑，实现方式有两种：
+
+- 收到 interrupt 通知时终止；
+- 频繁调用 `SwingWorker.isCancelled` 检查打断通知。
+
+`cancel` 方法接收单个 `boolean` 参数。如果参数为 `true`，`cancel` 方法发送后台任务 interrupt 通知。不管 `cancel` 的参数是 `true` 还是 `false`，调用 `cancel` 都会将对象的取消状态设置为 `true`。
+
+上面的 `Flipper` 例子使用了检查状态的习惯用法，当 `isCancelled` 返回 `true` 时，`doInBackground` 退出主循环。在用户点击 `Cancel` 按钮时触发该方法：
+
+```java
+if ("Stop" == e.getActionCommand()) {
+    startButton.setEnabled(true);
+    stopButton.setEnabled(false);
+    flipTask.cancel(true);
+    flipTask = null;
+}
+```
+
+使用检查状态的方法对 `Flipper` 有效，是因为 `SwingWorker.doInBackground` 中不包含任何会抛出 `InterruptedException` 的代码。
+
+如果要线程打断进行响应，后台线程需要经常使用 `Thread.isInterrupted` 检查。和使用 `SwingWorker.isCancelled` 一样简单。
+
+### 绑定属性和状态方法
+
+`SwingWorker` 支持绑定属性，便于和其它线程通信。
+
+预定义了两个属性：
+
+- progress
+- state
+
+与其它绑定属性一样，`progress` 和 `state` 可用于触发 EDT 上的事件处理任务，
+
+#### progress
+
+绑定变量 `progress` 是一个 0 到 100 的 int 值。它有一个预定义的 setter 方法（`SwingWorker.setProgress`）和一个预定义的 getter 方法（`SwingWorker.getProgress`）。
+
+使用基本流程是，在 `doInBackground` 中更新进度，用 `setProgress` 发布进度：
+
+```java
+public Void doInBackground()
+{
+    Random random = new Random();
+    int progress = 0;
+    //Initialize progress property.
+    setProgress(0);
+    while (progress < 100) {
+        //Sleep for up to one second.
+        try {
+            Thread.sleep(random.nextInt(1000));
+        } catch (InterruptedException ignore) {}
+        //Make random progress.
+        progress += random.nextInt(10);
+        setProgress(Math.min(progress, 100));
+    }
+    return null;
+}
+```
+
+对 `SwingWorker` 事件添加 `PropertyChangeListener`：
+
+```java
+task = new Task();
+task.addPropertyChangeListener(this);
+```
+
+实现 `PropertyChangeListener` 的一般时 GUI 组件，在监听器类 `propertyChange` 中提取进度值，更新到 UI：
+
+```java
+public void propertyChange(PropertyChangeEvent evt)
+{
+    if ("progress" == evt.getPropertyName()) {
+        int progress = (Integer) evt.getNewValue();
+        progressBar.setValue(progress);
+        taskOutput.append(String.format("Completed %d%% of task.\n", task.getProgress()));
+    }
+}
+```
+
+#### state
+
+绑定属性 `state` 表示 `SwingWorker` 在其生命周期中的位置。生命周期可能值以 enum `SwingWorker.StateValue` 表示，包括：
+
+- PENDING，从构造 `SwingWorker` 到调用 `doInBackground` 之间的这一段；
+- STARTED，从 `doInBackground` 调用到 `done` 被调用之间；
+- DONE，`done` 被调用后的状态。
+
+可以使用 `SwingWorker.getState` 获得 `state` 的当前值。
+
+## 参考
+
+- The Definitive Guide to Java Swing, 3ed
+- https://docs.oracle.com/javase/tutorial/uiswing/concurrency/index.html
