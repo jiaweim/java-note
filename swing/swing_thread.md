@@ -650,7 +650,7 @@ task = new Task();
 task.addPropertyChangeListener(this);
 ```
 
-实现 `PropertyChangeListener` 的一般时 GUI 组件，在监听器类 `propertyChange` 中提取进度值，更新到 UI：
+实现 `PropertyChangeListener` 的一般是 GUI 组件，在监听器类 `propertyChange` 中提取进度值，更新到 UI：
 
 ```java
 public void propertyChange(PropertyChangeEvent evt)

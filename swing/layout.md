@@ -7,14 +7,13 @@
   - [FlowLayout](#flowlayout)
   - [GridLayout](#gridlayout)
   - [GridBagLayout](#gridbaglayout)
-  - [BoxLayout](#boxlayout)
   - [SpringLayout](#springlayout)
   - [GroupLayout](#grouplayout)
   - [AbsoluteLayout](#absolutelayout)
 
 ## 简介
 
-
+- [BoxLayout](layout_boxlayout.md)
 
 手动编写 layout 十分麻烦，如果对布局细节不感兴趣，可以使用`GroupLayout` 结合使用GUI builder(如WindowBuilder)。如果想手动编写layout，又不想用 `GroupLayout`，则推荐使用 `GridBagLayout`，灵活而强大。
 
@@ -97,14 +96,6 @@ public class BorderLayoutDemo
 - `GridBagConstraints.NORTH`，顶部缩小；
 - `GridBagConstraints.NORTHEASY`，左上角缩小；
 - `GridBagConstraints`，右侧缩小。
-
-## BoxLayout
-
-BoxLayout 提供三种填充物：
-
-- 支柱（）
-- 固定区
-- 弹簧
 
 ## SpringLayout
 

@@ -6,5 +6,32 @@
 
 ![](images/2021-11-17-13-36-32.png)
 
-**Icon**：图标用于指示消息类型。使用 laf 会根据消息类型提供对应图标，
+下面对这些部分如何配置进行详细讨论。
 
+## 创建
+
+Swing 提供了两种创建 `JOptionPane` 的方式：构造函数和工厂方法。
+
+
+
+## Icon
+
+Icon：图标用于指示消息类型。使用 laf 会根据消息类型提供对应图标，
+
+## Message
+
+这部分用于展示信息。
+
+## Input
+
+输入区域允许有用户提供对信息的响应。
+
+输入形式自由，可以使用如 JTextField, JComboBox, `JButton` 等任意组件。
+
+## Button
+
+按钮区域也是用于获取用户反馈信息。在这个区域点击任意按钮，`JOptionPane` 都会关闭。
+
+## 参考
+
+- The Definitive Guide to Java Swing, 3ed

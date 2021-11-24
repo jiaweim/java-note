@@ -6,6 +6,7 @@
   - [设计要素](#设计要素)
   - [Event 对象](#event-对象)
   - [适配器类](#适配器类)
+  - [监听器管理](#监听器管理)
 
 2021-11-15, 22:55
 ***
@@ -54,3 +55,14 @@
 |MouseAdapter|鼠标适配器|
 |MouseMotionAdapter|鼠标移动适配器|
 |WindowAdapter|窗口适配器|
+
+
+## 监听器管理
+
+对自定义组件，需要自己维护监听器列表。对 AWT 事件的监听器，可以用 `AWTEventMulticaster` 类管理，所有 AWT 组件都使用该类管理事件监听器列表。该类实现了所有 AWT 事件监听器，包括 `ActionListener`, `AdjustmentListener`, `ComponentListener`, `ContainerListenerr`, `FocusListener`, `HierarchyBoundsListener`, `HierarchyListener`, `InputMethodListener`, `ItemListener`, `KeyListener`, `MouseListener` 等。每当你调用组件的方法来添加或删除监听器，都会使用 `AWTEventMulticaster` 提供支持。
+
+所以，如果你想创建自己的组件，并管理以上 AWT 事件/监听器，可以使用 `AWTEventMulticaster`。
+
+
+
+为了便于管理监听器，Swing 提供了 `EventListenerList` 类。
