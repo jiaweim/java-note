@@ -56,9 +56,11 @@ JFileChooser(String currentDirectoryPath) // 指向某个路径
 
 有三种在 `JDialog` 中显示 `JFileChooser` 的方法：
 
-- public int showDialog(Component parentComponent, String approvalButtonText)
-- public int showOpenDialog(Component parentComponent)
-- public int showSaveDialog(Component parentComponent)
+```java
+public int showDialog(Component parentComponent, String approvalButtonText)
+public int showOpenDialog(Component parentComponent)
+public int showSaveDialog(Component parentComponent)
+```
 
 调用上面的方法会将 `JFileChooser` 放到模态 `JDialog` 中，并在父组件中心显示。父组件设置为 `null` 则在屏幕中间显示。
 

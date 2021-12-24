@@ -2,7 +2,9 @@
 
 ## 简介
 
-`JDialog` 是用于显示 `Frame` 相关信息的标准弹窗组件。它功能与 `JFrame` 类似，其 `JRootPane` 包含一个内容窗格和一个可选的 `JMenuBar`，实现了 `RootPaneContainer` 和 `WindowContants` 接口。
+`JDialog` 是类似于 `JFrame` 的顶层容器类，其 `JRootPane` 包含一个内容窗格和一个可选的 `JMenuBar`，实现了 `RootPaneContainer` 和 `WindowContants` 接口。
+
+Java 提供了 `JDialog` 和 `JOptionPane` 两个创建对话框的类，`JOptionPane` 只是将内容放到 `JDialog` 的 `contentPane` 中。
 
 ## 创建
 
@@ -36,7 +38,22 @@ public JDialog(Frame owner)
 |layout|LayoutManager|Write-only|
 |rootPane|JRootPane|Read-only|
 
-指定 `defaultCloseOperation` 的常量在 `WindowConstants` 中。默认为 `HIDE_ON_CLOSE`。
+- `defaultCloseOperation` 和 `JFrame` 的功能一样，默认为 `HIDE_ON_CLOSE，常见操作：
+
+```java
+JDialog dialog = new JDialog(this);
+dialog.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
+```
+
+- `defaultLookAndFeelDecorated` 属性指定新创建的 `JDialog` 的装饰由当前的 laf 提供。
+
+不过这只是一个提示，如果 laf 不支持此功能，设置为 `true` 也没有任何效果。
+
+- `layout` 属性
+
+在此处说明是因为 `JDialog` 覆盖了 `setLayout` 方法，将其调用转到对 `contentPane` 的 `setLayout` 方法的调用。
+
+
 
 ## 事件处理
 

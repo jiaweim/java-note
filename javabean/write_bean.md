@@ -138,8 +138,7 @@ public class FaceBean {
         return mMouthWidth;
     }
     
-    public void
-    setMouthWidth(int mw) throws PropertyVetoException {
+    public void setMouthWidth(int mw) throws PropertyVetoException {
         int oldMouthWidth = mMouthWidth;
         // 发出更改事件
         mVcs.fireVetoableChange("mouthWidth", oldMouthWidth, mw);  
@@ -147,8 +146,7 @@ public class FaceBean {
         mPcs.firePropertyChange("mouthWidth", oldMouthWidth, mw);
     }
 
-    public void
-    addPropertyChangeListener(PropertyChangeListener listener) {
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
         mPcs.addPropertyChangeListener(listener);
     }
     

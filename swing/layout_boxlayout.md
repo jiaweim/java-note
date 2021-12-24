@@ -13,6 +13,7 @@
     - [Box.Filler](#boxfiller)
     - [glue](#glue)
     - [rigid](#rigid)
+  - [参考](#参考)
 
 2021-11-24, 11:05
 ***
@@ -93,6 +94,22 @@ panel.setLayout(layout);
 setAlignmentX(float newValue)
 setAlignmentY(float newValue).
 ```
+
+`BoxLayout` 有时候会出现两类对齐问题：
+
+- 一组组件对齐方式相同，但是你希望更改它们的对齐方式。例如，对水平 `BoxLayout`，在垂直方向将中心对齐修改为底部对齐：
+
+![](images/2021-11-24-14-06-26.png)
+
+- 一组组件对齐方式不同，导致它们的对齐方式不正确。如下所示，如果 label 和 panel 处在垂直的 `BoxLayout` 中，label 的左侧默认和 panel 的中心对齐：
+
+![](images/2021-11-24-14-07-55.png)
+
+通常，在垂直 `BoxLayout` 中所有对象应该具有相同的水平对齐方式。同样，在水平 `BoxLayout` 中所有对象应该具有相同的垂直对齐方式。
+
+可以调用 `JComponent` 的 `setAlignmentX` 设置水平对齐，或者在子类中覆盖 `getAlignmentX` 方法；类似的，调用 `setAlignmentY` 或覆盖 `getAlignmentY` 设置组件垂直对齐方式。
+
+默认情况下，大多数组件水平和垂直中心对齐，但是 button, combo box, label, menu item 默认水平对齐为 `LEFT_ALIGNMENT`。
 
 ### 布局对齐属性相同的组件
 
@@ -311,3 +328,7 @@ strut 展示如下:
 ![](images/2021-11-24-13-30-27.png)
 
 ![](images/2021-11-24-13-30-35.png)
+
+## 参考
+
+- https://docs.oracle.com/javase/tutorial/uiswing/layout/box.html
