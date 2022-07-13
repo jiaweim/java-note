@@ -12,6 +12,7 @@
     - [不同 cell 类型](#不同-cell-类型)
     - [Files vs InputStreams](#files-vs-inputstreams)
   - [数据格式化](#数据格式化)
+  - [参考](#参考)
 
 2020-05-11, 14:01
 ***
@@ -20,9 +21,9 @@
 
 poi 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF 和 XSSF 提供了创建、修改和读写 EXCEL 电子表格的方法。包括：
 
-- 提供了底层结构（low level structure）
-- 为只读提供高效事件模型的API
-- 为创建、读取和修改XLS文件的完整用户模型API
+- 提供了底层结构
+- 只读高效事件模型 API
+- 创建、读取和修改 XLS 文件的完整用户模型API
 
 使用说明：
 
@@ -260,3 +261,7 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 }
 wb.close();
 ```
+
+## 参考
+
+- https://poi.apache.org/components/spreadsheet/index.html

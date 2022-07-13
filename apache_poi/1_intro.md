@@ -1,7 +1,7 @@
 # Introduction
 
 - [Introduction](#introduction)
-  - [简介](#%e7%ae%80%e4%bb%8b)
+  - [简介](#简介)
 
 2020-05-11, 13:58
 ***
