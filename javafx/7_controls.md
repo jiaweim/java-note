@@ -1,7 +1,7 @@
 # 组件
 
-- [组件](#%e7%bb%84%e4%bb%b6)
-  - [概述](#%e6%a6%82%e8%bf%b0)
+- [组件](#组件)
+  - [概述](#概述)
   - [Control](#control)
     - [contextMenu](#contextmenu)
     - [skin](#skin)

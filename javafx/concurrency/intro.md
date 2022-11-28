@@ -1,15 +1,15 @@
-# JavaFX Concurrency
+# JavaFX 并发
 
-- [JavaFX Concurrency](#javafx-concurrency)
+- [JavaFX 并发](#javafx-并发)
   - [简介](#简介)
   - [参考](#参考)
 
-2020-05-22, 10:26
+Last updated: 2022-11-28, 15:50
 ****
 
 ## 简介
 
-JavaFX 和 Swing、AWT 一样，使用一个专用线程处理 UI 事件，即 JavaFX Application Thread (JAT)。JavaFX 正在使用的 UI 元素只能通过 JAT 访问。`Scene` 中的 UI 节点不是线程安全的，由于不涉及同步，这种设计更快；这种设计的缺点是，必须从 JAT 线程访问这些 UI 元素。必须从 JAT 线程访问 UI 元素隐含了另一个限制，即 UI 事件不应该用于处理耗时任务，否则会导致GUI无响应。
+JavaFX 和 Swing、AWT 一样，专门使用一个线程处理 UI 事件，即 JavaFX Application Thread (JAT)。JavaFX 正在使用的 UI 元素只能通过 JAT 访问。`Scene` 中的 UI Node 不是线程安全的，由于不涉及同步，这种设计更快；缺点是必须从 JAT 线程访问这些 UI 元素。必须从 JAT 线程访问 UI 元素隐含了另一个限制，即 UI 事件不应该用于处理耗时任务，否则会导致 GUI 无响应。
 
 例如，下面是一个典型无响应GUI：
 
@@ -34,7 +34,6 @@ public class UnresponsiveUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        // add event handlers to the buttons
         startBtn.setOnAction(e -> runTask());
         exitBtn.setOnAction(e -> primaryStage.close());
 
@@ -65,7 +64,7 @@ public class UnresponsiveUI extends Application {
 
 点击 `Start` 按钮启动任务，该任务耗时 10 秒，直接在 JAT 中执行，在这 10 秒界面无响应。要解决该问题，必须将耗时任务移到另一个线程执行。
 
-另外，如果要在其他线程修改 JavaFX UI，可以通过 `Platformat` 的方法：
+另外，如果要在其他线程修改 JavaFX UI，可以通过 `Platform` 的方法：
 
 - `public static boolean isFxApplicationThread()`，判断当前线程是否为 JAT 线程
 - `public static void runLater(Runnable runnable)`，将指定 `Runnable` 任务添加到 JAT 线程运行，用于在其它线程更新 UI 组件
@@ -139,8 +138,6 @@ public class ResponsiveUI extends Application
 需要注意的是，更新 UI 组件方法 `Platform.runLater(() -> statusLbl.setText(status))`。
 
 另外，设置工作线程为 Daemon 线程 `backgroundThread.setDaemon(true)`，这样先退出界面后，不会还有线程在后台执行。
-
-JavaFX 提供了一个可运行一个或多个后台线程，并将状态更新到 GUI 程序的并发框架。下面对该框架进行讨论
 
 ## 参考
 

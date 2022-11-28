@@ -1,16 +1,16 @@
 # JavaFX Events
 
 - [JavaFX Events](#javafx-events)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-    - [事件类型](#%e4%ba%8b%e4%bb%b6%e7%b1%bb%e5%9e%8b)
-  - [事件传递过程](#%e4%ba%8b%e4%bb%b6%e4%bc%a0%e9%80%92%e8%bf%87%e7%a8%8b)
+  - [简介](#简介)
+    - [事件类型](#事件类型)
+  - [事件传递过程](#事件传递过程)
     - [Target Selection](#target-selection)
-    - [构建路径](#%e6%9e%84%e5%bb%ba%e8%b7%af%e5%be%84)
-  - [便捷方法](#%e4%be%bf%e6%8d%b7%e6%96%b9%e6%b3%95)
+    - [构建路径](#构建路径)
+  - [便捷方法](#便捷方法)
   - [Event Filter](#event-filter)
-  - [鼠标事件](#%e9%bc%a0%e6%a0%87%e4%ba%8b%e4%bb%b6)
-    - [鼠标位置](#%e9%bc%a0%e6%a0%87%e4%bd%8d%e7%bd%ae)
-    - [鼠标按钮类型](#%e9%bc%a0%e6%a0%87%e6%8c%89%e9%92%ae%e7%b1%bb%e5%9e%8b)
+  - [鼠标事件](#鼠标事件)
+    - [鼠标位置](#鼠标位置)
+    - [鼠标按钮类型](#鼠标按钮类型)
 
 2020-05-22, 10:15
 ***

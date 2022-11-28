@@ -14,6 +14,7 @@
   - [多个FXML文件](#多个fxml文件)
   - [自定义组件](#自定义组件)
   - [创建可重复利用控件](#创建可重复利用控件)
+  - [参考](#参考)
 
 2020-05-20, 15:12
 ***
@@ -68,8 +69,9 @@ Scene Builder 是基于FXML构建 JavaFX 界面的工具，下载链接：
 
 ## FXMLLoader 载入 FXML 文件
 
-使用 `FXMLLoader` 类载入文件。
-FXMLLoader 类载入 FXML 文件，返回 graph 对象。
+使用 `FXMLLoader` 类载入 FXML 源文件，返回 graph 对象。
+
+例如，从相对于加载类的位置加载 FXML 文件，并使用 "com.foo.example" 资源对其本地化。根元素的类型为 `javafx.scene.layout.Pane` 的子类，并假设定义的控制器为 `MyController`:
 
 ```java
 URL location = getClass().getResource("example.fxml");
@@ -80,8 +82,8 @@ Pane root = (Pane)fxmlLoader.load();
 MyController controller = (MyController)fxmlLoader.getController();
 ```
 
-FXMLLoader 内部使用 `javax.xml.stream` API 读取FXML文件。
-NOTE: FXMLLoader 不能识别大小写，所以，fxml 命名最好都采用小写。
+`FXMLLoader` 内部使用 `javax.xml.stream` API 读取FXML文件。
+NOTE: `FXMLLoader` 不能识别大小写，所以，fxml 命名最好都采用小写。
 
 例一：最简单的法子
 
@@ -222,7 +224,7 @@ controller 包含一个可访问的 `initialize()` 方法，在 fxml 文件载�
 
 其中，`<fx:root>`引用预定义的 root element。该element 可以通过 `FXMLLoader` 的 `getRoot()` 获得，在调用 `load()` 方法之前，必须通过 `setRoot()` 方法指定该值。
 
-下面定义定义的 `CustomControl` 类扩展 `VBox`将其自身设置为载入的FXML文档的 root 和 controller。
+下面定义的 `CustomControl` 类扩展 `VBox`将其自身设置为载入的FXML文档的 root 和 controller。
 
 ```java
 package fxml;
@@ -281,3 +283,7 @@ public class CustomControl extends VBox {
     <Button text="Close" VBox.margin="$margin"/>
 </VBox>
 ```
+
+## 参考
+
+- https://openjfx.io/javadoc/17/javafx.fxml/javafx/fxml/doc-files/introduction_to_fxml.html

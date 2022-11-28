@@ -1,12 +1,12 @@
 # ChoiceBox
 
 - [ChoiceBox](#choicebox)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-    - [CheckBox 状态](#checkbox-%e7%8a%b6%e6%80%81)
-    - [ChoiceBox 属性](#choicebox-%e5%b1%9e%e6%80%a7)
-    - [设置值](#%e8%ae%be%e7%bd%ae%e5%80%bc)
-    - [选择模型](#%e9%80%89%e6%8b%a9%e6%a8%a1%e5%9e%8b)
-    - [实例](#%e5%ae%9e%e4%be%8b)
+  - [简介](#简介)
+    - [CheckBox 状态](#checkbox-状态)
+    - [ChoiceBox 属性](#choicebox-属性)
+    - [设置值](#设置值)
+    - [选择模型](#选择模型)
+    - [实例](#实例)
 
 2020-05-19, 09:18
 ***
