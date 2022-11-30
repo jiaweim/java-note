@@ -118,7 +118,7 @@ public class FaceBean {
 
 ### Constrained Properties
 
-约束属性（Constrained Properties）是一种特殊的绑定属性。bean 跟踪一组否决（veto）监听器。当约束属性准备更改时，会先咨询监听器，监听器都有机会否决更高，否决后属性更改拒绝，保持原值。
+约束属性（Constrained Properties）是一种特殊的绑定属性。bean 跟踪一组否决（veto）监听器。当约束属性准备更改时，会先咨询监听器，监听器都有机会否决更改，否决后属性更改拒绝，保持原值。
 
 否决监听器和 property change 监听器是分开的。`java.beans` 中包含的 `VetoableChangeSupport`类简化了约束属性。
 

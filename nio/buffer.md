@@ -1,17 +1,21 @@
-# TOC
-- [TOC](#toc)
-- [Intro](#intro)
-- [Buffer 属性](#buffer-%e5%b1%9e%e6%80%a7)
-- [Buffer 方法](#buffer-%e6%96%b9%e6%b3%95)
-  - [内部细节](#%e5%86%85%e9%83%a8%e7%bb%86%e8%8a%82)
-  - [创建 Buffer](#%e5%88%9b%e5%bb%ba-buffer)
-  - [复制缓冲区](#%e5%a4%8d%e5%88%b6%e7%bc%93%e5%86%b2%e5%8c%ba)
-  - [ByteBuffer](#bytebuffer)
-  - [直接缓冲区](#%e7%9b%b4%e6%8e%a5%e7%bc%93%e5%86%b2%e5%8c%ba)
-  - [视图缓冲区](#%e8%a7%86%e5%9b%be%e7%bc%93%e5%86%b2%e5%8c%ba)
-  - [存取无符号整数](#%e5%ad%98%e5%8f%96%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%95%b4%e6%95%b0)
+# Buffer
 
-# Intro
+- [Buffer](#buffer)
+  - [简介](#简介)
+  - [Buffer 属性](#buffer-属性)
+  - [Buffer 方法](#buffer-方法)
+  - [内部细节](#内部细节)
+  - [创建 Buffer](#创建-buffer)
+  - [复制缓冲区](#复制缓冲区)
+  - [ByteBuffer](#bytebuffer)
+  - [直接缓冲区](#直接缓冲区)
+  - [视图缓冲区](#视图缓冲区)
+  - [存取无符号整数](#存取无符号整数)
+
+***
+
+## 简介
+
 NIO Buffers 用于和 NIO Channel交互，从Channel读取数据到 buffers，以及将数据从 Buffer写入 Channels，是构建 `java.nio` 的基石。
 
 缓冲区实质上就是一个数组，但它又不仅仅是一个数组，它还提供了对数据的结构化访问功能以及跟踪系统的读/写进程功能。
@@ -20,8 +24,10 @@ NIO Buffers 用于和 NIO Channel交互，从Channel读取数据到 buffers，�
 
 ![](images/2019-10-02-10-41-47.png)
 
-# Buffer 属性
+## Buffer 属性
+
 缓冲区对象作为类似数组的对象，有四个基本属性：
+
 |属性|说明|
 |---|---|
 |Capacity|容量，缓冲区能容纳的数据量。容量在缓冲区创建时指定，无法更改|
@@ -33,7 +39,8 @@ NIO Buffers 用于和 NIO Channel交互，从Channel读取数据到 buffers，�
 
 ![](images/2019-10-02-10-46-14.png)
 
-# Buffer 方法
+## Buffer 方法
+
 |方法|说明|
 |---|---|
 |`Object array()`|返回支持该 buffer 的数组。该方法是为了将数组支持的buffer更高效的传递给本机代码（native code），buffer 子类重写该方法，并通过协变返回强类型。如果支持数组为只读，该方法抛出 `java.nio.ReadOnlyBufferException`；对非数组支持的 buffer 抛出 `java.lang.UnsupportedOperationException`|
@@ -62,6 +69,7 @@ NIO Buffers 用于和 NIO Channel交互，从Channel读取数据到 buffers，�
 - 调用 `clear()` 或 `compact()`
 
 如下：
+
 ```java
 buf.clear(); // 清空一下，准备
 for (;;) {
@@ -116,6 +124,7 @@ while (true) {
 ```
 
 ## 创建 Buffer
+
 创建 Buffer 的方法有多种种，包括：
 |方法|说明|
 |---|---|
@@ -156,6 +165,7 @@ assertEquals(buffer.capacity(), 7);
 上面两种方式创建的缓冲区都是间接的，间接的缓冲区使用备份数组（相关的方法 hasArray(), array(), arrayOffset()。
 
 ## 复制缓冲区
+
 duplicate方法创建一个与原始缓冲区类似的缓冲区，两个缓冲区共享数据元素，不过它们拥有各自的position、limit、mark，如下图： 
 
 ![](images/2019-10-02-10-48-44.png)
@@ -165,6 +175,7 @@ duplicate方法创建一个与原始缓冲区类似的缓冲区，两个缓冲�
 ![](images/2019-10-02-10-48-55.png)
 
 ## ByteBuffer
+
 **字节序**，为什么会有字节序？比如有1个int类型数字 `0x036fc5d9`，它占4个字节，那么在内存中存储时，有可能其最高字节03位于低位地址（大端字节顺序），也有可能最低字节d9位于低位地址（小端字节顺序）。
 
 在IP协议中规定了使用大端的网络字节顺序，所以我们必须先在本地主机字节顺序和通用的网络字节顺序之间进行转换。java.nio中，字节顺序由ByteOrder类封装。
@@ -172,14 +183,18 @@ duplicate方法创建一个与原始缓冲区类似的缓冲区，两个缓冲�
 在ByteBuffer中默认字节序为ByteBuffer.BIG_ENDIAN，不过byte为什么还需要字节序呢？ByteBuffer和其他基本数据类型一样，具有大量便利的方法用于获取和存放缓冲区内容，这些方法对字节进行编码或解码的方式取决于ByteBuffer当前字节序。
 
 ## 直接缓冲区
+
 直接缓冲区是通过调用ByteBuffer.allocateDirect方法创建的。通常直接缓冲区是I/O操作的最好选择，因为它避免了一些复制过程；但可能也比间接缓冲区要花费更高的成本；它的内存是通过调用本地操作系统方面的代码分配的。
 
 ## 视图缓冲区
+
 视图缓冲区和缓冲区复制很像，不同的只是数据类型，所以字节对应关系也略有不同。比如ByteBuffer.asCharBuffer，那么转换后的缓冲区通过get操作获得的元素对应备份存储中的2个字节。
 
 
 ## 存取无符号整数
-Java中并没有直接提供无符号数值的支持，每个从缓冲区读出的无符号值被升到比它大的下一个数据类型中。 
+
+Java中并没有直接提供无符号数值的支持，每个从缓冲区读出的无符号值被升到比它大的下一个数据类型中。
+ 
 ```java
 public static short getUnsignedByte(ByteBuffer bb) {
     return ((short) (bb.get() & 0xff));
