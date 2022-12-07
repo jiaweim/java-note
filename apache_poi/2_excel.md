@@ -4,13 +4,22 @@
   - [简介](#简介)
   - [SXSSF](#sxssf)
     - [限制方法](#限制方法)
-  - [使用](#使用)
-    - [New Workbook](#new-workbook)
-    - [New Sheet](#new-sheet)
-    - [Creating Cells](#creating-cells)
-    - [Creating Date Cells](#creating-date-cells)
+  - [功能索引](#功能索引)
+    - [创建 Workbook](#创建-workbook)
+    - [创建 Sheet](#创建-sheet)
+    - [创建 Cells](#创建-cells)
+    - [创建 Date Cells](#创建-date-cells)
     - [不同 cell 类型](#不同-cell-类型)
     - [Files vs InputStreams](#files-vs-inputstreams)
+    - [对齐](#对齐)
+    - [边框](#边框)
+    - [迭代 rows 和 cells](#迭代-rows-和-cells)
+    - [迭代空 cell](#迭代空-cell)
+    - [获得 cell 内容](#获得-cell-内容)
+    - [文本提取](#文本提取)
+    - [填充和颜色](#填充和颜色)
+    - [合并 cell](#合并-cell)
+    - [字体](#字体)
   - [数据格式化](#数据格式化)
   - [参考](#参考)
 
@@ -19,7 +28,7 @@
 
 ## 简介
 
-poi 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF 和 XSSF 提供了创建、修改和读写 EXCEL 电子表格的方法。包括：
+POI 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF 和 XSSF 包含创建、修改和读写 EXCEL 电子表格的方法。包括：
 
 - 提供了底层结构
 - 只读高效事件模型 API
@@ -27,13 +36,15 @@ poi 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF �
 
 使用说明：
 
-- 如果仅仅需要读取表格数据，可以使用 `org.apache.poi.hssf.eventusermodel` 或 `org.apache.poi.xssf.eventusermodel` 包中的事件模型API，可减少内存占用。
-- .xlsx 基于XML 格式，相对 .xls 基于二进制的格式，占用更多内存。
-- 额外的 sxssf 是基于流的API，在XSSF基础上限制了内存中Row的数目，从而减少内存消耗。
+- 如果仅仅需要读取表格数据，可以使用 `org.apache.poi.hssf.eventusermodel` 或 `org.apache.poi.xssf.eventusermodel` 包中的事件模型API，可减少内存占用；
+- 如果需要修改或生成 excel，则应该使用 usermodel API；
+- usermodel 比 eventusermodel 的内存占用高，但是使用起来更简单；
+- .xlsx 基于 XML 格式，相对 .xls 基于二进制的格式，占用更多内存。
+- sxssf 是基于流的API，在XSSF基础上限制了内存中Row的数目，从而减少内存消耗。
 
 ## SXSSF
 
-POI 在 3.8 版之后，提供了 SXSSF API，该API 在 XSSF 基础上基于流构建，内存占用低。
+POI 在 3.8 版之后，提供了 SXSSF API，该 API 在 XSSF 基础上基于流构建，内存占用低，在生成非常大的电子表格时使用。
 
 使用限制：
 
@@ -44,6 +55,10 @@ POI 在 3.8 版之后，提供了 SXSSF API，该API 在 XSSF 基础上基于流
 ![compare table](images/2020-05-11-14-04-58.png)
 
 SXSSF 作为XSSF 的流版本，通过限制可访问 row 的数目，减少内存占用。
+
+在自动刷新模式，可以指定保存在内存中 row 的数量。当达到 row 限制，创建新的 row 会使索引最小的行写入磁盘，不能再访问。
+
+也可以将窗口设置为动态增长，可以根据需要显式调用 `flushRows(int keepRows)` 来定期调整。
 
 ### 限制方法
 
@@ -100,25 +115,27 @@ wb.dispose();
 
 注意最后 `dispose()` 调用删除临时文件。
 
-## 使用
+## 功能索引
 
 这部分包含基本的使用方法。
 
-### New Workbook
+### 创建 Workbook
 
 ```java
+// xls
 Workbook wb = new HSSFWorkbook();
 try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
     wb.write(fileOut);
 }
 
+// xlsx
 Workbook wb2 = new XSSFWorkbook();
 try (OutputStream fileOut = new FileOutputStream("workbook.xlsx")) {
     wb2.write(fileOut);
 }
 ```
 
-### New Sheet
+### 创建 Sheet
 
 ```java
 Workbook wb = new HSSFWorkbook(); // or new XSSFWorkbook();
@@ -141,7 +158,7 @@ try(OutputStream fileOut = new FileOutputStream("workbook.xls")){
 }
 ```
 
-### Creating Cells
+### 创建 Cells
 
 ```java
 Workbook wb = new HSSFWorkbook();
@@ -149,6 +166,7 @@ Workbook wb = new HSSFWorkbook();
 CreationHelper creationHelper = wb.getCreationHelper();
 Sheet sheet = wb.createSheet("new sheet");
 
+// Create a row and put some cells in it. Rows are 0 based.
 Row row = sheet.createRow(0);
 // Create a cell and put a value in it
 Cell cell = row.createCell(0);
@@ -163,7 +181,7 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 }
 ```
 
-### Creating Date Cells
+### 创建 Date Cells
 
 ```java
 Workbook wb = new HSSFWorkbook();
@@ -173,13 +191,12 @@ Sheet sheet = wb.createSheet("new sheet");
 // Create a row and put some cells in it. Rows are 0 based.
 Row row = sheet.createRow(0);
 
-// Create a cell and put a date value in it.  The first cell is not styled as a date.
+// 创建 cell，放入 date 值，但是该 cell 不是 date 样式
 Cell cell = row.createCell(0);
 cell.setCellValue(new Date());
 
-// we style the second cell as a date (and time).  It is important to
-// create a new cell style from the workbook otherwise you can end up
-// modifying the built in style and effecting not only this cell but other cells.
+// 第一个 cell 样式设置为 date。此时应该创建一个新的样式
+// 修改已有样式会影响所有使用该样式的 cell
 CellStyle cellStyle = wb.createCellStyle();
 cellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("m/d/yy h:mm"));
 cell = row.createCell(1);
@@ -218,7 +235,7 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 
 ### Files vs InputStreams
 
-当打开一个 Excel 文件，可以使用 File 或 InputStream 创建 Workbook。使用 File 对象可以使内存占用更低，使用 InputStream 则需要缓冲整个文件，因此更为占用内存。
+当打开一个 Excel 文件，可以使用 `File` 或 `InputStream` 创建 `Workbook`。使用 `File` 内存占用更低，使用 `InputStream` 则需要缓冲整个文件，更占用内存。
 
 使用 `WorkbookFactory` 很容易区分两者：
 
@@ -228,6 +245,321 @@ Workbook wb = WorkbookFactory.create(new File("MyExcel.xls"));
 
 // Use an InputStream, needs more memory
 Workbook wb = WorkbookFactory.create(new FileInputStream("MyExcel.xlsx"));
+```
+
+如果直接使用 `HSSFWorkbook` 或 `XSSFWorkbook`，则需要通过 `POIFSFileSystem` 或 `OPCPackage` 来完全控制生命周期（包括完成后关闭文件）。
+
+```java
+// HSSFWorkbook, File
+POIFSFileSystem fs = new POIFSFileSystem(new File("file.xls"));
+HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
+....
+fs.close();
+
+// HSSFWorkbook, InputStream, needs more memory
+POIFSFileSystem fs = new POIFSFileSystem(myInputStream);
+HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
+
+// XSSFWorkbook, File
+OPCPackage pkg = OPCPackage.open(new File("file.xlsx"));
+XSSFWorkbook wb = new XSSFWorkbook(pkg);
+....
+pkg.close();
+
+// XSSFWorkbook, InputStream, needs more memory
+OPCPackage pkg = OPCPackage.open(myInputStream);
+XSSFWorkbook wb = new XSSFWorkbook(pkg);
+....
+pkg.close();
+```
+
+### 对齐
+
+```java
+public static void main(String[] args) throws Exception
+{
+    Workbook wb = new XSSFWorkbook(); //or new HSSFWorkbook();
+    Sheet sheet = wb.createSheet();
+    Row row = sheet.createRow(2);
+    row.setHeightInPoints(30);
+    createCell(wb, row, 0, HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
+    createCell(wb, row, 1, HorizontalAlignment.CENTER_SELECTION, VerticalAlignment.BOTTOM);
+    createCell(wb, row, 2, HorizontalAlignment.FILL, VerticalAlignment.CENTER);
+    createCell(wb, row, 3, HorizontalAlignment.GENERAL, VerticalAlignment.CENTER);
+    createCell(wb, row, 4, HorizontalAlignment.JUSTIFY, VerticalAlignment.JUSTIFY);
+    createCell(wb, row, 5, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+    createCell(wb, row, 6, HorizontalAlignment.RIGHT, VerticalAlignment.TOP);
+    // Write the output to a file
+    try (OutputStream fileOut = new FileOutputStream("xssf-align.xlsx")) {
+        wb.write(fileOut);
+    }
+    wb.close();
+}
+
+/**
+    * Creates a cell and aligns it a certain way.
+    *
+    * @param wb     the workbook
+    * @param row    the row to create the cell in
+    * @param column the column number to create the cell in
+    * @param halign the horizontal alignment for the cell.
+    * @param valign the vertical alignment for the cell.
+    */
+private static void createCell(Workbook wb, Row row, int column, HorizontalAlignment halign, VerticalAlignment valign)
+{
+    Cell cell = row.createCell(column);
+    cell.setCellValue("Align It");
+    CellStyle cellStyle = wb.createCellStyle();
+    cellStyle.setAlignment(halign);
+    cellStyle.setVerticalAlignment(valign);
+    cell.setCellStyle(cellStyle);
+}
+```
+
+效果如下：
+
+![](images/2022-12-07-10-25-28.png)
+
+### 边框
+
+```java
+Workbook wb = new HSSFWorkbook();
+Sheet sheet = wb.createSheet("new sheet");
+// Create a row and put some cells in it. Rows are 0 based.
+Row row = sheet.createRow(1);
+// Create a cell and put a value in it.
+Cell cell = row.createCell(1);
+cell.setCellValue(4);
+
+// Style the cell with borders all around.
+CellStyle style = wb.createCellStyle();
+// 底部细黑
+style.setBorderBottom(BorderStyle.THIN);
+style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+// 左侧细绿
+style.setBorderLeft(BorderStyle.THIN);
+style.setLeftBorderColor(IndexedColors.GREEN.getIndex());
+// 右侧细蓝
+style.setBorderRight(BorderStyle.THIN);
+style.setRightBorderColor(IndexedColors.BLUE.getIndex());
+// 顶部黑虚线
+style.setBorderTop(BorderStyle.MEDIUM_DASHED);
+style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+cell.setCellStyle(style);
+// Write the output to a file
+try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
+    wb.write(fileOut);
+}
+wb.close();
+```
+
+![](images/2022-12-07-10-30-48.png)
+
+### 迭代 rows 和 cells
+
+使用 `workbook.sheetIterator()`、`sheet.rowIterator()` 和 `row.cellIterator()` 生成迭代器，也可直接用 for 循环。需要注意的是，rowIterator 和 cellIterator 只迭代已创建的 row 或 cell，会跳过空 row 和 cell。
+
+```java
+for (Sheet sheet : wb) {
+    for (Row row : sheet) {
+        for (Cell cell : row) {
+            // Do something here
+        }
+    }
+}
+```
+
+### 迭代空 cell
+
+CellIterator 会自动跳过空 cell，要访问空 cell，可以先获取索引信息，然后调用 `getCell(int, MissingCellPolicy)` 访问 cell。使用 `MissingCellPolicy` 设置如何处理 blank 或 null cell。
+
+```java
+// 确定要处理的 rows
+int rowStart = Math.min(15, sheet.getFirstRowNum());
+int rowEnd = Math.max(1400, sheet.getLastRowNum());
+for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) {
+    Row r = sheet.getRow(rowNum);
+    if (r == null) {
+        // 该 row 为空，根据需要处理
+        continue;
+    }
+    int lastColumn = Math.max(r.getLastCellNum(), MY_MINIMUM_COLUMN_COUNT);
+    for (int cn = 0; cn < lastColumn; cn++) {
+        Cell c = r.getCell(cn, Row.RETURN_BLANK_AS_NULL);
+        if (c == null) {
+            // The spreadsheet is empty in this cell
+        } else {
+            // Do something useful with the cell's contents
+        }
+    }
+}
+```
+
+### 获得 cell 内容
+
+要获得 cell 内容，首先要确定 cell 类型。
+
+```java
+DataFormatter formatter = new DataFormatter();
+Sheet sheet1 = wb.getSheetAt(0);
+for (Row row : sheet1) {
+    for (Cell cell : row) {
+        CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
+        System.out.print(cellRef.formatAsString());
+        System.out.print(" - ");
+        // get the text that appears in the cell by getting the cell value and applying any data formats (Date, 0.00, 1.23e9, $1.23, etc)
+        String text = formatter.formatCellValue(cell);
+        System.out.println(text);
+        // Alternatively, get the value and format it yourself
+        switch (cell.getCellType()) {
+            case CellType.STRING:
+                System.out.println(cell.getRichStringCellValue().getString());
+                break;
+            case CellType.NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    System.out.println(cell.getDateCellValue());
+                } else {
+                    System.out.println(cell.getNumericCellValue());
+                }
+                break;
+            case CellType.BOOLEAN:
+                System.out.println(cell.getBooleanCellValue());
+                break;
+            case CellType.FORMULA:
+                System.out.println(cell.getCellFormula());
+                break;
+            case CellType.BLANK:
+                System.out.println();
+                break;
+            default:
+                System.out.println();
+        }
+    }
+}
+```
+
+### 文本提取
+
+使用 `ExcelExtractor` 提取文本：
+
+```java
+try (InputStream inp = new FileInputStream("workbook.xls")) {
+    HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inp));
+    ExcelExtractor extractor = new ExcelExtractor(wb);
+    extractor.setFormulasNotResults(true);
+    extractor.setIncludeSheetNames(false);
+    String text = extractor.getText();
+    wb.close();
+}
+```
+
+### 填充和颜色
+
+```java
+Workbook wb = new XSSFWorkbook();
+Sheet sheet = wb.createSheet("new sheet");
+// Create a row and put some cells in it. Rows are 0 based.
+Row row = sheet.createRow(1);
+
+// 背景色：Aqua
+CellStyle style = wb.createCellStyle();
+style.setFillBackgroundColor(IndexedColors.AQUA.getIndex());
+style.setFillPattern(FillPatternType.BIG_SPOTS);
+Cell cell = row.createCell(1);
+cell.setCellValue("X");
+cell.setCellStyle(style);
+
+// 前景色：Orange
+style = wb.createCellStyle();
+style.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+cell = row.createCell(2);
+cell.setCellValue("X");
+cell.setCellStyle(style);
+// Write the output to a file
+try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
+    wb.write(fileOut);
+}
+wb.close();
+```
+
+### 合并 cell
+
+```java
+Workbook wb = new HSSFWorkbook();
+Sheet sheet = wb.createSheet("new sheet");
+Row row = sheet.createRow(1);
+Cell cell = row.createCell(1);
+cell.setCellValue("This is a test of merging");
+sheet.addMergedRegion(new CellRangeAddress(
+        1, //first row (0-based)
+        1, //last row  (0-based)
+        1, //first column (0-based)
+        2  //last column  (0-based)
+));
+// Write the output to a file
+try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
+    wb.write(fileOut);
+}
+wb.close();
+```
+
+### 字体
+
+```java
+Workbook wb = new HSSFWorkbook();
+Sheet sheet = wb.createSheet("new sheet");
+// Create a row and put some cells in it. Rows are 0 based.
+Row row = sheet.createRow(1);
+// Create a new font and alter it.
+Font font = wb.createFont();
+font.setFontHeightInPoints((short) 24);
+font.setFontName("Courier New");
+font.setItalic(true);
+font.setStrikeout(true);
+// Fonts are set into a style so create a new one to use.
+CellStyle style = wb.createCellStyle();
+style.setFont(font);
+// Create a cell and put a value in it.
+Cell cell = row.createCell(1);
+cell.setCellValue("This is a test of fonts");
+cell.setCellStyle(style);
+// Write the output to a file
+try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
+    wb.write(fileOut);
+}
+wb.close();
+```
+
+> workbook 支持最大字体数为 32767，在应用中应该重用字体，而不是为每个 cell 创建字体，例如：
+
+错误示范：
+
+```java
+for (int i = 0; i < 10000; i++) {
+    Row row = sheet.createRow(i);
+    Cell cell = row.createCell(0);
+
+    CellStyle style = workbook.createCellStyle();
+    Font font = workbook.createFont();
+    font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+    style.setFont(font);
+    cell.setCellStyle(style);
+}
+```
+
+正确示范：
+
+```java
+CellStyle style = workbook.createCellStyle();
+Font font = workbook.createFont();
+font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+style.setFont(font);
+for (int i = 0; i < 10000; i++) {
+    Row row = sheet.createRow(i);
+    Cell cell = row.createCell(0);
+    cell.setCellStyle(style);
+}
 ```
 
 ## 数据格式化
