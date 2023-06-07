@@ -7,7 +7,7 @@
 
 ## GUI
 
-- [JavaFX](javafx/0_javafx_toc.md)
+- [JavaFX](_javafx_toc.md)
 
 ## JDK notes
 

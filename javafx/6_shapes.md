@@ -1,31 +1,5 @@
 # JavaFX Shapes
 
-- [JavaFX Shapes](#javafx-shapes)
-  - [概述](#%e6%a6%82%e8%bf%b0)
-  - [虚线定义](#%e8%99%9a%e7%ba%bf%e5%ae%9a%e4%b9%89)
-  - [Stroke](#stroke)
-  - [strokeType](#stroketype)
-  - [strokeLineCap](#strokelinecap)
-  - [strokeLineJoin](#strokelinejoin)
-  - [strokeMiterLimit](#strokemiterlimit)
-- [边界模糊问题](#%e8%be%b9%e7%95%8c%e6%a8%a1%e7%b3%8a%e9%97%ae%e9%a2%98)
-- [Line](#line)
-- [Rectangle](#rectangle)
-- [Circle](#circle)
-- [Ellipse](#ellipse)
-- [多边形（Polygon）](#%e5%a4%9a%e8%be%b9%e5%bd%a2polygon)
-- [折线（Polyline）](#%e6%8a%98%e7%ba%bfpolyline)
-- [弧线（Arc）](#%e5%bc%a7%e7%ba%bfarc)
-- [二次曲线（QuadCurve）](#%e4%ba%8c%e6%ac%a1%e6%9b%b2%e7%ba%bfquadcurve)
-- [三次曲线（CubicCurve）](#%e4%b8%89%e6%ac%a1%e6%9b%b2%e7%ba%bfcubiccurve)
-- [Path](#path)
-  - [MoveTo](#moveto)
-  - [LineTo](#lineto)
-  - [HLineTo 和 VLineTo](#hlineto-%e5%92%8c-vlineto)
-  - [ArcTo](#arcto)
-  - [Path 的填充规则](#path-%e7%9a%84%e5%a1%ab%e5%85%85%e8%a7%84%e5%88%99)
-- [SVG](#svg)
-
 ## 概述
 
 JavaFX 所有的形状相关类都放在 `javafx.scene.shape` 包中。2D 形状均扩展自抽象类 `Shape` 如下图所示：
@@ -61,38 +35,6 @@ JavaFX 形状的大小不受其父容器的影响，只能修改其大小相关�
 如图所示，第一个虚线数组 [25, 20, 5, 20]，offset=0  
 第二个 offset=45，即刚好是第一个线段+空白的长度，所以虚线从第二个线段开始。
 
-## Stroke
-Stroking 是绘制形状轮廓的过程，形状的轮廓又称为 stroke。Shape 类包含多个用于定义形状 stroke 的属性。
-
-## strokeType
-storkeType 定义 strokeWidth 和边框的相对位置，如下图所示：
-
-![](images/2019-06-05-16-13-16.png)
-
-从左到右，分别 without stroke, inside, centered, outside.
-
-## strokeLineCap
-`strokeLineCap` 定义选段末端的样式，可选样式有为 StrokeLineCap enum: BUTT, ROUND, SQUARE.
-- BUTT, 不添加任何装饰；
-- ROUND, 在线段末端添加圆弧，圆弧半径为 stroke width 的一半。
-- SQUARE, 线段向外延伸，延伸长度为 stroke width 的一半。
-
-![](images/2019-06-05-16-14-01.png)
-
-从左到右，分别为 `BUTT`, `ROUND`, `SQUARE`.
-
-## strokeLineJoin
-定义线段的连接方式，取值为 enum StrokeLineJoin: `MITER`, `BEVEL`, `ROUND`.如图所示：
-
-![](images/2019-06-05-16-14-34.png)
-
-## strokeMiterLimit
-定义 StrokeLineJoin.MITER 连接方式最大延伸长度。值小于 1.0 时以 1.0 处理。如下图所示：
-
-![](images/2019-06-05-16-14-57.png)
-
-当两条线段的夹角很小时，MITER 连接方式会使延伸距离很长，A 是完整的延伸长度，以该延伸长度和 stroke width 的比值为单位（4.65）。如果延伸长度大于 `strokeMiterLimit`，则直接截断。
-
 # 边界模糊问题
 大多数 Node 采用整数定义形状和转换值，因此，填充（fill）具有直线边缘的形状，其边缘往往是清晰的，因为其参数为整数，使得这些性质的边界得以覆盖完整的像素点。
 
@@ -101,7 +43,6 @@ storkeType 定义 strokeWidth 和边框的相对位置，如下图所示：
 解决该问题的方法有两种：
 - 使用更宽的 stroke，在没有缩放的情况下，2.0 px 足以
 - 使用 `StrokeType.INSIDE` 或 `StrokeType.OUTSIDE`，而不是默认的 stroke 类型。
-
 
 # Line
 Line 没有内部区域，定义一个线条需要如下属性：

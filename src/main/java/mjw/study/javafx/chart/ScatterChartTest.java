@@ -14,16 +14,16 @@ import javafx.stage.Stage;
  * @version 0.0.1
  * @since 20 4月 2022, 10:29
  */
-public class ScatterChartTest extends Application
-{
-    public static void main(String[] args)
-    {
+public class ScatterChartTest extends Application {
+
+    public static void main(String[] args) {
+
         Application.launch(args);
     }
 
     @Override
-    public void start(Stage stage) throws Exception
-    {
+    public void start(Stage stage) throws Exception {
+
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Year");
 // Customize the x-axis, so points are scattered uniformly

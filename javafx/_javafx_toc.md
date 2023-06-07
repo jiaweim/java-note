@@ -1,15 +1,18 @@
 # JavaFX
 
 - [JavaFX](#javafx)
-  - [学习笔记](#学习笔记)
+	- [学习笔记](#学习笔记)
   - [工具](#工具)
-    - [DataFX](#datafx)
-    - [ControlsFX](#controlsfx)
-      - [ScenicView](#scenicview)
-      - [ScenicView 运行](#scenicview-运行)
+	- [DataFX](#datafx)
+	- [ControlsFX](#controlsfx)
+	- [ScenicView](#scenicview)
+	- [ScenicView 运行](#scenicview-运行)
   - [References](#references)
 
 ## 学习笔记
+
+
+- [[stroke|Stroke]]
 
 - [概述](1.intro.md)
 - [Stage](2.stage_scene.md)
