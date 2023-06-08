@@ -66,3 +66,7 @@ final DoubleDataSet dataSet3 = new DoubleDataSet("data set #1", xValues, yValues
 - `AtomicBoolean autoNotification()`
 
 一般来说，如果数据集中的数据发生变化，应该通知注册的监听器。Chart 一般通过 `Dataset` 注册监听器，以便在数据发生变化时发出通知，并更新 chart。
+
+## DefaultNumberFormatter
+
+`DefaultNumberFormatter` 提供了格式化功能，

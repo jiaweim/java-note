@@ -1,5 +1,7 @@
 # FXSampler
 
+2023-06-07
+****
 ## 简介
 
 FXSampler 是 ControlsFX 的子项目，用于 JavaFX 可视化项目的演示。
@@ -32,8 +34,8 @@ public class CalendarFXSamplerProject implements FXSamplerProject {
 说明：
 
 - `getProjectName()` 指定项目名称
-- `getSampleBasePackage()` 指定示例的基础包
-- `getWelcomePage()` 指定欢迎页面
+- `getSampleBasePackage()` 指定示例的基础包，所有的示例都应该放在基础包下面
+- `getWelcomePage()` 指定欢迎页面，在 welcome tab 显示的 node
 
 ## 欢迎页面
 
@@ -57,19 +59,45 @@ CalendarFX 的 base package 为 `com.calendarfx.demo`，其中 `HelloDayEntryVie
 
 FXSampler 将实现 `fxsampler.Sample` 接口的类识别 sample。但是扩展 `fxsampler.SampleBase` 更好，该类扩展了 `Application` 接口，因此每个 sample 可以单独运行。
 
-一个 sample 包含如下信息：
+`Sample` 接口如下：
 
-- sample 名称，如 "Day Entry View"
-- 对 sample 或 control 的简短描述
-- 所属 project
-- project 版本，如 "8.4.0"
-- 一个包含自定义控件的 `Node`，会在 pane 中间显示
-- 与 sample 交互的控制面板（右侧，通常是 `PropertySheet`）
-- 控制面板 divider handle 的位置（基于控制面板所需宽度进行设置）
-- JavaDocs 的 URL
-- sample 相关样式表的 URL
-- sample 源码的 URL
-- 一个 flag，用于设置是否隐藏该 sample，用于隐藏还在进行中的 sample
+```java
+public interface Sample {
+
+    // 展示给用户的 Sample 名称，如 "CheckBox"
+    public String getSampleName();
+
+     // 对 Sample 的简短描述
+    public String getSampleDescription();
+    
+     // 该 Sample 所属 project 的名称，如 ControlsFX 或 JFXtras
+    public String getProjectName();
+    
+     // 该 Sample 所属 project 的版本，如 "1.0.0"
+    public String getProjectVersion();
+
+    // Sample 的主面板，包含自定义控件，在 pane 中间显示
+    public Node getPanel(final Stage stage);
+
+    // 与 Sample 交互的控制面板，在右侧显示，一般是 PropertySheet
+    public Node getControlPanel();
+    
+    // 控制面板和主窗口的分隔位置，一般根据控制面板所需宽度进行设置
+    public double getControlPanelDividerPosition();
+
+    // JavaDocs 的完整 URL
+    public String getJavaDocURL();
+    
+    // Sample 相关 CSS 的 URL
+    public String getControlStylesheetURL();
+    
+    // Sample 源码的完整 URL
+    public String getSampleSourceURL();
+    
+    // 是否展示给用户，用于隐藏那些还在开发中的 sample
+    public boolean isVisible();
+}
+```
 
 ## Launcher
 
