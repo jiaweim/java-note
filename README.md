@@ -2,12 +2,17 @@
 
 ## 基础
 
+- [JDK](basic/_jdk.md)
 - [数据类型](basic/primitive_type.md)
 - [JVM 内存模型](basic/memory_model.md)
 
-## GUI
+## 可视化
 
 - [JavaFX](_javafx_toc.md)
+
+### ChartFx
+
+- [简介](chart-fx/_ChartFx)
 
 ## JDK notes
 
@@ -21,5 +26,4 @@
 
 - [Maven](maven/0_toc.md)
 
-## References
 

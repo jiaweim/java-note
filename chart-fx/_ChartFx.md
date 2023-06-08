@@ -1,8 +1,10 @@
 # ChartFx
 
+2023-06-08
+****
 ## 简介
 
-ChartFx 是 GSI 为 FAIR 开发的科学图表库，专注于性能优化的数据实时可视化。基于 GSI 和 CERN 使用的早期基于 Swing 的设计，ChartFx 对 JavaFX 默认 Chart 实现进行了重写，旨在保留早期和其他基于 Swing 库的丰富功能和可扩展性的同时，解决性能问题。
+ChartFx 是 GSI 为 FAIR 开发的科学图表库，专注于性能优化的数据实时可视化。基于 GSI 和 CERN 早期使用的 Swing 实现，ChartFx 对 JavaFX 默认 Chart 实现进行了重写，旨在保留早期 Swing 库的丰富功能和可扩展性的同时，解决性能问题。
 
 GSI: 德国亥姆霍兹协会
 
@@ -19,4 +21,4 @@ FAIR (Facility for Antiproton and Ion Research) 反质子与离子研究装置�
 
 ![[Pasted image 20230602142242.png]]
 
-`Canvas` 对性能很重要，它提供了很好的硬件图形加速。
+`Canvas` 是优化性能的关键，它提供了很好的图形硬件加速。
