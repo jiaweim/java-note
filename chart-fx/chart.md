@@ -46,10 +46,11 @@ xyChart4.setPrefSize(600, 300);
 
 ### animated
 
-`true` 表示动画显示数据的更改。设置：
+是否动画显示数据的更改。
 
 ```java
-chart.setAnimated(false);
+public final boolean isAnimated()
+public final void setAnimated(final boolean value)
 ```
 
 ### legendVisible
@@ -60,6 +61,13 @@ public final BooleanProperty legendVisibleProperty()
 
 如果支持 legend 的 chart，设置是否显示 legend。
 
+### renderers
+
+```java
+public ObservableList<Renderer> getRenderers()
+```
+
+该 chart 包含的所有 renderers。
 
 ## XYChart
 

@@ -44,6 +44,8 @@ chart.getPlugins().addAll(new Zoomer(), new CrosshairIndicator(), new EditAxis()
 
 允许编辑坐标轴，如 autorange, min/max range 等。
 
+在坐标轴区域鼠标右键即可编辑这些信息。
+
 ## EditDataSet
 
 和实现 `EditableDataSet` 接口的 `Dataset` 进行交互。

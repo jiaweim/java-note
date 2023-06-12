@@ -13,6 +13,10 @@
 
 
 - [[stroke|Stroke]]
+- [Layout](layout/_layout.md)
+	- [FlowPane](layout/FlowPane.md)
+- [Canvas 概述](canvas/1_canvas_intro.md)
+	- [Canvas 操作](canvas/2_operations.md)
 
 - [概述](1.intro.md)
 - [Stage](2.stage_scene.md)

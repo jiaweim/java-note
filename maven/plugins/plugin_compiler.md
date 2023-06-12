@@ -1,8 +1,5 @@
 # Apache Maven Compiler Plugin
 
-- [Apache Maven Compiler Plugin](#apache-maven-compiler-plugin)
-  - [简介](#简介)
-  - [指定 `-source` 和 `-target`](#指定--source-和--target)
 
 2020-09-02, 08:46
 ***

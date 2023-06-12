@@ -2,6 +2,30 @@
 
 ## Renderer
 
+Renderer 是实际绘制数据点的类，不同 Renderer 对应不同的图表类型。
+
+## AbstractErrorDataSetRendererParameter
+
+包含 ErrorDataSetRenderer 相关的参数。
+
+### polyLineStyleProperty
+
+```java
+public enum LineStyle {
+    NONE,
+    NORMAL,
+    AREA,
+    ZERO_ORDER_HOLDER,
+    STAIR_CASE, // aka. ZERO-ORDER_HOLDER
+    HISTOGRAM,
+    HISTOGRAM_FILLED, // similar to area but enclosing histogram style-type bars
+    BEZIER_CURVE // smooth Bezier-type curve - beware this can be slow for many data points
+}
+```
+
+不同 LineStyle 对应不同连接数据点方式。
+
+
 
 
 ## ErrorDataSetRenderer

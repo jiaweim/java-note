@@ -1,5 +1,7 @@
 # javafx-maven-plugin
 
+
+***
 ## 使用
 
 创建 maven 项目，使用如下格式：
@@ -43,11 +45,28 @@
 </project>
 ```
 
-运行项目：
+- 编译项目
+
+```sh
+mvn compile
+```
+
+这一步可选，也可以使用 maven-compiler-plugin 完成。
+
+- 运行项目
 
 ```sh
 mvn javafx:run
 ```
+
+- 对 modular 项目，创建和运行自定义 image
+
+```sh
+mvn javafx:jlink
+target/image/bin/java -m hellofx/org.openjfx.App
+```
+
+
 
 ### javafx:compile 选项
 
@@ -84,21 +103,28 @@ mvn javafx:run
 </plugin>
 ```
 
-### javafx:run
+## javafx:run
 
 该插件默认包括：`--module-path`, `--add-modules` 以及 `-classpath` 选项。
 
-其它选项包括：
+其它可选项包括：
 
-- `mainClass`， 指定主类
-- `workingDirectory`，指定当前工作目录
+- `mainClass`， 主类，完全限定名，可以包含 module 名
+- `workingDirectory`，当前工作目录
 - `skip`，跳过运行，值：`false` (default), true
 - `outputFile`，重定向运行输出文件
 - `options`, VM 选项
 - `commandlineArgs`，程序执行参数，空格分隔
-- `includePathExceptionsInClasspath`，解析模块路径时，该值设置为 true，添加产生 classpath 异常的依赖项，默认 false。
+- `includePathExceptionsInClasspath`，解析模块路径时，该值设置为 true，添加产生 classpath 异常的依赖项，默认 false，即不包含这些依赖性。
+- `runtimePathOption`，该插件会将依赖项放在 modulepath 或 classpath（基于某些因素）。当设置 `runtimePathOption` 插件将所有依赖项只放在 modulepath 或 classpath。
 
-例如，下面添加 VM 选项和命令行参数：
+如果设置为 `MODULEPATH`，则需要一个 module descriptor。所有依赖项要么能模块化，要么包含自动模块名称。
+
+如果设置为 `CLASSPATH`，则需要一个 Launcher 类运行 JavaFX 应用。忽略已有的 module-info。
+
+## 示例
+
+- 添加 VM 选项和命令行参数
 
 ```xml
 <plugin>
@@ -116,7 +142,7 @@ mvn javafx:run
 </plugin>
 ```
 
-也可以使用本地 SDK，而不是 Maven：
+- 也可以使用本地 SDK，而不是 Maven
 
 ```xml
 <properties>
@@ -135,9 +161,9 @@ mvn javafx:run
 </dependencies>
 ```
 
-### javafx:jlink 选项
+## javafx:jlink 选项
 
-可以使用 jlink 相同的参数。
+可以使用与 jlink 相同的参数。
 
 - `stripDebug`: Strips debug information out. Values: false (default) or true
 - `stripJavaDebugAttributes`: Strip Java debug attributes out (since Java 13), Values: false (default) or true

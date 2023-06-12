@@ -327,16 +327,13 @@ root.getChildren().addAll(rect, line, circle); // 添加子节点
 ## HBox
 
 默认采用子节点的 prefWidth, preHeight。当 Parent 不是 resizable（如 Group），HBox 采用最高子节点的高度。
+
 |属性|类型|说明|
 |---|---|---|
 |alignment|`ObjectProperty<Pos>`|子节点相对 HBox 的内容区域的对齐方式。如果垂直对齐方式为 BASELINE，fillHeight 被忽略，默认为 Pos.TOP_LEFT|
 |fillHeight|BooleaProperty|resizable 子节点是否 resize 以填充 HBox 的高度，默认为true，alignment=BASELINE 该属性被忽略|
 |spacing|DoubleProperty|水平相邻子节点之间的空隙|
 
-## FlowPane
-
-FlowPane(Orientation orientation, double hgap, double vgap)
-创建FlowPane，横向排列，指定组件间水平和垂直距离
 
 ## GridPane
 
