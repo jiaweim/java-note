@@ -7,7 +7,9 @@ module java.module {
     requires org.apache.avro;
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
+    requires javafx.swing;
 
     opens mjw.study.javafx.layout;
     opens mjw.study.javafx.canvas;
+    opens mjw.study.javafx.node;
 }

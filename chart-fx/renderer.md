@@ -6,7 +6,19 @@ Renderer 是实际绘制数据点的类，不同 Renderer 对应不同的图表�
 
 ## AbstractErrorDataSetRendererParameter
 
-包含 ErrorDataSetRenderer 相关的参数。
+包含 `ErrorDataSetRenderer` 相关的参数。
+
+- drawMarker
+
+```java
+public BooleanProperty drawMarkerProperty()
+public boolean isDrawMarker()
+public R setDrawMarker(final boolean state)
+```
+
+绘制数据点。
+
+
 
 ### polyLineStyleProperty
 

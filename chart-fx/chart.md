@@ -14,6 +14,19 @@ Chart 定义图表，其类图如下：
 final XYChart chart = new XYChart(new DefaultNumericAxis(), yAxis);
 ```
 
+对多个坐标轴情况，可以准确设置坐标轴位置：
+
+```java
+chart.getAxesPane(Side.BOTTOM).getChildren().add(xAxis1);  
+chart.getAxesPane(Side.TOP).getChildren().add(xAxis2);  
+chart.getAxesPane(Side.CENTER_HOR).getChildren().add(xAxis3);  
+chart.getAxesPane(Side.LEFT).getChildren().add(yAxis1);  
+chart.getAxesPane(Side.RIGHT).getChildren().add(yAxis2);  
+chart.getAxesPane(Side.RIGHT).getChildren().add(yAxis3);  
+chart.getAxesPane(Side.CENTER_VER).getChildren().add(yAxis4);
+```
+
+
 ### 设置数据集
 
 所有 chart 的抽象类，显示 `Dataset` 接口的数据。
@@ -80,6 +93,19 @@ public ObservableList<Renderer> getRenderers()
 ```java
 XYChart chart = new XYChart(new DefaultNumericAxis(), new DefaultNumericAxis());
 ```
+
+## ToolBar
+
+Chart 提供了默认的工具栏，通过 `FlowPane` 实现：
+
+```java
+public final FlowPane getToolBar()
+```
+
+## titleLegend
+
+titleLegend 在四个方向都可以放置，对应不同 `Pane`
+
 
 ## 示例
 

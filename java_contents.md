@@ -10,7 +10,7 @@
 - [x] [I/O](basic/io.md)
 - [x] [NIO](basic/nio.md)
 - [ ] [正则表达式](basic\java_regex.md)
-- [并发](concurrency/0_jcp_toc.md)
+- [并发](_jcp_toc.md)
 - [ ] 反射
 - [ ] 网络编程
 - [x] Java 8 新特性

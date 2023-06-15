@@ -1,17 +1,5 @@
 # Apache Maven Assembly Plugin
 
-- [Apache Maven Assembly Plugin](#apache-maven-assembly-plugin)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [描述符](#%e6%8f%8f%e8%bf%b0%e7%ac%a6)
-    - [assembly](#assembly)
-    - [`fileSets/fileSet`](#filesetsfileset)
-    - [fileSet](#fileset)
-  - [预定义描述符](#%e9%a2%84%e5%ae%9a%e4%b9%89%e6%8f%8f%e8%bf%b0%e7%ac%a6)
-    - [bin](#bin)
-    - [Assembly](#assembly-1)
-  - [Goals](#goals)
-  - [使用](#%e4%bd%bf%e7%94%a8)
-
 ***
 
 ## 简介

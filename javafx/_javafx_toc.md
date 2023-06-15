@@ -1,17 +1,11 @@
 # JavaFX
 
-- [JavaFX](#javafx)
-	- [学习笔记](#学习笔记)
-  - [工具](#工具)
-	- [DataFX](#datafx)
-	- [ControlsFX](#controlsfx)
-	- [ScenicView](#scenicview)
-	- [ScenicView 运行](#scenicview-运行)
-  - [References](#references)
-
 ## 学习笔记
 
-
+- [Node 概述](node/1_node_intro.md)
+	- [Node 边框](node/2_node_bounds.md)
+	- [Node 的位置和大小](node/3_node_pos_size.md)
+	- 
 - [[stroke|Stroke]]
 - [Layout](layout/_layout.md)
 	- [FlowPane](layout/FlowPane.md)
@@ -36,7 +30,6 @@
   - [Scrolling](scrolling.md)
   - [ListView](control_listview.md)
   - [TableView](tableview.md)
-  - [Canvas](canvas.md)
   - [Spinner](spinner.md)
   - [Alert](08_alert.md)
 - [Layout](11_layout.md)
@@ -46,7 +39,6 @@
 - [Transformation](11.transformation.md)
 - [并发](concurrency/intro.md)
   - [JavaFX 并发框架](concurrency/framework.md)
-- [Chart](13.chart.md)
 - [CSS](css.md)
 - [FXML](19_fxml.md)
 
