@@ -145,49 +145,6 @@ Thread 类有三个与优先级相关的静态量：
 
 为新线程的堆栈大小，如果未0，表示忽略该参数。
 
-### ThreadGroup
-
-`ThreadGroup` 将多个线程组合到一个对象。从下面源码可以看出，如果没有指定分组，自动分组到父线程所在的线程组。所谓父线程，就是启动该线程的线程，比如在 `main` 方法中调用 `.start()`，其父线程就是 `main` 线程。
-
-```java
-Thread parent = currentThread();
-SecurityManager security = System.getSecurityManager();
-if (g == null) {
-    /* Determine if it's an applet or not */
-
-    /* If there is a security manager, ask the security manager
-        what to do. */
-    if (security != null) {
-        g = security.getThreadGroup();
-    }
-
-    /* If the security doesn't have a strong opinion of the matter
-        use the parent thread group. */
-    if (g == null) {
-        g = parent.getThreadGroup();
-    }
-}
-```
-
-下面在单元测试：
-
-```java
-@Test
-public void testThreadGroup(){
-
-    Thread t1 = new Thread("t1");
-    ThreadGroup group = new ThreadGroup("group1");
-    Thread t2 = new Thread(group, "t2");
-    ThreadGroup testGroup = Thread.currentThread().getThreadGroup();
-    assertEquals(testGroup.getName(), "main");
-    assertSame(testGroup, t1.getThreadGroup());
-    assertSame(group, t2.getThreadGroup());
-    assertNotEquals(testGroup, t2.getThreadGroup());
-}
-```
-
-可以发现，TestNG 测试属于 main `ThreadGroup`，`t1` 由于没有指定分组，所以默认属于 main 分组，`t2` 指定了分组，所以归属于指定的 `testGroup`。
-
 ### status
 
 存储线程的状态。在 Java 中，线程有 6 种状态，定义在 `Thread.State` enum 中：
@@ -203,14 +160,12 @@ public void testThreadGroup(){
 
 ## 创建线程
 
-在 Java 中创建线程的方式有两种：
+Java 提供了两种创建线程的方式：
 
 - 扩展 `Thread` 类实现 `run()` 方法
 - 实现 `Runnable` 接口，推荐方式
 
 两种方法都通过 `Thread` 的 `start()` 启动线程。
-
-Thread 属性
 
 ### 继承 Thread
 
@@ -290,6 +245,67 @@ HelloRunner r = new HelloRunner(1000);
 Thread t1 = new Thread(r, "[线程 One]");
 Thread t2 = new Thread(r, "[线程 Two]");
 ```
+
+### 启动线程
+
+不管是实现 `Runnable` 还是继承 `Thread`，都通过调用 `start()` 启动线程，该方法的源码如下：
+
+```java
+public synchronized void start() {
+    if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+
+    group.add(this);
+
+    boolean started = false;
+    try {
+        start0();
+        started = true;
+    } finally {
+        try {
+            if (!started) {
+                group.threadStartFailed(this);
+            }
+        } catch (Throwable ignore) {
+
+        }
+    }
+}
+```
+
+状态 0 表示处于 `NEW` 状态，如果不是 `NEW` 状态，说明已启动。
+
+该方法的核心部分是 `start0()`，这是一个 JNI 方法：
+
+```java
+private native void start0();
+```
+
+因为 `start()` 方法最终会执行 `run()` 方法，所以 `start0()` 方法必然调用了 `run` 方法。
+
+总结：
+
+- 线程不能重复调用 `start()`，否则抛出 `IllegalThreadStateException`；
+- 线程启动后被加入 `ThreadGroup`
+- 线程结束后进入 `TERMINATED` 状态，再次调用 `start` 抛出异常。
+
+不允许重复启动线程，否则抛出 `IllegalThreadStateException`，例如：
+
+```java
+Thread thread = new Thread(() -> {
+    try {
+        TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+});
+
+thread.start();
+TimeUnit.SECONDS.sleep(2);
+thread.start();
+```
+
+中间休眠 2 秒以保证现在执行完，再调用 `start()`，抛出异常。
 
 ## 示例
 

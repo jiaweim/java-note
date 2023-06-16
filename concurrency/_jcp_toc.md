@@ -16,12 +16,12 @@
 	- [守护线程](thread/thread_daemon.md)
 	- [线程异常处理](thread/thread_exception.md)
 	- [线程局部变量](thread/thread_local_variable.md)
+	- [线程分组](thread/thread_group.md)
+	- [用工厂设计模式创建线程](thread/thread_factory.md)
 
 
   - [JDK 并发 API 的演变](evolution.md)
   - [多线程特点](thread_characteristic.md)
-  - [线程生命周期](3_thread_state.md)
-  - [守护线程](4_daemon_thread.md)
   - [线程方法](5_thread_methods.md)
 - [多线程问题](6_sync.md)
 - [同步](7_sync_method.md)
