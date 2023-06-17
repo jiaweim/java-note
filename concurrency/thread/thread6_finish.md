@@ -1,29 +1,29 @@
 # 等待线程结束
 
-2023-06-14
+2023-06-16, 11:50
 ****
-## 简介
+## 1.1. 简介
 
-有时会有必须等待指定线程执行结束的需求（`run()` 执行完）。例如，程序需要完成初始化所需资源后才能继续执行。将初始化任务作为单独线程运行，并等待初始化线程完成后再继续运行程序的余下部分。
+有时需要等待指定线程执行结束（`run()` 执行完）。例如，程序需要完成初始化所需资源后才能继续执行。将初始化任务作为单独线程运行，并等待初始化线程完成后再继续运行程序的余下部分。
 
-Thread 的 `join()` 方法提供了该功能。它会暂停调用线程的执行，直到被调用线程完成执行。
+Thread 的 `join()` 方法提供了该功能。例如，在 `t1` 线程中调用 `t2.join()`，`t1` 会暂停执行，直到 `t2` 执行完毕。
 
-Thread 提供了三个重载版本的 `join()` 方法：
+`Thread` 提供了三个重载版本的 `join()` 方法：
 
 ```java
-public final void join() throws InterruptedException
-public final synchronized void join(long millis) throws InterruptedException
-public final synchronized void join(long millis, int nanos) throws InterruptedException
+public final void join()
+public final synchronized void join(long millis)
+public final synchronized void join(long millis, int nanos)
 ```
 
-`join()` 会一直等待线程执行结束，而 `join(long millis)` 只等待指定毫秒数。例如，如果 `thread1` 中有一个 `thread2.join(1000)`，那么 `thread1` 挂起，直到满足下面两个条件之一：
+`join()` 会一直等待，`join(long millis)` 只等待指定毫秒数。例如，如果 `thread1` 中有一个 `thread2.join(1000)`，那么 `thread1` 挂起，直到满足下面两个条件之一：
 
 - `thread2` 执行完毕
 - 时间超过了 1000 毫秒
 
 当两个条件之一为 `true`，`join()` 方法返回。通过检查 `thread2` 的线程状态，可以知道是完成执行还是超时了。
 
-## 示例
+## 1.2. 示例
 
 模拟一个包含初始化步骤的程序，演示 `join()` 的功能。
 
@@ -124,8 +124,8 @@ Main: Configuration has been loaded: Wed Jun 14 17:52:04 CST 2023
 
 首先 `DataSourcesLoader` 执行完，然后 `NetworkConnectionsLoader` 执行完，然后 main 线程继续执行。
 
-## 总结
+## 1.3. 总结
 
-- 调用线程的 `join()`，会挂起当前线程的执行，等到调用线程执行完成
+- 线程 `t2` 中调用 `t1.join()`，`t2` 会挂起执行，等待 `t1` 线程执行完
 - `join()` 和 `sleep()` 具有近似相反功能，`sleep()` 让出 CPU 时间，而 `join()` 获取 CPU 时间，让其它线程等待其执行结束。
 - `join()` 和 `sleep()` 一样是可中断方法，即在其它线程执行了对当前线程的 `interrupt()` 操作，它会捕获中断信息，清除 `interrupt` 标识。

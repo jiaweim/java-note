@@ -1,12 +1,12 @@
 # 响应中断请求
 
-2023-06-14
+2023-06-16, 11:01
 ***
-## 简介
+## 1.1. 简介
 
 在简单程序中，在 Thread 对象中控制中断较容易。如果一个线程实现了复杂的算法，该算法被分成多个方法，或者包含递归调用，就需要使用更好的机制来控制线程的中断。Java 为此提供了 `InterruptedException`，当检测到线程中断请求，可以抛出这个异常，并在 run 方法中捕获它。
 
-## 示例
+## 1.2. 示例
 
 在一个文件夹及其子文件夹中查找指定名称的文件。演示如何使用 `InterruptedException` 控制线程的中断。
 
@@ -137,7 +137,7 @@ Thread-0: The search has been interrupted
 
 这里使用 `InterruptedException` 异常来控制线程的中断。在耗时方法中检测中断，发现中断请求即抛出 `InterruptedException`。在 `run()` 方法中再捕获该异常，这样不管循环或递归多少次，都能循环中断退出。
 
-## 响应中断请求
+## 1.3. 响应中断请求
 
 除了主动抛出 `InterruptedException`，其它并发相关 API 也可能抛出该异常：
 
@@ -237,7 +237,7 @@ true
 10
 ```
 
-## 总结
+## 1.4. 总结
 
 - 在算法可能中断的位置检查中断请求，发现中断即抛出 `InterruptedException`
 - 打断 sleep 或 wait 状态也会抛出 `InterruptedException` 异常

@@ -1,8 +1,8 @@
 # 线程的生命周期
 
-2023-06-14
+2023-06-16, 11:00
 ****
-## 简介
+## 1.1. 简介
 
 ![life cycle](2020-03-03-22-49-05.png)
 
@@ -17,7 +17,7 @@
 |TIMED_WAITING|在指定时间段内等待其它线程执行特定操作|
 |TERMINATED|执行结束|
 
-## NEW
+## 1.2. NEW
 
 `NEW` 表示线程刚创建，还没有启动，在调用 `start()` 方法前，线程状态保持为 `NEW`。例如：
 
@@ -28,7 +28,7 @@ assertSame(t.getState(), Thread.State.NEW);
 
 `NEW` 状态的线程还没开始执行，需要进行一些初始化工作。
 
-## RUNNABLE
+## 1.3. RUNNABLE
 
 创建线程，调用 `start()` 方法后，线程进入 `RUNNABLE` 状态。
 
@@ -58,7 +58,7 @@ assertSame(t.getState(), Thread.State.RUNNABLE);
 
 这里需要注意，上面的测试不一定能通过。有可能调用 `start()` 后线程立刻获得CPU时间开始执行，在调用 `getState()` 时可能已经执行完。
 
-## BLOCKED
+## 1.4. BLOCKED
 
 当线程等待 monitor lock 并尝试访问某个被其它线程锁定的代码时，进入阻塞（blocked）状态。此时线程不活动，不运行任何代码，消耗最少的资源，直到线程调度器重新激活它。如
 
@@ -114,7 +114,7 @@ static class DemoThread implements Runnable{
 - 线程获取到某个锁，进入 `RUNNABLE` 状态；
 - 线程在阻塞过程中被打断，比如其它线程调用了 `interrupt` 方法，进入 `RUNNABLE` 状态。
 
-## WAITING
+## 1.5. WAITING
 
 当线程等到其它线程执行特定操作时处于 `WAITING` 状态。调用下面三种方法会进入该状态：
 
@@ -172,7 +172,7 @@ public class WaitingState implements Runnable{
 3. 在线程 `t1` 中调用了 `t2.join()`，使得 `t1` 等待直到 `t2` 完成
 4. 所以此时 `t2` 中 `t1` 处于 `WAITING` 状态
 
-## Time Waiting
+## 1.6. Time Waiting
 
 当线程整等待其它线程执行特定操作，但只等待一段时间时，处于 `TIMED_WAITING` 状态。
 
@@ -219,7 +219,7 @@ class WaitThread implements Runnable
 
 上例中通过 `Thread.sleep(5000)` 使线程 `t1` 进入 `TIMED_WAITING` 状态。
 
-## Terminated
+## 1.7. Terminated
 
 当线程执行完成或异常结束后，进入 `TERMINATED` 状态。即：
 

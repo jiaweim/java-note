@@ -2,7 +2,7 @@
 
 2023-06-15
 ****
-## 简介
+## 1.1. 简介
 
 Java 异常可以分为两类：
 
@@ -13,7 +13,7 @@ Java 异常可以分为两类：
 
 下面介绍如何处理 unchecked 异常，以避免程序直接退出。
 
-## 示例
+## 1.2. 示例
 
 - 处理 unchecked 异常
 
@@ -105,7 +105,7 @@ Thread has finished
 - 如果有，JVM 将 `Thread` 对象和抛出的 `Exception` 作为参数传递给 `ExceptionHandler`
 - 如果没有，JVM 将 stack trace 输出到控制台，并结束抛出异常的线程
 
-## 总结
+## 1.3. 总结
 
 Thread 类还有一个静态方法 `setDefaultUncaughtExceptionHandler()`，该方法为应用中所有线程设置 unchecked 异常处理程序。
 

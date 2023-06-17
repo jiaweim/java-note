@@ -2,7 +2,7 @@
 
 2023-06-14
 ****
-## 简介
+## 1.1. 简介
 
 Java 提供了两种类型的线程：
 
@@ -19,7 +19,7 @@ Java 提供了两种类型的线程：
 
 不过总有意外，一些设计不好的守护线程可能会阻止 JVM 退出。比如在运行的守护线程中调用 `Thread.join()` 可能会阻止 JVM 关闭。
 
-## 示例
+## 1.2. 示例
 
 下面创建两类线程，一类 user 线程，负责将事件写入 queue，一个 daemon 线程，负责清理 queue，删除 10 秒前生成的事件。
 
@@ -214,7 +214,7 @@ Cleaner: The thread 28 has generated the event 90 event
 Cleaner: Size of the queue: 36
 ```
 
-## 总结
+## 1.3. 总结
 
 - 通过 `Thread.setDaemon()` 设置守护线程
 - 通过 `thread.isDaemon()` 检查是否为守护线程

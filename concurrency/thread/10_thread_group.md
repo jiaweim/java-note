@@ -2,7 +2,7 @@
 
 2023-06-16
 ****
-## 简介
+## 1.1. 简介
 
 Java 提供了线程分组功能，`java.lang.ThreadGroup` 类实现了该功能。通过将多个线程放在一组，可以对多个线程同时操作，例如一次操作打断所有线程。
 
@@ -28,7 +28,7 @@ public void testThreadGroup(){
 
 我们已了解如何捕获线程中的 unchecked 异常，`ThreadGroup` 也有类似功能。
 
-## 示例
+## 1.2. 示例
 
 演示如何使用 `ThreadGroup`，以及为 `ThreadGroup` 设置 unchecked 异常处理器。
 
@@ -161,7 +161,7 @@ Terminating the rest of the Threads
 
 如果三个 handler 都没有，JVM 将异常的 stack trace 信息输出到控制台，并结束抛出异常的线程。
 
-## 总结
+## 1.3. 总结
 
 `ThreadGroup` 有两个构造函数
 
