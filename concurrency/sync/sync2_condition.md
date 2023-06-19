@@ -8,7 +8,13 @@ producer-consumer 是并发程序设计中的一个经典问题。即有一个 b
 
 由于 buffer 是共享数据结构，所以需要同步保护访问。但是这里有更多限制，比如 buffer 满的时候 producer 不能写入数据，buffer 空的时候 consumer 不能获取数据。
 
-对这类情况，Java 在 `Object` 类中提供了 `wait()`, `notify()` 和 `notifyAll()` 方法辅助实现该功能，它们都是 `native` 方法.
+对这类情况，Java 在 `java.lang.Object` 类中提供了 `wait()`, `notify()` 和 `notifyAll()` 方法辅助实现该功能，它们都是 `native` 方法。这是一个小型的线程间通信的 API：
+
+- `void wait()`：使当前线程 wait，直到其它线程调用该对象的 notify() 或 notifyAll() 唤醒，或其它线程中断该线程。
+- `void wait(long timeout)`：使当前线程 wait，直到其它线程调用该对象的 notify() 或 notifyAll() 唤醒，或者等待时间达到 timeout，或其它线程中断该线程。
+- `void wait(long timeout, int nanos)`：使当前线程 wait，直到其它线程调用该对象的 notify() 或 notifyAll() 唤醒，或者等待时间达到 timeout 毫秒 + nanos 纳秒，或其它线程中断该线程。
+- `void notify()`：唤醒一个在该对象 wait 的线程。如果有多个 wait 线程 ，随机唤醒一个。被唤醒的线程与其它在该对象等待锁的线程一样，即没有特权，不一定是下一个获得该对象锁的线程。
+- `void notifyAll()`：唤醒在该对象 wait 的所有线程。其它同 `notify()`。
 
 `synchronized`  内调用 `wait()`，该线程进入 sleep 状态，并释放该线程持有的对象锁，从而允许其它线程执行该对象的其它 `synchronized` 代码。当其它线程在相同对象保护的代码块中调用 `notify()` 或 `notifyAll()` 唤醒 sleep 线程。
 

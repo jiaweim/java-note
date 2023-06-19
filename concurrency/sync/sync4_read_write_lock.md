@@ -4,9 +4,30 @@
 ****
 ## 1.1. 简介
 
-`ReadWriteLock` 及其实现 `ReentrantReadWriteLock` 是可谓是最重要的改进。该类又两个锁：一个用于读操作，一个用于写操作。可以有多个线程同时使用读操作，但只能有一个线程使用写操作。如果一个线程正在做写操作，其它线程不能读或写。
+`ReadWriteLock` 及其实现 `ReentrantReadWriteLock` 是可谓是最重要的改进。该类有两个锁：一个用于读，一个用于写。可以有多个线程同时使用读操作，但只能有一个线程使用写操作。如果一个线程正在做写操作，其它线程不能读或写。
 
-## 1.2. 示例
+`ReadWriteLock` 主要声明了两个方法：
+
+- `Lock readLock()`：返回读锁
+- `Lock writeLock()`：返回写锁
+
+## 1.2. ReentrantReadWriteLock
+
+ReentrantReadWriteLock 实现了 ReadWriteLock 接口，是一个可重入的读写锁。
+
+ReentrantReadWriteLock 提供了两个构造函数：
+
+- `ReentrantReadWriteLock()`：创建 ReentrantReadWriteLock，等价于 `ReentrantReadWriteLock(false)`
+- `ReentrantReadWriteLock(boolean fair)`：指定公平策略
+
+ReentrantReadWriteLock 方法：
+
+- ReentrantReadWriteLock.ReadLock readLock()：返回读锁
+- ReentrantReadWriteLock.WriteLock writeLock()：返回写锁
+- `int getReadHoldCount()`：调用线程持有的可重入 read 数，当调用线程不持有 read 锁，该值为 0。
+- `int getWriteHoldCount()`：调用线程持有的可重入 write 数。
+
+## 1.3. 示例
 
 演示 `ReadWriteLock` 的使用。
 
@@ -181,7 +202,7 @@ Sat Jun 17 09:44:52 CST 2023: Thread-0: Price 1: 3.564569
 
 当 writer 线程获得锁时，reader 线程无法读取数据。在 "Write Lock Acquired" 后面有 reader 的输出，但它们其实在此之前执行，只是没有在控制台输出。
 
-## 1.3. 总结
+## 1.4. 总结
 
 `ReentrantReadWriteLock` 有两个锁：
 

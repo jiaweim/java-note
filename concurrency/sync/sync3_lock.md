@@ -1,24 +1,74 @@
 # 基于 Lock 的同步
 
-2023-06-17, 09:14
+2023-06-18, 14:23
 ****
 ## 1.1. 简介
 
-lock 同步机制比 `synchronized` 关键字更强大、更灵活。它基于 java.uti.concurrent.locks 包的 Lock 接口及其实现类 `ReentrantLock`。lock 机制具有以下优点：
+lock 同步机制比 `synchronized` 更强大、更灵活。它基于 `java.uti.concurrent.locks` 包的 `Lock` 接口及其实现类 `ReentrantLock`。
 
-- 构建同步代码块的方式更灵活。使用 `synchronized` 关键字只能以结构化的方式控制一个同步代码块，而 Lock 能以更复杂的方式实现临界区。
-- Lock 相对 synchronized 提供了更多功能。例如，tryLock() 尝试获得锁，如果该锁因被其它线程持有而无法获得，返回 false。对 synchronized 关键字，如果线程 A 试图执行线程 B 正在执行的 synchronized 代码块，线程 A 挂起，直到线程 B 执行完。而使用 tryLock()，直接告诉你是否有其它线程正在运行受该锁保护的代码。
-- `ReadWriteLock` 接口允许读写操作分离，多个 readers 一个 writer。
-- Lock 接口性能比 synchronized 关键字更好。
+lock 相对 `synchronized` 关键字具有以下优点：
 
-`ReentrantLock` 的构造函数有一个 boolean 类型的 fair 参数，默认为 false，即 non-fair  模式。如果有多个线程在等待该锁，该锁需要选择其中一个访问临界区：
+- `Lock` 的同步代码块结构更灵活。`synchronized` 只能在同一个 `synchronized` 代码块中获取和释放控制，而 `Lock` 获取和释放锁不用在同一个块结构中。
+- `Lock` 的功能更多。例如，`tryLock()` 尝试获得锁，如果该锁被其它线程占用，返回 false。对 `synchronized`，如果线程 A 试图执行线程 B 正在执行的 `synchronized` 代码块，线程 A 挂起，直到线程 B 执行完。而 `tryLock()` 直接告诉你是否有其它线程正在运行受该锁保护的代码。
+- `ReadWriteLock` 接口允许读写操作分离，允许多个读线程一个写线程。
+- `Lock` 的性能比 `synchronized` 好。
+
+## 1.2. Lock 接口
+
+`Lock` 接口的方法说明：
+
+- `void lock()`：获取 lock，当 lock 不可用，调用线程挂起直到 lock 可用。
+- `void lockInterruptibly()`：获取 lock，当 lock 不可用，调用线程挂起直到 lock 可用，或调用线程被中断，抛出 `java.lang.InterruptedException`。
+- `Condition newCondition()`：返回一个与该 `Lock` 绑定的 `Condition` 实例。如果该 `Lock` 不支持 condition，抛出 `java.lang.UnsupportedOperationException`。
+- `boolean tryLock()`：获取 lock，获取成功返回 `true`，获取失败返回 `false`。
+- `boolean tryLock(long time, TimeUnit unit)`：获取 lock，获取失败，调用线程等待指定时间、或被中断抛出 `InterruptedException`。
+- `void unlock()`：释放锁。
+
+## 1.3. ReentrantLock
+
+`ReentrantLock` 实现了 `Lock` 接口，是一种**可重入互斥锁**。该类持有一个 count 字段，当持有锁的线程调用 `lock()`, `lockUninterruptibly()` 或 `tryLock()` 再次获取锁，count 值 +1；调用 `unlock()` 时 count 值 -1。当 count 值为 0，释放锁。
+
+```ad-note
+`ReentrantLock` 提供可重入锁，即线程持有锁时，再次获取锁不会被阻塞，因此可用在递归调用中。
+```
+
+`ReentrantLock` 提供了与 `synchronized` 同样的功能，但是更灵活，更强大，性能更好。
+
+`ReentrantLock` 提供了两个构造函数：
+
+- `ReentrantLock()`：等价于 `ReentrantLock(false)`
+- `ReentrantLock(boolean fair)`：创建指定公平策略的 `ReentrantLock`。
+
+`fair` 默认为 `false`，即 non-fair 模式。如果有多个线程在等待该锁，该锁需要选择其中一个访问临界区：
 
 - 在 non-fair 模式，该锁随机选择一个线程
 - 在 fair 模式，该锁选择等待时间最长的线程
 
-## 1.2. 示例
+对 `ReentrantLock`：
 
-演示使用 lock 同步代码块，使用 Lock 接口及其实现 ReentrantLock 类创建临界区，实现一个模拟打印队列的程序。
+- 调用线程没有占用 lock 时调用 `unlock()`，抛出 `java.lang.IllegalMonitorStateException`
+- 当前线程持有 lock 时 `boolean isHeldByCurrentThread()` 返回 `true`
+
+## 1.4. 使用范例
+
+```java
+Lock lock = new ReentrantLock();
+
+lock.lock();
+try{
+	// 执行临界区操作
+	// 更新共享数据
+
+}catch (Exception e){
+   e.printStackTrace();
+} finally {
+   lock.unlock();
+}
+```
+
+## 1.5. 示例
+
+演示使用 lock 同步代码块：使用 `Lock` 接口及其实现 `ReentrantLock` 类创建临界区，实现一个模拟打印队列的程序。
 
 - 打印队列实现
 
@@ -52,7 +102,7 @@ public class PrintQueue {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            queueLock.unlock(); // 最后释放锁
+            queueLock.unlock(); // finally 中释放锁
         }
 
 		// 重复打印过程，便于演示 fair 参数的作用
@@ -253,13 +303,13 @@ Thread 9: PrintQueue: Printing a Job during 3 seconds
 Thread 9: The document has been printed
 ```
 
-## 1.3. 总结
+## 1.6. 总结
 
-`Lock` 接口包含一个 `tryLock()` 方法，它与 `lock()` 主要区别在于，如果线程使用 tryLock() 无法获得 lock 权限，该方法立即返回，不会让线程挂起。如果线程获得 lock 权限，tryLock() 返回 true，否则返回 false。还可以设置等待时间，时间一到，如果没有获得 lock 权限，直接返回 false。
-
-ReentrantLock 允许递归调用。当线程获得 lock 权限并进行递归调用，它会继续持有锁，即递归调用中 lock() 会立刻返回并继续执行。
+`ReentrantLock` 为可重入锁，允许递归调用。当线程获得 lock 权限并进行递归调用，它会继续持有锁，即递归调用中 lock() 会立刻返回并继续执行。
 
 ```ad-warning
 **避免死锁**
 当多个线程等待一个永远无法开发的锁时，它们一直挂起，就发生死锁。例如，线程 A 持有锁 X、线程 B 持有锁 Y。现在线程 A 试图持有 Y，线程 B 试图持有 X，就陷入死锁。
 ```
+
+`ReentrantLock` 可代替 `synchronized` 进行同步。
