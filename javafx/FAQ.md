@@ -87,26 +87,6 @@ java -jar myJar.jar --module-path /path/to/javafx-sdk-14/lib --add-modules javaf
 --module-path $JAVAFX_SDK$ --add-modules=javafx.graphics,javafx.fxml,javafx.media --add-reads javafx.graphics=ALL-UNNAMED --add-opens javafx.controls/com.sun.javafx.charts=ALL-UNNAMED --add-opens javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.css=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx.runtime=ALL-UNNAMED --add-exports javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 ```
 
-
-```sh
---add-exports javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.prism=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.geom.transform=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.glass.utils=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.font=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.text=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
---add-exports javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED
---add-exports javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED
---add-exports javafx.base/com.sun.javafx.logging=ALL-UNNAMED
---add-exports javafx.media/com.sun.media.jfxmedia.events=ALL-UNNAMED
-```
-
 ## Error 2
 
 module javafx.graphics does not export com.sun.javafx.util to unnamed module @0x16ffb0fa
@@ -115,4 +95,8 @@ module javafx.graphics does not export com.sun.javafx.util to unnamed module @0x
 
 ```sh
 --add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED
+```
+
+```sh
+--add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 ```

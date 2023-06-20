@@ -5,12 +5,21 @@
 - [Node 概述](node/1_node_intro.md)
 	- [Node 边框](node/2_node_bounds.md)
 	- [Node 的位置和大小](node/3_node_pos_size.md)
-	- 
+- [颜色](color/color1_intro.md)
+	- [ImagePattern](color/color2_image_pattern.md)
+	- [线性渐变色](color/color3_linear_gradient.md)
+	- [径向渐变色](color/color4_radial_gradient.md)
 - [[stroke|Stroke]]
 - [Layout](layout/_layout.md)
 	- [FlowPane](layout/FlowPane.md)
 - [Canvas 概述](canvas/1_canvas_intro.md)
 	- [Canvas 操作](canvas/2_operations.md)
+- [自定义样式快速入门](style/style1_intro.md)
+	- [JavaFX CSS](style/style2_javafx_css.md)
+	- [样式优先级](stype/style3_priority.md)
+
+
+
 
 - [概述](1.intro.md)
 - [Stage](2.stage_scene.md)
@@ -39,7 +48,7 @@
 - [Transformation](11.transformation.md)
 - [并发](concurrency/intro.md)
   - [JavaFX 并发框架](concurrency/framework.md)
-- [CSS](css.md)
+- [CSS](style1_intro.md)
 - [FXML](19_fxml.md)
 
 ## 工具

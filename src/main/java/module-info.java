@@ -8,8 +8,11 @@ module java.module {
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
     requires javafx.swing;
+    requires com.google.common;
 
     opens mjw.study.javafx.layout;
     opens mjw.study.javafx.canvas;
     opens mjw.study.javafx.node;
+    opens mjw.study.javafx.css;
+    opens mjw.study.javafx.color;
 }
