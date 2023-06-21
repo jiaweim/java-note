@@ -2,7 +2,7 @@
 
 2023-06-12
 ****
-## 创建 Canvas
+## 1. 创建 Canvas
 
 `Canvas` 类包含两个构造函数，一个无参，一个构造时指定大小：
 
@@ -18,7 +18,7 @@ canvas.setHeight(200);
 Canvas canvas = new Canvas(400, 200);
 ```
 
-## 绘制操作
+## 2. 绘制操作
 
 创建 canvas 后，需要使用 `getGraphicsContext2D()` 获得其 graphicsContext：
 
@@ -36,7 +36,7 @@ GraphicsContext gc = canvas.getGraphicsContext2D();
 - 图像
 - 像素点
 
-### 基本形状
+### 2.1. 基本形状
 
 `GraphicsContext` 提供了两类绘制基本图形的方法：
 
@@ -63,7 +63,7 @@ gc.setStroke(Color.RED);
 gc.strokeRect(0, 0, 100, 50);
 ```
 
-### 绘制文本
+### 2.2. 绘制文本
 
 `GraphicsContext` 提供 `fillText()` 和 `strokeText()` 绘制文本：
 
@@ -89,7 +89,7 @@ gc.strokeText("Drawing Text", 100, 10, 40);
 Font Smoothing 属性只能用于 `fillText` 方法
 ```
 
-### 绘制路径
+### 2.3. 绘制路径
 
 可以使用 path 命令和 SVG 路径字符串创建任意形状。一条路径由多条子路径组成。`GraphicsContext` 包含如下绘制路径的方法：
 
@@ -120,7 +120,7 @@ gc.closePath();
 gc.stroke();
 ```
 
-### 绘制图像
+### 2.4. 绘制图像
 
 使用 `drawImage()` 方法绘制图片：
 
@@ -151,7 +151,7 @@ gc.drawImage(image, 10, 10, 100, 150);
 gc.drawImage(image, 0, 0, 100, 150, 10, 10, 200, 200);
 ```
 
-### 绘制像素
+### 2.5. 绘制像素
 
 可以直接修改 canvas 上的像素。`GraphicsContext` 的 `getPixelWriter()` 方法返回 `PixelWriter`，可以直接在关联的 canvas 上写入像素点。
 
@@ -161,7 +161,7 @@ GraphicsContext gc = canvas.getGraphicsContext2D();
 PixelWriter pw = gc.getPixelWriter();
 ```
 
-## 清除 canvas 区域
+## 3. 清除 canvas 区域
 
 `canvas` 是一个透明区域。像素点则具有颜色和不透明度。有时候，我们可能需要清理 canvas 的部分区域，从而让其恢复全透明的状态，使用 `clearRect()` 方法：
 
@@ -170,7 +170,7 @@ PixelWriter pw = gc.getPixelWriter();
 gc.clearRect(0, 0, 100, 100);
 ```
 
-## 保存和恢复 GraphicsContext 配置
+## 4. 保存和恢复 GraphicsContext 配置
 
 `GraphicsContext` 的当前配置用于随后所有的绘制操作。例如，如果设置 `linewidth=5px`，则随后绘制的线条宽度都是 5px。
 
@@ -220,7 +220,7 @@ gc.restore();
 gc.strokeRect(120, 10, 50, 20);
 ```
 
-## Canvas 示例
+## 5. Canvas 示例
 
 ```java
 import javafx.application.Application;

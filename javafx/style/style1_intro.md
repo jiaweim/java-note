@@ -95,3 +95,7 @@ public class ButtonStyleTest extends Application {
 ```
 
 ![[Pasted image 20230619164150.png|150]]
+
+## 1.4 参考
+
+- [JavaFX CSS 参考指南](https://openjfx.io/javadoc/20/javafx.graphics/javafx/scene/doc-files/cssref.html)

@@ -9,14 +9,17 @@
 	- [ImagePattern](color/color2_image_pattern.md)
 	- [线性渐变色](color/color3_linear_gradient.md)
 	- [径向渐变色](color/color4_radial_gradient.md)
-- [[stroke|Stroke]]
+- [[shape_stroke|Stroke]]
 - [Layout](layout/_layout.md)
 	- [FlowPane](layout/FlowPane.md)
-- [Canvas 概述](canvas/1_canvas_intro.md)
-	- [Canvas 操作](canvas/2_operations.md)
+- [Canvas 概述](canvas1_intro.md)
+	- [Canvas 操作](canvas2_operations.md)
 - [自定义样式快速入门](style/style1_intro.md)
 	- [JavaFX CSS](style/style2_javafx_css.md)
-	- [样式优先级](stype/style3_priority.md)
+	- [样式优先级](style/style3_priority.md)
+	- [CSS 属性](style/style4_css_properties.md)
+	- [CSS 背景颜色](style/style5_background_color.md)
+	- [Border](style/style6_border.md)
 
 
 
