@@ -175,6 +175,8 @@ public class LogAxisSample extends ChartSample {
 
 可以发现，Y 轴的 major tick 是 10 为底数的 log 值。
 
+
+
 ## CategoryAxis
 
 `CategoryAxis` 用于字符串类型的分类数据。

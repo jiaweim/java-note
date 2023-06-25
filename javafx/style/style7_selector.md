@@ -126,7 +126,7 @@ scene 的 root node 的样式类名为 root。对被其它 node 继承的 CSS �
 
 root node 是 scene graph 中所有 node 的父节点，**推荐**将 CSS 属性存储在 root node 中，这样 scene graph 中任何 node 都能找到它们。
 
-- 定义 resources\css\rootclass.css 样式
+- 定义 `resources\css\rootclass.css` 样式
 
 ```css
 .root {
@@ -139,104 +139,146 @@ root node 是 scene graph 中所有 node 的父节点，**推荐**将 CSS 属性
 }
 ```
 
+```java
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+public class RootClassTest extends Application {
+
+    public static void main(String[] args) {
+
+        Application.launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) {
+
+        Label nameLbl = new Label("Name:");
+        TextField nameTf = new TextField("");
+        Button closeBtn = new Button("Close");
+
+        HBox root = new HBox();
+        root.getChildren().addAll(nameLbl, nameTf, closeBtn);
+
+        Scene scene = new Scene(root);
+        /* The root variable is assigned a default style class name "root" */
+        var url = getClass().getResource("/css/rootclass.css").toExternalForm();
+        scene.getStylesheets().add(url);
+
+        stage.setScene(scene);
+        stage.setTitle("Using the root Style Class Selector");
+        stage.show();
+    }
+}
+```
+
+![](images/2023-06-21-13-25-20.png)
+
+这里 root 类选择器声明了两个属性：`-fx-cursor` 和 `-fx-button-color`。
+
+`-fx-cursor` 被所有 node 继承，因此所有 node 都是 `HAND` 样式光标，除非覆盖该设置。所以将鼠标移到 scene 的任意地方，除了 `TextField`，其它地方都是 `HAND` 光标。因为 TextField 覆盖了 `-fx-cursor` 属性，将其设置为 `TEXT` 光标。
+
+`-my-button-color` 是一个 look-up 属性，在第二个样式中引用它设置按钮的文本颜色。
+
 ## ID Selector
 
-设置方法：
+`Node` 有一个名为 `id` 的 `StringProperty` 类型属性，可以为 scene graph 中每个 node 分配一个唯一的 id。id 的唯一性由开发者自己负责。
+
+node 的 `id` 需要显式设置才能使用，主要用于基于 ID 选择器的 node 样式设置。
+
+- 设置 Button 的 `id`
 
 ```java
 Button b1 = new Button("Close");
 b1.setId("closeBtn");
 ```
 
-使用语法：
+- 在样式表中 ID 选择器以 `#` 开头
+
+在匹配样式表和 node 时，会移除 `#` 进行匹配，即 node id 不要带 `#`。
+
+例如，CSS 文件 `resources\css\idselector.css` 内容如下：
 
 ```css
+.button {
+    -fx-text-fill: blue;
+}
+
 #closeButton {
     -fx-text-fill: red;
 }
 ```
 
-### CSS 属性类型
+这里定义了两个样式：类选择器 ".button" 和 ID 选择器 `#closeButton`。
 
-JavaFX 支持如下类型:
-| 类型       | 说明                                                                               |
-| ---------- | ---------------------------------------------------------------------------------- |
-| inherit    | 从 parent 继承属性值                                                               |
-| boolean    | true,false                                                                         |
-| string     | 单引号或双引号，包含引号需要转义，换行符（\A or \0000a）                           |
-| number     | 整数或实数，以及单位，px(pixels), mm(millimeters), cm(centimeters), in(inches), pt | (points), pc(picas), em or ex. |
-| angle      | 角度，单位有 deg(degrees), rad(radians), grad(gradients), turn(turns)              |
-| point      | 空格分隔两个数，如 `0 0`                                                           |
-| color-stop | 用于指定 linear 或 radical color gradients                                         |
-| URI        | URI                                                                                |
-| effect     | 特效                                                                               |
-| font       | 字体                                                                               |
-| paint      | 颜色                                                                               |
+下面创建三个按钮，将 "closeButton" 的 id 设置为 "closeButton"：
 
-### URI
+```java
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
-通过 `url(address)` 函数指定，其中相对地址是相对当前CSS文件的路径。
+public class IDSelectorTest extends Application {
 
-```css
-.image-view {
-    -fx-image: url("http://jdojo.com/myimage.png");
+    public static void main(String[] args) {
+
+        Application.launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) {
+
+        Button openBtn = new Button("Open");
+        Button saveBtn = new Button("Save");
+
+        Button closeBtn = new Button("Close");
+        closeBtn.setId("closeButton");
+
+        HBox root = new HBox();
+        root.getChildren().addAll(openBtn, saveBtn, closeBtn);
+
+        Scene scene = new Scene(root);
+        var url = getClass().getResource("/css/idselector.css").toExternalForm();
+        scene.getStylesheets().add(url);
+
+        stage.setScene(scene);
+        stage.setTitle("Using ID selectors");
+        stage.show();
+    }
 }
 ```
 
-### effect
+![](images/2023-06-21-14-32-34.png)
 
-Drop shadow 和 inner shadow 特效可以通过 dropshadow() 和 innershadow() 两个CSS 函数指定：
+这里给 "Close" 按钮指定了两个 `-fx-text-fill`，但是 ID 选择器优先级比类选择器高，所以 "Close" 按钮为红色。
 
-```css
-dropshadow(<blur-type>, <color>, <radius>, <spread>, <x-offset>, <y-offset>)
-innershadow(<blur-type>, <color>, <radius>, <choke>, <x-offset>, <y-offset>)
-```
+## 组合 ID 和 Class 选择器
 
-`<blur-type>`： Gaussian, one-pass-box, three-pass-box, two-pass-box。
-
-### font
-
-字体包括四个属性：family, size, style, weight。指定CSS属性的方法有两种：
-
-- 分别以四个CSS属性指定四个值：-fx-font-family, -fx-font-size, -fx-font-style, and -fx-font-weight.
-- 以 `-fx-font` 指定所有四个属性
-分别指定：
+可以同时使用 ID 选择器和类选择器，匹配同时包含两者的 node:
 
 ```css
-.my-font-style {
-    -fx-font-family: "serif";
-    -fx-font-size: 20px;
-    -fx-font-style: normal;
-    -fx-font-weight: bolder;
+#closeButton.button {
+    -fx-text-fill: red;
 }
 ```
 
-同时指定：
+`#closeButton.button` 选择器匹配 ID 为 `closeButton`，且样式类为 `button` 的 nodes。
+
+也可以反过来，效果一样：
 
 ```css
-.my-font-style {
-    -fx-font: italic bolder 20px "serif";
+.button#closeButton {
+    -fx-text-fill: red;
 }
 ```
 
-### paint
+## 全选
 
-paint 类型用于指定颜色。指定方式有：
-
-- linear-gradient() 函数
-- radial-gradient() 函数
-- 各种颜色值和函数
-
-例：
-
-```css
-.my-style {
-    -fx-fill: linear-gradient(from 0% 0% to 100% 0%, black 0%, red 100%);
-    -fx-background-color: radial-gradient(radius 100%, black, red);
-}
-```
-
-combo-box
-extends combo-box-base
-list-cell, ListCell instance used to show the selection in the button area of a non-editable ComboBox.
-text-input, a TextField instance used to show the selection and allow input in the button area of an editable ComboBox.
+`*` 匹配所有 nodes。该选择器优先级最低。

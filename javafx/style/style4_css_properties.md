@@ -218,7 +218,7 @@ duration 是数字加上时间单位：
 
 ### 2.11. URI
 
-URI 可以使用 `url(<address>)` 函数指定。相对 `<address>` 从 CSS 文件所在位置开始解析。
+URI 使用 `url(<address>)` 函数指定。如果 `<address>` 为相对值，则从 CSS 文件所在位置开始解析。
 
 ```css
 .image-view {
@@ -228,14 +228,16 @@ URI 可以使用 `url(<address>)` 函数指定。相对 `<address>` 从 CSS 文�
 
 ### 2.12. effect
 
-drop shadow 和 inner shadow 特效可以通过 `dropshadow()` 和 `innershadow()` CSS 函数指定。它们的签名：
+drop shadow 和 inner shadow 特效可以使用 CSS 函数 `dropshadow()` 和 `innershadow()` CSS 指定：
 
-- `dropshadow(<blur-type>, <color>, <radius>, <spread>, <x-offset>, <y-offset>)`
-- `innershadow(<blur-type>, <color>, <radius>, <choke>, <x-offset>, <y-offset>)`
+```css
+dropshadow(<blur-type>, <color>, <radius>, <spread>, <x-offset>, <y-offset>)
+innershadow(<blur-type>, <color>, <radius>, <choke>, <x-offset>, <y-offset>)
+```
 
 说明：
 
-- 阴影类型 `<blur-type>` 的可选值包括：`Gaussian`, `one-pass-box`, `three-pass-box`, `two-pass-box`
+- `<blur-type>`: `Gaussian`, `one-pass-box`, `three-pass-box`, `two-pass-box`
 - `<color>` 指定阴影颜色
 - `<radius>` 指定阴影模糊半径，从 0.0 到 127.0
 - `spread/choke` 在 0.0 到 1.0 之间
@@ -257,10 +259,10 @@ drop shadow 和 inner shadow 特效可以通过 `dropshadow()` 和 `innershadow(
 
 ### 2.13. font
 
-字体由四个属性组成：family, size, style, weight。有两种方式指定 font CSS 属性：
+字体包括四个属性：family, size, style, weight。指定 font CSS 属性的方式有两种：
 
-- 使用 4 个 CSS 属性分别指定：`-fx-font-family`, `-fx-font-size`, `-fx-font-style`, `-fx-font-weight`
-- 使用 `-fx-font` 一次指定四个属性
+- 分别指定 4 个 CSS 属性：`-fx-font-family`, `-fx-font-size`, `-fx-font-style`, `-fx-font-weight`
+- 使用 `-fx-font` 指定所有四个属性
 
 font family 是字符串值，可以是系统上实际可用的子图，如 "Arial", "Times"，也可以是通用 family 名称，例如 "serif", "sans-serif", "monospace"。
 
@@ -271,7 +273,7 @@ font style 的可选值：normal, italic, oblique。
 font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 500, 600, 700,
 800, or 900.
 
-单独设置 4 个字体属性：
+- 分别设置 font 的 4 个属性
 
 ```css
 .my-font-style {
@@ -282,7 +284,7 @@ font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 50
 }
 ```
 
-使用 `-fx-font` 一次设置 font 属性的语法为：
+- 使用 `-fx-font` 一次设置 font 属性
 
 ```css
 -fx-font: <font-style> <font-weight> <font-size> <font-family>;
@@ -298,7 +300,7 @@ font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 50
 
 ### 2.14. paint 和 color
 
-`paint` 类型指定颜色，如形状的填充颜色、按钮的背景颜色，指定颜色的方式有三类：
+`paint` 类型指定颜色，如形状的填充颜色、按钮的背景颜色。指定颜色的方式有三类：
 
 - `linear-gradient()` 函数
 - `radial-gradient()` 函数
