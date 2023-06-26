@@ -2,11 +2,11 @@
 
 2023-06-19, 18:46
 ****
-## 1.1. JavaFX CSS 命名约定
+## 1. JavaFX CSS 命名约定
 
 JavaFX 采用的命名约定和 CSS 的样式类有所不同：
 
-- 所有 `Control` 的 selector 的都是小写
+- 所有 `Control` 的 selector 都是小写
 - 对单个单词的控件，如 `Button`，其 CSS 样式类名为 `button`
 - 对多个单词的控件，如 `TextField`，单词之间以短线分开：`text-field`
 
@@ -15,9 +15,9 @@ JavaFX 采用的命名约定和 CSS 的样式类有所不同：
 - 属性名以 `-fx-` 开头。例如，CSS 样式表的的 `font-size` 在 JavaFX CSS 中变为 `-fx-font-size`
 - 变量属性命名和变量命名规则相同。如 `textAlignment` 对应的样式表属性名为 `-fx-text-alignment`
 
-## 1.2. 添加样式表
+## 2. 添加样式表
 
-可以为 JavaFX 程序添加多个样式表。Scene 和 Parent对象都支持添加样式表。两者都通过 `getStylesheets()` 返回保存样式表的 ObservableList 的引用。例如：
+可以为 JavaFX 程序添加多个样式表。`Scene` 和 `Parent` 对象都支持添加样式表。两者都通过 `getStylesheets()` 返回保存样式表的 ObservableList 的引用。例如：
 
 ```java
 // 为 scene 添加两个样式表：ss1.css 和 ss2.css
@@ -31,9 +31,9 @@ root.getStylesheets().add("file://.../vbox.css");
 
 将 "..." 替换为正确路径即可。
 
-## 1.3. 默认样式表
+## 3. 默认样式表
 
-JavaFX 的默认样式由样式表 `modena.css` 定义。`modena.css` 文件在 javafx.controls.jar 文件中，位于 "com/sun/javafx/scene/control/skin/modena/modena.css"。
+JavaFX 的默认样式由样式表 `modena.css` 定义，该文件位于 javafx.controls.jar 的 "com/sun/javafx/scene/control/skin/modena/modena.css"。
 
 在 JavaFX 8 之前，默认样式为 Caspian，定义在 jfxrt.jar 文件的 "com/sun/javafx/scene/control/skin/caspian/caspian.css"。`Application` 类定义了两个字符串常量 `STYLESHEET_CASPIAN` 和 `STYLESHEET_MODENA`，对应两种主题。
 
@@ -48,9 +48,9 @@ JavaFX 的默认样式由样式表 `modena.css` 定义。`modena.css` 文件在 
 Application.setUserAgentStylesheet(Application.STYLESHEET_CASPIAN);
 ```
 
-## 1.4. 内联样式
+## 4. 内联样式
 
-设置 Scene 中 Node 的样式有两种方式：样式表或内联样式。前面介绍了样式表，下面说明内联样式。
+设置 `Scene` 中 `Node` 的样式有两种方式：样式表或内联样式。前面介绍了样式表，下面说明内联样式。
 
 `Node` 类的 `style` 属性定义内联样式（`StringProperty` 类型）：
 
@@ -71,7 +71,7 @@ Button yesBtn = new Button("Yes");
 yesBtn.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
 ```
 
-**示例：** 创建两个 VBox，设置 4.0px 蓝色边框，各保存三个按钮。将两个 VBox 放入 HBox，边框设置为 10.0px navy。
+**示例：** 创建两个 `VBox`，设置 4.0px 蓝色边框，各保存三个按钮。将两个 `VBox` 放入 `HBox`，边框设置为 10.0px navy。
 
 ```java
 import javafx.application.Application;

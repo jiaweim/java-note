@@ -15,4 +15,5 @@ module java.module {
     opens mjw.study.javafx.node;
     opens mjw.study.javafx.css;
     opens mjw.study.javafx.color;
+    opens mjw.study.javafx.event;
 }

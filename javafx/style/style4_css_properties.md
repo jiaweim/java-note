@@ -4,16 +4,16 @@
 ****
 ## 1. CSS 属性继承
 
-JavaFX 为 CSS 属性提供了两种类型的继承：
+JavaFX 为 CSS 属性提供了两种继承类型：
 
 - CSS 属性类型继承
 - CSS 属性值继承
 
 对**类型继承**，JavaFX 类中声明的所有 CSS 属性，被其子类继承。例如，`Node` 类声明的 `cursor` 属性，对应的 CSS 属性为 `-fx-cursor`。因为 `Node` 是所有 JavaFX 控件的基类，所以所有控件类型都有 `-fx-cursor` CSS 属性。
 
-对**值继承**，`Node` 可以从 parent 继承 CSS 属性值，这里 parent 不是父类，而是 `Scene` graph 中 `Node` 的容器。Node 的部分属性值默认从 parent 继承，而有些属性需要显式指定想要从 parent 继承。
+对**值继承**，`Node` 可以从 parent 继承 CSS 属性值，这里 parent 不是父类，而是 `Scene` graph 中 `Node` 的容器。`Node` 的部分属性值默认从 parent 继承，部分属性则需要显式指定想要从 parent 继承。
 
-将属性值为 `inherit`，即表示从 parent 继承属性值。例如，为 HBox 添加两个按钮，O看和 Cancel。下面为 HBox 和 OK 按钮设置 CSS 属性，没有为 Cancel 设置：
+将属性值为 `inherit`，即表示从 parent 继承属性值。例如，为 `HBox` 添加两个按钮，OK 看和 Cancel。下面为 `HBox` 和 OK 按钮设置 CSS 属性，没有为 Cancel 设置：
 
 ```css
 /* Parent Node (HBox)*/
@@ -33,8 +33,8 @@ JavaFX 为 CSS 属性提供了两种类型的继承：
 
 边框相关的 CSS 属性默认不被继承：
 
-- HBox 设置 5px 宽的蓝色边框；
-- OK 按钮设置红色变量，其 `-fx-border-width` 值为 `inherit`，表示从 HBox 继承，也是 5px.
+- `HBox` 设置 5px 宽的蓝色边框；
+- OK 按钮设置红色变量，其 `-fx-border-width` 值为 `inherit`，表示从 `HBox` 继承，也是 5px.
 
 代码如下：
 

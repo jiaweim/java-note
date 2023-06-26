@@ -1,11 +1,13 @@
 # JavaFX CSS Selector
 
-## 简介
+2023-06-25, 10:24
+****
+## 1. 简介
 
 样式表中每个样式都有一个关联的 selector，用于识别 scene graph 中的 node。JavaFX CSS 支持多种类型的 selector：class selectors
 pseudo-class selectors, ID selector 等。
 
-## Class Selector
+## 2. 类选择器
 
 `Node` 的 `styleClass` 变量为 `ObservableList<String>` 类型，包含 node 的 JavaFX 样式类名。
 
@@ -120,7 +122,7 @@ if (list.isEmpty()) {
 }
 ```
 
-## root Node 的类选择器
+## 3. root Node 的类选择器
 
 scene 的 root node 的样式类名为 root。对被其它 node 继承的 CSS 属性，可以用 root 样式类选择器。
 
@@ -185,7 +187,7 @@ public class RootClassTest extends Application {
 
 `-my-button-color` 是一个 look-up 属性，在第二个样式中引用它设置按钮的文本颜色。
 
-## ID Selector
+## 4. ID Selector
 
 `Node` 有一个名为 `id` 的 `StringProperty` 类型属性，可以为 scene graph 中每个 node 分配一个唯一的 id。id 的唯一性由开发者自己负责。
 
@@ -259,7 +261,7 @@ public class IDSelectorTest extends Application {
 
 这里给 "Close" 按钮指定了两个 `-fx-text-fill`，但是 ID 选择器优先级比类选择器高，所以 "Close" 按钮为红色。
 
-## 组合 ID 和 Class 选择器
+## 5. 组合 ID 和 Class 选择器
 
 可以同时使用 ID 选择器和类选择器，匹配同时包含两者的 node:
 
@@ -279,6 +281,122 @@ public class IDSelectorTest extends Application {
 }
 ```
 
-## 全选
+## 6. 全选
 
 `*` 匹配所有 nodes。该选择器优先级最低。
+
+例如，将所有 node 的文本填充颜色设置为 blue:
+
+```css
+* {
+    -fx-text-fill: blue;
+}
+```
+
+当 `*` 选择器不是单独出现，可以忽略。例如，`*.button` 选择器与 `.button` 等价。
+
+## 7. 选择器分组
+
+如果需要在多个选择器中使用相同的 CSS 属性，可以有两种选择：
+
+- 在多个样式中复制属性声明
+- 将所有选择器组合成一个样式，用逗号分隔
+
+例如，需要将 button 和 label 的文本颜色设置为 blue。使用两个两个演示，重复声明属性：
+
+```css
+.button {
+    -fx-text-fill: blue;
+}
+
+.label {
+    -fx-text-fill: blue;
+}
+```
+
+也可以将两个样式合并为一个样式：
+
+```css
+.button, .label {
+    -fx-text-fill: blue;
+}
+```
+
+## 8. 后代选择器
+
+**后代选择器**（descendant）用于匹配 scene graph 中一个 node 的后代 nodes。
+
+后代选择器包含两个或多个由**空格**分隔的选择器。例如：
+
+```css
+.hbox .button {
+    -fx-text-fill: blue;
+}
+```
+
+该选择器匹配所有 button 样式类，且是 hbox 样式类的后代节点。这里"后代"指任何层次的子节点。
+
+JavaFX 中许多控件包含子节点。例如，CheckBox 包含一个 LabeledText 和一个 StackPane，样式类名分别为 text 和 box。而 box 由包含一个样式类名为 mark 的 StackPane。可以使用后代选择器分别设置这些部分的样式。
+
+- 使用后代选择器将 CheckBox 的文本设置为 blue，为 box 设置虚线边框
+
+```css
+.check-box .text {
+    -fx-fill: blue;
+}
+.check-box .box {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-border-style: dotted;
+}
+```
+
+## 9. 子选择器
+
+子选择器（child selector）由两个或多个选择器组成，选择器之间以 `>` 分隔。
+
+- 选择 hbox 样式类节点的子节点，且子节点的样式类为 button 
+
+```css
+.hbox > .button {
+    -fx-text-fill: blue;
+}
+```
+
+## 10. 状态选择器
+
+状态选择器（state-based selector）也称为伪类选择器（pseudo-class selector）。伪类选择器根据节点的当前状态匹配节点。例如，`.button:focused` 是一个伪类选择器，匹配具有 button 样式类且持有焦点的节点；`#openBtn:hover` 匹配 ID 为 `#openBtn`，且鼠标悬停在上面的节点。
+
+- 当鼠标悬停在节点上，将文本颜色更改为红色
+
+```css
+.button:hover {
+    -fx-text-fill: red;
+}
+```
+
+如果将该样式表添加到 scene，那么鼠标悬停的位置下方如果为按钮，该按钮文本变红色。
+
+JavaFX CSS 不支持 CSS 支持的 `:first-child` 和 `:lang` 这两个伪类。
+
+## 11. JavaFX 类名作为选择器
+
+JavaFX 类名也可以作为选择器，但是不建议。例如：
+
+```css
+HBox {
+    -fx-border-color: blue;
+    -fx-border-width: 2px;
+    -fx-border-insets: 10px;
+    -fx-padding: 10px;
+}
+Button {
+    -fx-text-fill: blue;
+}
+```
+
+类名选择器开头没有点号 `.`，区分大小写。
+
+```ad-warning
+不推荐使用 JavaFX 类名选择器。比如继承一个 JavaFX 类，继承类由于类名不一致，应用于父类的 JavaFX 样式继承类无法获得。
+```
