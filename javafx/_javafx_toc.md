@@ -2,9 +2,12 @@
 
 ## 学习笔记
 
-- [Node 概述](node/1_node_intro.md)
-    - [Node 边框](node/2_node_bounds.md)
-    - [Node 的位置和大小](node/3_node_pos_size.md)
+- [属性和绑定概述](binding/binding1_intro.md)
+    - [JavaFX 属性](binding/binding2_javafx_property.md)
+- [Node 概述](node1_intro.md)
+    - [Node 边框](node2_bounds.md)
+    - [Node 的位置和大小](node3_pos_size.md)
+    - [托管 Node](node/node5_managed.md)
 - [颜色](color/color1_intro.md)
     - [ImagePattern](color/color2_image_pattern.md)
     - [线性渐变色](color/color3_linear_gradient.md)

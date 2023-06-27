@@ -2,7 +2,7 @@
 
 2023-06-12
 ****
-## 简介
+## 1. 简介
 
 scene graph 是树形结构，scene graph 上的节点称为 node。`Node` 是 scene graph 上节点的基类，对应可视化组件（`javafx.scene.Node`）。
 
@@ -24,7 +24,7 @@ scene graph 是树形结构，scene graph 上的节点称为 node。`Node` 是 s
 如果将一个 `Node` 作为子节点添加到 Parent (包括 Group, Region 等)，而该 Node 已经是另一个 `Parent` 的子节点，则该节点自动从之前所属的 `Parent` 移除。所以在修改 scene graph 时，可以将一个 subtree 从一个位置移到另一个位置，你可以按照常规操作，将这个 subtree 从原来的位置移除，然后添加到新的位置。但是，在你将其添加到新的位置的时候，即使没有从显式操作从原来位置移除，该操作也默认进行了。
 ```
 
-## 笛卡尔坐标系
+## 2. 笛卡尔坐标系
 
 笛卡尔坐标系大家已熟知。下图是常见的二维笛卡尔坐标系：
 
@@ -40,7 +40,7 @@ scene graph 是树形结构，scene graph 上的节点称为 node。`Node` 是 s
 
 如图所示，转换前的坐标轴用实线表示，转换后的坐标轴用虚线表示。原始坐标空间中的点为黑色，变换后的坐标不填充。
 
-## Node 的坐标系
+## 3. Node 的坐标系
 
 scene graph 的每个 node 都有自己的坐标系。如下图，在计算机中，坐标系一般如此定义：
 

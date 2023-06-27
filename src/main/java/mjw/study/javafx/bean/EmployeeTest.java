@@ -2,15 +2,9 @@ package mjw.study.javafx.bean;
 
 import java.beans.PropertyChangeEvent;
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 12 Dec 2021, 9:51 PM
- */
-public class EmployeeTest
-{
-    public static void main(String[] args)
-    {
+public class EmployeeTest {
+
+    public static void main(String[] args) {
         final Employee e1 = new Employee("John Jacobs", 2000.0);
 
         // Compute the tax
@@ -24,8 +18,7 @@ public class EmployeeTest
         e1.setSalary(6000.00);
     }
 
-    public static void handlePropertyChange(PropertyChangeEvent e)
-    {
+    public static void handlePropertyChange(PropertyChangeEvent e) {
         String propertyName = e.getPropertyName();
         if ("salary".equals(propertyName)) {
             System.out.print("Salary has changed. ");
@@ -35,8 +28,7 @@ public class EmployeeTest
         }
     }
 
-    public static void computeTax(double salary)
-    {
+    public static void computeTax(double salary) {
         final double TAX_PERCENT = 20.0;
         double tax = salary * TAX_PERCENT / 100.0;
         System.out.println("Salary:" + salary + ", Tax:" + tax);

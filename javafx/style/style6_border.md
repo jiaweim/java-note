@@ -185,7 +185,7 @@ line-join 参数指定边框两个边的连接方式。可用值包括：
 
 如果指定为 miter，还需要指定 miter limit 值。如果 miter limit 小于 miter length，则换成 bevel。
 
-![](images/2019-06-05-16-14-57.png)
+![](javafx/style/images/2019-06-05-16-14-57.png)
 
 如图所示，miter length 是从相交的内点和外点的距离，为上图中的 A。miter length 以相对边框宽度定义。
 
@@ -207,7 +207,7 @@ miter limit 指定线段相交外边缘延伸的距离。例如，如果 miter l
 | `round`       | 在线段末端添加圆弧，圆弧半径为 stroke width 的一半。 |
 | `square`      | 线段向外延伸，延伸长度为 `strokeWidth` 的一半。      |
 
-![](images/2019-06-05-16-14-01.png)
+![](2019-06-05-16-14-01.png)
 
 从左到右，分别为 `butt`, `round`, `square`。
 

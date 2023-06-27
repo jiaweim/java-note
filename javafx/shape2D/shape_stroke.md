@@ -40,7 +40,7 @@ Stroking 指绘制形状，形状的轮廓又称为 stroke，可以将其理解�
 - 第三个 `strokeWidth` 为 4px，`CENTERED` 类型，因此有 2px 在边框内，2px 在边框外，所以 layout bounds 为 $54\times 54$；
 - 第四个 `strokeWidth` 为 4px，类型为 `OUTSIDE`，即整个 stroke 都在边框外，所以 layout bounds 为 $58\times 58$；
 
-![|200](images/Pasted%20image%2020230602153044.png)
+![|200](Pasted%20image%2020230602153044.png)
 
 ### strokeLineCap
 
@@ -52,7 +52,7 @@ Stroking 指绘制形状，形状的轮廓又称为 stroke，可以将其理解�
 | `ROUND`       | 在线段末端添加圆弧，圆弧半径为 stroke width 的一半。 |
 | `SQUARE`      | 线段向外延伸，延伸长度为 `strokeWidth` 的一半。      |
 
-![](images/2019-06-05-16-14-01.png)
+![](2019-06-05-16-14-01.png)
 
 从左到右，分别为 `BUTT`, `ROUND`, `SQUARE`。
 
@@ -60,13 +60,13 @@ Stroking 指绘制形状，形状的轮廓又称为 stroke，可以将其理解�
 
 定义线段的连接方式，取值为 enum `StrokeLineJoin`: `MITER`, `BEVEL`, `ROUND`。如图所示，从左到右依次为 `MITER`, `BEVEL` 和 `ROUND`。默认 `MITER`。
 
-![](images/2019-06-05-16-14-34.png)
+![](2019-06-05-16-14-34.png)
 
 ### strokeMiterLimit
 
 定义 `StrokeLineJoin.MITER` 连接方式的最大延伸长度。值小于 1.0 时以 1.0 处理。如下图所示：
 
-![](images/2019-06-05-16-14-57.png)
+![](javafx/shape2D/images/2019-06-05-16-14-57.png)
 
 当两条线段的夹角很小时，`MITER` 连接方式会使延伸距离很长，A 是完整的延伸长度，以该延伸长度和 stroke width 的比值为单位（4.65）。如果延伸长度大于 `strokeMiterLimit`，则直接截断。
 
@@ -91,4 +91,4 @@ p2.setStrokeDashOffset(20.0);
 
 样式：
 
-![](images/Pasted%20image%2020230605150248.png)
+![](Pasted%20image%2020230605150248.png)
