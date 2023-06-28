@@ -1,15 +1,51 @@
+// Book.java
 package mjw.study.javafx.bean;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 12 Dec 2021, 10:29 PM
- */
-public class Book
-{
+public class Book {
+
     private StringProperty title = new SimpleStringProperty(this, "title", "Unknown");
+    private DoubleProperty price = new SimpleDoubleProperty(this, "price", 0.0);
+    private ReadOnlyStringWrapper ISBN = new ReadOnlyStringWrapper(this, "ISBN", "Unknown");
 
+    public Book() {}
+
+    public Book(String title, double price, String ISBN) {
+        this.title.set(title);
+        this.price.set(price);
+        this.ISBN.set(ISBN);
+    }
+
+    public final String getTitle() {
+        return title.get();
+    }
+
+    public final void setTitle(String title) {
+        this.title.set(title);
+    }
+
+    public final StringProperty titleProperty() {
+        return title;
+    }
+
+    public final double getPrice() {
+        return price.get();
+    }
+
+    public final void setPrice(double price) {
+        this.price.set(price);
+    }
+
+    public final DoubleProperty priceProperty() {
+        return price;
+    }
+
+    public final String getISBN() {
+        return ISBN.get();
+    }
+
+    public final ReadOnlyStringProperty ISBNProperty() {
+        return ISBN.getReadOnlyProperty();
+    }
 }
