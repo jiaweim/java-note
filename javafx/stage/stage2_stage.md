@@ -1,84 +1,27 @@
 # Stage
 
-- [Stage](#stage)
-  - [JavaFX 程序基本结构](#javafx-程序基本结构)
-    - [第一个 JavaFX 程序](#第一个-javafx-程序)
-    - [传递参数](#传递参数)
-  - [Stage 使用](#stage-使用)
-    - [显示主 Stage](#显示主-stage)
-    - [设置 Stage 的边界](#设置-stage-的边界)
-    - [Stage 样式](#stage-样式)
-    - [初始化 Stage 模态](#初始化-stage-模态)
-    - [Stage 透明度设置](#stage-透明度设置)
-    - [Stage 大小设置](#stage-大小设置)
-    - [拖动 Stage](#拖动-stage)
-  - [Screen](#screen)
-    - [获得主屏幕](#获得主屏幕)
-    - [获得所有屏幕](#获得所有屏幕)
-    - [屏幕分辨率](#屏幕分辨率)
-    - [屏幕大小](#屏幕大小)
+## 简介
 
-## JavaFX 程序基本结构
+`Stage` 是 JavaFX 的顶层容器，用于托管 `Scene`。`Scene` 包含所有的可视化组件。和主屏幕对应的主 `Stage` 由 JavaFx 平台创建，传递给 `Application` 类的 `start(Stage s)`方法。可以根据需要创建其它 `Stage`。
 
-JavaFX运行时创建两个线程：JavaFX-Launcher 和 JavaFX Application Thread.
-Application 的 launch() 方法创建这两线程。然后依次调用如下方法：
-
-- no-args constructor
-- init() method
-- start() method
-- stop() method
-
-JavaFX Launcher Thread 调用init()方法，该方法在Application中默认实现为空。
-
-### 第一个 JavaFX 程序
-
-第一个程序，在窗口中显示 "Hello JavaFX"。
-
-```java
-public class HelloJavaFX extends Application{
-
-  public static void main(String[] args){
-    launch(args);
-  }
-
-  @Override
-  public void start(Stage primaryStage){
-    primaryStage.setTitle("HelloJavaFX");
-    primaryStage.show();
-  }
-}
+```ad-tip
+`Stage` 是顶层容器并不代表它必须单独显示，如在 Web 环境中，`Stage`都是内嵌在网页中显示。
 ```
-
-所有的 JavaFX 程序要扩展 `javafx.application.Application` 类，该类为抽象类，需要实现其抽象方法 `start()`.
-
-- `start()` 方法是 JavaFX 程序的入口。
-- `setTitle()` 设置窗口的标题
-- `show()` 用于显示窗口。
-- JavaFX 应用中 `main()` 方法不是必须的
-
-### 传递参数
-
-JavaFX 程序将参数保存在 `Application` 类的内部类 `Parameters` 类中。`Parameter`将参数分为三部分：
-
-- 命名参数
-- 非命名参数
-- 原始参数（包含命名参数和非命名参数）
-
-通过 `Application.getParameters()` 可获得参数。
-
-## Stage 使用
-
-`Stage` 是 JavaFX 的顶层容器，用于装 `Scene`，`Scene` 包含所有的可视化组件。和主屏幕对应的主 Stage 由平台创建，传递给 `Application` 类的 `start(Stage s)`方法。
-
-NOTE: `Stage`是顶层容器并不代表它会被单独显示，如在 Web 环境中，`Stage`都是内嵌在网页中显示。
 
 下面是 `Stage` 的类图：
 
-![Stage](images/2019-06-05-15-39-46.png)
+![|350](Pasted%20image%2020230704205908.png)
+Window 是窗口类容器的超类，包含窗口相关的通用功能：
 
-`Window` 是用于托管 `Scene` 的顶层窗口。
+- 隐藏和显示窗口：show() 和 hide() 方法
+- 设置位置、高度和宽度：x, y, width, height 属性
+- 透明度：opacity 属性
 
-`Stage` 的创建和修改必须在 JavaFX 应用线程上进行。
+setScene() 设置 Window 托管的 Scene。
+
+Stage 定义的 close() 方法，效果与 Window 的 hide() 一样。
+
+`Stage` 的创建和修改必须在 JavaFX 应用线程上进行。Application 的
 
 ### 显示主 Stage
 
@@ -181,43 +124,3 @@ setMaxHeight()
 ### 拖动 Stage
 
 由于 Undecorated 和 Transparent 风格的Stage没有标题栏，无法用鼠标拖动移动窗口。此时只能通过添加鼠标事件实现拖动窗口功能
-
-## Screen
-
-`javafx.stage.Screen` 类用于获得屏幕的详细信息，如DPI，大小、设置等。如果一个电脑有多个屏幕，则一个称为主屏幕，其他的为非主屏幕。
-
-NOTE: 虽然 `Screen` 类的API没有名说，但是 `Screen` 类只能在 JavaFX 程序中使用。
-
-### 获得主屏幕
-
-```java
-// Get the reference to the primary screen
-Screen primaryScreen = Screen.getPrimary();
-```
-
-### 获得所有屏幕
-
-```java
-ObservableList<Screen> screenList = Screen.getScreens();
-```
-
-### 屏幕分辨率
-
-```java
-Screen primaryScreen = Screen.getPrimary();
-double dpi = primaryScreen.getDpi();
-```
-
-### 屏幕大小
-
-```java
-// 获得屏幕大小
-getBounds()
-
-// 获得屏幕可视区域大小
-getVisualBounds()
-```
-
-可视区域排除了系统本地窗口使用的区域（如任务栏和菜单栏）之后，屏幕剩余的区域，所以一般来说，可视区域小于整个屏幕区域。
-
-如果一个桌面跨越多个屏幕，则副屏幕的边界是相对主屏幕定义的。例如，如果一个桌面跨越两个屏幕，主屏幕左上角坐标为 (0, 0)，宽度为 1600，则副屏幕左上角的坐标为 (1600, 0)。

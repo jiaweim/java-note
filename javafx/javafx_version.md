@@ -15,7 +15,6 @@
 | 11          | 2023.9 | JDK 10+ |
 
 
-
 ## 参考
 
 - https://github.com/openjdk/jfx/blob/master/doc-files/release-notes-16.md

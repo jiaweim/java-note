@@ -1,12 +1,5 @@
 # 组件
 
-- [组件](#组件)
-  - [概述](#概述)
-  - [Control](#control)
-    - [contextMenu](#contextmenu)
-    - [skin](#skin)
-    - [tool tip](#tool-tip)
-
 ## 概述
 
 用户通过控件（controls）或小部件（widgets）这些图形元素和 GUI 应用程序进行交互。按钮、标签、文本框等都是控件，每个控件有一个特定的类表示。javafx.scene.control 包中包含丰富的控件类。控件类的继承如下：

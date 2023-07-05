@@ -127,12 +127,14 @@ target/imave/bin/java -m hellofx/org.openjfx.App
 <plugin>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-maven-plugin</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.8</version>
     <configuration>
         <mainClass>org.openjfx.hellofx/org.openjfx.App</mainClass>
         <options>
             <option>--add-opens</option>
             <option>java.base/java.lang=org.openjfx.hellofx</option>
+            <option>--add-opens</option>
+            <option>javafx.graphics/com.sun.javafx.css=org.controlsfx.controls</option>
         </options>
         <commandlineArgs>-Xmx1024m</commandlineArgs>
     </configuration>
