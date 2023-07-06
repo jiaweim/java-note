@@ -4,9 +4,9 @@
 ****
 ## 1. 简介
 
-和 Java 程序一样，JavaFX 支持通过命令行或 IDE 的配置传入参数。
+和 Java 程序一样，JavaFX 可以通过命令行或 IDE 的配置传入参数。
 
-JavaFX 程序将参数保存在 `Application` 类的 static 内部类 `Parameters` 中。`Parameter` 将参数分为三类：
+JavaFX 将参数保存在 `Application` 的 static 内部类 `Parameters` 中。`Parameter` 将参数分为三类：
 
 - 命名参数（Named parameters）：由 name 和 value 两部分组成
 - 非命名参数（Unnamed paramters）：单个值
@@ -22,11 +22,9 @@ List<String> getUnnamed();
 List<String> getRaw();
 ```
 
-命名参数包含 (name, value) 两部分，
-
 `Application.getParameters()` 返回 `Application.Paramters` 类的引用。
 
-`Parameters` 的引用在 `Application` 的 `init()` 中可用，在 `Application` 构造函数中不可用。即 `Paramters` 是在 `Application` 构造之后，`init()` 之前创建。
+`Parameters` 在 `Application` 的 `init()` 中可用，在 `Application` 构造函数中不可用。即 `Paramters` 是在 `Application` 构造之后，`init()` 之前创建。
 
 ## 2. 示例
 

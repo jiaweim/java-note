@@ -16,7 +16,13 @@
 - [Observable 集合](collections/collect1_intro.md)
     - [JavaFX 集合的属性和绑定](collections/collect2_binding.md)
 - [Screen](stage/stage1_screen.md)
-    - 
+- [Stage](stage/stage2_stage.md)
+- [Scene 概述](scene/scene1_intro.md)
+    - [图形渲染模式](scene/scene2_rendering_mode.md)
+    - [设置 Cursor](scene/scene3_cursor.md)
+    - [Focus Owner](scene/scene4_focus_owner.md)
+    - [Platform](scene/scene5_platform.md)
+    - [Host Environment](scene/scene6_host_environment.md)
 - [Node 概述](node1_intro.md)
     - [Node 边框](node2_bounds.md)
     - [Node 的位置和大小](node3_pos_size.md)
@@ -50,8 +56,6 @@
 
 
 - [概述](1.intro.md)
-- [Stage](2.stage_scene.md)
-- [Scene](scene.md)
 - [Node](3.node.md)
 - [Shape](6.shapes.md)
 - [Text](7.text.md)

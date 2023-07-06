@@ -8,7 +8,7 @@
 
 JavaFX 对所有 binding 采用**延迟计算**策略：
 
-- 刚定义的 binding 以及依赖项发生变化的 binding，binding 被标记为失效
+- 刚定义的 binding 以及依赖项发生变化的 binding 被标记为失效
 - 调用 `get()` 或 `getValue(`) 请求值时，重新计算 binding 值，binding 重新生效
 
 JavaFX 的所有 property 类都支持 binding。

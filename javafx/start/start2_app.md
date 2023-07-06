@@ -11,17 +11,15 @@
 
 **启动 JavaFX runtime**
 
-`Platform` 的 `startup` 启动 JavaFX runtime：
+`Platform.startup` 启动 JavaFX runtime：
 
 ```java
 public static void startup(Runnable runnable)
 ```
 
-然后在 **JAT 线程**中调用指定的 `Runnable`。通常没必要显式调用 startup，因为在构建 JavaFX 应用时会自动调用。但是直接调用 `startup()` 也没问题，该方法启动 JavaFX runtime，此时还没 JAT 线程，所以在 main 线程中直接调用该方法。
+然后在 **JAT 线程**中调用指定的 `Runnable`。通常没必要显式调用 `startup()`，因为在构建 JavaFX 应用时会自动调用。当然，直接调用 `startup()` 也没问题，该方法启动 JavaFX runtime，此时还没 JAT 线程，所以在 main 线程中直接调用该方法启动 JavaFX runtime。
 
 `startup()` 不会被调用的 `Runnable` 阻塞，在 `startup()` 返回后，可以调用 `Platform.runLater(Runnable)` 调用更多的 `Runnable`，这些 `Runnable` 也是在 JAT 调用。
-
-需要注意，只能在 JavaFx runtime 尚未初始化时调用 `startup()`。
 
 以下情况会导致 JavaFX runtime 自动启动：
 
@@ -29,10 +27,10 @@ public static void startup(Runnable runnable)
 - 使用 `JFXPanel` 显示 FX 内容的 Swing 应用，在第一次构造 `JFXPanel` 实例时初始化 FX runtime
 - 使用 `FXCanvas` 显示 FX 内容的 SWT 应用，在第一次构造 `FXCanvas` 实例时初始化 FX runtime
 
-JavaFX runtime 正在运行时调用 `startup()`，抛出  `IllegalStateException`。
+需要注意，只能在 JavaFx runtime 尚未初始化时调用 `startup()`。JavaFX runtime 正在运行时调用 `startup()` 抛出  `IllegalStateException`。
 
 ```ad-note
-JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入。不支持从 classpath 载入。当 JavaFX 类不是从预期的命名模块中载入，在启动 JavaFX runtime 时会发出警告。不管 JavaFX runtime 是调用 startup 启动 ，还是自动启动，都会发出警告。
+JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入。不支持从 classpath 载入。当 JavaFX 类不是从预期的命名模块中载入，在启动 JavaFX runtime 时会发出警告。不管 JavaFX runtime 是调用 `startup()` 启动 ，还是自动启动，都会发出警告。
 ```
 
 ## 2. JavaFX 应用的生命周期
@@ -40,27 +38,21 @@ JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入�
 加载 JavaFX 应用时，JavaFX runtime 执行如下操作：
 
 1. 启动 JavaFX runtime
-2. 构造指定的 `Application` 类
-3. 调用 `Application.init()`
-4. 调用 `Application.start(Stage stage)`
+2. 构造指定的 `Application` 类：JavaFX runtime 在 JAT 线程中调用 `Application` 的无参构造函数创建指定的 `Applicaiton` 对象
+3. 调用 `Application.init()`：默认实现为空
+4. 调用 `Application.start(Stage stage)`：为 `abstract` 方法，必须实现
 5. 等待应用结束
-    1. 调用 `Platform.exit()` 结束
-    2. `Platform` 的 `implicitExit` 属性为 `true`，且关闭所有窗口
-6. 调用 `Application.stop()`
+    - 调用 `Platform.exit()` 结束
+    - `Platform` 的 `implicitExit` 属性为 `true`，且关闭所有窗口
+6. 调用 `Application.stop()`：默认实现为空
 
-JavaFX runtime 在 JAT 线程中调用 `Application` 的无参构造函数创建指定的 `Applicaiton` 对象。
+调用 `start()` 后，`launch()` 在 JavaFX 应用完成后返回。JavaFX 执行完毕后，JAT 调用 `Application.stop()`。
 
-`start()` 为 `abstract` 方法，必须实现。`init` 和 `stop` 默认实现为空。
+`Application.init()` 在 JLT 线程中调用，JLT 线程不允许创建 `Stage` 和 `Scene`，它俩只能在 JAT 线程中创建。但是可以在 JLT 中创建 UI 控件，即可以在 `init()` 方法中提前初始化一些 UI 控件。
 
-调用 `start()` 后，`launch()` 等待直到 JavaFX 应用完成。JavaFX 执行完毕后，JAT 调用 `Application` 的 `stop()`，其默认实现为空。
-
-| 顺序 | 方法             | 调用线程 | 说明                                                                                                |
-| ---- | ---------------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| 1    | no-args 构造函数 | JAT      | JavaFX runtime 调用 Application 的无参构造函数创建指定 Application 对象                                   |
-| 2    | init()           | JLT      | JLT 线程中不允许创建 `Stage` 或 `Scene`，它们只能在 JAT 中创建。但可以创建 UI controls。默认为空，可以根据需要重写 |
-| 3    | start()          | JAT      | Application 中的 abstract 方法，需要实现                                                               |
-| 4    | stop()           | JAT      |                                                                                                |
-
+```ad-important
+`Stage` 和 `Scene` 只能在 JAT 线程中创建。
+```
 
 **示例：** 演示 JavaFX 生命周期
 
@@ -112,9 +104,6 @@ init() method: JavaFX-Launcher
 start() method: JavaFX Application Thread
 stop() method: JavaFX Application Thread
 ```
-
-
-主 `Stage` 由 application launcher 创建，但是只有舞台，舞台上的 scene 需要自定义。
 
 ```ad-tip
 `Application` 的 `launch()` 方法在关闭所有窗口后，或者使用 `Platform.exit()` 退出后，才返回。
@@ -240,4 +229,3 @@ Exception in thread "Thread-0" java.lang.RuntimeException: Error: class MyJavaFX
 但是，终止 JAT 线程不一定退出 JVM。只有在所有非守护线程终止后，JVM 才会退出。
 
 如果关闭隐式终止，就只能调用 `Platform.exit()` 显式终止。
-

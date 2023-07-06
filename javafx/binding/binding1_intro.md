@@ -4,15 +4,19 @@
 ****
 ## 1. 什么是属性
 
-Java 类可以包含两类成员：字段和方法。字段表示对象的状态，一般声明为 `private`，然后提供 `public` 的 getter 和 setter 方法。对部分或所有字段具有 `public` getter 和 setter 的 Java 类称为 Java bean，getter 和 setter 定义了 bean 的**属性**（property）。Java bean 允许用户通过属性定义其状态和行为。
+Java 类可以包含字段和方法两种类成员。字段表示对象的状态，一般声明为 `private`，然后提供 `public` 的 getter 和 setter 方法：
 
-Java bean 是可观察的（observable），支持属性更改通知。当 Java bean 的 `public` 属性发生变化，会向注册的监听器发送通知。本质上，Java bean 定义了可重用组件，这些组件甚至可以通过构建工具来创建 Java 应用。
+- 对部分或所有字段提供 public getter 和 setter 的 Java 类称为 Java bean
+- getter 和 setter 定义了 bean 的**属性**（property）
+- Java bean 可以通过属性定义其状态和行为
 
-属性可以是 read-only, write-only 以及 read-write。read-only 属性只有 getter 方法，write-only 属性只有 setter 方法。
+Java bean 是可观察的（observable），支持属性变更通知。当 Java bean 的 `public` 属性发生变化，会向注册的监听器发送通知。本质上，Java bean 定义了可重用组件，这些组件甚至可以通过构建工具来创建 Java 应用。
+
+属性包含 read-only, write-only 以及 read-write 类型：read-only 属性只有 getter 方法，write-only 属性只有 setter 方法。
 
 Java IDE 等构建工具通过内省（introspection）获取 bean 的属性列表。
 
-JavaBeans API 在 `java.beans` 包中提供了创建和使用 Java beans 的功能及命名约定。下面是一个具有 name 属性的 `Person` bean 定义：
+JavaBeans API 在 `java.beans` 包中提供了创建和使用 Java beans 的功能及命名约定。下面是一个具有 `name` 属性的 `Person` bean：
 
 ```java
 public class Person {
@@ -32,7 +36,7 @@ public class Person {
 - getter 方法没有参数，返回类型与字段相同
 - setter 方法的参数与字段类型相同，返回 `void`
 
-以编程的方式操作 `Person` bean 的 name 属性：
+以编程的方式操作 `Person` bean 的 `name` 属性：
 
 ```java
 Person p = new Person();
@@ -61,7 +65,7 @@ p.Name = "John Jacobs";
 string name = p.Name;
 ```
 
-如果只需要访问和返回字段值，C# 还有一种更紧凑的定义，甚至不需要声明 `private` 字段：
+如果只需要访问和返回字段值，C# 还有一种更紧凑的定义：
 
 ```csharp
 public class Person {
@@ -70,12 +74,12 @@ public class Person {
 ```
 
 ```ad-tip
-属性（*property*）定义了对象的 `public` 状态，支持读写，且是可观察的（observable），可监听属性的变化。
+属性（*property*）定义了对象的 `public` 状态，支持读写，是可观察的（observable），支持变更通知。
 ```
 
 ## 2. 什么是数据绑定
 
-**数据绑定**（*data binding*）定义程序中数据元素（通常是变量）之间的关系，保持它们同步。GUI 程序常使用数据绑定同步数据模型元素和相应的 UI 元素。
+**数据绑定**（*data binding*）定义程序中数据元素（通常是变量）之间的关系，保持它们同步。GUI 程序通常使用数据绑定同步数据模型元素和相应的 UI 元素。
 
 假设 x, y, z 是数值变量：
 
@@ -83,7 +87,9 @@ public class Person {
 x = y + z;
 ```
 
-该语句定义了 x, y, z 之间的数据绑定。执行时，x 的值与 y, z 的加和同步。绑定有**时效性**，执行该语句之前和之后，x 的值不一定是 y 和 z 的加和。
+该语句定义了 x, y, z 之间的数据绑定。执行时，x 的值与 y, z 的加和同步。
+
+绑定具有**时效性**，执行该语句之前和之后，x 的值不一定是 y 和 z 的加和。
 
 有时候，希望绑定能持续一段时间。例如：
 
@@ -91,9 +97,7 @@ x = y + z;
 soldPrice = listPrice - discounts + taxes;
 ```
 
-此时，希望绑定永远有效，这样当 `listPrice`、`discounts` 或 `taxes` 发生变化时，都能正确计算 `soldPrice`。
-
-在该绑定，`listPrice`、`discounts` 和 `taxes` 称为**依赖项**，`soldPrice` 与这些依赖性绑定。
+此时，希望绑定永远有效，这样当 `listPrice`、`discounts` 或 `taxes` 发生变化时，都能正确计算 `soldPrice`。其中，`listPrice`、`discounts` 和 `taxes` 称为**依赖项**，`soldPrice` 与这些依赖性绑定。
 
 为了使绑定正确工作，必须在依赖项发生变化时通知绑定。当依赖项无效或发生变化，所有 listeners 收到通知。绑定收到通知后，将自己与其依赖项同步。
 
@@ -111,7 +115,7 @@ soldPrice = listPrice - discounts + taxes;
 
 双向绑定只能在两个变量之间定义，例如，x=y 或 y=x 为双向绑定，使 x 和 y 的值相同。
 
-在 GUI 应用程序中，GUI 控件显示的数据与底层数据模型同步，就需要双向绑定来实现。
+在 GUI 应用程序中，GUI 控件显示的数据与底层数据模型同步，就可以使用双向绑定实现。
 
 ## 3. JavaBeans 绑定
 
@@ -173,13 +177,9 @@ public class Employee {
 }
 ```
 
-`Employee` 的两个属性都是 read-write 类型。`salary` 是绑定属性，当 `salary` 发生变化，其 setter 方法会发出属性变化通知。
+`Employee` 的两个属性都是 read-write 类型。`salary` 是绑定属性，当 `salary` 发生变化，其 setter 方法会发出属性变化通知。对 `salary` 变更感兴趣的对象可以调用 `addPropertyChangeListener()` 和 `removePropertyChangeListener()` 注册或注销 listener。
 
-对事件感兴趣的 listener 可以调用 `addPropertyChangeListener()` 和 `removePropertyChangeListener()` 注册或注销 listener。
-
-`PropertyChangeSupport` 类是 JavaBeans 的一部分，用于辅助注册和注销 listener，并发出属性更改通知。
-
-任何对 `salary` 改变感兴趣的类需要向 `Employee` bean 注册 listener，在收到更改通知时采取必要操作。
+`PropertyChangeSupport` 类是 JavaBeans 的一部分，用于辅助注册和注销 listener，并发出属性变更通知。对 `salary` 改变感兴趣的类需要向 `Employee` bean 注册 listener，在收到变更通知时采取必要操作。
 
 **示例：** 展示为 `Employee` bean 注册 `salary` 注册更改通知。
 
@@ -228,4 +228,4 @@ Salary has changed. Old:3000.0, New:6000.0
 Salary:6000.0, Tax:1200.0
 ```
 
-从输出可以发现，调用了三次 `setSalary()`，但只触发了两次 `salary` 改变通知。这是因为第二次调用 `setSalary()` 使用的 `salary` 值与第一次调用 `setSalary() `的值相同，而 `PropertyChangeSupport` 能够检测到这一点。
+从输出可以发现，调用了三次 `setSalary()`，但只触发了两次 `salary` 变更通知。这是因为第二次调用 `setSalary()` 使用的 `salary` 值与第一次调用 `setSalary() `的值相同，而 `PropertyChangeSupport` 能够检测到这一点。
