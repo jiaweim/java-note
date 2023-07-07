@@ -32,8 +32,6 @@
     - [线性渐变色](color/color3_linear_gradient.md)
     - [径向渐变色](color/color4_radial_gradient.md)
 - [[shape_stroke|Stroke]]
-- [Layout](layout/_layout.md)
-    - [FlowPane](layout/FlowPane.md)
 - [Canvas 概述](canvas1_intro.md)
     - [Canvas 操作](canvas2_operations.md)
 - [自定义样式快速入门](style/style1_intro.md)
@@ -52,6 +50,11 @@
     - [鼠标事件](event/event7_mouse.md)
     - [键盘事件](event/event8_key.md)
     - [窗口事件](event/event9_window.md)
+- [Layout 概述](layout/layout1_intro.md)
+    - [Layout 工具类](layout/layout2_utility.md)
+    - [Group](layout/layout3_group.md)
+    - [Region](layout/layout4_region.md)
+    - [Pane](layout/layout5_pane.md)
 
 
 
