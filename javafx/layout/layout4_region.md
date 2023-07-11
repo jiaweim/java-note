@@ -42,7 +42,7 @@
 
 content, padding 和 borders 影响 `Region` 的 `layoutBounds`。可以将 borders 完全绘制在 `Region` 的 `layoutBounds` 外边，此时 borders 不影响 `Region` 的 `layoutBounds`。margin 不会影响 Region 的 `layoutBounds`。
 
-`Region` 的 `layoutBounds` 和 content 区域之间的距离为 insets（内边距）。Region 类根据其属性自动计算 insets，并提供 read-only 属性 `insets`.
+`Region` 的 `layoutBounds` 和 content area 之间的距离为 insets（内边距）。`Region` 类根据属性自动计算 insets，并提供 read-only 属性 `insets`，便于查询。
 
 ## 2. backgrounds
 

@@ -10,7 +10,7 @@ layout 有几个工具类，用于辅助设置 spacing 和 directions。
 
 `Insets` 类表示矩形区域四个方向的内边距。如图所示：
 
-![|360](Pasted%20image%2020230706170357.png)
+![|300](Pasted%20image%2020230706170357.png)
 
 在上图中，两个矩形可能交叉，此时，offsets 可能为负值。offsets 是相对值，所以要正确解析 offsets，需要知道相对的是哪个矩形。
 

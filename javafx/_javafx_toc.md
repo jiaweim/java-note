@@ -55,6 +55,16 @@
     - [Group](layout/layout3_group.md)
     - [Region](layout/layout4_region.md)
     - [Pane](layout/layout5_pane.md)
+    - [HBox](layout/layout6_hbox.md)
+    - [VBox](layout/layout7_vbox.md)
+    - [FlowPane](layout/layout8_flowpane.md)
+    - [BorderPane](layout/layout9_borderpane.md)
+    - [StackPane](layout/layout10_stackpane.md)
+    - [TilePane](layout/layout11_tilepane.md)
+    - [GridPane](layout/layout12_gridpane.md)
+    - [AnchorPane](layout/layout13_anchorpane.md)
+    - [TextFlow](layout/layout14_textflow.md)
+    - [Snapping](layout/layout15_snapping.md)
 
 
 
