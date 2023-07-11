@@ -19,5 +19,6 @@ module java.module {
     opens mjw.study.javafx.bean;
     opens mjw.study.javafx.stage;
     opens mjw.study.javafx.intro;
+    opens mjw.study.javafx.mvc;
 
 }
