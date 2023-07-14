@@ -2,7 +2,7 @@
 
 2023-06-18, 15:04
 ****
-## 简介
+## 1. 简介
 
 Java 8 引入了包含三种控制读写模式的 `StampedLock`，其功能与 `ReadWriteLock` 类似，但更强大。
 
@@ -33,7 +33,7 @@ Java 8 引入了包含三种控制读写模式的 `StampedLock`，其功能与 `
 
 和 `ReadWriteLock` 相比，写锁完全一样，不同的是读锁。上面用 `tryOptimisticRead()` 获取乐观锁，返回一个 stamp，接着继续读，完成读操作，通过 `validate(stamp)` 验证 stamp。如果在读过程中没有写入，stamp 不变，验证成功，就可以继续
 
-## 示例
+## 2. 示例
 
 ```java
 import java.util.concurrent.locks.StampedLock;
@@ -107,7 +107,7 @@ try {
 
 总而言之，StampedLock 通过引入乐观读来增加并行度。
 
-## 总结
+## 3. 总结
 
 - Writing
 
@@ -118,4 +118,3 @@ try {
 **`public boolean isWriteLocked()`**
 
 当前为独占锁，返回 true.
-

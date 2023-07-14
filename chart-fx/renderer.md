@@ -2,7 +2,9 @@
 
 ## Renderer
 
-Renderer 是实际绘制数据点的类，不同 Renderer 对应不同的图表类型。
+Renderer 是实际绘制数据点的类，不同 `Renderer` 对应不同的图表类型。类图如下：
+
+![](Pasted%20image%2020230713171016.png)
 
 ## AbstractErrorDataSetRendererParameter
 

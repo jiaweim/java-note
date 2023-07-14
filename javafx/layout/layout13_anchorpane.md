@@ -4,21 +4,21 @@
 ****
 ## 1. 简介
 
-AnchorPane 将 children 的 4 个边锚定到自己 4 个边指定位置。如下图所示：
+AnchorPane 将 children 的 4 个边以指定距离锚定到自身的 4 个边。如下所示：
 
 ![|450](Pasted%20image%2020230711105836.png)
 
-AnchorPane 主要有两种应用场景：
+AnchorPane 应用场景：
 
 - 沿 AnchorPane 一条边或多条边对齐 children
 - resizing AnchorPane 时拉伸 children
 
-children 的 edges 与 Anchor edges 的距离称为 *anchor* 约束。例如，children 的 top edges 与 AnchorPane 的 top edge 的距离称为 `topAnchor`。最多可以指定 4 个 anchor 约束值：`topAnchor`, `rightAnchor`, `bottomAnchor`, `leftAnchor`。
+children 的 edges 与 Anchor edges 的距离称为 *anchor* 约束。例如，children 的 top edges 与 AnchorPane 的 top edge 的距离称为 `topAnchor`。最多可以为 child 指定 4 个 anchor 约束值：`topAnchor`, `rightAnchor`, `bottomAnchor`, `leftAnchor`。
 
 如果将 child 固定到相对的两个边（top/bottom 或 left/right），则在 AnchorPane resizing 时，children 随之 resizing。
 
 ```ad-note
- anchor 距离是从 AnchorPane content area 的边到 children 的边。如果 AnchorPane 设置了 Border 和 padding，需要考虑进去。
+ anchor 距离是从 AnchorPane content area 的边到 children 的边。如果 AnchorPane 设置了 border 和 padding，需要考虑进去。
 ```
 
 ## 2. 创建 AnchorPane
@@ -46,14 +46,14 @@ AnchorPane apane3 = new AnchorPane();
 apane3.getChildren().addAll(okBtn, cancelBtn);
 ```
 
-使用 AnchorPane 有两个注意事项：
+使用 `AnchorPane` 有两个注意事项：
 
-- AnchorPane 中 children 默认在 (0, 0)。需要指定 children 的 anchor 约束调整位置
-- AnchorPane 的 prefSize 是根据 children prefSizes 和 anchor 约束计算而来。使用所有 children 的 prefWidth+leftAnchor+rightAnchor 的最大值作为 prefWidth。
+- `AnchorPane` 中 children 默认在 (0, 0)。通过指定 children 的 anchor 约束调整位置
+- `AnchorPane` 的 prefSize 根据 children prefSizes 和 anchor 约束计算而来。使用所有 children 的 prefWidth+leftAnchor+rightAnchor 的最大值作为 prefWidth
 
-**示例：** AnchorPane
+**示例：** `AnchorPane`
 
-添加 2 个 Button 到 AnchorPane，一个 Button 文本很长，一个 Button 文本很短。先添加长 Button。
+添加 2 个 `Button` 到 `AnchorPane`，一个 `Button` 文本长，一个 `Button` 文本短。先添加长 `Button`。
 
 ```java
 import javafx.application.Application;
@@ -88,9 +88,7 @@ public class AnchorPaneDefaults extends Application {
 
 ## 3. 设置 Children 约束
 
-下表是可以为 AnchorPane 的 children 设置的约束。
-
-再次强调，anchor 值是从 AnchorPane 的 content area 开始计算，而不是 layoutBounds。
+下表是 `AnchorPane` 的 children 的约束项。再次强调，anchor 值从 `AnchorPane` 的 content area 开始计算，而不是 `layoutBounds`。
 
 | 约束           | 类型     | 说明          |
 | -------------- | -------- | ------------- |
@@ -99,7 +97,7 @@ public class AnchorPaneDefaults extends Application {
 | `bottomAnchor` | `Double` | bottom anchor |
 | `leftAnchor`   | `Double` | left anchor   |
 
-AnchorPane 有 4 个 static 方法，用于指定这 4 类 anchor 约束。将 anchor 设置为 null 表示删除约束。
+`AnchorPane` 有 4 个 `static` 方法设置这 4 类 anchor。将 anchor 设置为 `null` 表示删除约束。
 
 ```java
 // Create a Button and anchor it to top and left edges at 10px from each

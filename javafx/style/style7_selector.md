@@ -4,8 +4,7 @@
 ****
 ## 1. 简介
 
-样式表中每个样式都有一个关联的 selector，用于识别 scene graph 中的 node。JavaFX CSS 支持多种类型的 selector：class selectors
-pseudo-class selectors, ID selector 等。
+样式表中每个样式都有一个关联的 selector，用于识别 scene graph 中的 node。JavaFX CSS 支持多种类型的 selector：class selectors, pseudo-class selectors, ID selector 等。
 
 ## 2. 类选择器
 

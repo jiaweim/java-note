@@ -2,7 +2,7 @@
 
 ## NIO 学习笔记
 
-- [简介](intro.md)
+- [简介](nio/intro.md)
 - [Path](path.md)
 - [Buffer](buffer.md)
 - [Channel](channel.md)

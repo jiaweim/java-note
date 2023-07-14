@@ -9,6 +9,7 @@ module java.module {
     requires org.apache.poi.ooxml;
     requires javafx.swing;
     requires com.google.common;
+    requires javafx.fxml;
 
     opens mjw.study.javafx.layout;
     opens mjw.study.javafx.canvas;
@@ -20,5 +21,8 @@ module java.module {
     opens mjw.study.javafx.stage;
     opens mjw.study.javafx.intro;
     opens mjw.study.javafx.mvc;
+    opens mjw.study.javafx.concurrent;
+    opens mjw.study.javafx.fxml;
+    opens mjw.study.javafx.shape;
 
 }

@@ -2,7 +2,7 @@
 
 2023-06-07
 ****
-## 简介
+## 1. 简介
 
 FXSampler 是 ControlsFX 的子项目，用于 JavaFX 可视化项目的演示。
 
@@ -37,13 +37,13 @@ public class CalendarFXSamplerProject implements FXSamplerProject {
 - `getSampleBasePackage()` 指定示例的基础包，所有的示例都应该放在基础包下面
 - `getWelcomePage()` 指定欢迎页面，在 welcome tab 显示的 node
 
-## 欢迎页面
+## 2. 欢迎页面
 
 欢迎页面是可选的，它允许你为 sampler 指定一个标题和一个 UI，在 sampler 应用启动时呈现给用户。例如，CalendarFX sampler 显示一个简单的 “about message”：
 
 ![[Pasted image 20230606222100.png]]
 
-## Base Package
+## 3. Base Package
 
 FXSampler 使用 "base package" 来查找 sample 类。FXSampler 将 base package 中找到 sample 类放在左侧 tree 结构的顶层，在 sub packages 找到的 sample 类则放在子节点下。下面是 CalendarFX sampler 项目的结构：
 
@@ -55,7 +55,7 @@ CalendarFX 的 base package 为 `com.calendarfx.demo`，其中 `HelloDayEntryVie
 
 可以看到，所有的 sample 都以 "Hello" 开头，这是 ControlsFX 采取的约定，并非强制。
 
-## Sample
+## 4. Sample
 
 FXSampler 将实现 `fxsampler.Sample` 接口的类识别 sample。但是扩展 `fxsampler.SampleBase` 更好，该类扩展了 `Application` 接口，因此每个 sample 可以单独运行。
 
@@ -99,7 +99,7 @@ public interface Sample {
 }
 ```
 
-## Launcher
+## 5. Launcher
 
 要运行 sampler 项目，还需要一个包含 `main()` 方法并扩展 `Application` 类，即 `fxsampler.FXSampler`。`CalendarFX` 中的实现：
 
@@ -124,11 +124,11 @@ public class CalendarFXSampler extends FXSampler {
 
 上面的 launcher 没有实例化任何 sampler 项目。那么它如何找到要运行的 sample 项目呢？
 
-## Service Provider
+## 6. Service Provider
 
 `FXSampler` 通过 service provider 查找 sampler 项目。在 META-INF/services 目录创建 `fxsampler.FXSamplerProject` 文件，在文件中 sampler 项目的完整类名。
 
-## 可执行 jar
+## 7. 可执行 jar
 
 将示例打包成可执行 jar，Maven 配置如下：
 
@@ -165,6 +165,6 @@ public class CalendarFXSampler extends FXSampler {
 ```
 
 
-## 参考
+## 8. 参考
 
 - https://dlsc.com/2017/03/02/fxsampler/

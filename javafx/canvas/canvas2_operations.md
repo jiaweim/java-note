@@ -1,5 +1,7 @@
 # Canvas 操作
 
+2023-07-13, 14:37
+添加 GraphicsContext 详解
 2023-06-12
 ****
 ## 1. 创建 Canvas
@@ -339,3 +341,75 @@ public class CanvasTest extends Application {
 ```
 
 ![[Pasted image 20230612095146.png]]
+
+## 6. GraphicsContext 详解
+
+GraphicsContext 通过 buffer 向 Canvas 发送绘图命令。GraphicsContext 的绘图命令会将必要的参数推送到 buffer，然后在 pulse 结束前由渲染线程将这些内容渲染到 Canvas。
+
+每个 Canvas 有且只有一个 GraphicsContext 和一个 buffer。将 Canvas 添加到 scene 前，可以在任何线程修改。将 Canvas 添加到 scene 后，则只能在 JAT 线程修改。
+
+GraphicsContext 还管理了一个 state 对象堆栈，可以随时保存或恢复。
+
+## 7. GraphicsContext attributes
+
+`GraphicsContext` 维护了以下渲染属性，这些属性会影响渲染方法：
+
+| Attribute              | Save/Restore? | Default value | Description                                |
+| ---------------------- | ------------- | ------------- | ------------------------------------------ |
+| **常用渲染 Attribute** |               |               |                                            |
+| Clip                   | Yes           | No Clipping   |                                            |
+| Global Alpha           | Yes           | 1.0           |                                            |
+| Global Blend Mode      | Yes           | SRC_OVER      |                                            |
+| Transform              | Yes           | Identity      |                                            |
+| Effect                 | Yes           | null          |                                            |
+| **Fill Attributes**    |               |               |                                            |
+| Fill Paint             | Yes           | BLACK         | 填充操作中应用于形状内部的 Paint           |
+| **Stroke Attributes**  |               |               |                                            |
+| Stroke Paint           | Yes           | BLACK         | 描边操作（stroke）中应用于形状边界的 Paint |
+| Line Width             | Yes           | 1.0           | 描边操作中应用于形状边界的 stroke 宽度     |
+| Line Cap               |               |               |                                            |
+| Line Join              |               |               |                                            |
+| Miter Limit            |               |               |                                            |
+| Dashes                 | Yes           | null          | stroke 操作中应用于形状边界的虚线长度数组  |
+| Dash Offset            | Yes           | 0.0           |                                            |
+| **Text Attributes**    |               |               |                                            |
+| Font                   |               |               |                                            |
+| Text Align             |               |               |                                            |
+| Text Baseline          |               |               |                                            |
+| Font Smoothing         |               |               |                                            |
+| **Path Attributes**    |               |               |                                            |
+| Current Path           |               |               |                                            |
+| Fill Rule              |               |               |                                            |
+| **Image Attributes**   |               |               |                                            |
+| Image Smoothing        |               |               |                                            |
+
+
+
+**lineWidth**
+
+```java
+public void setLineWidth(double lw)
+public double getLineWidth()
+```
+
+**lineDashes**
+
+```java
+public void setLineDashes​(double... dashes)
+public double[] getLineDashes()
+```
+
+**stroke**
+
+```java
+public void setStroke​(Paint p)
+public Paint getStroke()
+```
+
+## 8. 方法属性对照表
+
+`GraphicsContext` 不同方法使用的渲染属性如下表所示。
+
+| 方法 | 常用属性 | Fill 属性 | Stroke 属性 | Text 属性 | Path 属性 | Image 属性 |
+| ---- | -------- | --------- | ----------- | --------- | --------- | ---------- |
+|      |          |           |             |           |           |            |

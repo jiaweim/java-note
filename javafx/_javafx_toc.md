@@ -31,7 +31,7 @@
     - [ImagePattern](color/color2_image_pattern.md)
     - [线性渐变色](color/color3_linear_gradient.md)
     - [径向渐变色](color/color4_radial_gradient.md)
-- [[shape_stroke|Stroke]]
+- [[shape6_stroke|Stroke]]
 - [Canvas 概述](canvas1_intro.md)
     - [Canvas 操作](canvas2_operations.md)
 - [自定义样式快速入门](style/style1_intro.md)
@@ -66,12 +66,30 @@
     - [TextFlow](layout/layout14_textflow.md)
     - [Snapping](layout/layout15_snapping.md)
 - [MVC](mvc/mvc1_intro.md)
+    - [MVC 示例](mvc/mvc2_example.md)
+- [Shape 概述](shape2D/shape1_intro.md)
+    - [2D Shapes](shape2D/shape2_shapes.md)
+    - [Path](shape2D/shape3_path.md)
+    - [SVGPath](shape2D/shape4_svg.md)
+    - [合并 Shapes](shape2D/shape5_combine.md)
+    - [Stroke](shape2D/shape6_stroke.md)
+    - [Shape CSS](shape2D/shape7_css.md)
 
+- [JavaFX 并发](concurrency/concurrent1_intro.md)
+    - [JavaFX 并发框架](concurrency/concurrent2_framework.md)
+    - [Task](concurrency/concurrent3_task.md)
+    - [Serice](concurrency/concurrent4_service.md)
+    - [ScheduledService](concurrency/concurrent5_scheduledservice.md)
+- [FXML 概述](fxml/fxml1_intro.md)
+    - [FXML 基础](fxml/fxml2_basic.md)
+    - [在 FXML 中创建对象](fxml/fxml3_object.md)
+    - [创建可复用对象](fxml/fxml4_reusable.md)
+    - [指定 Location](fxml/fxml5_location.md)
+    - [ResourceBundle](fxml/fxml6_resource.md)
 
 
 - [概述](1.intro.md)
 - [Node](3.node.md)
-- [Shape](6.shapes.md)
 - [Text](7.text.md)
 - [组件](8.controls.md)
   - [ChoiceBox](control_choicebox.md)
@@ -89,9 +107,6 @@
   - [TabPane](11_tabpane.md)
   - [TitledPane](pane_titledpane.md)
 - [Transformation](11.transformation.md)
-- [并发](concurrency/intro.md)
-  - [JavaFX 并发框架](concurrency/framework.md)
-- [FXML](19_fxml.md)
 
 ## 工具
 

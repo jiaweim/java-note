@@ -82,7 +82,8 @@ public class ButtonStyleTest extends Application {
 
         Scene scene = new Scene(root);
 
-        String url = ButtonStyleTest.class.getResource("/css/buttonstyles.css").toExternalForm();
+        String url = ButtonStyleTest.class.getResource("/css/buttonstyles.css")
+                                          .toExternalForm();
         scene.getStylesheets().add(url); // 添加样式表
 
         stage.setScene(scene);

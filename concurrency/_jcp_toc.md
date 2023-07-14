@@ -23,6 +23,7 @@
 	- [基于 Lock 的同步](sync/sync3_lock.md)
 	- [读写锁](sync/sync4_read_write_lock.md)
 	- [多条件锁](syncs/sync5_multiple_condition_lock.md)
+	- [StampedLock](sync/sync6_stampedlock.md)
 
   - [JDK 并发 API 的演变](evolution.md)
   - [多线程特点](thread_characteristic.md)
