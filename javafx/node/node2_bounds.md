@@ -190,11 +190,11 @@ b1(boundsInLocal)=BoundingBox [minX:-9.0, minY:-9.0, minZ:0.0, width:65.33332824
 
 `boundsInParent` 使用较少。下图时没有转换操作的图形及其 `boundsInLocal`:
 
-![bounds](images/2019-06-05-15-59-51.png)
+![bounds](2019-06-05-15-59-51.png)
 
 如果将该图形绕中心旋转 20°，得到如下结果：
 
-![bounds](images/2019-06-05-16-00-03.png)
+![bounds](2019-06-05-16-00-03.png)
 
 红色边界表示节点在其父节点的坐标空间中的 `boundsInParent`。而其 `boundsInLocal` 和第一个图一样，保持不变，绿色边框表示在 Node 的坐标空间的 `boundsInLocal`。
 

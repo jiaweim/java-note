@@ -10,9 +10,9 @@
 
 `Node` 的 `styleClass` 变量为 `ObservableList<String>` 类型，包含 node 的 JavaFX 样式类名。
 
-JavaFX 样式类名与 Java 类是两种不同的东西。JavaFX 样式类名是字符串类型，用在 CSS 样式表中。
+JavaFX 样式类名与 Java 类是不同概念。JavaFX 样式类名是字符串类型，用在 CSS 样式表中。
 
-- 可以为 node 指定多个 CSS 类名，例如，给 HBox 指定两个类名
+- 可以为 node 指定多个 CSS 类名，例如，给 `HBox` 指定两个类名
 
 ```java
 HBox hb = new HBox();
@@ -88,7 +88,7 @@ public class StyleClassTest extends Application {
 }
 ```
 
-![](images/2023-06-21-11-27-04.png)
+![|300](images/2023-06-21-11-27-04.png)
 
 `Button` 包含一个默认样式类名 button，所以 "Close" 按钮文本为蓝色。
 
@@ -364,7 +364,7 @@ JavaFX 中许多控件包含子节点。例如，CheckBox 包含一个 LabeledTe
 
 ## 10. 状态选择器
 
-状态选择器（state-based selector）也称为伪类选择器（pseudo-class selector）。伪类选择器根据节点的当前状态匹配节点。例如，`.button:focused` 是一个伪类选择器，匹配具有 button 样式类且持有焦点的节点；`#openBtn:hover` 匹配 ID 为 `#openBtn`，且鼠标悬停在上面的节点。
+状态选择器（state-based selector）也称为伪类选择器（pseudo-class selector）。伪类选择器根据节点的当前状态匹配节点。例如，`.button:focused` 是一个伪类选择器，匹配样式类名为 button 且持有焦点的节点；`#openBtn:hover` 匹配 ID 为 `#openBtn`，且鼠标悬停在上面的节点。
 
 - 当鼠标悬停在节点上，将文本颜色更改为红色
 

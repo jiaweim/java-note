@@ -77,7 +77,7 @@ public ObjectProperty<LineStyle> polyLineStyleProperty()
 public GridRenderer getGridRenderer()
 ```
 
-`GridRenderer` 有几点字段：
+`GridRenderer` 有几个字段：
 
 | 字段                  | 类型   | 说明              |
 | --------------------- | ------ | ----------------- |

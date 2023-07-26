@@ -1,3 +1,4 @@
+// ProgressTest.java
 package mjw.study.javafx.controls;
 
 import javafx.application.Application;
@@ -9,16 +10,14 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class ProgressTest extends Application
-{
-    public static void main(String[] args)
-    {
+public class ProgressTest extends Application {
+
+    public static void main(String[] args) {
         Application.launch(args);
     }
 
     @Override
-    public void start(Stage stage)
-    {
+    public void start(Stage stage) {
         ProgressIndicator indeterminateInd = new ProgressIndicator();
         ProgressIndicator determinateInd = new ProgressIndicator(0);
 
@@ -61,8 +60,7 @@ public class ProgressTest extends Application
         stage.show();
     }
 
-    public void makeProgress(ProgressIndicator p)
-    {
+    public void makeProgress(ProgressIndicator p) {
         double progress = p.getProgress();
         if (progress <= 0) {
             progress = 0.1;
