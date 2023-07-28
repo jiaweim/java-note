@@ -37,7 +37,7 @@ URL resource = A.class.getResource("/message.properties");
 
 path 不以 '/' 开头时，默认为此类所在的 package 获取资源
 
-path 以 '/' 开头时，则从 classPath 根目录下获取资源：**对应 IDEA 的 target 目录**，Eclipse 的 bin 目录。
+path 以 '/' 开头时，从 classPath 根目录下获取资源：**对应 IDEA 的 target 目录**，Eclipse 的 bin 目录。
 
 - class.getClassLoader().getResource
 
@@ -57,5 +57,4 @@ InputStream is = A.class.getClassLoader().getResourceAsStream("message.propertie
 
 `class.getResource` 在调用 `ClassLoader.getResource` 之前，会先获取文件路径，如果 path 以 '/' 开头，就从根目录获取，否则从当前类所在包下获取。
 ```
-
 

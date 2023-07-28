@@ -1,5 +1,7 @@
 # JavaFX CSS
 
+2023-07-27, 10:01
+add: 样式表资源和示例
 2023-06-19, 18:46
 ****
 ## 1. JavaFX CSS 命名约定
@@ -31,18 +33,35 @@ root.getStylesheets().add("file://.../vbox.css");
 
 将 "..." 替换为正确路径即可。
 
+```ad-important
+创建完整的 laf 需要成百上千的代码，以便为 JavaFX 的每个 UI 控件设置样式。因此，最好从默认 laf 开始，然后用 `getStylesheets().add()` 覆盖样式。
+```
+
+模板代码：
+
+```java
+Application.setUserAgentStylesheet(null); // defaults to Modena
+
+// apply custom look and feel to the scene. 
+scene.getStylesheets()
+     .add(getClass().getResource("my_cool_skin.css").toExternalForm());
+```
+
 ## 3. 默认样式表
 
-JavaFX 的默认样式由样式表 `modena.css` 定义，该文件位于 javafx.controls.jar 的 "com/sun/javafx/scene/control/skin/modena/modena.css"。
+`Application` 类定义了两个字符串常量 `STYLESHEET_CASPIAN` 和 `STYLESHEET_MODENA`，对应两种主题：
 
-在 JavaFX 8 之前，默认样式为 Caspian，定义在 jfxrt.jar 文件的 "com/sun/javafx/scene/control/skin/caspian/caspian.css"。`Application` 类定义了两个字符串常量 `STYLESHEET_CASPIAN` 和 `STYLESHEET_MODENA`，对应两种主题。
+- JavaFX 的默认样式由样式表 `modena.css` 定义，该文件位于 javafx.controls.jar 的 "com/sun/javafx/scene/control/skin/modena/modena.css"
+- 在 JavaFX 8 之前，默认样式为 Caspian，定义在 jfxrt.jar 文件的 "com/sun/javafx/scene/control/skin/caspian/caspian.css"
 
 通过 `Application` 设置整个应用的默认样式：
 
-- `public static void setUserAgentStylesheet(String url)`
-- `public static String getUserAgentStylesheet()`
+```java
+public static void setUserAgentStylesheet(String url)
+public static String getUserAgentStylesheet()
+```
 
-例如，将默认样式设置为 Caspian:
+**示例：** 将默认样式设置为 Caspian:
 
 ```java
 Application.setUserAgentStylesheet(Application.STYLESHEET_CASPIAN);
@@ -50,7 +69,12 @@ Application.setUserAgentStylesheet(Application.STYLESHEET_CASPIAN);
 
 ## 4. 内联样式
 
-设置 `Scene` 中 `Node` 的样式有两种方式：样式表或内联样式。前面介绍了样式表，下面说明内联样式。
+设置 `Scene` 中 `Node` 的样式有两种方式：
+
+- 样式表
+- 内联样式
+
+前面介绍了样式表，下面说明内联样式。
 
 `Node` 类的 `style` 属性定义内联样式（`StringProperty` 类型）：
 
@@ -130,3 +154,163 @@ public class InlineStyles extends Application {
 ```
 
 ![[Pasted image 20230619175302.png]]
+
+## 5. 样式表资源
+
+### 5.1 Native laf
+
+Claudine Zillmann 创建了 native Mac OS X 风格的 skin [AquaFX](http://aquafx-project.com/)。
+
+![](Pasted%20image%2020230726200740.png)
+
+Pedro Duque Vieira 创建了 Windows Metro 风格的样式 [JMetro](https://pixelduke.com/java-javafx-theme-jmetro/)。
+
+JMetro 下载地址： https://github.com/JFXtras/jfxtras-styles 
+
+JMetro 提供了浅色和深色两个主题。例如，下面是 CheckBox 的浅色和深色主题：
+
+![|250](Pasted%20image%2020230726201620.png)
+![|250](Pasted%20image%2020230726201628.png)
+
+### 5.2 Web laf
+
+目前最流行的 Web UI 样式 (laf) 是 Google 的 Material Design  和 Twitter 的 Bootstrap。
+
+Material Design (Google)
+
+|项目|网址|
+|---|---|
+|GluonHQ|https://gluonhq.com/products/mobile/|
+|JFoenix|https://github.com/sshahine/JFoenix|
+|MaterialFX|https://github.com/palexdev/MaterialFX|
+
+Bootstrap (Twitter)
+
+|项目|网址|
+|---|---|
+|jbootx|https://github.com/dicolar/jbootx|
+|BootstrapFX|https://github.com/kordamp/bootstrapfx|
+
+## 6. 示例
+
+```java
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.util.Objects;
+
+public class LookNFeelChooser extends Application {
+
+    @Override
+    public void init() {
+        Font.loadFont(LookNFeelChooser.class
+                .getResourceAsStream("Roboto-Thin.ttf"), 10);
+        Font.loadFont(LookNFeelChooser.class
+                .getResourceAsStream("Roboto-Light.ttf"), 10);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        BorderPane root = new BorderPane();
+        // 加载 FXML 文件，作为 root 的 center
+        Parent content = FXMLLoader.load(Objects.requireNonNull(
+                getClass().getResource("lnf_demo.fxml")));
+        Scene scene = new Scene(root, 650, 550, Color.WHITE);
+        root.setCenter(content);
+
+        // 创建菜单
+        MenuBar menuBar = new MenuBar();
+
+        // file menu
+        Menu fileMenu = new Menu("_File");
+        MenuItem exitItem = new MenuItem("Exit");
+        // 加个快捷键
+        exitItem.setAccelerator(new KeyCodeCombination(
+                                KeyCode.X, KeyCombination.SHORTCUT_DOWN));
+        exitItem.setOnAction(ae -> Platform.exit());
+
+        fileMenu.getItems().add(exitItem);
+        menuBar.getMenus().add(fileMenu);
+
+        // Look and feel menu
+        Menu lookNFeelMenu = new Menu("_Look 'N' Feel");
+        lookNFeelMenu.setMnemonicParsing(true);
+        menuBar.getMenus().add(lookNFeelMenu);
+        root.setTop(menuBar);
+
+        // Look and feel selection
+        MenuItem caspianMenuItem = new MenuItem("Caspian");
+        caspianMenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(STYLESHEET_CASPIAN);
+        });
+        MenuItem modenaMenuItem = new MenuItem("Modena");
+        modenaMenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(STYLESHEET_MODENA);
+        });
+        MenuItem style1MenuItem = new MenuItem("Control Style 1");
+        style1MenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(null);
+            scene.getStylesheets()
+                    .add(getClass().getResource("controlStyle1.css").toExternalForm());
+        });
+        MenuItem style2MenuItem = new MenuItem("Control Style 2");
+        style2MenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(null);
+            scene.getStylesheets()
+                    .add(getClass().getResource("controlStyle2.css").toExternalForm());
+        });
+
+        MenuItem skyMenuItem = new MenuItem("Sky LnF");
+        skyMenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(null);
+            scene.getStylesheets()
+                    .add(getClass().getResource("sky.css").toExternalForm());
+        });
+
+        MenuItem flatRedMenuItem = new MenuItem("FlatRed");
+        flatRedMenuItem.setOnAction(ae -> {
+            scene.getStylesheets().clear();
+            setUserAgentStylesheet(null); // 重置为默认 theme，即 modena.css
+            scene.getStylesheets()
+                    .add(getClass().getResource("flatred.css").toExternalForm());
+        });
+
+        lookNFeelMenu.getItems()
+                .addAll(caspianMenuItem,
+                        modenaMenuItem,
+                        style1MenuItem,
+                        style2MenuItem,
+                        skyMenuItem,
+                        flatRedMenuItem);
+
+        primaryStage.setTitle("Look N Feel Chooser");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230727085645.png)

@@ -26,5 +26,7 @@ module java.module {
     opens mjw.study.javafx.fxml;
     opens mjw.study.javafx.shape;
     opens mjw.study.javafx.controls;
+    opens mjw.study.javafx.transform;
+    opens mjw.study.javafx.animation;
 
 }

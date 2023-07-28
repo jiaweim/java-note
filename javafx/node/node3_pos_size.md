@@ -1,27 +1,41 @@
 # Node 的位置和大小
 
+2023-07-28, 13:34
+modify: layoutX 和 translateX 的解释
 2023-06-12
 ***
-## Node 位置
+## 1. Node 位置
 
-`Node` 类的 `layoutX` 和 `layoutY` 属性定义其坐标空间的平移。`translateX` 和 `translateY`  属性的功能相同。因此，Node 坐标空间最终的平移是这两者之和：
+`layoutX`, `layoutY` 是添加到 `Node` 的 x 和 y 坐标的 transform，用于 layout。
+
+`layoutX`, `layoutY`定义为 `Node` 当前 `layoutBounds` `(minX, minY)` (可能不为 0)到期望位置的 offsets。
+
+例如，将 `textnode` 定位到 `(finalX, finalY)`：
+
+```java
+textnode.setLayoutX(finalX - textnode.getLayoutBounds().getMinX());
+textnode.setLayoutY(finalY - textnode.getLayoutBounds().getMinY());
+```
+
+不减去 `layoutBounds` `(minX, minY)` 可能导致定位错误（`minX` 或 `minY` 不为 0 时）。
+
+`Node.relocate(finalX, finalY)` 会自动计算 layoutX 和 layoutY，是设置 Node 位置的推荐方法，而非直接调用 `setLayoutX()` 和 `setLayoutY()`。
+
+`Node` 的最终位移由两部分组成，对 y 坐标：layoutY+translateY
+
+- `layoutY` 定义 `Node` 的稳定位置
+- `translateY` 对 `Node` 位置进行动态调整
+
+所以 `Node` 最终的位移为：
 
 $$finalTranslationX = layoutX+translateX$$
 $$finalTranslationY = layoutY+translateY$$
-为什么要用两个属性来定义平移？是为了在不同情况下达到相似的效果：
 
-- 在稳定 layout 中，使用 `layoutX` 和 `layoutY` 来定位 node
-- 在动态 layout 中，使用 `translateX` 和 `translateY` 来定位 node
-
-一定要记住，`layoutX` 和 `layoutY` 属性指定的不是最终位置。它们是对 Node 坐标空间的平移。在计算 node 的位置时，需要考虑 `layoutBounds` 的 `minX` 和 `minY` 值。例如，要将一个 node 的 bounding box 的左上角放在 `finalX` 和 `finalY` 位置，其 `layoutX` 和 `layoutY` 值为：
+例如，将一个 node 的 boundingBox 的左上角放在 `finalX` 和 `finalY` 位置，其 `layoutX` 和 `layoutY` 值为：
 
 ```java
 layoutX = finalX - node.getLayoutBounds().getMinX()
 layoutY = finalY - node.getLayoutBounds().getMinY()
-```
-
-```ad-tip
-`Node` 有一个将 node 放在 (finalX, finalY) 的便捷方法 `relocate(double finalX, double finalY)`。该方法自动计算 layoutX 和 layoutY，推荐使用。而不是 `setLayoutX()` 和 `setLayoutY()`。
 ```
 
 有时，设置 `Node` 的 `layoutX` 和 `layoutY` 属性无法将其定为到父节点的指定位置。如果遇到这种情况，请检查父节点类型。大多数父节点为 `Region` 的子类，它们有自己的定位策略，忽略子节点的 `layoutX` 和 `layoutY` 属性，如 `HBox` 和 `VBox`。
@@ -41,7 +55,15 @@ VBox vb = new VBox();
 vb.getChildren().addAll(b1, b2);
 ```
 
-如果需要完全控制 `Node` 在父节点中的位置，建议使用 `Pane` 或 `Group`。`Pane` 是一种 `Region`，不对子节点进行定位，因此需要使用 layoutX 和 layoutY 属性设置子节点位置。例如：
+如果 `Node` 为托管节点，其父节点为 `Region`，则 region 会根据其 layout 策略设置 `Node` 的 `layoutX` 和 `layoutY`。
+
+如果 `Node` 不是托管节点，或其父节点为 `Group`，则可以通过设置 `layoutX` 和 `layoutY` 设置 `Node` 位置。
+
+```ad-tip
+Pane 虽然是 Region 子类，但是它采用的绝对定位策略，所以也可以通过设置 layoutX 和 layoutY 设置 Node 位置。
+```
+
+例如：
 
 ```java
 Button b1 = new Button("OK");
@@ -56,7 +78,7 @@ Group parent = new Group(); // 或 Pane parent = new Pane();
 parent.getChildren().addAll(b1, b2);
 ```
 
-## Node大小
+## 2. Node大小
 
 Node 可以分为两种类型，大小可调（_resizable_）和大小不可调（_nonresizable_）：
 
@@ -124,7 +146,7 @@ rect.isResizable(): false
 
 ![[Pasted image 20230612193908.png]]
 
-### Resizable Node
+### 2.1. Resizable Node
 
 _resizable_ 节点的大小由两个条件确定：
 
@@ -429,7 +451,7 @@ resizable node 当前宽度和高度的只读属性。
 
 对 resizable node，将其 layoutBounds 设置为当前首选 width 和 height。此方法考虑 content bias。对 *nonresizable* node 无效。
 
-### Nonresizable Node
+### 2.2. Nonresizable Node
 
 *Nonresizable* Node 在 layout 期间不会被父容器调整大小。但可以通过设置其属性调整大小。
 
