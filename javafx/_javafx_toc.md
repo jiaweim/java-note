@@ -118,6 +118,8 @@
     - [Timeline 动画](animation/animation2_timeline.md)
     - [动画控制](animation/animation3_control.md)
     - [Cue Point](animation/animation4_cuepoint.md)
+    - [Transition](animation/animation5_transition.md)
+    - [Interpolator](animation/animation6_interpolator.md)
 - [JavaFX 并发](concurrency/concurrent1_intro.md)
     - [JavaFX 并发框架](concurrency/concurrent2_framework.md)
     - [Task](concurrency/concurrent3_task.md)
