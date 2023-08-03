@@ -17,10 +17,10 @@
 
 - backgrounds (fills and images)
 - content area
-- padding
-- borders (strokes and images)
-- margin
-- region insets
+- **padding**：content 外周到 border 之间的可选区域。如果 padding 为 0，则 padding edge 和 content edge 重合
+- **borders** (strokes and images)：padding 外周区域。如果 border 为 0，则 border edge 和 padding edge 重合
+- **margin**：border 外周区域。margin 和 padding 非常相似，唯一差别是，margin 定义了 border 外周的区域，而 padding 定义的是 border 内周到 content 外周的区域
+- region **insets**：`Region` 的 `layoutBounds` 和 content area 之间的距离为 insets（内边距）。`Region` 类根据属性自动计算 insets，并提供 read-only 属性 `insets`，便于查询
 
 ![|450](Pasted%20image%2020230706193337.png)
 
@@ -34,27 +34,19 @@
 |4|border images|可选|
 |5|content||
 
-**padding** 是 content 外周可选的区域。如果 padding 宽度为 0，则 padding edge 和 content edge 重合。
-
-**border** 是 padding 外周的区域。如果 border 宽度为 0，则 border edge 和 padding edge 重合。
-
-**margin** 是 border 外周的区域。margin 和 padding 非常相似，唯一差别是，margin 定义了 border 外周的区域，而 padding 定义的是 border 内周到 content 外周的区域。
-
-content, padding 和 borders 影响 `Region` 的 `layoutBounds`。可以将 borders 完全绘制在 `Region` 的 `layoutBounds` 外边，此时 borders 不影响 `Region` 的 `layoutBounds`。margin 不会影响 Region 的 `layoutBounds`。
-
-`Region` 的 `layoutBounds` 和 content area 之间的距离为 insets（内边距）。`Region` 类根据属性自动计算 insets，并提供 read-only 属性 `insets`，便于查询。
+content, padding 和 borders 影响 `Region` 的 `layoutBounds`。可以将 borders 完全绘制在 `Region` 的 `layoutBounds` 的外面，此时 borders 不影响 `Region` 的 `layoutBounds`。margin 不会影响 Region 的 `layoutBounds`。
 
 ## 2. backgrounds
 
-Region 可以具有由 fills 和/或 images 组成的背景。
+`Region` 可以具有由 fills 和/或 images 组成的背景。
 
 ### 2.1. background fill
 
-fill 包括 color, radii (四个角), insets (四个边)：
+`fill` 包括 `color`, radii (四个角), insets (四个边)：
 
 - fill color 定义填充颜色
 - radii 定义四个角的半径，0 时为矩形
-- insets 定义 `Region` 的 `layoutBounds` 和 fill 外周的距离
+- insets 定义 `Region` 的 `layoutBounds` 和 `fill` 外周的距离
 
 例如，顶部 10px inset 表示 `layoutBounds` 上边内 10px 没有填充。
 

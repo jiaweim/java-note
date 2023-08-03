@@ -1,5 +1,7 @@
 # Node 的位置和大小
 
+2023-07-31, 22:08
+add: Node 变换
 2023-07-28, 13:34
 modify: layoutX 和 translateX 的解释
 2023-06-12
@@ -21,7 +23,7 @@ textnode.setLayoutY(finalY - textnode.getLayoutBounds().getMinY());
 
 `Node.relocate(finalX, finalY)` 会自动计算 layoutX 和 layoutY，是设置 Node 位置的推荐方法，而非直接调用 `setLayoutX()` 和 `setLayoutY()`。
 
-`Node` 的最终位移由两部分组成，对 y 坐标：layoutY+translateY
+`Node` 的最终位移由两部分组成，对 y 坐标：`layoutY`+`translateY`
 
 - `layoutY` 定义 `Node` 的稳定位置
 - `translateY` 对 `Node` 位置进行动态调整
@@ -40,7 +42,7 @@ layoutY = finalY - node.getLayoutBounds().getMinY()
 
 有时，设置 `Node` 的 `layoutX` 和 `layoutY` 属性无法将其定为到父节点的指定位置。如果遇到这种情况，请检查父节点类型。大多数父节点为 `Region` 的子类，它们有自己的定位策略，忽略子节点的 `layoutX` 和 `layoutY` 属性，如 `HBox` 和 `VBox`。
 
-例如，下面两个 button 的 layoutX 和 layoutY 属性就被忽略：
+**示例：** 下面两个 button 的 `layoutX` 和 `layoutY` 属性被忽略
 
 ```java
 Button b1 = new Button("OK");
@@ -461,3 +463,93 @@ Node 类中定义了几个与大小相关的方法。对 nonresizable Node 这�
 - 在 nonresizable node 上调用 `prefWidth(double h)`, `minWidth(double h)` 和 `maxWidth(double h)` 返回 layoutBounds 的宽度，`prefHeight(double w)`, `minHeight(double w)` 和 `maxHeight(double w)` 返回 layoutBounds 的高度。
 
 nonresizable node 没有 content bias，因此上面的方法以 -1 为参数。
+
+## 3. Node 变换
+
+Node 类中定义了一个 private 内部类 NodeTransformation，包含 Node 常用的变换参数。
+
+- translateX
+- translateY
+- translateZ
+- scaleX
+- scaleY
+- scaleZ
+- rotate
+- rotationAxis
+- localToParentTransform
+- localToSceneTransform
+
+下面演示平移、缩放和渲染这三种最常见的变换。定义基本类：
+
+```java
+public class TransformApp extends Application {
+
+    private Parent createContent() {
+        Rectangle box = new Rectangle(100, 50, Color.BLUE);
+
+        transform(box);
+
+        return new Pane(box);
+    }
+
+    private void transform(Rectangle box) {
+        // we will apply transformations here
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        stage.setScene(new Scene(createContent(), 300, 300, Color.GRAY));
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![|300](Pasted%20image%2020230731214840.png)
+
+在 JavaFX 中，变换可以发生在 X, Y 或 Z 轴。下面演示 2D 情况，只考虑 X 和 Y 轴。
+
+### 3.1 Translate
+
+在 x 轴方向移动 100px，在 y 轴方向移动 200px：
+
+```java
+private void transform(Rectangle box) {  
+    box.setTranslateX(100);  
+    box.setTranslateY(200);  
+}
+```
+
+![|300](Pasted%20image%2020230731215137.png)
+
+### 3.2 Scale
+
+在 x 轴方向放大 1.5 倍，y 轴方向放大 1.5 倍。
+
+```java
+private void transform(Rectangle box) {
+    // previous code
+
+    box.setScaleX(1.5);
+    box.setScaleY(1.5);
+}
+```
+
+![|300](Pasted%20image%2020230731220026.png)
+
+### 3.3 Rotate
+
+在 2D 空间，只能沿着 Z 轴旋转。例如，旋转 30°：
+
+```java
+private void transform(Rectangle box) {
+    // previous code
+
+    box.setRotate(30);
+}
+```
+
+![|300](Pasted%20image%2020230731220734.png)

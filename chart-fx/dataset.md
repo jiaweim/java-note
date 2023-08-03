@@ -1,18 +1,37 @@
 # 数据集
 
-## Dataset
 
-`Dataset` 的类图如下：
+****
+## 简介
 
-![[Pasted image 20230605155205.png]]其中：
+数据集的主要类图如下：
+
+![[Pasted image 20230605155205.png]]
+其中：
 
 - `DataSet2D` 定义二维数据点
 - `DataSet3D` 定义三维数据点
 - `DataSetError` 定义包含测量误差信息的数据
 - `Histogram` 用于直方图数据的存储和处理
 
-另外，`DataSetMetaData` 接口专门用于处理元数据，与 `DataSet2D`, `DataSet3D` 以及 `DataSetError` 处于同一类图水平，类图如下：
-![[Pasted image 20230605155916.png]]
+## DataSetMetaData
+
+`DataSetMetaData` 接口专门用于处理元数据，与 `DataSet2D`, `DataSet3D` 以及 `DataSetError` 处于同一类图水平。
+
+`AbstractDataSet` 在实现 `DataSet` 接口的同时实现了该接口，因此所有数据集类都支持处理元数据。
+
+meta 信息：
+
+```java
+List<String> getErrorList();  
+  
+List<String> getInfoList();  
+  
+Map<String, String> getMetaInfo();  
+  
+List<String> getWarningList();
+```
+
 `EditableDataSet` 接口指可编辑数据集，只有 `DoubleDataSet` 和 `DoubleErrorDataSet` 等二维数据集实现该接口，`DoubleSet3D` 和 `Histogram` 不支持。
 
 ## DoubleDataSet
@@ -44,29 +63,119 @@ final DoubleDataSet dataSet3 = new DoubleDataSet("data set #1", xValues, yValues
 ```
 
 最后的 `false` 指是否深度复制输入数组。
-
-## DefaultDataSet
-
-对 `DoubleDataSet` 进行简单包装，作为 x,y 二维数据集的默认实现。
-
 ## DataSetError
 
-- DoubleErrorDataset
+`DataSetError` 在 `DataSet` 基础上添加了数据点误差信息。
 
-数据保存在 x, y, +eyn, -eyn 四个 double 数组中。
+![](Pasted%20image%2020230802095009.png)
 
-- DefaultErrorDataSet
+误差类型定义在 enum `ErrorType` 中:
 
-对 `DoubleErrorDataset` 进行简单包装，作为 `DataSetError` 的默认实现。
+- `NO_ERROR`, 没有误差
+- `SYMMETRIC`，误差对称
+- `ASYMMETRIC`，误差不对称
 
-## Event
+|方法|说明|
+|---|---|
+|`ErrorType getErrorType(final int dimIndex)`|返回指定维度的误差类型|
+|`double getErrorNegative(final int dimIndex, final int index)`|返回指定维度 `dimIndex` 索引 `index` 处的负误差（误差总是以正数表示）|
+|`double getErrorPositive(final int dimIndex, final int index)`|返回指定维度 `dimIndex` 索引 `index` 处的正误差|
+|`double getErrorNegative(final int dimIndex, final double x)`|返回 x 坐标对应点在指定维度 dimIndex 的负误差|
+|`double getErrorPositive(final int dimIndex, final double x)`|返回 x 坐标对应点在指定维度 dimIndex 的正误差|
+|`double[] getErrorsNegative(final int dimIndex)`|返回所有数据点在指定维度 dimIndex 的负误差|
+|`double[] getErrorsPositive(final int dimIndex)`|返回所有数据点在指定维度 dimIndex 的正误差|
 
-### EventSource
+## DataSet2D
 
-- `AtomicBoolean autoNotification()`
+经典的二位数据集实现。类图如下：
 
-一般来说，如果数据集中的数据发生变化，应该通知注册的监听器。Chart 一般通过 `Dataset` 注册监听器，以便在数据发生变化时发出通知，并更新 chart。
+![](Pasted%20image%2020230802102020.png)
 
-## DefaultNumberFormatter
+针对二位数据，添加了相关的便捷方法：
 
-`DefaultNumberFormatter` 提供了格式化功能，
+```java
+// 返回指定 x 坐标的 y 值
+default double getValue(final double x) {
+    return getValue(DIM_Y, x);
+}
+
+// 返回指定 index 处的 x 值
+default double getX(final int index) {
+    return get(DIM_X, index);
+}
+
+// 返回第一个与指定 x 最接近数据点的 index
+default int getXIndex(double x) {
+    return getIndex(DIM_X, x);
+}
+
+// 所有 x 值
+default double[] getXValues() {
+    return getValues(DIM_X);
+}
+
+// 返回指定 index 处的 y 值
+default double getY(final int index) {
+    return get(DIM_Y, index);
+}
+
+// 返回第一个与指定 y 最接近数据点的 index
+default int getYIndex(double y) {
+    return getIndex(DIM_Y, y);
+}
+
+// 返回 Y 值
+default double[] getYValues() {
+    return getValues(DIM_Y);
+}
+```
+
+## DataSet3D
+
+DataSet3D 表示三维数据点。类图如下：
+
+![|300](Pasted%20image%2020230802113241.png)
+其中 GridDataSet 表示笛卡尔坐标的网格数据集。
+
+## Histogram
+
+`Histogram` 是专门为直方图设计的数据集。直方图的 N 个 bins，由 n+1 个数值定义。
+
+`Histogram` 额外添加了 bin-0 和 bin-N+1，用于存储超出范围的数据，在绘图时默认不显示。
+
+`Histogram` 的类图如下：
+
+![|500](Pasted%20image%2020230802113951.png)
+
+## 工具类
+
+### Formatter
+
+`Formatter<T>` 接口定义数据和字符串格式化，只有一个实现 `DefaultNumberFormatter`，提供了数字的格式化功能。
+
+`DefaultNumberFormatter` 内部类 enum `FormatMode` 指定格式化模式：
+
+- `FIXED_WIDTH_ONLY`：使用十进制表示，字符串宽度通过 `setNumberOfCharacters()` 设置
+- `FIXED_WIDTH_EXP`：使用指数表示，字符串宽度通过 `setNumberOfCharacters()` 设置
+- `FIXED_WIDTH_AND_EXP`：使用十进制或指数表示，优先选择更短、有效数字更多的表示
+    - 字符串宽度通过 `setNumberOfCharacters()` 设置，N.B. 当 `getNumberOfCharacters()` >= 6 时该模式才有效。
+- `OPTIMAL_WIDTH`：默认选项，通过 `setFixedPrecision()` 设置有效数字，使用十进制和指数更短的表示
+- `METRIC_PREFIX`：使用标准 SI 前缀。默认 precision 为 3，例如 1234.5678 -> "1.234k"
+- `BYTE_PREFIX`：以 1024 为基数使用标准 SI 前缀
+- `JDK`：使用默认 `toString()`
+
+### ArrayCache
+
+为大型基本类型数组提供简单缓存。用法：
+
+```java
+private final static String UNIQUE_IDENTIFIER = "class/app unique name";  
+[..]  
+ 
+final double[] localTempBuffer = ArrayCache.getCachedDoubleArray(UNIQUE_IDENTIFIER, 200);  
+ 
+[..] user code [..]  
+ 
+ArrayCache.release(UNIQUE_IDENTIFIER, 100);  
+```
+

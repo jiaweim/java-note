@@ -190,11 +190,11 @@ public class ChoiceBoxTest extends Application {
 
 ## 2. StringConverter
 
-ChoiceBox 支持任何对象类型。CheckBox 调用对象的 toString() 方法，在弹出列表中显示返回的 String 值。
+`ChoiceBox` 支持任何对象类型。`CheckBox` 调用对象的 `toString()` 方法，在弹出列表中显示返回的 String 值。
 
-**示例：** 创建 ChoiceBox，添加 4 个 Person 对象
+**示例：** 创建 `ChoiceBox`，添加 4 个 `Person` 对象
 
-注意，ChoiceBox 显示的是 Person 的 toString() 字符串。
+注意，`ChoiceBox` 显示的是 `Person` 的 `toString(`) 字符串。
 
 ```java
 import com.jdojo.mvc.model.Person;

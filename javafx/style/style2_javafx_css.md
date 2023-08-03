@@ -19,7 +19,7 @@ JavaFX 采用的命名约定和 CSS 的样式类有所不同：
 
 ## 2. 添加样式表
 
-可以为 JavaFX 程序添加多个样式表。`Scene` 和 `Parent` 对象都支持添加样式表。两者都通过 `getStylesheets()` 返回保存样式表的 ObservableList 的引用。例如：
+可以为 JavaFX 程序添加多个样式表。`Scene` 和 `Parent` 对象都支持添加样式表。两者都通过 `getStylesheets()` 返回保存样式表的 `ObservableList` 的引用。例如：
 
 ```java
 // 为 scene 添加两个样式表：ss1.css 和 ss2.css
@@ -314,3 +314,20 @@ public class LookNFeelChooser extends Application {
 ```
 
 ![](Pasted%20image%2020230727085645.png)
+
+## 7. StyleableProperty
+
+`StyleableProperty<T>` 允许通过 CSS 设置 javafx.beans.property 的样式。
+
+`StyleableProperty` 按照**优先级从低到高**依次设置样式：
+
+1. `javafx.application.Application.setUserAgentStylesheet(String)` 设置的默认 样式表
+2. 通过代码设置的样式，如 `javafx.scene.Node.setOpacity(double)`
+3. 用户自定义样式表的样式，包括 `javafx.scene.Scene.getStylesheets()` 和 `javafx.scene.Parent.getStylesheets()`
+4. 通过 `javafx.scene.Node.setStyle(String`) 设置的样式
+
+`StyleablePropertyFactory`  极大简化了 StyleableProperty 的创建以及对应的 CssMetaData。
+
+StyleableProperty 的类图如下：
+
+![](Pasted%20image%2020230731200513.png)

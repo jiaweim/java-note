@@ -97,6 +97,11 @@
     - [HTMLEditor](controls/control27_htmleditor.md)
     - [Chooser](controls/control28_filechooser.md)
 - [TableView 概述](table/table1_intro.md)
+    - [创建 TableView](table/table2_create.md)
+    - [Map 作为 item](table/table3_map.md)
+    - [TableView 数据排序](table/table4_sort.md)
+    - [自定义 cell 渲染](table/table5_cell_factory.md)
+    - [选择 Cell 和 Row](table/table6_select.md)
 - [Shape 概述](shape2D/shape1_intro.md)
     - [2D Shapes](shape2D/shape2_shapes.md)
     - [Path](shape2D/shape3_path.md)
@@ -120,6 +125,8 @@
     - [Cue Point](animation/animation4_cuepoint.md)
     - [Transition](animation/animation5_transition.md)
     - [Interpolator](animation/animation6_interpolator.md)
+- [图像 API](image/image1_intro.md)
+    - [加载图像](image/image2_load.md)
 - [JavaFX 并发](concurrency/concurrent1_intro.md)
     - [JavaFX 并发框架](concurrency/concurrent2_framework.md)
     - [Task](concurrency/concurrent3_task.md)
@@ -208,8 +215,8 @@ Scenic View 会自动查找运行程序中的JavaFX Stage.
 - [ ] [Oracle 官方教程](https://docs.oracle.com/javase/8/javase-clienttechnologies.htm)
 - [ ] [JavaFX 8 API](https://docs.oracle.com/javase/8/javafx/api/toc.htm)
 - [ ] [JavaFX 11 API](https://openjfx.io/javadoc/11/index.html)
-
-- [x] [Zetcode 教程](http://zetcode.com/gui/javafx/)  
+- [?] https://fxdocs.github.io/docs/html5/
+- [?] [Zetcode 教程](http://zetcode.com/gui/javafx/)
 没有 `TableView` 实例。
 
 - http://www.guigarage.com/javafx-training-tutorials/

@@ -4,11 +4,11 @@
 ****
 ## 1. 简介
 
-scale 变换对坐标系的坐标轴按指定比例进行缩放。这会导致 Node 在指定坐标轴方向拉伸或收缩。
+**缩放变换**对坐标系的坐标轴按指定比例进行缩放。这会导致 `Node` 在指定坐标轴方向拉伸或收缩。
 
 ## 2. Scale 类
 
-Scale 类用 6 个属性描述缩放变换：
+`Scale` 类用 6 个属性描述缩放变换：
 
 - x
 - y
@@ -19,9 +19,9 @@ Scale 类用 6 个属性描述缩放变换：
 
 x, y, z 属性分别指定 x, y, z 轴的缩放因子，默认 1.0.
 
-pivotX, pivotY, pivotZ 指定 pivot 坐标，默认为 0.
+`pivotX`, `pivotY`, `pivotZ` 指定 pivot 坐标，默认为 0.
 
-Scale 构造函数：
+`Scale` 构造函数：
 
 ```java
 Scale()
@@ -31,19 +31,35 @@ Scale(double x, double y, double pivotX, double pivotY)
 Scale(double x, double y, double z, double pivotX, double pivotY, double pivotZ)
 ```
 
-使用 Scale 类或 Node 的 scaleX, scaleY, scaleZ 属性都可以实现缩放。
+使用 `Scale` 类或 `Node` 的 `scaleX`, `scaleY`, `scaleZ` 属性都可以实现缩放：
 
-- scaleX, scaleY, scaleZ 属性定义 Node 沿 layoutBounds 中心的缩放因子。用于手动或动画来拉伸或收缩 Node。layoutBounds 默认不包含这些缩放因子，因为适合在应用所有 effects 和 transforms 后缩放整个 node。
-- scaleX, scaleY, scaleZ 的 pivot 点为转换前 Node 的 layoutBounds 中心
+- `scaleX`, `scaleY`, `scaleZ` 属性定义 `Node` 沿 `layoutBounds` 中心的缩放因子。用于手动或动画来拉伸或收缩 `Node`。`layoutBounds` 默认不包含这些缩放因子，因为适合在应用所有 effects 和 transforms 后缩放整个 node。
+- `scaleX`, `scaleY`, `scaleZ` 的 pivot 点为转换前 `Node` 的 `layoutBounds` 中心
 
 ## 3. scale 属性缩放
+
+相关方法：
+
+```java
+public final DoubleProperty scaleXProperty()
+public final double getScaleX()
+public final void setScaleX(double value)
+
+public final DoubleProperty scaleYProperty()
+public final double getScaleY()
+public final void setScaleY(double value)
+
+public final DoubleProperty scaleZProperty()
+public final double getScaleZ()
+public final void setScaleZ(double value)
+```
 
 创建 2 个 Rectangles:
 
 - 2 个 Rectangles 放在相同位置
 - 1 个缩放，一个保持不变
 
-将不缩放的 Rectangle 的 opacity 设置为 0.5.
+将缩放前 `Rectangle` 的 `opacity` 设置为 0.5.
 
 ```java
 import javafx.application.Application;

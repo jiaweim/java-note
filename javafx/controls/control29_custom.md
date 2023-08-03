@@ -9,15 +9,15 @@ JavaFX 提供了多种创建自定义控件的方法：
 - 使用 CSS 重新定义控件样式
 - 组合已有控件
 - 扩展已有控件
-- 使用 Control+Skin 类
-- 使用 Region 类
-- 使用 Canvas 类
+- 使用 `Control`+Skin 类
+- 使用 `Region` 类
+- 使用 `Canvas` 类
 
 ## 使用 CSS 重新定义控件样式
 
-例如，我们想将 CheckBox 的样式更改为 MaterialDesign 类型。
+例如，我们想将 `CheckBox` 的样式更改为 MaterialDesign 类型。
 
-因为我们只想重新设计 CheckBox，所以需要查看 CheckBox 当前 CSS 样式。为此，需要查看 modena.css 文件，该文件包含 JavaFX 所有控件的默认 CSS 样式。在 openjfx GitHub 可以找到 [modena.css](https://raw.githubusercontent.com/openjdk/jfx/master/modules/javafx.controls/src/main/resources/com/sun/javafx/scene/control/skin/modena/modena.css) 文件。
+因为我们只想重新设计 `CheckBox`，所以需要查看 CheckBox 当前 CSS 样式。为此，需要查看 modena.css 文件，该文件包含 JavaFX 所有控件的默认 CSS 样式。在 openjfx GitHub 可以找到 [modena.css](https://raw.githubusercontent.com/openjdk/jfx/master/modules/javafx.controls/src/main/resources/com/sun/javafx/scene/control/skin/modena/modena.css) 文件。
 
 在 modena.css 之前是 caspian.css 文件，两个文件结构不同：
 
@@ -84,7 +84,7 @@ JavaFX 提供了多种创建自定义控件的方法：
 
 总的来说，JavaFX CSS 与 Web CSS 非常相似，除了基于 CSS 2.1  设计，所有属性包含 `-fx-` 前缀，支持遍历。
 
-下面实现 [MaterialDesign](https://material.io/develop/web/components/input-controls/checkboxes#checkboxes "MaterialDesign") 样式的 CheckBox，需要对现有 CSS 样式进行一些修改：
+下面实现 [MaterialDesign](https://material.io/develop/web/components/input-controls/checkboxes#checkboxes "MaterialDesign") 样式的 `CheckBox`，需要对现有 CSS 样式进行一些修改：
 
 ![](Pasted%20image%2020230727124128.png)
 
@@ -92,8 +92,6 @@ JavaFX 提供了多种创建自定义控件的方法：
 - 不同的 checkmark
 - 勾选时填充背景
 - 不同 focus indicator
-
-**取消渐变**
 
 取消渐变很容易，只需要定义一些颜色来代替渐变。为此，在 restyled.css 文件中定义如下遍历：
 
@@ -109,7 +107,7 @@ JavaFX 提供了多种创建自定义控件的方法：
 
 这样就能在 CSS 文件的 `.check-box` 中使用 `-material-design-color`。
 
-**修改 checkmark**
+### 修改 checkmark
 
 checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
@@ -123,7 +121,7 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 上面的 `-fx-shape` 定义了如下形状
 
-![](Pasted%20image%2020230727142313.png)
+![|40](Pasted%20image%2020230727142313.png)
 现在自定义一个 SVGPath，替换原有的 -fx-shape:
 
 ```css
@@ -136,6 +134,65 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 }
 ```
 
-![](Pasted%20image%2020230727142830.png)
+![|40](Pasted%20image%2020230727142830.png)
+上面还调整了 scale-x 和 scale-y 属性使 checkmark 和 CheckBox 更匹配。
+
+### 修改 box
+
+下面要取消 CheckBox 的渐变背景吗，即取消 modena.css 中定义的线性渐变，将背景设置为透明，并设置一个边框：
+
+```css
+.check-box > .box {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: #0000008a;
+    -fx-border-width: 2px;
+    -fx-border-radius: 2px;
+    -fx-padding: 0.083333em; /* 1px */
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+}
+```
+
+- 当勾选复选框时，填充 box
+
+```css
+.check-box:selected > .box {
+    -fx-background-color: -material-design-color;
+    -fx-background-radius: 2px;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+}
+```
+
+这里简单地填充背景，并将 border 设置为透明。
+
+### CheckBox 状态
+
+接下来就是 CheckBox 在  hover, focused 和 selected 状态的样式。原始 MaterialDesign CheckBox 在 CheckBox 周围画一个圆。
+
+使用 CSS 很容易实现该样式，在 focused 状态添加圆的 CSS：
+
+```css
+.check-box:focused > .box {
+    -fx-background-color: #6161613e, transparent;
+    -fx-background-insets: -14, 0;
+    -fx-background-radius: 1024;
+}
+```
+
+这个状态圆比 CheckBox 要大一点。为了实现该效果，这里定义了两个 background colors `-fx-background-color: #6161613e, transparent;`
+
+## 扩展已有控件
+
+## 使用 Canvas
+
+为了理解 Canvas 及其优点，可以参考 [JavaFX 的渲染机制](../scene/scene2_rendering_mode.md)。
+
+在 Canvas 上的
 
 
+## 参考
+
+- https://foojay.io/today/custom-controls-in-javafx-part-i/

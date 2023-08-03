@@ -1,5 +1,7 @@
 # ComboBox
 
+2023-08-01, 09:27
+modify: cellFactory
 2023-07-24, 11:02
 ***
 ## 1. 简介
@@ -299,7 +301,7 @@ shapes.getItems().addAll(new HBox(new Line(0, 10, 20, 10), new Label("Line")),
 
 ## 6. CellFactory
 
-ComboBox 包含一个 cellFactory 属性：
+`ComboBox` 包含一个 `cellFactory` 属性：
 
 ```java
 public ObjectProperty<Callback<ListView<T>, ListCell<T>>> cellFactory;
@@ -313,15 +315,19 @@ public interface Callback<P,R> {
 }
 ```
 
-ComboBox 的 cellFactory 属性定义的 Callback，参数类型为 `ListView<T>`，返回类型为 `ListCell<T>`。在 call() 方法中需要创建 `ListCell<T>` 并覆盖 ListCell 的 `updateItem(T item, boolean empty)` 方法。
+`ComboBox` 的 `cellFactory` 属性定义的 Callback，参数类型为 `ListView<T>`，返回类型为 `ListCell<T>`。在 `call()` 方法中需要创建 `ListCell<T>` 并覆盖 `ListCell` 的 `updateItem(T item, boolean empty)` 方法。
+
+```ad-summary
+`cellFactory` 的使用要点是在 `Callback` 的 `updateItem()` 方法中设置 `ListCell` 的 `text` 和 `graphic`（可选）。记得调用 super 方法。
+```
 
 **示例：** cellFactory
 
-StringShapeCell 实现：
+`StringShapeCell` 实现：
 
 - 继承 `ListCell<String>`
-- 实现 updateItem() 方法
-- 在 updateItem() 中定义 cell 内容
+- 实现 `updateItem()` 方法
+- 在 `updateItem()` 中定义 cell 内容
 
 ```java
 import javafx.scene.control.ListCell;
@@ -368,7 +374,7 @@ public class StringShapeCell extends ListCell<String> {
 }
 ```
 
-Callback 实现。
+- Callback 实现
 
 ```java
 import javafx.scene.control.ListCell;
@@ -391,7 +397,9 @@ public class ShapeCellFactory implements Callback<ListView<String>, ListCell<Str
 shapes.setCellFactory(new ShapeCellFactory());
 ```
 
-cellFactory 解决了在 pop-up 区域显示的问题，还需要设置在 button 区域的显示问题。即还要设置 buttonCell 属性：
+- buttonCell
+
+`cellFactory` 解决了在 pop-up 区域的显示问题，还需要设置在 button 区域的显示和编辑问题。即设置 buttonCell 属性：
 
 ```java
 // Set the buttonCell property
@@ -444,16 +452,16 @@ public class ComboBoxCellFactory extends Application {
 
 ![|400](Pasted%20image%2020230724104723.png)
 
-在 ComboBox 中使用自定义 cellFactory 和 buttonCell 可以完整控制 pop-up 列表和选择元素。
+在 `ComboBox` 中使用自定义 `cellFactory` 和 `buttonCell` 可以完整控制 pop-up 列表和选择元素。
 
-Cell 为 Labeled 控件，在 updateItem() 中可以自定义text 和 graphic。
+`Cell` 为 `Labeled` 控件，在 `updateItem()` 中可以自定义 `text` 和 `graphic`。
 
-ComboBoxBase 提供了 4 个属性，在 ComboBox 也可以使用：
+`ComboBoxBase` 提供了 4 个属性，在 `ComboBox` 也可以使用：
 
-- onShowing
-- onShown
-- onHiding
-- onHidden
+- `onShowing`
+- `onShown`
+- `onHiding`
+- `onHidden`
 
 这些属性均为 `ObjectProperty<EventHandler<Event>>` 类型，可以添加 event handler，分别在弹窗显示时前、显示后、隐藏前、隐藏后被调用。例如，添加 `onShowing` event handler 可用于定义 pop-up 的样式。
 
