@@ -102,6 +102,11 @@
     - [TableView 数据排序](table/table4_sort.md)
     - [自定义 cell 渲染](table/table5_cell_factory.md)
     - [选择 Cell 和 Row](table/table6_select.md)
+    - [TableView 编辑数据](table/table7_edit.md)
+    - [添加和删除 row](table/table8_add_row.md)
+    - [滚动 TableView 窗口](table/table9_scrolling.md)
+    - [调整 TableColumn 大小](table/table10_column_resizing.md)
+    - [TableView CSS](table/table11_css.md)
 - [Shape 概述](shape2D/shape1_intro.md)
     - [2D Shapes](shape2D/shape2_shapes.md)
     - [Path](shape2D/shape3_path.md)
@@ -153,7 +158,9 @@
 
 ## 工具
 
-JavaFX [下载地址](https://gluonhq.com/products/javafx/).
+- JavaFX [下载地址](https://gluonhq.com/products/javafx/)
+- [Scenic View](./scenic_view.md)
+
 
 ### DataFX
 
@@ -168,41 +175,6 @@ https://bitbucket.org/datafx/datafx
 [ControlsFX 特征](https://github.com/controlsfx/controlsfx/wiki/ControlsFX-Features)
 
 - [Font Awesome](font_awesome.md)
-
-#### ScenicView
-
-http://fxexperience.com/scenic-view/
-
-用于 debugging JavaFX 程序，可以很方便的查看 `Node` 属性，查看当前 scenegraph 的状态。
-
-#### ScenicView 运行
-
-运行 Scenic View 有三种方法。
-
-1. 从代码运行
-
-```java
-ScenicView.show(node);
-```
-
-或者
-
-```java
-ScenicView.show(scene);
-```
-
-只显示特定的 Scene/Node。一般不推荐使用这种方法，而推荐使用 Java Agent.
-
-2. Java Agent
-
-命令：`-javaagent:ScenicView.jar`
-
-Scenic View 会自动查找运行程序中的JavaFX Stage.
-
-3. Standalone
-
-最简单的使用方法，即双击 ScenicView.jar 文件运行。
-
 ## References
 
 - [ ] JavaFX 8 Introduction by Example

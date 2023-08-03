@@ -1,5 +1,7 @@
 # ListView
 
+2023-08-03, 16:22
+add: 8. ListView 过滤
 2023-07-24, 14:01
 ***
 ## 1. 简介
@@ -37,7 +39,7 @@ seasons.getItems().addAll("Spring", "Summer", "Fall", "Winter");
 
 ### 1.2. preferred size
 
-当 ListView 的 preferredSize 不是你想要的，如果有类似 ComboBox 的 `visibleItemCount` 属性设置可见元素个数就好了，然而 ListView 不支持该属性。只能直接设置 prefSize：
+当 `ListView` 的 `prefSize` 不是你想要的，如果有类似 `ComboBox` 的 `visibleItemCount` 属性设置可见元素个数就好了，然而 ListView 不支持该属性。只能直接设置 prefSize：
 
 ```java
 // Set preferred width = 100px and height = 120px
@@ -402,19 +404,9 @@ Callback<ListView<Person>, ListCell<Person>> cellFactory =
 persons.setCellFactory(cellFactory);
 ```
 
-**示例：** `TextField` 类型的 editable ListView
+**示例：** `TextField` 类型的 editable `ListView`
 
 ```java
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
 import mjw.study.javafx.mvc.Person;
 
 public class ListViewEditing extends Application {
@@ -818,7 +810,7 @@ ListCell 提供了如下 CSS pseudo-classes:
 }
 ```
 
-在 modena.css 文件中，ListCell 的默认背景颜色为 `-fx-control-inner-background`，这是一个 CSS 派生颜色：
+在 modena.css 文件中，`ListCell` 的默认背景颜色为 `-fx-control-inner-background`，这是一个 CSS 派生颜色：
 
 - 对奇数 cell，默认颜色为 `derive(-fx-control-innerbackground,-5%)`
 
@@ -832,14 +824,274 @@ ListCell 提供了如下 CSS pseudo-classes:
 
 这只是设置了 ListView 在正常状态下的背景颜色。ListView 还有 focused, selected, empty 和 filled 等状态。因此还需要为这些状态指定背景色。详情可参考 modena.css 文集爱你。
 
-ListCell 支持 `-fx-cell-size` CSS 属性，表示垂直 ListView 中 cell 的高度；或水平 ListView 中 cell 的宽度。
+`ListCell` 支持 `-fx-cell-size` CSS 属性，表示垂直 `ListView` 中 cell 的高度；或水平 `ListView` 中 cell 的宽度。
 
-cell 类型可以为 ListCell, TextFieldListCell, ChoiceBoxListCell, ComboBoxListCell 或 CheckBoxListCell。默认 CSS 样式类名为 text-field-list-cell, choice-box-list-cell, combo-box-list-cell 和 check-box-list-cell。
+cell 类型可以为 `ListCell`, `TextFieldListCell`, `ChoiceBoxListCell`, `ComboBoxListCell` 或 `CheckBoxListCell`。默认 CSS 样式类名为 text-field-list-cell, choice-box-list-cell, combo-box-list-cell 和 check-box-list-cell。
 
 下面的 CSS 样式将以 TextField 编辑的 editable ListView 的 TextField 背景设置为黄色：
 
 ```css
 .list-view .text-field-list-cell .text-field {
     -fx-background-color: yellow;
+}
+```
+
+## 8. ListView 过滤
+
+下面演示如何实现 `ListView` 过滤。在应用中管理两个 lists，一个包含数据模型的所有 items，一个包含过滤后感兴趣的 items。最终界面如下：
+
+![|230](Pasted%20image%2020230803155148.png)
+
+其中显示的 domain 对象定义为 `Player`：
+
+```java
+static class Player {
+
+    private final String team;
+    private final String playerName;
+
+    public Player(String team, String playerName) {
+        this.team = team;
+        this.playerName = playerName;
+    }
+
+    public String getTeam() {
+        return team;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    @Override
+    public String toString() {return playerName + " (" + team + ")";}
+}
+```
+
+`Player` 包含两个字段：`team` 和 `playerName`。提供了一个 toString() 方法，便于 ListView 显示 Player。
+
+定义 `ListView` items:
+
+```java
+Player[] players = {new Player("BOS", "David Ortiz"),
+                    new Player("BOS", "Jackie Bradley Jr."),
+                    new Player("BOS", "Xander Bogarts"),
+                    new Player("BOS", "Mookie Betts"),
+                    new Player("HOU", "Jose Altuve"),
+                    new Player("HOU", "Will Harris"),
+                    new Player("WSH", "Max Scherzer"),
+                    new Player("WSH", "Bryce Harper"),
+                    new Player("WSH", "Daniel Murphy"),
+                    new Player("WSH", "Wilson Ramos")};
+```
+
+下面定义两个 list：
+
+- playersProperty 存储所有 items
+- viewablePlayersProperty 存储过滤后显示的 items
+
+```java
+ReadOnlyObjectProperty<ObservableList<Player>> playersProperty =
+                new SimpleObjectProperty<>(FXCollections.observableArrayList());
+
+ReadOnlyObjectProperty<FilteredList<Player>> viewablePlayersProperty =
+                new SimpleObjectProperty<>(new FilteredList<>(playersProperty.get()));
+```
+
+定义一个 Predicate，用于指定过滤规则：
+
+```java
+ObjectProperty<Predicate<? super Player>> filterProperty = 
+                viewablePlayersProperty.get().predicateProperty();
+```
+
+UI root 为 VBox，包含 HBox of ToggleButtons 和 ListView：
+
+```java
+VBox vbox = new VBox();  
+vbox.setPadding(new Insets(10));  
+vbox.setSpacing(4);  
+  
+HBox hbox = new HBox();  
+hbox.setSpacing(2);  
+  
+ToggleGroup filterTG = new ToggleGroup();
+```
+
+- 设置 handler
+
+为每个 `ToggleButton` 添加一个  handler，在每个 `ToggleButton` 的 `userData` 字段中存储 `Predicate`。`toggleHandler` 使用该 `Predicate` 设置 `filter` 属性。其中 "Show All" 比较特殊，没有执行任何过滤，单独设置 `Predicate`：
+
+```java
+@SuppressWarnings("unchecked")
+EventHandler<ActionEvent> toggleHandler = (event) -> {
+    ToggleButton tb = (ToggleButton) event.getSource();
+    Predicate<Player> filter = (Predicate<Player>) tb.getUserData();
+    filterProperty.set(filter);
+};
+
+ToggleButton tbShowAll = new ToggleButton("Show All");
+tbShowAll.setSelected(true);
+tbShowAll.setToggleGroup(filterTG);
+tbShowAll.setOnAction(toggleHandler);
+tbShowAll.setUserData((Predicate<Player>) (Player p) -> true);
+```
+
+ToggleButton 根据 Player 的 `team` 创建：
+
+1. 从 players 提取 unique teams
+2. 对每个 team 创建 ToggleButton
+3. 为每个 ToggleButton 设置 Predicate 作为 filter
+4. 收集 ToggleButton，添加到 HBox
+
+```java
+List<ToggleButton> tbs = Arrays.stream(players)
+        .map(Player::getTeam)
+        .distinct()
+        .map((team) -> {
+            ToggleButton tb = new ToggleButton(team);
+            tb.setToggleGroup(filterTG);
+            tb.setOnAction(toggleHandler);
+            tb.setUserData((Predicate<Player>) (Player p) -> team.equals(p.getTeam()));
+            return tb;
+        }).toList();
+
+hbox.getChildren().add(tbShowAll);
+hbox.getChildren().addAll(tbs);
+```
+
+创建 ListView，并将其与 viewablePlayersProperty 绑定。这样 ListView 就能根据 filter 变化更新内容：
+
+```java
+ListView<Player> lv = new ListView<>();  
+lv.itemsProperty().bind(viewablePlayersProperty);
+```
+
+最后创建 Scene，显示 Stage。在 onShown 中加载数据：
+
+```java
+vbox.getChildren().addAll(hbox, lv);
+
+Scene scene = new Scene(vbox);
+
+primaryStage.setScene(scene);
+primaryStage.setOnShown((evt) -> {
+    playersProperty.get().addAll(players);
+});
+```
+
+完整代码：
+
+```java
+public class FilterListApp extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        // Test data
+        Player[] players = {new Player("BOS", "David Ortiz"),
+                new Player("BOS", "Jackie Bradley Jr."),
+                new Player("BOS", "Xander Bogarts"),
+                new Player("BOS", "Mookie Betts"),
+                new Player("HOU", "Jose Altuve"),
+                new Player("HOU", "Will Harris"),
+                new Player("WSH", "Max Scherzer"),
+                new Player("WSH", "Bryce Harper"),
+                new Player("WSH", "Daniel Murphy"),
+                new Player("WSH", "Wilson Ramos")};
+
+        // Set up the model which is two lists of Players and a filter criteria
+        ReadOnlyObjectProperty<ObservableList<Player>> playersProperty =
+                new SimpleObjectProperty<>(FXCollections.observableArrayList());
+
+        ReadOnlyObjectProperty<FilteredList<Player>> viewablePlayersProperty =
+                new SimpleObjectProperty<>(new FilteredList<>(playersProperty.get()));
+
+        ObjectProperty<Predicate<? super Player>> filterProperty =
+                viewablePlayersProperty.get().predicateProperty();
+
+
+        // Build the UI
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(4);
+
+        HBox hbox = new HBox();
+        hbox.setSpacing(2);
+
+        ToggleGroup filterTG = new ToggleGroup();
+
+        // The toggleHandler action wills set the filter based on the TB selected
+        @SuppressWarnings("unchecked")
+        EventHandler<ActionEvent> toggleHandler = (event) -> {
+            ToggleButton tb = (ToggleButton) event.getSource();
+            Predicate<Player> filter = (Predicate<Player>) tb.getUserData();
+            filterProperty.set(filter);
+        };
+
+        ToggleButton tbShowAll = new ToggleButton("Show All");
+        tbShowAll.setSelected(true);
+        tbShowAll.setToggleGroup(filterTG);
+        tbShowAll.setOnAction(toggleHandler);
+        tbShowAll.setUserData((Predicate<Player>) (Player p) -> true);
+
+        // Create a distinct list of teams from the Player objects, then create ToggleButtons
+        List<ToggleButton> tbs = Arrays.stream(players)
+                .map(Player::getTeam)
+                .distinct()
+                .map((team) -> {
+                    ToggleButton tb = new ToggleButton(team);
+                    tb.setToggleGroup(filterTG);
+                    tb.setOnAction(toggleHandler);
+                    tb.setUserData((Predicate<Player>) (Player p) -> team.equals(p.getTeam()));
+                    return tb;
+                }).toList();
+
+        hbox.getChildren().add(tbShowAll);
+        hbox.getChildren().addAll(tbs);
+
+        //
+        // Create a ListView bound to the viewablePlayers property
+        //
+        ListView<Player> lv = new ListView<>();
+        lv.itemsProperty().bind(viewablePlayersProperty);
+
+        vbox.getChildren().addAll(hbox, lv);
+
+        Scene scene = new Scene(vbox);
+
+        primaryStage.setScene(scene);
+        primaryStage.setOnShown((evt) -> {
+            playersProperty.get().addAll(players);
+        });
+
+        primaryStage.show();
+    }
+
+    public static void main(String args[]) {
+        launch(args);
+    }
+
+    static class Player {
+
+        private final String team;
+        private final String playerName;
+
+        public Player(String team, String playerName) {
+            this.team = team;
+            this.playerName = playerName;
+        }
+
+        public String getTeam() {
+            return team;
+        }
+
+        public String getPlayerName() {
+            return playerName;
+        }
+
+        @Override
+        public String toString() {return playerName + " (" + team + ")";}
+    }
 }
 ```

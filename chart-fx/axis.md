@@ -1,6 +1,6 @@
 # 坐标轴
 
-
+2023-08-03, 10:37
 ***
 ## 简介
 
@@ -71,6 +71,8 @@ String getUnit()
 | unitProperty            | StringProperty         | 单位名称                                 |
 | unitScalingProperty     | DoubleProperty         | 单位缩放                                 |
 | timeAxisProperty        | BooleanProperty        | 是否为时间轴                             |
+
+`autoUnitScaling` 用于自动更新 axisLabel 和 unit。
 
 ### 方法
 
@@ -374,6 +376,76 @@ public class AxisDemo6 extends Application {
 
 ![](Pasted%20image%2020230802161158.png)
 
+### 示例-动态坐标轴
+
+设置 `setAutoUnitScaling(true)` 启用自动更新 axisLabel 和 unit。
+
+`setMinorTickCount` 设置 `minorTick` 数目。
+
+在 $10^{-9}$ 到 $10^9$ 之间每两秒更改一次坐标轴范围，坐标轴的 tickLabel, axisLabel 会同步更新。
+
+```java
+public class AxisDemo7 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        final DefaultNumericAxis xAxis9 = 
+                            new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
+        VBox.setMargin(xAxis9, new Insets(20, 10, 20, 10));
+        xAxis9.setUnit("V");
+        xAxis9.setAutoUnitScaling(true);
+        xAxis9.setMinorTickCount(10);
+        xAxis9.setAutoRangeRounding(true);
+        root.getChildren().add(xAxis9);
+
+        final Label xAxis9Text = new Label();
+        root.getChildren().add(xAxis9Text);
+
+
+        final Timer timer = new Timer("sample-update-timer", true);
+        final TimerTask task = new TimerTask() {
+            private int counter = -9;
+            private boolean directionUpwards = true;
+
+            @Override
+            public void run() {
+
+                if (directionUpwards) {
+                    counter++;
+                } else {
+                    counter--;
+                }
+                Platform.runLater(() -> {
+                    final double power = Math.pow(10, counter);
+                    xAxis9.maxProperty().set(power);
+                    final String text = "actual SI range for dynamic axis: ["
+                            + xAxis9.getMin() + " V, "
+                            + xAxis9.getMax() + " V]";
+                    xAxis9Text.setText(text);
+                });
+                if ((counter >= 9) || (counter <= -9)) {
+                    directionUpwards = !directionUpwards;
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230803103331.png)
+
 ### logAxis
 
 ```java
@@ -462,271 +534,4 @@ public class LogAxisSample extends ChartSample {
 - `public CategoryAxis(final String axisLabel)`
 
 创建指定轴标签的分类轴。
-
-## 示例
-
-### rangeScaling 示例
-
-下面是坐标轴缩放的完整示例：
-
-```java  
-import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
-import io.fair_acc.chartfx.axes.spi.MetricPrefix;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.stage.Stage;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-public class AxisRangeScalingSample extends ChartSample {
-
-    @Override
-    public Node getChartPanel(final Stage primaryStage) {
-
-        final VBox root = new VBox();
-        root.setAlignment(Pos.CENTER);
-
-        final DefaultNumericAxis xAxis1 = new DefaultNumericAxis("standard axis label w/o unit", 0, 100, 1);
-        VBox.setMargin(xAxis1, new Insets(20, 10, 20, 10));
-        root.getChildren().add(xAxis1);
-
-        final DefaultNumericAxis xAxis2 = new DefaultNumericAxis("axis label", 0, 100, 1);
-        VBox.setMargin(xAxis2, new Insets(20, 10, 20, 10));
-        xAxis2.setUnit("m");
-        root.getChildren().add(xAxis2);
-
-        final DefaultNumericAxis xAxis3 = new DefaultNumericAxis("current", 0, 100, 1);
-        VBox.setMargin(xAxis3, new Insets(20, 10, 20, 10));
-        xAxis3.setUnit("A");
-        xAxis3.getAxisLabel().setFill(Color.RED.darker());
-        root.getChildren().add(xAxis3);
-
-        // to force unit scaling to '1000' 'k' suffix
-        // N.B. tick unit is being overwritten by scaling
-        final DefaultNumericAxis xAxis4 = new DefaultNumericAxis("very large current", 1e3, 100e3, 1e2);
-        VBox.setMargin(xAxis4, new Insets(20, 10, 20, 10));
-        xAxis4.setUnitScaling(MetricPrefix.KILO);
-        xAxis4.setUnit("A");
-        xAxis4.getAxisLabel().setFont(Font.font("Times", 25));
-        xAxis4.getAxisLabel().setFill(Color.RED.darker());
-        root.getChildren().add(xAxis4);
-
-        // to force unit scaling to '1e-3' '\mu' suffix
-        final DefaultNumericAxis xAxis5 = new DefaultNumericAxis("small voltage", 0, 10e-6, 1e-6);
-        VBox.setMargin(xAxis5, new Insets(20, 10, 20, 10));
-        xAxis5.setUnitScaling(MetricPrefix.MICRO);
-        xAxis5.setUnit("V");
-        root.getChildren().add(xAxis5);
-
-        // to force unit scaling to '1e-9' 'n' suffix
-        final DefaultNumericAxis xAxis6 = new DefaultNumericAxis("tiny voltage", 0, 11e-9, 1e-9);
-        VBox.setMargin(xAxis6, new Insets(20, 10, 20, 10));
-        xAxis6.setUnitScaling(MetricPrefix.NANO);
-        xAxis6.setUnit("V");
-        root.getChildren().add(xAxis6);
-
-        // example for scaling with non metric prefix
-        final DefaultNumericAxis xAxis7 = new DefaultNumericAxis("non-metric scaling voltage variable", 0, 25e-6, 1e-6);
-        VBox.setMargin(xAxis7, new Insets(20, 10, 20, 10));
-        xAxis7.setUnitScaling(2.5e-6);
-        xAxis7.setUnit("V");
-        root.getChildren().add(xAxis7);
-
-        // example for scaling with non metric prefix and w/o unit
-        final DefaultNumericAxis xAxis8 = new DefaultNumericAxis("non-metric scaling voltage variable w/o unit", 0,
-                25e-6, 1e-6);
-        VBox.setMargin(xAxis8, new Insets(20, 10, 20, 10));
-        xAxis8.setUnitScaling(2.5e-6);
-        // or alternatively:
-        // xAxis7.setUnit(null);
-        root.getChildren().add(xAxis8);
-
-        // example for dynamic scaling with metric prefix and unit
-        final DefaultNumericAxis xAxis9 = new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
-        VBox.setMargin(xAxis9, new Insets(20, 10, 20, 10));
-        xAxis9.setUnit("V");
-        xAxis9.setAutoUnitScaling(true);
-        xAxis9.setMinorTickCount(10);
-        xAxis9.setAutoRangeRounding(true);
-        root.getChildren().add(xAxis9);
-        final Label xAxis9Text = new Label();
-        root.getChildren().add(xAxis9Text);
-
-        final Timer timer = new Timer("sample-update-timer", true);
-        final TimerTask task = new TimerTask() {
-            private int counter = -9;
-            private boolean directionUpwards = true;
-
-            @Override
-            public void run() {
-
-                if (directionUpwards) {
-                    counter++;
-                } else {
-                    counter--;
-                }
-                Platform.runLater(() -> {
-                    final double power = Math.pow(10, counter);
-                    xAxis9.maxProperty().set(power);
-                    final String text = "actual SI range for dynamic axis: [" + xAxis9.getMin() + " V, "
-                            + xAxis9.getMax() + " V]";
-                    xAxis9Text.setText(text);
-                });
-                if ((counter >= 9) || (counter <= -9)) {
-                    directionUpwards = !directionUpwards;
-                }
-            }
-        };
-        timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
-
-        return root;
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(final String[] args) {
-        Application.launch(args);
-    }
-}
-
-```
-
-![[Pasted image 20230609095015.png]]
-
-- 第一坐标轴，没有单位
-
-```java
-DefaultNumericAxis xAxis1 = new DefaultNumericAxis("standard axis label w/o unit", 0, 100, 1);  
-```
-
-- 第二个坐标轴，加了单位
-
-```java
-DefaultNumericAxis xAxis2 = new DefaultNumericAxis("axis label", 0, 100, 1);  
-xAxis2.setUnit("m");
-```
-
-单位放在 `[]` 中。
-
-- 第三个坐标轴，标签设置为深红色
-
-```java
-DefaultNumericAxis xAxis3 = new DefaultNumericAxis("current", 0, 100, 1);  
-xAxis3.setUnit("A");  
-xAxis3.getAxisLabel().setFill(Color.RED.darker());
-```
-
-- 第四个坐标轴，加了 1000 倍的缩放，修改了标签字体
-
-```java
-DefaultNumericAxis xAxis4 = new DefaultNumericAxis("very large current", 1e3, 100e3, 1e2);  
-xAxis4.setUnitScaling(MetricPrefix.KILO);  
-xAxis4.setUnit("A");  
-xAxis4.getAxisLabel().setFont(Font.font("Times", 25));  
-xAxis4.getAxisLabel().setFill(Color.RED.darker());  
-```
-
-单位的缩放倍数，使用 `MetricPrefix` 设置。当然，也可以直接使用数字，效果一样。例如：
-
-```java
-xAxis4.setUnitScaling(1000);
-```
-
-- 第五个坐标轴，加了 $10^{-6}$ 缩放
-
-```java
-DefaultNumericAxis xAxis5 = new DefaultNumericAxis("small voltage", 0, 10e-6, 1e-6);  
-xAxis5.setUnitScaling(MetricPrefix.MICRO);  
-xAxis5.setUnit("V");  
-```
-
-- 第六个坐标轴，加了 $10^{-9}$ 缩放
-
-```java
-DefaultNumericAxis xAxis6 = new DefaultNumericAxis("tiny voltage", 0, 11e-9, 1e-9);  
-xAxis6.setUnitScaling(MetricPrefix.NANO);  
-xAxis6.setUnit("V");  
-```
-
-- 第七个坐标轴，自定义缩放
-
-`MetricPrefix` 提供了许多常用的缩放比例，便于使用，但可能不适合你的情况，此时可以直接用数值设置：
-
-```java
-DefaultNumericAxis xAxis7 = new DefaultNumericAxis("non-metric scaling voltage variable", 0, 25e-6, 1e-6);  
-xAxis7.setUnitScaling(2.5e-6);  
-xAxis7.setUnit("V");  
-```
-
-此时的单位显示为 `*2.5E-6V`，在美观上略有不足。
-
-- 第八个坐标轴，不显示单位
-
-既然单位显示不美观，可以不显示单位
-
-```java
-DefaultNumericAxis xAxis8 = new DefaultNumericAxis("non-metric scaling voltage variable w/o unit", 0,  
-25e-6, 1e-6);  
-xAxis8.setUnitScaling(2.5e-6);  
-// or alternatively:  
-// xAxis7.setUnit(null);  
-```
-
-不调用 `setUnit` 或者设置 `setUnit(null)` ，不显示单位。
-
-- 第九个坐标轴
-
-这个坐标轴会动态更新最大值：
-
-```java
-DefaultNumericAxis xAxis9 = new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
-xAxis9.setUnit("V");
-xAxis9.setAutoUnitScaling(true);
-xAxis9.setMinorTickCount(10);
-xAxis9.setAutoRangeRounding(true);
-final Label xAxis9Text = new Label();
-
-final Timer timer = new Timer("sample-update-timer", true);
-final TimerTask task = new TimerTask() {
-	private int counter = -9;
-	private boolean directionUpwards = true;
-
-	@Override
-	public void run() {
-
-		if (directionUpwards) {
-			counter++;
-		} else {
-			counter--;
-		}
-		Platform.runLater(() -> {
-			final double power = Math.pow(10, counter);
-			xAxis9.maxProperty().set(power);
-			final String text = "actual SI range for dynamic axis: [" + xAxis9.getMin() + " V, "
-					+ xAxis9.getMax() + " V]";
-			xAxis9Text.setText(text);
-		});
-		if ((counter >= 9) || (counter <= -9)) {
-			directionUpwards = !directionUpwards;
-		}
-	}
-};
-timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
-```
-
-`xAxis9.setAutoUnitScaling(true)` 启用单位的自动缩放，即根据数据自动调整单位。
-
-这里每两秒更新一次坐标轴范围，使得坐标轴的单位、范围以及标签随之更新。
-
 
