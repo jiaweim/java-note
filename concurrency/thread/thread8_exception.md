@@ -2,7 +2,7 @@
 
 2023-06-15
 ****
-## 1.1. 简介
+## 1. 简介
 
 Java 异常可以分为两类：
 
@@ -13,11 +13,17 @@ Java 异常可以分为两类：
 
 下面介绍如何处理 unchecked 异常，以避免程序直接退出。
 
-## 1.2. 示例
+## 2. 示例
 
 - 处理 unchecked 异常
 
-要处理 unchecked 异常，必须实现 `UncaughtExceptionHandler` 接口，并实现其 `uncaughtException()` 方法。该接口在 Thread 类中定义。
+要处理 unchecked 异常，必须实现 `UncaughtExceptionHandler` 接口，并实现其 `uncaughtException()` 方法。该接口在 Thread 类中定义：
+
+```java
+public interface UncaughtExceptionHandler {
+    void uncaughtException(Thread t, Throwable e);
+}
+```
 
 下面创建一个 `ExceptionHandler` 类：
 
@@ -105,14 +111,14 @@ Thread has finished
 - 如果有，JVM 将 `Thread` 对象和抛出的 `Exception` 作为参数传递给 `ExceptionHandler`
 - 如果没有，JVM 将 stack trace 输出到控制台，并结束抛出异常的线程
 
-## 1.3. 总结
+## 3. 总结
 
-Thread 类还有一个静态方法 `setDefaultUncaughtExceptionHandler()`，该方法为应用中所有线程设置 unchecked 异常处理程序。
+`Thread` 类还有一个静态方法 `setDefaultUncaughtExceptionHandler()`，该方法为应用中所有线程设置 unchecked 异常处理程序。
 
 当在线程中抛出 unchecked 异常，JVM 会查找三种可能的 exceptionHandler：
 
 1. 查找该线程的 exceptionHandler，同示例
-2. 如果没找到，继续找 ThreadGroup 的 exceptionHandler
+2. 如果没找到，继续找 `ThreadGroup` 的 exceptionHandler
 3. 如果依然没找到，继续找默认的 exceptionHandler，即通过静态方法设置的 exceptionHandler
 
 如果上面三个 exceptionHandler 都没设置，JVM 将 stack trace 写入控制台，结束线程。

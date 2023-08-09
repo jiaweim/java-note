@@ -317,7 +317,7 @@ public class LookNFeelChooser extends Application {
 
 ## 7. StyleableProperty
 
-`StyleableProperty<T>` 允许通过 CSS 设置 javafx.beans.property 的样式。
+`StyleableProperty<T>` 允许通过 CSS 设置 javafx.beans.property 的样式。当控制需要可以通过 CSS 设置的属性时非常有用。
 
 `StyleableProperty` 按照**优先级从低到高**依次设置样式：
 
@@ -326,8 +326,112 @@ public class LookNFeelChooser extends Application {
 3. 用户自定义样式表的样式，包括 `javafx.scene.Scene.getStylesheets()` 和 `javafx.scene.Parent.getStylesheets()`
 4. 通过 `javafx.scene.Node.setStyle(String`) 设置的样式
 
-`StyleablePropertyFactory`  极大简化了 StyleableProperty 的创建以及对应的 CssMetaData。
+### CssMetaData
 
-StyleableProperty 的类图如下：
+`CssMetaData` 提供 CSS 样式信息，并为 CSS 提供了设置属性值的函数。它封装了属性名、CSS 值转换的类型和属性的默认值。
 
-![](Pasted%20image%2020230731200513.png)
+`CssMetaData` 在 css 文件和 `StyleableProperty` 之间起到桥接作用。CssMetaData 和 StyleableProperty 之间一一对应。
+
+通常，一个 `Node` 的 `CssMetaData` 会包含它 ancestors 的 CssMetaData。例如，`Rectangle` 的 `CssMetaData` 包含 `Shape` 和 `Node` 的 `CssMetaData`。在 CSS 处理过程中，CSS 引擎遍历 `Node` 的 `CssMetaData`，查找每个属性解析后的值，并为 `StyleableProperty` 设置值。
+
+`Node.getCssMetaData()` 返回 `List<CssMetaData>`。该方法经常被调用，返回一个 static list，而不是每次调用重新创建。按照约定，包含 `CssMetaData` 的控件类会实现一个 static 方法 `getClassCssMetaData()`，而 `getCssMetaData()` 直接返回 `getClassCssMetaData()`。`getClassCssMetaData()` 是为了**方便子类包含其父类的 `CssMetaData`**。
+
+**示例：** 典型实现
+
+```java
+// StyleableProperty
+private final StyleableProperty<Color> color =
+    new SimpleStyleableObjectProperty<>(COLOR, this, "color");
+
+// Typical JavaFX property implementation
+public Color getColor() {
+    return this.color.getValue();
+}
+public void setColor(final Color color) {
+    this.color.setValue(color);
+}
+public ObjectProperty<Color> colorProperty() {
+    return (ObjectProperty<Color>) this.color;
+}
+
+// CssMetaData
+private static final CssMetaData<MY_CTRL, Paint> COLOR =
+    new CssMetaData<MY_CTRL, Paint>("-color", PaintConverter.getInstance(), Color.RED) {
+
+    @Override
+    public boolean isSettable(MY_CTRL node) {
+        return node.color == null || !node.color.isBound();
+    }
+
+    @Override
+    public StyleableProperty<Paint> getStyleableProperty(MY_CTRL node) {
+        return node.color;
+    }
+};
+
+private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+static {
+    // Fetch CssMetaData from its ancestors
+    final List<CssMetaData<? extends Styleable, ?>> styleables =
+        new ArrayList<>(Control.getClassCssMetaData());
+    // Add new CssMetaData
+    styleables.add(COLOR);
+    STYLEABLES = Collections.unmodifiableList(styleables);
+}
+
+// Return all CssMetadata information
+public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+    return STYLEABLES;
+}
+
+@Override
+public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
+    return getClassCssMetaData();
+}
+```
+
+### StyleablePropertyFactory
+
+创建 StyleableProperty 和 CssMetaData 需要很多样本代码。`StyleablePropertyFactory`  极大简化了 `StyleableProperty` 及其对应的 CssMetaData 的创建。
+
+```java
+// StyleableProperty
+private final StyleableProperty<Color> color =
+    new SimpleStyleableObjectProperty<>(COLOR, this, "color");
+
+// Typical JavaFX property implementation
+public Color getColor() {
+    return this.color.getValue();
+}
+public void setColor(final Color color) {
+    this.color.setValue(color);
+}
+public ObjectProperty<Color> colorProperty() {
+    return (ObjectProperty<Color>) this.color;
+}
+
+// StyleablePropertyFactory
+private static final StyleablePropertyFactory<MY_CTRL> FACTORY =
+    new StyleablePropertyFactory<>(Control.getClassCssMetaData());
+
+// CssMetaData from StyleablePropertyFactory
+private static final CssMetaData<MY_CTRL, Color> COLOR =
+    FACTORY.createColorCssMetaData("-color", s -> s.color, Color.RED, false); 
+
+// Return all CssMetadata information from StyleablePropertyFactory
+public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+    return FACTORY.getCssMetaData();
+}
+
+@Override public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
+    return getClassCssMetaData();
+}
+```
+
+`StyleableProperty` 的类图如下：
+
+![](Pasted%20image%2020230807164011.png)
+
+为了在控件上使用 `StyleableProperty`，需要使用 `StyleableProperty` 创建新的 `CssMetaData`。为控件创建的 `CssMetaData` 需要添加从父类获取的 `List<CssMetaData>`。getControlCssMetaData() 返回该 list。
+
+

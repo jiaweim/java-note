@@ -38,6 +38,10 @@ yAxis3.setSide(Side.RIGHT);
 yAxis4.setSide(Side.CENTER_VER);
 ```
 
+xAxis1 的位置如下图所示：
+
+![](Pasted%20image%2020230803212803.png)
+
 其中 xAxis3 水平居中，为了美观，修改其 minorTick 数和 axisLabel：
 
 ```java
@@ -78,6 +82,8 @@ chart.getAxesPane(Side.CENTER_VER).getChildren().add(yAxis4);
 ```
 
 其中 `getAxesPane(side)` 返回不同位置用于坐标轴的 layoutPane。
+
+
 ### 标题
 
 设置标题：
@@ -127,7 +133,7 @@ chart.getTitleLegendPane(Side.BOTTOM).getChildren()
 
 在坐标轴区域的 4 个角各有一个 StackPane。
 
-每个角放一个 Label
+每个角放一个 Label：
 
 ```java
 chart.getAxesCornerPane(Corner.BOTTOM_LEFT).getChildren().add(new MyLabel("(BL)"));  
@@ -143,6 +149,44 @@ for (final Corner corner : Corner.values()) {
     chart.getAxesCornerPane(corner)
         .setStyle("-fx-background-color: rgba(125, 125, 125, 0.5);");
 }
+```
+
+### titleLegendCorner
+
+在 titleLegend 边框对应的 4 个角，也是由 StackPane 表示。下面设置这 4 个角的颜色：
+
+```java
+for (final Corner corner : Corner.values()) {
+    chart.getTitleLegendCornerPane(corner)
+                    .setStyle("-fx-background-color: rgba(175, 175, 175, 0.5);");
+}
+```
+
+### measurementBar
+
+最外围的边框，称为 measurementBar，为 Pane 类型。
+
+添加文本并设置背景：
+
+```java
+for (final Side side : Side.values()) {
+    chart.getMeasurementBar(side).getChildren().add(new MyLabel("ParBox - " + side));
+    chart.getMeasurementBar(side)
+                .setStyle("-fx-background-color: rgba(125, 125, 125, 0.5);");
+}
+```
+
+### canvas
+
+Chart 最中间的区域为 Canvas，用于绘制数据点。
+
+下面为 Canvas 上鼠标点击事件设置 handler：
+
+```java
+chart.getCanvas().setMouseTransparent(false);
+chart.getCanvas().setOnMouseClicked(mevt -> LOGGER.atInfo().log("clicked on canvas"));
+chart.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED,
+        mevt -> LOGGER.atInfo().log("clicked on canvas - alt implementation"));
 ```
 
 ### 完整示例
@@ -287,7 +331,7 @@ public class ChartAnatomySample extends Application {
 
 
 
-### 设置数据集
+## 设置数据集
 
 所有 chart 的抽象类，显示 `Dataset` 接口的数据。
 

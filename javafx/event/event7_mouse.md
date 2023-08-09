@@ -1,6 +1,9 @@
 # 鼠标事件
 
+2023-08-09, 13:48
+modify: 修改样式
 2023-06-26, 13:53
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -8,19 +11,19 @@
 
 `Node` 类为大多数鼠标事件类型定义了 `onXXX` 属性，可为特定鼠标事件添加事件处理器。
 
-| 鼠标事件类型           | 说明                                                                                                                                                                                |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ANY`                  | 所有鼠标事件类型的超类型。如果一个节点想接收所有类型的鼠标事件，则应为该类型注册处理器。`InputEvent.ANY` 是该事件类型的超类型                                                       |
-| `MOUSE_PRESSED`        | 按下鼠标按钮生成。`MouseEvent.getButton()` 返回按下的按钮。鼠标按钮由枚举类 `MouseButton` 定义：`NONE`, `PRIMARY`, `MIDDLE`, `SECONDARY`                                            |
+| 鼠标事件类型  | 说明  |
+| -------- | ------ |
+| `ANY`                  | 所有鼠标事件类型的超类型。如果一个节点想接收所有类型的鼠标事件，则应为该类型注册处理器。`InputEvent.ANY` 是该事件类型的超类型  |
+| `MOUSE_PRESSED`        | 按下鼠标按钮生成。`MouseEvent.getButton()` 返回按下的按钮。鼠标按钮由枚举类 `MouseButton` 定义：`NONE`, `PRIMARY`, `MIDDLE`, `SECONDARY`    |
 | `MOUSE_RELEASED`       | 释放鼠标按钮生成。该事件会传递到鼠标被按下的节点。如在 `Circle` 内按下鼠标按钮，拖动到 `Circle` 外释放，产生的 `MOUSE_RELEASED` 事件会传递到 `Circle`，而不是鼠标按钮释放位置的节点 |
-| `MOUSE_CLICKED`        | 单击鼠标按钮生成。需要在同一个节点上按下并释放按钮才会生成                                                                                                                          |
-| `MOUSE_MOVED`          | 移动鼠标（不按下任何鼠标按钮）生成                                                                                                                                                  |
-| `MOUSE_ENTERED`        | 鼠标进入节点时生成。该事件没有事件捕获和冒泡阶段，即不会调用目标节点父节点的过滤器和处理器                                                                                          |
-| `MOUSE_ENTERED_TARGET` | 鼠标进入节点时生成。与 `MOUSE_ENTERED` 的差别在于，该事件具有事件捕获和冒泡阶段                                                                                                     |
-| `MOUSE_EXITED`         | 鼠标离开节点时生成。该事件没有事件捕获和冒泡阶段，即只传递给目标节点，不会调用目标节点父节点的过滤器和处理器                                                                        |
-| `MOUSE_EXITED_TARGET`  | 鼠标离开节点时生成。与 `MOUSE_EXITED` 的差别在于，该事件具有事件捕获和冒泡阶段                                                                                                      |
-| `DRAG_DETECTED`        | 在单个节点上按下并拖动鼠标超过一定距离生成，距离阈值为平台特异性                                                                                                                    |
-| `MOUSE_DRAGGED`        | 按下鼠标按钮并拖动鼠标生成，无论鼠标拖动到什么地方，事件都传递到按下鼠标按钮的节点                                                                                                  |
+| `MOUSE_CLICKED`        | 单击鼠标按钮生成。需要在同一个节点上按下并释放按钮才会生成    |
+| `MOUSE_MOVED`          | 移动鼠标（不按下任何鼠标按钮）生成       |
+| `MOUSE_ENTERED`        | 鼠标进入节点时生成。该事件没有事件捕获和冒泡阶段，即不会调用目标节点父节点的过滤器和处理器    |
+| `MOUSE_ENTERED_TARGET` | 鼠标进入节点时生成。与 `MOUSE_ENTERED` 的差别在于，该事件具有事件捕获和冒泡阶段  |
+| `MOUSE_EXITED`         | 鼠标离开节点时生成。该事件没有事件捕获和冒泡阶段，即只传递给目标节点，不会调用目标节点父节点的过滤器和处理器  |
+| `MOUSE_EXITED_TARGET`  | 鼠标离开节点时生成。与 `MOUSE_EXITED` 的差别在于，该事件具有事件捕获和冒泡阶段   |
+| `DRAG_DETECTED`        | 在单个节点上按下并拖动鼠标超过一定距离生成，距离阈值为平台特异性    |
+| `MOUSE_DRAGGED`        | 按下鼠标按钮并拖动鼠标生成，无论鼠标拖动到什么地方，事件都传递到按下鼠标按钮的节点  |
 
 ## 2. 鼠标位置
 
@@ -34,9 +37,9 @@
 
 **示例：** 使用 `MouseEvent` 的方法获取鼠标位置
 
-为 `Stage` 添加 `MOUSE_CLICKED` 事件处理器。运行程序，点击 `Stage` 任意位置，控制台会输出事件源、事件目标和鼠标的位置信息。
+为 `Stage` 添加 `MOUSE_CLICKED` 事件处理器。运行程序，点击 `Stage` 任意位置，控制台会输出事件源、事件目标和鼠标位置信息。
 
-```java
+```java {.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -100,7 +103,7 @@ public class MouseLocation extends Application {
 }
 ```
 
-![|250](images/2023-06-26-09-28-51.png)
+@import "images/2023-06-26-09-28-51.png" {width="250px" title=""}
 
 分别点击 `Circle`, `Rectangle` 和空白位置的输出：
 
@@ -152,9 +155,8 @@ Source=Stage, Target=HBox, Location: source(105.33333333333333, 7.33333333333333
 
 如果鼠标事件触发弹出式菜单，`isPopupTrigger()` 返回 `true`。在该方法返回 `true` 时，通常让系统显示默认的弹出式菜单。
 
-```ad-tip
-JavaFX 提供了一个专门的上下文菜单输入事件。由 `javafx.scene.input` 包中的 `ContextMenuEvent` 类表示。如果需要处理上下文菜单事件，请使用该类。
-```
+!!! tip
+    JavaFX 提供了一个专门的上下文菜单输入事件。由 `javafx.scene.input` 包中的 `ContextMenuEvent` 类表示。如果需要处理上下文菜单事件，请使用该类。
 
 ## 5. GUI 应用中的迟滞
 
@@ -193,15 +195,15 @@ JavaFX 提供了一个专门的上下文菜单输入事件。由 `javafx.scene.i
 
 下图是一个圆的几何边界和边框。`pickOnBounds` 为 `false` 时，鼠标在圆的几何边界和边框之间的白色区域内不会触发圆的鼠标事件。
 
-![|400](images/2023-06-26-10-54-22.png)
+@import "images/2023-06-26-10-54-22.png" {width="400px"}
 
 **示例：** 演示 `Circle` 的 `pickOnBounds` 效果
 
-![|250](images/2023-06-26-10-56-02.png)
+@import "images/2023-06-26-10-56-02.png" {width="250px" title=""}
 
 该程序将一个 `Rectangle` 和一个 `Circle` 添加到 `Group`。`Rectangle` 在 `Circle` 之前添加，以保证 `Circle` 在上面。
 
-```java
+```java {.line-numbers}
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -288,9 +290,9 @@ public class PickOnBounds extends Application {
 
 界面和上个例子类似。勾选复选框时，`Circle` 的 `mouseTransparent` 属性为 `true`。
 
-![|250](images/2023-06-26-11-31-43.png)
+@import "images/2023-06-26-11-31-43.png" {width="250px" title=""}
 
-```java
+```java {.line-numbers}
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -384,11 +386,11 @@ public class MouseTransparency extends Application {
 
 **示例：** 演示 `MOUSE_ENTERED` 和 `MOUSE_EXITED` 事件的传递
 
-![|150](images/2023-06-26-14-31-40.png)
+@import "images/2023-06-26-14-31-40.png" {width="150px" title=""}
 
 `HBox` 中包含一个 `Circle`，为 `Circle` 和 `HBox` 添加 `MOUSE_ENTERED` 和 `MOUSE_EXITED` 事件处理器。
 
-```java
+```java {.line-numbers}
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -467,9 +469,9 @@ public class MouseEnteredExited extends Application {
 
 **示例：** `MOUSE_ENTERED_TARGET` 和 `MOUSE_EXITED_TARGET` 演示
 
-![|250](images/2023-06-26-13-44-28.png)
+@import "images/2023-06-26-13-44-28.png" {width="250px" title=""}
 
-```java
+```java {.line-numbers}
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;

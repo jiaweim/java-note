@@ -4,16 +4,17 @@
 ****
 ## 1. 简介
 
-`Region` 是所有容器的基类：
+Region 是一个 Node，继承自 Parent：
 
-- 与 `Group` 不同，`Region` 自身有大小。
+- Region 的 backgrounds 和 borders 可以通过 CSS 设置样式
+- Region 通常是圆角矩形，但可以通过 CSS 修改为其它形状
+- Region 可以包含其它 Region（sub-regions）
+- 与 `Group` 不同，`Region` 自身有大小
 - `Region` 为 resizable 类型
-- 可以有视觉外观，如 padding, backgrounds, borders
-- 支持 CSS
 
 `Region` 不直接作为容器，一般使用 `Pane` 的子类，或者扩展 `Pane` 自定义容器。
 
-`Region` 默认定义了一个矩形区域（可以修改为其它形状）。如下所示，`Region` 的绘制区域分为几个部分：
+`Region` 的绘制区域分为几个部分：
 
 - backgrounds (fills and images)
 - content area
@@ -34,7 +35,7 @@
 |4|border images|可选|
 |5|content||
 
-content, padding 和 borders 影响 `Region` 的 `layoutBounds`。可以将 borders 完全绘制在 `Region` 的 `layoutBounds` 的外面，此时 borders 不影响 `Region` 的 `layoutBounds`。margin 不会影响 Region 的 `layoutBounds`。
+content, padding 和 borders 影响 `Region` 的 `layoutBounds`。将 borders 完全绘制在 `Region` 的 `layoutBounds` 的外面时，borders 不影响 `Region` 的 `layoutBounds`。margin 不影响 `Region` 的 `layoutBounds`。
 
 ## 2. backgrounds
 
@@ -757,3 +758,7 @@ box.getChildren().addAll(p1);
 ```
 
 同样使用 `box` 获取 `p1` 的 margins。
+
+## 参考
+
+- https://openjfx.io/javadoc/20/javafx.graphics/javafx/scene/doc-files/cssref.html#region

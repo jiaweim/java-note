@@ -23,13 +23,13 @@
 
 定义 3 个类表示 MVP：
 
-- Person，表示 model
-- PersonView，表示 view
-- PersonPresenter，表示 presenter
+- `Person`，表示 model
+- `PersonView`，表示 view
+- `PersonPresenter`，表示 presenter
 
-根据 MVP 模式要求，Person 类独立于 PersonView 和 PersonPresenter。
+根据 MVP 模式要求，`Person` 类独立于 `PersonView` 和 `PersonPresenter`。
 
-PersonView 和 PersonPresenter 相互交互，并直接使用 Person。最终界面如下：
+`PersonView` 和 `PersonPresenter` 相互交互，并直接使用 `Person`。最终界面如下：
 
 ![|400](Pasted%20image%2020230711154942.png)
 
@@ -37,7 +37,7 @@ PersonView 和 PersonPresenter 相互交互，并直接使用 Person。最终界
 
 ### 3.1. Model
 
-Person 类包含业务数据和逻辑。
+`Person` 类包含业务数据和逻辑。
 
 person ID, first name, last name, birth date 都用 JavaFX Property 表示。personId 自动生成，表示为 read-only Property。
 
@@ -45,7 +45,7 @@ person ID, first name, last name, birth date 都用 JavaFX Property 表示。per
 
 `getAgeCategory()` 根据出生日期计算 age 分类。其中定义了一些年龄范围。
 
-save() 方法保存 person 数据。这里只是将 person 数据输出到 stdout。在实际应用中，可能需要将数据保存到文件或数据库。
+`save()` 方法保存 person 数据。这里只是将 person 数据输出到 stdout。在实际应用中，可能需要将数据保存到文件或数据库。
 
 ```java
 import javafx.beans.property.*;
@@ -317,7 +317,7 @@ public class PersonView extends GridPane {
 }
 ```
 
-PersonView 继承 GridPane。对每个 UI 组件都有一个实例变量:
+`PersonView` 继承 `GridPane`。对每个 UI 组件都有一个实例变量:
 
 - date format 用于设置日期的显示格式，特定于 view，所以在 PersonView 中定义
 - `initFieldData()` 使用 Person 数据初始化 view
@@ -325,11 +325,14 @@ PersonView 继承 GridPane。对每个 UI 组件都有一个实例变量:
 - `syncBirthDate(`) 从 model 读取 birth date，格式化，在 view 显示
 - syncAgeCategory() 同步 age 数据
 
-注意：PersonView 类不依赖于 PersonPresenter，那么 PersonView 和 PersonPresenter 如何交互？presenter 主要从 view 获取用户输入，并执行相关操作。presenter 包含对 view 的引用，并添加 listeners 监听 view 。如果在 view 中需要引用 presenter，可以在 view 构造函数中添加 presenter，或添加一个 setter 方法。
+注意：`PersonView` 类不依赖于 `PersonPresenter`，那么 `PersonView` 和 `PersonPresenter` 如何交互？
+
+- presenter 从 view 获取用户输入，并执行相关操作。presenter 包含对 view 的引用，并添加 listeners 监听 view 
+- 如果在 view 中需要引用 presenter，可以在 view 构造函数中添加 presenter，或添加一个 setter 方法
 
 ### 3.3. Presenter
 
-PersonPresenter 负责处理用户输入。直接与 view 和 model 进行通信。
+`PersonPresenter` 负责处理用户输入。直接与 view 和 model 进行通信。
 
 ```java
 import javafx.beans.value.ObservableValue;
@@ -454,7 +457,7 @@ public class PersonPresenter {
 }
 ```
 
-PersonPresenter 构造函数以 model 和 view 为参数。attachEvents() 为 view 的 UI 组件添加事件处理器
+`PersonPresenter` 构造函数以 model 和 view 为参数。attachEvents() 为 view 的 UI 组件添加事件处理器
 
 ## 4. 演示
 

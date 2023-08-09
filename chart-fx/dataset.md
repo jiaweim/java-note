@@ -147,6 +147,45 @@ DataSet3D 表示三维数据点。类图如下：
 
 ![|500](Pasted%20image%2020230802113951.png)
 
+## TestDataSet
+
+![](Pasted%20image%2020230804132536.png)
+
+`TestDataSet` 用于生成测试数据集。声明了几个相关方法：
+
+```java
+public interface TestDataSet<D extends TestDataSet<D>> extends DataSet2D {
+
+    //  fire 更新通知
+    D fireInvalidated(UpdateEvent evt);
+
+    // 生成 x
+    double[] generateX(final int count);
+
+    // 生成 y
+    double[] generateY(final int count);
+
+    // 生成新的数据
+    D update();
+}
+```
+
+
+
+## 实现类
+
+### FifoDoubleErrorDataSet
+
+`FifoDoubleErrorDataSet` 数据集实现了 `DataSetError` 和 `DataSet2D`：
+
+- 实现 FIFO 的固定长度数据集
+- 添加了 `maxDistance` 功能，对参数 `x`，删除与其距离超过 maxDistance 的数据
+
+### TransposedDataSet
+
+对 DataSet 进行封装，执行数据转置操作。
+
+
 ## 工具类
 
 ### Formatter
@@ -179,3 +218,22 @@ final double[] localTempBuffer = ArrayCache.getCachedDoubleArray(UNIQUE_IDENTIFI
 ArrayCache.release(UNIQUE_IDENTIFIER, 100);  
 ```
 
+### Tuple
+
+![|300](Pasted%20image%2020230804121848.png)
+
+`Tuple` 包含 2 个字段的类。主要用于存储坐标点。
+
+`DoublePoint` 指定坐标值为 `Double` 类型。
+
+`DoublePointError` 坐标值为 `DoublePoint`，即包含 4 个数，2 个值为坐标，2 个值为误差。
+
+### DataRange
+
+`DataRange` 用于定义 DataSet 和 Axis 的最小值和最大值。
+
+### CacheCollection
+
+CacheCollection 实现数组缓冲功能，以节省内存。类图如下：
+
+![](Pasted%20image%2020230807122919.png)

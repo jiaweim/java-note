@@ -13,11 +13,88 @@
 
 当有多个线程等待同一个临界区，JVM 会选择其中一个线程执行，其它线程继续等待。
 
-`synchronized` 关键字是 Java 提供的最简单的同步方式，可用于方法或代码块的并发访问。
+Java 平台的任意一个对象都有一个与之关联的锁，这种锁被称为监视器（monitor）或**内部锁**（intrisic lock）。内部锁是一种排它锁，能够保证原子性、可见性和有序性。
 
-`synchronized` 语句需要一个对象引用。当对方法使用 `synchronized` 关键字，对象引用是隐式的。当对一个对象的一个或多个方法使用 `synchronized` 关键字，只有一个线程能够访问这些方法。其它试图访问相同对象的 `synchronized` 方法的线程被挂起。换句话说，`synchronized` 声明的每个方法都是临界区，而 Java 一次只允许执行对象的一个临界区。此时对象引用是 `this` 关键字表示的对象自身。
+内部锁通过 `synchronized` 关键字实现，可用于方法或代码块的并发访问。synchronized 修饰的整个代码块就是临界区。
 
-`static` 方法的行为不同，只能有一个线程访问 `synchronized` 声明的 `static` 方法，但是其它线程可以访问该对象的其它非 `static` 方法。即两个 `synchronized` 方法，一个是 static，一个不是，那么两个线程可以同时分别访问这两个方法。如果两个方法都更改了相同数据，就可能出现数据不一致的错误。此时的对象引用为 class 对象。
+## 2. 方法同步
+
+**示例：** 方法同步
+
+```java
+public class SafeCircularSeqGenerator implements CircularSeqGenerator {
+    private short sequence = -1;
+    public synchronized short nextSequence() {
+        if (sequence >= 999) {
+            sequence = 0;
+        } else {
+            sequence++ ;
+        }
+        return sequence ;
+    }
+}
+```
+
+由于 `nextSequence()` 会被多个客户端线程执行，因此 `sequence` 实例变量就成为这些线程的共享数据。`synchronized` 会确保 `nextSequence()` 一次只能被一个线程执行（锁的排它性），因此 `nextSequence()` 的客户端线程在执行该方法实际上是串行的（整体并发中的局部串行），这就排除了对 `sequence`  变量访问操作的交错的可能性。另外，锁对可见性的保障使得  `nextSequence()` 的当前执行线程对 `sequence` 变量的更新对该方法的下一个执行线程可见。因此，`synchronized` 方法保障了线程安全（原子性和可见性）。
+
+## 3. 代码块同步
+
+`synchronized` 关键字修饰的代码块称为同步块（synchronized block），其语法为：
+
+```java
+synchronized (锁句柄) {
+    //在此代码块中访问共享数据
+}
+```
+
+`synchronized` 关键字内部的代码块就是临界区。**锁句柄**是一个对象引用（或能够返回对象的表达式）。习惯上直接称锁句柄为锁，锁句柄对应的监视器为相应同步块的**引导锁**，相应的同步块为该锁引导的同步块。
+
+当对方法使用 `synchronized` 关键字，锁句柄隐式为 `this`。
+
+**示例：** 上面的 nextSequence() 等价于
+
+```java
+public short nextSequence() {
+    synchronized (this) {
+        if (sequence >= 999) {
+            sequence = 0;
+        } else {
+            sequence++;
+        }
+        return sequence ;
+    }
+}
+```
+
+作为锁句柄的变量通常采用 final 字段。因为锁句柄变量的值一旦改变，会导致执行同一个同步块的多个线程实际上使用不同的锁，从而导致竞态。因此，通常使用 private final 作为所句柄变量。
+
+## 4. static 方法
+
+同步静态方法以当前类对象（Java 中的类本身也是一个对象）为锁。例如：
+
+```java
+public class SynchronizedMethodExample {
+    public static synchronized void staticMethod() {
+        //在此访问共享数据
+    }
+}
+```
+
+相当于：
+
+```java
+public class SynchronizedMethodExample {
+    public static void staticMethod() {
+        synchronized (SynchronizedMethodExample.class) {
+            //在此访问共享数据
+        }
+    }
+}
+```
+
+线程在指定临界区代码时必须持有该临界区的锁。执行完临界区代码后自动释放锁。在该过程中，线程对内部锁的申请与释放由 JVM 完成，所以 synchronized 称为内部锁。
+
+static 方法的锁为类对象，而实例方法的锁为实例对象。所以当一个线程访问 `synchronized` 声明的 `static` 方法时，其它线程可以访问该对象的其它非 `static` 方法。即两个 `synchronized` 方法，一个是 static，一个不是，那么两个线程可以同时分别访问这两个方法。如果两个方法都更改了相同数据，就可能出现数据不一致的错误。
 
 使用 `synchronized` 保护代码块，必须指定对象引用。通常使用 this 关键字引用执行方法的对象，但也可以使用其它对象引用。这类对象通常是专门为此创建，且应用为 private。例如，如果一个类中有两个独立属性由多个线程共享，则应该同步访问每个变量；但是，应该支持一个线程访问其中一个属性，另一个线程同时访问另一个属性。如果使用 `this` 将当前对象作为引用对象，可能会干扰其它同步代码。
 
@@ -195,7 +272,7 @@ The total ammount is : 462
 
 **同步保护**
 
-- 首先用 synchronized 保护 vehiclePay() 方法
+- 首先用 `synchronized` 保护 `vehiclePay()` 方法
 
 ```java
 public synchronized void vehiclePay() {
@@ -203,7 +280,7 @@ public synchronized void vehiclePay() {
 }
 ```
 
-- 然后保护 close() 方法中的 `totalAmmount` 赋值部分
+- 然后保护 `close()` 方法中的 `totalAmmount` 赋值部分
 
 ```java
 public void close() {
@@ -280,7 +357,7 @@ public class ParkingStats {
 }
 ```
 
-Sensor 和 main 不用修改。再次运行示例：
+`Sensor` 和 `main` 不用修改。再次运行示例：
 
 ```
 Parking Simulator
@@ -290,10 +367,10 @@ Closing accounting
 The total ammount is : 480
 ```
 
-上面演示了 synchronized 的做种用法：
+上面演示了 `synchronized` 的做种用法：
 
-- 用 synchronized 保护 `vehiclePay()` 方法。当多个 Sensor 任务同时调用该方法，只有一个执行，其它等待。从而确保最终金额正确。
-- 使用两个不同的对象对 numberCars 和 numberMotorcycles 进行保护。这样，一个 Sensor 在修改 numberCars 时，另一个可以同时修改 numberMotorcycles。
+- 用 `synchronized` 保护 `vehiclePay()` 方法。当多个 `Sensor` 任务同时调用该方法，只有一个执行，其它等待。从而确保最终金额正确。
+- 使用两个不同的对象对 `numberCars` 和 `numberMotorcycles` 进行保护。这样，一个 `Sensor` 在修改 `numberCars` 时，另一个可以同时修改 `numberMotorcycles`。
 
 ## 3. 总结
 

@@ -18,7 +18,7 @@
 
 ## AxisDescription
 
-AxisDescription 包含坐标轴的描述信息，包括：
+`AxisDescription` 包含坐标轴的描述信息，包括：
 
 - 坐标轴名称
 - 单位
@@ -136,7 +136,7 @@ axis.setOverlapPolicy(AxisLabelOverlapPolicy.SHIFT_ALT);
 - 支持 auto-range padding : `autoRangePaddingProperty()`
 - 支持 auto-range rounding
 
-当启用 `autoRangingProperty()` 属性，是否将范围扩展到 major tick unit 值。例如，如果范围是 [3,74]，而 major tick unit 为 [5]，那么将范围扩展到 [0,75]。默认 true。
+当启用 `autoRangingProperty()` 属性，是否将范围扩展到 major tick unit 值。例如，如果范围是 `[3,74]`，而 major tick unit 为 `[5]`，那么将范围扩展到 `[0,75]`。默认 true。
 
 - 支持自定义 `tickUnitSupplierProperty`
 
@@ -534,4 +534,14 @@ public class LogAxisSample extends ChartSample {
 - `public CategoryAxis(final String axisLabel)`
 
 创建指定轴标签的分类轴。
+
+## AxisTransform
+
+AxisTransform 接口定义坐标轴转换操作：
+
+- DefaultAxisTransform 实现恒等表换
+- LogarithmicAxisTransform 实现对数变换，默认以 10 为底数
+- 
+
+![|450](Pasted%20image%2020230807134903.png)
 

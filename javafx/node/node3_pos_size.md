@@ -479,7 +479,11 @@ Node 类中定义了一个 private 内部类 NodeTransformation，包含 Node �
 - localToParentTransform
 - localToSceneTransform
 
-下面演示平移、缩放和渲染这三种最常见的变换。定义基本类：
+下面演示平移、缩放和渲染这三种最常见的变换。
+
+- 定义基本类
+
+没有变换操作。
 
 ```java
 public class TransformApp extends Application {

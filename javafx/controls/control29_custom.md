@@ -186,6 +186,176 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 ## 扩展已有控件
 
+## 扩展 Region
+
+`Region` 是 `Control` 和 `Pane` 的父类，是一个 resizable 的 `Parent` node，可以通过 CSS 设置样式。扩展该类是实现自定义控件的最直观的方法。
+
+`Region` 和 Control+Skin 的主要区别在于，基于 Region 的控件同时包含逻辑和 UI，而 Control+Skin 的逻辑和 UI 分离，逻辑在 Control 中，UI 在 Skin 中。
+
+在 Mac 的每个窗口上有三个按钮（红、黄、绿），可用来关闭、最小化和缩放窗口。MacOS 的深色模式还不直接支持 JavaFX，如果在 MacOS 深色模式运行 JavaFX，JavaFX 依然为浅色模式。
+
+所以，我们现在自定义一个 MacOS 深色模式的按钮。按钮样式如下：
+
+![|100](Pasted%20image%2020230807144222.png)
+
+所有我们需要创建一个显示彩色圆圈的控件，鼠标移动到它上面，会显示一个符号。
+
+如果要**复现**现有控件，可以将控件的截图作为背景图片加载到矢量绘图程序，然后在截图上绘制副本。这样可以获得正确的尺寸、位置和颜色：
+
+![|400](Pasted%20image%2020230807144526.png)
+
+确定圆的大小、距离和颜色后，还需要添加符号。这比较耗时，因为我们必须手动画符号。
+
+通常我们使用 JavaFX 提供的 :hover pseudo class 来显示/隐藏按钮上的符号，但这里需要自定义 :hover pseudo class，因为在 MacOS 中，当鼠标悬停在一个按钮上，所有按钮都会显示它们的符号。在代码中，我们将按钮放在 HBox 中，并添加一个 `MouseListener`，当鼠标悬停在 `HBox` ，触发显示符号。
+
+该控件由两个元素组成，Circle 和 Region。Circle 继承自 Shape，没有 -fx-background-color 和 -fx-border-color，但有 -fx-fill 和  -fx-stroke。
+
+该控件的一个好处是不需要调整它的大小，它的尺寸保持不变。
+
+首先，定义变量：
+
+```java
+public class RegionControl extends Region {
+
+    public enum Type { CLOSE, MINIMIZE, ZOOM }
+
+    private static final double PREFERRED_WIDTH = 12;
+    private static final double PREFERRED_HEIGHT = 12;
+    
+    private static final double MINIMUM_WIDTH = 12;
+    private static final double MINIMUM_HEIGHT = 12;
+    
+    private static final double MAXIMUM_WIDTH = 12;
+    private static final double MAXIMUM_HEIGHT = 12;
+    
+    private static final PseudoClass CLOSE_PSEUDO_CLASS = 
+                                    PseudoClass.getPseudoClass("close");
+    private static final PseudoClass MINIMIZE_PSEUDO_CLASS = 
+                                    PseudoClass.getPseudoClass("minimize");
+    private static final PseudoClass ZOOM_PSEUDO_CLASS = 
+                                    PseudoClass.getPseudoClass("zoom");
+    private static final PseudoClass HOVERED_PSEUDO_CLASS = 
+                                    PseudoClass.getPseudoClass("hovered");
+    private static final PseudoClass PRESSED_PSEUDO_CLASS = 
+                                    PseudoClass.getPseudoClass("pressed");
+    
+    private BooleanProperty hovered;
+    private static String userAgentStyleSheet;
+    private ObjectProperty<Type> type;
+    private double size;
+    private double width;
+    private double height;
+    private Circle circle;
+    private Region symbol;
+    private Consumer<MouseEvent> mousePressedConsumer;
+    private Consumer<MouseEvent> mouseReleasedConsumer;
+```
+
+这里为三种不同的状态定义了一个 enum 类，并为每种状态创建了一个 `PseudoClass`。并为 hovered 和 pressed 状态创建了 PseudoClass。
+
+还提供了 hovered 和 type 属性，便于从外部设置这些属性。
+
+因为该控件是一个按钮，所以还添加了鼠标按钮和释放的 Consumer，以便后续添加自定义 handler。
+
+构造函数：
+
+```java
+public RegionControl() {
+        this(Type.CLOSE);
+}
+
+public RegionControl(final Type type) {
+    this.type = new ObjectPropertyBase<>(type) {
+        @Override protected void invalidated() {
+            switch(get()) {
+                case CLOSE -> {
+                    pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, true);
+                    pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, false);
+                    pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, false);
+                }
+                case MINIMIZE -> {
+                    pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, false);
+                    pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, true);
+                    pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, false);
+                }
+                case ZOOM -> {
+                    pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, false);
+                    pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, false);
+                    pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, true);
+                }
+            }
+        }
+        @Override public Object getBean() { return RegionControl.this; }
+        @Override public String getName() { return "type"; }
+    };
+    
+    this.hovered = new BooleanPropertyBase() {
+        @Override protected void invalidated() { pseudoClassStateChanged(HOVERED_PSEUDO_CLASS, get()); }
+        @Override public Object getBean() { return RegionControl.this; }
+        @Override public String getName() { return "hovered"; }
+    };
+
+    pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, Type.CLOSE == type);
+    pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, Type.MINIMIZE == type);
+    pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, Type.ZOOM == type);
+
+    initGraphics();
+    registerListeners();
+}
+```
+
+在构造函数中，在 type 属性的 invalidated() 方法中位 type 设置了 pseudo-classes。
+
+为了确保正确初始化 type，在构造使用中使用给定的 type 参数调用 pseudoClassStateChanged()。
+
+initGraphics 和 registerListeners 实现：
+
+```java
+private void initGraphics() {
+    if (Double.compare(getPrefWidth(), 0.0) <= 0 
+        || Double.compare(getPrefHeight(), 0.0) <= 0 
+        || Double.compare(getWidth(), 0.0) <= 0 
+        || Double.compare(getHeight(), 0.0) <= 0) {
+        if (getPrefWidth() > 0 && getPrefHeight() > 0) {
+            setPrefSize(getPrefWidth(), getPrefHeight());
+        } else {
+            setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
+        }
+    }
+
+    getStyleClass().add("region-based");
+
+    circle = new Circle();
+    circle.getStyleClass().add("circle");
+    circle.setStrokeType(StrokeType.INSIDE);
+
+    symbol = new Region();
+    symbol.getStyleClass().add("symbol");
+
+    getChildren().setAll(circle, symbol);
+}
+
+private void registerListeners() {
+    widthProperty().addListener(o -> resize());
+    heightProperty().addListener(o -> resize());
+    
+    addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+        pseudoClassStateChanged(PRESSED_PSEUDO_CLASS, true);
+        if (null == mousePressedConsumer) { return; }
+        mousePressedConsumer.accept(e);
+    });
+    addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+        pseudoClassStateChanged(PRESSED_PSEUDO_CLASS, false);
+        if (null == mouseReleasedConsumer) { return; }
+        mouseReleasedConsumer.accept(e);
+    });
+}
+```
+
+在 initGraphics 中添加了 Circle 和 Region，并分别设置了样式类名。
+
+在 registerListeners 中添加了常见的 size listeners。
+
 ## 使用 Canvas
 
 为了理解 Canvas 及其优点，可以参考 [JavaFX 的渲染机制](../scene/scene2_rendering_mode.md)。

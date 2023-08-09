@@ -4,7 +4,7 @@
 ****
 ## 1. 简介
 
-`javafx.scene.Cursor` 类表示鼠标光标。Cursor 类中定义了许多常量，如 HAND, CLOSED_HAND, DEFAULT, TEXT, NONE, WAIT 等，代表不同的鼠标光标类型。
+`javafx.scene.Cursor` 类表示鼠标光标。`Cursor` 类中定义了许多常量，如 `HAND`, `CLOSED_HAND`, `DEFAULT`, `TEXT`, `NONE`, `WAIT` 等，代表不同的鼠标光标类型。
 
 ## 2. 设置光标
 
