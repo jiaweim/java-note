@@ -4,15 +4,24 @@
 ****
 ## 1. 简介
 
-`FlowPane` 是一个简单的 layout，它以指定高度或宽度的行或列布局子节点。对水平布局，可以指定换行首选宽度，内容超过首选宽度会自动换行；对垂直布局，可以指定首选高度，内容超过首选高度或自动换列。
+`FlowPane` 是一个简单的 layout，它以指定高度或宽度的 row 或 column 布局子节点：
 
-`FlowPane` 适合子节点相对位置不重要的情形，如显示一系列的图片或按钮。`FlowPane` 对所有子节点以 preferred 尺寸显示，行和列可以有不同的高度或宽度。
+- 对水平布局，可以指定 prefWidth，内容超过 prefWidth 会自动换行
+- 对垂直布局，可以指定 prefHeight，内容超过 prefHeight 会自动换列
+
+`FlowPane` 适合子节点相对位置不重要的情形，如显示一系列的图片或按钮。
+
+`FlowPane` 对所有子节点以 prefSize 显示，rows 和 columns 可以有不同的高度或宽度。
 
 ```ad-tip
-水平显示的 `FlowPane` 可以从左到右，或从右到左排列子节点，由 `Node` 类中声明的 `nodeOrientation` 属性控制。默认值为 `NodeOrientation.LEFT_TO_RIGHT`，即从左到右排列子节点。如果希望从右到左，将其设置为 `NodeOrientation.RIGHT_TO_LEFT` 即可。该设置适用于所有以行显示子节点的 layout，如 HBox, TilePane 等。
+水平显示的 `FlowPane` 可以从左到右，或从右到左排列子节点，由 `Node` 类中声明的 `nodeOrientation` 属性设置。默认值为 `NodeOrientation.LEFT_TO_RIGHT`，即从左到右排列子节点。如果希望从右到左，将其设置为 `NodeOrientation.RIGHT_TO_LEFT` 即可。
+
+该设置适用于所有以行显示子节点的 layout，如 `HBox`, `TilePane` 等。
 ```
 
-`FlowPane` 可以是水平和垂直方向。例如，添加 10 个 Buttons 到 FlowPane，水平 FlowPane:
+`FlowPane` 可以是水平和垂直方向。例如，添加 10 个 Buttons 到 `FlowPane`。
+
+水平 FlowPane:
 
 ![|400](Pasted%20image%2020230710110610.png)
 
@@ -22,7 +31,7 @@
 
 ## 2. 创建 FlowPane
 
-FlowPane 提供了多个构造函数，指定方向（水平、垂直），spacing，初始子节点等：
+`FlowPane` 提供了多个构造函数，指定方向（水平、垂直），spacing，初始子节点等：
 
 ```java
 // 空水平 FlowPane, spacing=0px

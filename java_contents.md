@@ -7,7 +7,7 @@
 - [ ] [Interface](basic/03_interface.md)
 - [x] 集合
 - [ ] [JVM 命令](basic/commands.md)
-- [x] [I/O](basic/io.md)
+- [x] [I/O](_io.md)
 - [x] [NIO](basic/nio.md)
 - [ ] [正则表达式](basic\java_regex.md)
 - [并发](_jcp_toc.md)

@@ -48,7 +48,7 @@ JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入�
 
 调用 `start()` 后，`launch()` 在 JavaFX 应用完成后返回。JavaFX 执行完毕后，JAT 调用 `Application.stop()`。
 
-`Application.init()` 在 JLT 线程中调用，JLT 线程不允许创建 `Stage` 和 `Scene`，它俩只能在 JAT 线程中创建。但是可以在 JLT 中创建 UI 控件，即可以在 `init()` 方法中提前初始化一些 UI 控件。
+`Application.init()` 在 JLT 线程中调用，JLT 线程中不能创建 `Stage` 和 `Scene`，它俩只能在 JAT 线程中创建。但是可以在 JLT 中创建 UI 控件，即可以在 `init()` 方法中提前初始化一些 UI 控件。
 
 ```ad-important
 `Stage` 和 `Scene` 只能在 JAT 线程中创建。

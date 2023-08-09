@@ -1,8 +1,156 @@
 # 条件同步
 
+2023-08-07, 11:59
+add: monitor 原理
 2023-06-16, 15:50
 ****
-## 1.1. 简介
+## 1. Monitor 原理
+
+Monitor 直译为 ”监视器“，在操作系统领域一般翻译为**管程**。
+
+**管程** 指管理共享变量及对共享变量操作的过程，以支持并发。
+
+synchronized 关键字和 wait(), notify(), notifyAll() 这三个方法是 Java 实现管程技术的主要组件。
+
+### 1.1. Monitor 模型
+
+在管程的发展史上，先后出现三种不同的管程模型，分别是 Hasen 模型、Hoare 模型和 MESA 模型。现在广泛使用的时 MESA 模型。
+
+![](Pasted%20image%2020230807104834.png)
+### 1.2. wait, notify 和 notifyAll
+
+`wait()` 的使用范式：
+
+```java
+while(条件不满足){
+    wait();
+}
+```
+
+- 所有等待线程拥有相同的等待条件：使用 notify
+- 所有等待线程被唤醒后，执行相同操作：使用 notify
+- 只需要唤醒一个线程：使用 notify
+- 其它时候尽量使用 notifyAll
+
+### 1.3. Java 内置管程
+
+- Java 参考 MESA 模型，实现了 MESA 的精简版管程模型 synchronized
+- MESA 模型中，条件变量可以有多个，Java 内置管程只有一个条件变量
+
+![](Pasted%20image%2020230807105943.png)
+Java 管程实现：
+
+- 在 java.lang.Object 中定义了 wait(), nofity(), notifyAll() 方法
+- wait(), notify(), notifyAll() 的具体实现，依赖于 ObjectMonitor 实现
+- 获取锁的线程调用 wait()，进入 waitSet
+- 调用 notify，线程从 waitSet 移动到 cxq 或 EntryList
+
+### 1.4. ObjectMonitor 的主要数据结构
+
+```java
+_header       = NULL; //对象头  markOop
+_count        = 0;  
+_waiters      = 0,   
+_recursions   = 0;   // synchronized是一个重入锁，这个变量记录锁的重入次数 
+_object       = NULL;  //存储锁对象
+_owner        = NULL;  // 标识拥有该monitor的线程（当前获取锁的线程） 
+_WaitSet      = NULL;  // 调用wait阻塞的线程：等待线程组成的双向循环链表，_WaitSet是第一个节点
+_WaitSetLock  = 0 ;    
+_Responsible  = NULL ;
+_succ         = NULL ;
+_cxq          = NULL ; // 有线程在执行，新进入的线程会进入这个队列：多线程竞争锁会先存到这个单向链表中 （FILO栈结构：非公平！）
+FreeNext      = NULL ;
+_EntryList    = NULL ; //存放在进入或重新进入时被阻塞(blocked)的线程 (也是存竞争锁失败的线程)
+_SpinFreq     = 0 ;
+_SpinClock    = 0 ;
+OwnerIsThread = 0 ;
+_previous_owner_tid = 0;
+```
+
+- owner: 锁的当前持有者，owner 只能指向一个线程
+- waitSet: 调用 wait 阻塞的线程
+- EntryList: 被阻塞的队列
+
+waitSet 和 EntryList 的区别：EntryList 执行条件都满足了，只需要获取锁。waitSet 条件不满足，条件满足后，重新进入 EntryList 竞争锁。
+
+### 1.5. synchronized 的唤醒机制
+
+![](Pasted%20image%2020230807110440.png)
+- 在获取锁时，将当前线程插入到 cxq 的头部
+- 在释放锁时，默认策略（QMode=0）
+    - 如果 EntryList 为空，则将 cxq 的元素按原有顺序插入 EntryList，并唤醒第一个线程，即当 EntryList 为空，后来的线程先获取锁
+    - 如果 EntryList 不为空，直接从 EntryList 唤醒线程
+
+### 1.6. synchronized 的等待机制
+
+看一段代码：
+
+```java
+package mjw.study.java.concurrency;
+
+public class SyncQModeDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        SyncQModeDemo demo = new SyncQModeDemo();
+
+        demo.startThreadA();
+        // 控制线程执行时间
+        Thread.sleep(100);
+        demo.startThreadB();
+        Thread.sleep(100);
+        demo.startThreadC();
+    }
+
+    final Object lock = new Object();
+
+    public void startThreadA() {
+        new Thread(() -> {
+            synchronized (lock) {
+                System.out.println("A get lock");
+                try {
+                    lock.wait(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("A release lock");
+            }
+        }, "thread-A").start();
+    }
+
+    public void startThreadB() {
+        new Thread(() -> {
+            synchronized (lock) {
+                try {
+                    System.out.println("B get lock");
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("B release lock");
+            }
+        }, "thread-B").start();
+    }
+
+    public void startThreadC() {
+        new Thread(() -> {
+            synchronized (lock) {
+                System.out.println("C get lock");
+            }
+        }, "thread-C").start();
+    }
+}
+```
+
+```
+A get lock
+B get lock
+B release lock
+A release lock
+C get lock
+```
+
+## 2. 使用
 
 producer-consumer 是并发程序设计中的一个经典问题。即有一个 buffer，一个或多个 producer 将数据写入buffer，一个或多个 consumer 从 buffer 获取数据。
 
@@ -26,7 +174,7 @@ producer-consumer 是并发程序设计中的一个经典问题。即有一个 b
 `Thread.sleep()` 和 `Object.wait()` 都会暂停当前线程。对 CPU 来说，不管以哪种方式暂停线程，都表示它暂时不需要 CPU 时间，OS 会将 CPU 时间分配给其它线程。区别是，调用 `wait()` 后，需要其它线程调用 `notify()`/`notifyAll()` 才能重新获得 CPU 时间。
 ```
 
-## 1.2. 示例
+## 3. 示例
 
 使用 `synchronized`, `wait()`, `notify()` 和 `notifyAll()` 实现 producer-consumer 问题。
 
@@ -157,3 +305,6 @@ public class Main {
 
 `get()` 方法的行为类似。首先，它检查 storage 是否为空，如果时空的，它调用 `wait()` 挂起。当另一个线程调用 `notify()` 把它唤醒，它再次检查条件，直到 storage 有事件。
 
+## 4. 参考
+
+- https://blog.csdn.net/qq_35436158/article/details/122532075

@@ -22,3 +22,10 @@ FAIR (Facility for Antiproton and Ion Research) 反质子与离子研究装置�
 ![[Pasted image 20230602142242.png]]
 
 `Canvas` 是优化性能的关键，它提供了很好的图形硬件加速。
+
+N.B. 
+拉丁语 nota bene 的缩写，英文为 note well，中文为特别注意
+
+## 参考
+
+- 

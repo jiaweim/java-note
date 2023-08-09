@@ -669,6 +669,11 @@ Removed List: [Li Ho]
 After removeAll(): [Liz Na]
 ```
 
+### 2.4 FilteredList
+
+`FilteredList` 实现了 `ObservableList`，根据 `Predicate` 过滤列表元素。对 ObservableList 的更改都会同步到 `FilteredList`。
+
+https://courses.bekwam.net/public_tutorials/bkcourse_filterlistapp.html
 ## 3. ObservableSet
 
 除了继承 `Set` 的所有方法，`ObservableSet` 的类图如下所示：

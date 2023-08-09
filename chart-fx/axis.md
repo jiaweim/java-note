@@ -1,20 +1,62 @@
 # 坐标轴
 
-
+2023-08-03, 10:37
 ***
-## Axis
+## 简介
 
 支持线性、对数、反向、时间序列等坐标轴，类图如下：
 
-![[Pasted image 20230605160919.png]]
-其中：
+![](Pasted%20image%2020230802150203.png)
 
+说明：
+
+- 所有 `Axis` 实现均继承 `Pane`
 - `DefaultNumericAxis` 是默认数值坐标轴实现
 - `CategoryAxis` 是分类坐标轴实现
 
 这两个使用最多。
 
-### 属性
+## AxisDescription
+
+`AxisDescription` 包含坐标轴的描述信息，包括：
+
+- 坐标轴名称
+- 单位
+- 最小值
+- 最大值
+
+每个坐标轴一个描述，如 2D 数据集包含 X 轴和 Y 轴。
+
+```java
+// 返回 axis 名称
+String getName()
+
+// 设置 axis 名称和单位
+boolean set(final String axisName, final String... axisUnit)
+
+// 设置 axis 名称，单位，最小值，最大值
+boolean set(final String axisName, final String axisUnit, 
+            final double rangeMin, final double rangeMax)
+
+// 设置最小值
+boolean setMin(final double min)
+double getMin()
+
+// 设置最大值
+boolean setMax(final double max)
+double getMax()
+
+// 设置最小值和最大值
+boolean set(final double min, final double max)
+
+// axis 的最小值和最大值是否确定
+boolean isDefined()
+
+// axis 单位
+String getUnit()
+```
+
+## Axis
 
 | 属性                    | 类型                   | 说明                                     |
 | ----------------------- | ---------------------- | ---------------------------------------- |
@@ -29,6 +71,8 @@
 | unitProperty            | StringProperty         | 单位名称                                 |
 | unitScalingProperty     | DoubleProperty         | 单位缩放                                 |
 | timeAxisProperty        | BooleanProperty        | 是否为时间轴                             |
+
+`autoUnitScaling` 用于自动更新 axisLabel 和 unit。
 
 ### 方法
 
@@ -92,9 +136,315 @@ axis.setOverlapPolicy(AxisLabelOverlapPolicy.SHIFT_ALT);
 - 支持 auto-range padding : `autoRangePaddingProperty()`
 - 支持 auto-range rounding
 
-当启用 `autoRangingProperty()` 属性，是否将范围扩展到 major tick unit 值。例如，如果范围是 [3,74]，而 major tick unit 为 [5]，那么将范围扩展到 [0,75]。默认 true。
+当启用 `autoRangingProperty()` 属性，是否将范围扩展到 major tick unit 值。例如，如果范围是 `[3,74]`，而 major tick unit 为 `[5]`，那么将范围扩展到 `[0,75]`。默认 true。
 
 - 支持自定义 `tickUnitSupplierProperty`
+
+构造函数：
+
+```java
+public DefaultNumericAxis(final String axisLabel, final double lowerBound, 
+                          final double upperBound, final double tickUnit)
+```
+
+`tickUnit` 指定刻度之间的距离。
+
+### 示例-标准坐标轴
+
+```java
+public class AxisDemo1 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final DefaultNumericAxis xAxis = 
+                        new DefaultNumericAxis("standard axis label w/o unit", 0, 100, 1);
+
+        VBox.setMargin(xAxis, new Insets(20, 10, 20, 10));
+
+        VBox root = new VBox(xAxis);
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230802152521.png)
+
+```ad-todo
+没有单位，也没有缩放比例，此时 `[]` 中是空的，不显示更好。
+```
+
+修改后的样式：
+
+![](Pasted%20image%2020230802164111.png)
+
+没有多余的 `[]`。
+### 示例-坐标轴单位
+
+- 使用 `setUnit(final String value)` 设置坐标轴单位
+- `AbstractAxisParameter.updateAxisLabelAndUnit()` 方法使用 axisUnit 更新坐标轴标题
+- `axisUnit` 默认在 `axisName` 后面的 `[]` 中显示
+
+```java
+public class AxisUnitDemo1 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final DefaultNumericAxis xAxis = 
+                                new DefaultNumericAxis("axis label", 0, 100, 1);
+        VBox.setMargin(xAxis, new Insets(20, 10, 20, 10));
+        xAxis.setUnit("m");
+
+        VBox root = new VBox(xAxis);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+}
+```
+
+![](Pasted%20image%2020230802153729.png)
+
+### 示例-坐标轴名称颜色
+
+坐标轴名称为 Text 类型，因此可以设置颜色：
+
+```java
+public class AxisDemo3 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        final DefaultNumericAxis xAxis3 = new DefaultNumericAxis("current", 0, 100, 1);
+        VBox.setMargin(xAxis3, new Insets(20, 10, 20, 10));
+        xAxis3.setUnit("A");
+        xAxis3.getAxisLabel().setFill(Color.RED.darker()); // 设置颜色
+
+        root.getChildren().add(xAxis3);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230802154824.png)
+
+### 示例-坐标轴单位缩放-1
+
+设置坐标轴的缩放比例，设置方法有两种：
+
+- `void setUnitScaling(final MetricPrefix value)`，`MetricPrefix` 预定义了许多常用缩放比例
+- `void setUnitScaling(final double value)` 直接设置缩放比例
+
+```java
+public class AxisDemo4 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        // to force unit scaling to '1000' 'k' suffix
+        // N.B. tick unit is being overwritten by scaling
+        final DefaultNumericAxis xAxis4 = 
+                            new DefaultNumericAxis("very large current", 1e3, 100e3, 1e2);
+        VBox.setMargin(xAxis4, new Insets(20, 10, 20, 10));
+//        xAxis4.setUnitScaling(1000);
+        xAxis4.setUnitScaling(MetricPrefix.KILO);
+        xAxis4.setUnit("A");
+        xAxis4.getAxisLabel().setFont(Font.font("Times", 25));
+        xAxis4.getAxisLabel().setFill(Color.RED.darker());
+        root.getChildren().add(xAxis4);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230802155205.png)
+
+将：
+
+```java
+xAxis4.setUnitScaling(MetricPrefix.KILO)
+```
+
+修改为：
+
+```java
+xAxis4.setUnitScaling(500);
+```
+
+![](Pasted%20image%2020230802160024.png)
+
+对 `MetricPrefix` 预定义的比例，以指定字符显示，对其它比例，用 `*scaleValue` 表示。相关逻辑在 MetricPrefix 中实现：
+
+```java
+public static String getShortPrefix(final double scaling)
+```
+
+### 示例-坐标轴单位缩放-2
+
+Java 支持 Unicode，在定义缩放的简写时可以使用 Unicode 字符。`MetricPrefix.MICRO` 定义如下：
+
+```java
+MICRO("micro", "\u03BC", 1e-6)
+```
+
+使用：
+
+```java
+public class AxisDemo5 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        // to force unit scaling to '1e-3' '\mu' suffix
+        final DefaultNumericAxis xAxis5 = 
+                                new DefaultNumericAxis("small voltage", 0, 10e-6, 1e-6);
+        VBox.setMargin(xAxis5, new Insets(20, 10, 20, 10));
+        xAxis5.setUnitScaling(MetricPrefix.MICRO);
+        xAxis5.setUnit("V");
+        root.getChildren().add(xAxis5);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230802160820.png)
+
+### 示例-无单位
+
+没有单位时，在 `[]` 中显示缩放比例。
+
+```java
+public class AxisDemo6 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        // example for scaling with non metric prefix and w/o unit
+        final DefaultNumericAxis xAxis8 = new DefaultNumericAxis("non-metric scaling voltage variable w/o unit", 0,
+                25e-6, 1e-6);
+        VBox.setMargin(xAxis8, new Insets(20, 10, 20, 10));
+        xAxis8.setUnitScaling(2.5e-6);
+        // or alternatively:
+        // xAxis7.setUnit(null);
+        root.getChildren().add(xAxis8);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230802161158.png)
+
+### 示例-动态坐标轴
+
+设置 `setAutoUnitScaling(true)` 启用自动更新 axisLabel 和 unit。
+
+`setMinorTickCount` 设置 `minorTick` 数目。
+
+在 $10^{-9}$ 到 $10^9$ 之间每两秒更改一次坐标轴范围，坐标轴的 tickLabel, axisLabel 会同步更新。
+
+```java
+public class AxisDemo7 extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        final VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        final DefaultNumericAxis xAxis9 = 
+                            new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
+        VBox.setMargin(xAxis9, new Insets(20, 10, 20, 10));
+        xAxis9.setUnit("V");
+        xAxis9.setAutoUnitScaling(true);
+        xAxis9.setMinorTickCount(10);
+        xAxis9.setAutoRangeRounding(true);
+        root.getChildren().add(xAxis9);
+
+        final Label xAxis9Text = new Label();
+        root.getChildren().add(xAxis9Text);
+
+
+        final Timer timer = new Timer("sample-update-timer", true);
+        final TimerTask task = new TimerTask() {
+            private int counter = -9;
+            private boolean directionUpwards = true;
+
+            @Override
+            public void run() {
+
+                if (directionUpwards) {
+                    counter++;
+                } else {
+                    counter--;
+                }
+                Platform.runLater(() -> {
+                    final double power = Math.pow(10, counter);
+                    xAxis9.maxProperty().set(power);
+                    final String text = "actual SI range for dynamic axis: ["
+                            + xAxis9.getMin() + " V, "
+                            + xAxis9.getMax() + " V]";
+                    xAxis9Text.setText(text);
+                });
+                if ((counter >= 9) || (counter <= -9)) {
+                    directionUpwards = !directionUpwards;
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![](Pasted%20image%2020230803103331.png)
 
 ### logAxis
 
@@ -185,271 +535,13 @@ public class LogAxisSample extends ChartSample {
 
 创建指定轴标签的分类轴。
 
-## 示例
+## AxisTransform
 
-### rangeScaling 示例
+AxisTransform 接口定义坐标轴转换操作：
 
-下面是坐标轴缩放的完整示例：
+- DefaultAxisTransform 实现恒等表换
+- LogarithmicAxisTransform 实现对数变换，默认以 10 为底数
+- 
 
-```java  
-import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
-import io.fair_acc.chartfx.axes.spi.MetricPrefix;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.stage.Stage;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-public class AxisRangeScalingSample extends ChartSample {
-
-    @Override
-    public Node getChartPanel(final Stage primaryStage) {
-
-        final VBox root = new VBox();
-        root.setAlignment(Pos.CENTER);
-
-        final DefaultNumericAxis xAxis1 = new DefaultNumericAxis("standard axis label w/o unit", 0, 100, 1);
-        VBox.setMargin(xAxis1, new Insets(20, 10, 20, 10));
-        root.getChildren().add(xAxis1);
-
-        final DefaultNumericAxis xAxis2 = new DefaultNumericAxis("axis label", 0, 100, 1);
-        VBox.setMargin(xAxis2, new Insets(20, 10, 20, 10));
-        xAxis2.setUnit("m");
-        root.getChildren().add(xAxis2);
-
-        final DefaultNumericAxis xAxis3 = new DefaultNumericAxis("current", 0, 100, 1);
-        VBox.setMargin(xAxis3, new Insets(20, 10, 20, 10));
-        xAxis3.setUnit("A");
-        xAxis3.getAxisLabel().setFill(Color.RED.darker());
-        root.getChildren().add(xAxis3);
-
-        // to force unit scaling to '1000' 'k' suffix
-        // N.B. tick unit is being overwritten by scaling
-        final DefaultNumericAxis xAxis4 = new DefaultNumericAxis("very large current", 1e3, 100e3, 1e2);
-        VBox.setMargin(xAxis4, new Insets(20, 10, 20, 10));
-        xAxis4.setUnitScaling(MetricPrefix.KILO);
-        xAxis4.setUnit("A");
-        xAxis4.getAxisLabel().setFont(Font.font("Times", 25));
-        xAxis4.getAxisLabel().setFill(Color.RED.darker());
-        root.getChildren().add(xAxis4);
-
-        // to force unit scaling to '1e-3' '\mu' suffix
-        final DefaultNumericAxis xAxis5 = new DefaultNumericAxis("small voltage", 0, 10e-6, 1e-6);
-        VBox.setMargin(xAxis5, new Insets(20, 10, 20, 10));
-        xAxis5.setUnitScaling(MetricPrefix.MICRO);
-        xAxis5.setUnit("V");
-        root.getChildren().add(xAxis5);
-
-        // to force unit scaling to '1e-9' 'n' suffix
-        final DefaultNumericAxis xAxis6 = new DefaultNumericAxis("tiny voltage", 0, 11e-9, 1e-9);
-        VBox.setMargin(xAxis6, new Insets(20, 10, 20, 10));
-        xAxis6.setUnitScaling(MetricPrefix.NANO);
-        xAxis6.setUnit("V");
-        root.getChildren().add(xAxis6);
-
-        // example for scaling with non metric prefix
-        final DefaultNumericAxis xAxis7 = new DefaultNumericAxis("non-metric scaling voltage variable", 0, 25e-6, 1e-6);
-        VBox.setMargin(xAxis7, new Insets(20, 10, 20, 10));
-        xAxis7.setUnitScaling(2.5e-6);
-        xAxis7.setUnit("V");
-        root.getChildren().add(xAxis7);
-
-        // example for scaling with non metric prefix and w/o unit
-        final DefaultNumericAxis xAxis8 = new DefaultNumericAxis("non-metric scaling voltage variable w/o unit", 0,
-                25e-6, 1e-6);
-        VBox.setMargin(xAxis8, new Insets(20, 10, 20, 10));
-        xAxis8.setUnitScaling(2.5e-6);
-        // or alternatively:
-        // xAxis7.setUnit(null);
-        root.getChildren().add(xAxis8);
-
-        // example for dynamic scaling with metric prefix and unit
-        final DefaultNumericAxis xAxis9 = new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
-        VBox.setMargin(xAxis9, new Insets(20, 10, 20, 10));
-        xAxis9.setUnit("V");
-        xAxis9.setAutoUnitScaling(true);
-        xAxis9.setMinorTickCount(10);
-        xAxis9.setAutoRangeRounding(true);
-        root.getChildren().add(xAxis9);
-        final Label xAxis9Text = new Label();
-        root.getChildren().add(xAxis9Text);
-
-        final Timer timer = new Timer("sample-update-timer", true);
-        final TimerTask task = new TimerTask() {
-            private int counter = -9;
-            private boolean directionUpwards = true;
-
-            @Override
-            public void run() {
-
-                if (directionUpwards) {
-                    counter++;
-                } else {
-                    counter--;
-                }
-                Platform.runLater(() -> {
-                    final double power = Math.pow(10, counter);
-                    xAxis9.maxProperty().set(power);
-                    final String text = "actual SI range for dynamic axis: [" + xAxis9.getMin() + " V, "
-                            + xAxis9.getMax() + " V]";
-                    xAxis9Text.setText(text);
-                });
-                if ((counter >= 9) || (counter <= -9)) {
-                    directionUpwards = !directionUpwards;
-                }
-            }
-        };
-        timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
-
-        return root;
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(final String[] args) {
-        Application.launch(args);
-    }
-}
-
-```
-
-![[Pasted image 20230609095015.png]]
-
-- 第一坐标轴，没有单位
-
-```java
-DefaultNumericAxis xAxis1 = new DefaultNumericAxis("standard axis label w/o unit", 0, 100, 1);  
-```
-
-- 第二个坐标轴，加了单位
-
-```java
-DefaultNumericAxis xAxis2 = new DefaultNumericAxis("axis label", 0, 100, 1);  
-xAxis2.setUnit("m");
-```
-
-单位放在 `[]` 中。
-
-- 第三个坐标轴，标签设置为深红色
-
-```java
-DefaultNumericAxis xAxis3 = new DefaultNumericAxis("current", 0, 100, 1);  
-xAxis3.setUnit("A");  
-xAxis3.getAxisLabel().setFill(Color.RED.darker());
-```
-
-- 第四个坐标轴，加了 1000 倍的缩放，修改了标签字体
-
-```java
-DefaultNumericAxis xAxis4 = new DefaultNumericAxis("very large current", 1e3, 100e3, 1e2);  
-xAxis4.setUnitScaling(MetricPrefix.KILO);  
-xAxis4.setUnit("A");  
-xAxis4.getAxisLabel().setFont(Font.font("Times", 25));  
-xAxis4.getAxisLabel().setFill(Color.RED.darker());  
-```
-
-单位的缩放倍数，使用 `MetricPrefix` 设置。当然，也可以直接使用数字，效果一样。例如：
-
-```java
-xAxis4.setUnitScaling(1000);
-```
-
-- 第五个坐标轴，加了 $10^{-6}$ 缩放
-
-```java
-DefaultNumericAxis xAxis5 = new DefaultNumericAxis("small voltage", 0, 10e-6, 1e-6);  
-xAxis5.setUnitScaling(MetricPrefix.MICRO);  
-xAxis5.setUnit("V");  
-```
-
-- 第六个坐标轴，加了 $10^{-9}$ 缩放
-
-```java
-DefaultNumericAxis xAxis6 = new DefaultNumericAxis("tiny voltage", 0, 11e-9, 1e-9);  
-xAxis6.setUnitScaling(MetricPrefix.NANO);  
-xAxis6.setUnit("V");  
-```
-
-- 第七个坐标轴，自定义缩放
-
-`MetricPrefix` 提供了许多常用的缩放比例，便于使用，但可能不适合你的情况，此时可以直接用数值设置：
-
-```java
-DefaultNumericAxis xAxis7 = new DefaultNumericAxis("non-metric scaling voltage variable", 0, 25e-6, 1e-6);  
-xAxis7.setUnitScaling(2.5e-6);  
-xAxis7.setUnit("V");  
-```
-
-此时的单位显示为 `*2.5E-6V`，在美观上略有不足。
-
-- 第八个坐标轴，不显示单位
-
-既然单位显示不美观，可以不显示单位
-
-```java
-DefaultNumericAxis xAxis8 = new DefaultNumericAxis("non-metric scaling voltage variable w/o unit", 0,  
-25e-6, 1e-6);  
-xAxis8.setUnitScaling(2.5e-6);  
-// or alternatively:  
-// xAxis7.setUnit(null);  
-```
-
-不调用 `setUnit` 或者设置 `setUnit(null)` ，不显示单位。
-
-- 第九个坐标轴
-
-这个坐标轴会动态更新最大值：
-
-```java
-DefaultNumericAxis xAxis9 = new DefaultNumericAxis("dynamic Axis", -1e-6 * 0, 0.001, 1);
-xAxis9.setUnit("V");
-xAxis9.setAutoUnitScaling(true);
-xAxis9.setMinorTickCount(10);
-xAxis9.setAutoRangeRounding(true);
-final Label xAxis9Text = new Label();
-
-final Timer timer = new Timer("sample-update-timer", true);
-final TimerTask task = new TimerTask() {
-	private int counter = -9;
-	private boolean directionUpwards = true;
-
-	@Override
-	public void run() {
-
-		if (directionUpwards) {
-			counter++;
-		} else {
-			counter--;
-		}
-		Platform.runLater(() -> {
-			final double power = Math.pow(10, counter);
-			xAxis9.maxProperty().set(power);
-			final String text = "actual SI range for dynamic axis: [" + xAxis9.getMin() + " V, "
-					+ xAxis9.getMax() + " V]";
-			xAxis9Text.setText(text);
-		});
-		if ((counter >= 9) || (counter <= -9)) {
-			directionUpwards = !directionUpwards;
-		}
-	}
-};
-timer.scheduleAtFixedRate(task, 0, TimeUnit.SECONDS.toMillis(2));
-```
-
-`xAxis9.setAutoUnitScaling(true)` 启用单位的自动缩放，即根据数据自动调整单位。
-
-这里每两秒更新一次坐标轴范围，使得坐标轴的单位、范围以及标签随之更新。
-
-### CategoryAxis 示例
+![|450](Pasted%20image%2020230807134903.png)
 

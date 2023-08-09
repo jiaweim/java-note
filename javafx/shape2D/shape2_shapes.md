@@ -184,9 +184,9 @@ Circle(double centerX, double centerY, double radius, Paint fill)
 Circle(double radius, Paint fill)
 ```
 
-**示例：** HBox 中包含 2 个圆
+**示例：** `HBox` 中包含 2 个圆
 
-HBox 不使用 centerX 和 centerY 设置 Circle 位置。添加到 Pane 才能看到这 2 属性的效果。
+`HBox` 不使用 `centerX` 和 `centerY` 设置 `Circle` 位置。添加到 `Pane` 才能看到这 2 个属性的效果。
 
 ```java
 import javafx.application.Application;

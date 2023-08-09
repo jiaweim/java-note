@@ -1,10 +1,20 @@
 # JavaFX 事件处理概述
 
+2023-07-31, 22:32
+add: 5. 示例
 2023-06-25, 14:01
 ****
 ## 1. 什么是事件
 
-在 GUI 应用程序中，事件（event）是用户与应用程序交互的操作。如点击鼠标、敲击键盘等，都是 JavaFX 事件。
+事件（event）通知有重要的事情发生，在 GUI 应用程序中，用户与应用程序交互的操作产生事件，如点击鼠标、敲击键盘等都是 JavaFX 事件。
+
+一般来说，事件系统至少包含 3 个职责：
+
+- 触发（`fire`）事件
+- 通知 `listeners`
+- 处理 `handle` 事件
+
+其中事件通知机制由 JavaFX 平台自动完成。因此，我们只需要考虑如何 `fire` 事件、listen 事件以及 handle 事件。
 
 JavaFX 事件由 `javafx.event.Event` 类表示。每个事件至少包含三个属性：
 
@@ -81,4 +91,55 @@ EventType<T extends Event>
 下图是某些事件类中定义的一些事件类型：
 
 ![](images/event_type.png)
+## 5. 示例
 
+- 创建自定义 event
+
+```java
+public class UserEvent extends Event {
+
+    public static final EventType<UserEvent> ANY = new EventType<>(Event.ANY, "ANY");
+
+    public static final EventType<UserEvent> LOGIN_SUCCEEDED = 
+                                        new EventType<>(ANY, "LOGIN_SUCCEEDED");
+
+    public static final EventType<UserEvent> LOGIN_FAILED = 
+                                        new EventType<>(ANY, "LOGIN_FAILED");
+
+    public UserEvent(EventType<? extends Event> eventType) {
+        super(eventType);
+    }
+
+    // any other fields of importance, e.g. data, timestamp
+}
+```
+
+事件类型一般是固定的，通常与事件在同一个源文件中定义。可以看到，这里定义了两种事件类型：`LOGIN_SUCCEEDED` 和 `LOGIN_FAILED`。
+
+- 可以监听这些特定类型 `UserEvent` 事件
+
+```java
+Node node = ...
+node.addEventHandler(UserEvent.LOGIN_SUCCEEDED, event -> {
+    // handle event
+});
+```
+
+- 也可以处理任何任何 `UserEvent` 
+
+```java
+Node node = ...
+node.addEventHandler(UserEvent.ANY, event -> {
+    // handle event
+});
+```
+
+最后，我们可以构建并触发自己的事件：
+
+```java
+UserEvent event = new UserEvent(UserEvent.LOGIN_SUCCEEDED);
+Node node = ...
+node.fireEvent(event);
+```
+
+例如，当用户尝试登录应用时，可以触发 `LOGIN_SUCCEEDED` 或 `LOGIN_FAILED`。

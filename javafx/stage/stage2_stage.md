@@ -1,5 +1,7 @@
 # Stage
 
+2023-07-31, 23:02
+add: Stage 尺寸
 2023-07-06, 09:53
 ****
 ## 1. 简介
@@ -522,7 +524,7 @@ Stage stage = new Stage();
 stage.setOpacity(0.5); // A half-translucent stage
 ```
 
-## 8. Stage 尺寸
+## 8. Stage 尺寸调节
 
 Stage 的 `resizable` 属性用于设置是否可调整尺寸，默认为 `true`：
 
@@ -543,10 +545,10 @@ public final void setMinWidth(double value)
 ```
 
 ```ad-tip
-调用 Stage.setResizable(false) 防止用户调整 Stage 尺寸，但是依然可以通过编程方式调整。
+调用 `Stage.setResizable(false)` 防止用户调整 `Stage` 尺寸，但是依然可以通过编程方式调整。
 ```
 
-**示例：** 将 Stage 全屏
+**示例：** 将 `Stage` 全屏
 
 ```java
 import javafx.application.Application;
@@ -672,4 +674,74 @@ public class ShowAndWaitApp extends Application {
 ```ad-tip
 JavaFX 没有内置对话框功能，可以通过 `Stage.showAndWait()` 实现，设置适当的 Modality 即可。
 ```
+
+## 11. Stage 尺寸
+
+JavaFX UI 控件的创建和显示之间存在时间差。在创建 UI 控件时，不管是通过 API 还是 FXML，都还不知道窗口的尺寸。在屏幕上显示时，窗口尺寸才可用，通过 `Stage.onShown` 属性可以监听窗口显示的事件。
+
+为了说明这一点，下面程序显示窗口显示前后 Stage 的尺寸。
+
+```java
+import static javafx.geometry.Pos.CENTER;
+
+public class StartVsShownJavaFXApp extends Application {
+
+    private DoubleProperty startX = new SimpleDoubleProperty();
+    private DoubleProperty startY = new SimpleDoubleProperty();
+    private DoubleProperty shownX = new SimpleDoubleProperty();
+    private DoubleProperty shownY = new SimpleDoubleProperty();
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        Label startLabel = new Label("Start Dimensions");
+        TextField startTF = new TextField();
+        startTF.textProperty().bind(
+                Bindings.format("(%.1f, %.1f)", startX, startY)
+        );
+
+        Label shownLabel = new Label("Shown Dimensions");
+        TextField shownTF = new TextField();
+        shownTF.textProperty().bind(
+                Bindings.format("(%.1f, %.1f)", shownX, shownY)
+        );
+
+        GridPane gp = new GridPane();
+        gp.add(startLabel, 0, 0);
+        gp.add(startTF, 1, 0);
+        gp.add(shownLabel, 0, 1);
+        gp.add(shownTF, 1, 1);
+        gp.setHgap(10);
+        gp.setVgap(10);
+
+        HBox hbox = new HBox(gp);
+        hbox.setAlignment(CENTER);
+
+        VBox vbox = new VBox(hbox);
+        vbox.setAlignment(CENTER);
+
+        Scene scene = new Scene(vbox, 480, 320);
+
+        primaryStage.setScene(scene);
+
+        // before show()...I just set this to 480x320, right?
+        startX.set(primaryStage.getWidth());
+        startY.set(primaryStage.getHeight());
+
+        primaryStage.setOnShown((evt) -> {
+            shownX.set(primaryStage.getWidth());
+            shownY.set(primaryStage.getHeight());  // all available now
+        });
+
+        primaryStage.setTitle("Start Vs. Shown");
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+![|400](Pasted%20image%2020230731225832.png)
 

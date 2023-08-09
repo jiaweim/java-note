@@ -10,6 +10,7 @@ module java.module {
     requires javafx.swing;
     requires com.google.common;
     requires javafx.fxml;
+    requires javafx.web;
 
     opens mjw.study.javafx.layout;
     opens mjw.study.javafx.canvas;
@@ -24,5 +25,9 @@ module java.module {
     opens mjw.study.javafx.concurrent;
     opens mjw.study.javafx.fxml;
     opens mjw.study.javafx.shape;
+    opens mjw.study.javafx.controls;
+    opens mjw.study.javafx.transform;
+    opens mjw.study.javafx.animation;
+    opens mjw.study.javafx.image;
 
 }

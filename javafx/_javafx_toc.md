@@ -27,6 +27,7 @@
     - [Node 边框](node2_bounds.md)
     - [Node 的位置和大小](node3_pos_size.md)
     - [托管 Node](node/node5_managed.md)
+    - [Node 样式](node/node6_style.md)
 - [颜色](color/color1_intro.md)
     - [ImagePattern](color/color2_image_pattern.md)
     - [线性渐变色](color/color3_linear_gradient.md)
@@ -41,6 +42,9 @@
     - [CSS 背景颜色](style/style5_background_color.md)
     - [Border](style/style6_border.md)
     - [JavaFX CSS Selector](style/style7_selector.md)
+    - [查找 Node](style/style8_lookup_node.md)
+    - [CSS 属性](style/style9_properties.md)
+    - [PseudoClass](style/style10_pesudoclass.md)
 - [JavaFX 事件处理概述](event/event1_startup.md)
     - [事件处理机制](event/event2_machanism.md)
     - [处理事件](event/event3_handling.md)
@@ -67,6 +71,45 @@
     - [Snapping](layout/layout15_snapping.md)
 - [MVC](mvc/mvc1_intro.md)
     - [MVC 示例](mvc/mvc2_example.md)
+- [Control](controls/control1_control.md)
+    - [Labeled](controls/control2_labeled.md)
+    - [Label](controls/control3_label.md)
+    - [Buttons](controls/control4_buttons.md)
+    - [List Controls](controls/control5_list.md)
+    - [ChoiceBox](controls/control6_choicebox.md)
+    - [ComboBox](controls/control7_combobox.md)
+    - [ListView](controls/control8_listview.md)
+    - [ColorPicker](controls/control9_colorpicker.md)
+    - [DatePicker](controls/control10_datepicker.md)
+    - [Text Input 控件](controls/control11_text_input.md)
+    - [TextField](controls/control12_textfield.md)
+    - [PasswordField](controls/control13_passwordfield.md)
+    - [TextArea](controls/control14_textarea.md)
+    - [任务进度](controls/control15_progress.md)
+    - [TitledPane](controls/control16_titledpane.md)
+    - [Accordion](controls/control17_accordion.md)
+    - [Pagination](controls/control18_pagination.md)
+    - [Tooltip](controls/control19_tooltip.md)
+    - [Scrolling](controls/control20_scrolling.md)
+    - [Separate](controls/control21_separate.md)
+    - [Slider](controls/control22_slider.md)
+    - [菜单](controls/control23_menus.md)
+    - [ContextMenu](controls/control24_contextmenu.md)
+    - [ToolBar](controls/control25_toolbar.md)
+    - [TabPane](controls/control26_tabpane.md)
+    - [HTMLEditor](controls/control27_htmleditor.md)
+    - [Chooser](controls/control28_filechooser.md)
+- [TableView 概述](table/table1_intro.md)
+    - [创建 TableView](table/table2_create.md)
+    - [Map 作为 item](table/table3_map.md)
+    - [TableView 数据排序](table/table4_sort.md)
+    - [自定义 cell 渲染](table/table5_cell_factory.md)
+    - [选择 Cell 和 Row](table/table6_select.md)
+    - [TableView 编辑数据](table/table7_edit.md)
+    - [添加和删除 row](table/table8_add_row.md)
+    - [滚动 TableView 窗口](table/table9_scrolling.md)
+    - [调整 TableColumn 大小](table/table10_column_resizing.md)
+    - [TableView CSS](table/table11_css.md)
 - [Shape 概述](shape2D/shape1_intro.md)
     - [2D Shapes](shape2D/shape2_shapes.md)
     - [Path](shape2D/shape3_path.md)
@@ -74,7 +117,24 @@
     - [合并 Shapes](shape2D/shape5_combine.md)
     - [Stroke](shape2D/shape6_stroke.md)
     - [Shape CSS](shape2D/shape7_css.md)
-
+- [Text 概述](text/text1_intro.md)
+    - [Text Origin](text/text2_origin.md)
+    - [多行文本显示](text/text3_multiline.md)
+    - [Font](text/text4_font.md)
+- [Transformation](transformation/trans1_intro.md)
+    - [Translation](transformation/trans2_translation.md)
+    - [Rotation](transformation/trans3_rotation.md)
+    - [Scale](transformation/trans4_scale.md)
+    - [Shear](transformation/trans5_shear.md)
+    - [同时应用多个变换](transformation/trans6_multiple.md)
+- [Animation 概述](animation/animation1_intro.md)
+    - [Timeline 动画](animation/animation2_timeline.md)
+    - [动画控制](animation/animation3_control.md)
+    - [Cue Point](animation/animation4_cuepoint.md)
+    - [Transition](animation/animation5_transition.md)
+    - [Interpolator](animation/animation6_interpolator.md)
+- [图像 API](image/image1_intro.md)
+    - [加载图像](image/image2_load.md)
 - [JavaFX 并发](concurrency/concurrent1_intro.md)
     - [JavaFX 并发框架](concurrency/concurrent2_framework.md)
     - [Task](concurrency/concurrent3_task.md)
@@ -92,25 +152,18 @@
 - [Node](3.node.md)
 - [Text](7.text.md)
 - [组件](8.controls.md)
-  - [ChoiceBox](control_choicebox.md)
-  - [ComboBox](controls/ComboBox.md)
   - [Chooser](chooser.md)
-  - [ColorPicker](control_colorpicker.md)
-  - [TextField](control_textfield.md)
-  - [ToolTip](toolTip.md)
-  - [Scrolling](scrolling.md)
-  - [ListView](control_listview.md)
   - [TableView](tableview.md)
   - [Spinner](spinner.md)
   - [Alert](08_alert.md)
-- [Layout](11_layout.md)
   - [TabPane](11_tabpane.md)
-  - [TitledPane](pane_titledpane.md)
 - [Transformation](11.transformation.md)
 
 ## 工具
 
-JavaFX [下载地址](https://gluonhq.com/products/javafx/).
+- JavaFX [下载地址](https://gluonhq.com/products/javafx/)
+- [Scenic View](./scenic_view.md)
+
 
 ### DataFX
 
@@ -125,41 +178,6 @@ https://bitbucket.org/datafx/datafx
 [ControlsFX 特征](https://github.com/controlsfx/controlsfx/wiki/ControlsFX-Features)
 
 - [Font Awesome](font_awesome.md)
-
-#### ScenicView
-
-http://fxexperience.com/scenic-view/
-
-用于 debugging JavaFX 程序，可以很方便的查看 `Node` 属性，查看当前 scene graph 的状态。
-
-#### ScenicView 运行
-
-运行 Scenic View 有三种方法。
-
-1. 从代码运行
-
-```java
-ScenicView.show(node);
-```
-
-或者
-
-```java
-ScenicView.show(scene);
-```
-
-只显示特定的 Scene/Node。一般不推荐使用这种方法，而推荐使用 Java Agent.
-
-2. Java Agent
-
-命令：`-javaagent:ScenicView.jar`
-
-Scenic View 会自动查找运行程序中的JavaFX Stage.
-
-3. Standalone
-
-最简单的使用方法，即双击 ScenicView.jar 文件运行。
-
 ## References
 
 - [ ] JavaFX 8 Introduction by Example
@@ -172,8 +190,8 @@ Scenic View 会自动查找运行程序中的JavaFX Stage.
 - [ ] [Oracle 官方教程](https://docs.oracle.com/javase/8/javase-clienttechnologies.htm)
 - [ ] [JavaFX 8 API](https://docs.oracle.com/javase/8/javafx/api/toc.htm)
 - [ ] [JavaFX 11 API](https://openjfx.io/javadoc/11/index.html)
-
-- [x] [Zetcode 教程](http://zetcode.com/gui/javafx/)  
+- [?] https://fxdocs.github.io/docs/html5/
+- [?] [Zetcode 教程](http://zetcode.com/gui/javafx/)
 没有 `TableView` 实例。
 
 - http://www.guigarage.com/javafx-training-tutorials/

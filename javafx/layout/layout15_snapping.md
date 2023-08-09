@@ -16,5 +16,5 @@
 
 JavaFX 的坐标系统支持 float，从而可以指定像素的任意部分。如 (2.0, 3.0) 指向像素点角。
 
-Region 使用 float 作为坐标，在 pixel 边界可能没有完全对齐，使边界看起来模糊。Region 的 `snapToPixel` 属性解决该问题。snapToPixel 默认为 true，即 Region 会调整 children 的 position, spacing, size 为 integer，从而与 pixel 边界匹配，使得 children 的边界清晰。
+`Region` 使用 float 作为坐标，在 pixel 边界可能没有完全对齐，使边界看起来模糊。`Region` 的 `snapToPixel` 属性解决该问题。`snapToPixel` 默认为 true，即 `Region` 会调整 children 的 position, spacing, size 为 integer，从而与 pixel 边界匹配，使得 children 的边界清晰。
 

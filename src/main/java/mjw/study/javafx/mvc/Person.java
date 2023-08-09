@@ -161,7 +161,7 @@ public class Person {
     public boolean save(List<String> errorList) {
         boolean isSaved = false;
         if (isValidPerson(errorList)) {
-            System.out.println("Saved " + this.toString());
+            System.out.println("Saved " + this);
             isSaved = true;
         }
 

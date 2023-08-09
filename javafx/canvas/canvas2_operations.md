@@ -344,11 +344,11 @@ public class CanvasTest extends Application {
 
 ## 6. GraphicsContext 详解
 
-GraphicsContext 通过 buffer 向 Canvas 发送绘图命令。GraphicsContext 的绘图命令会将必要的参数推送到 buffer，然后在 pulse 结束前由渲染线程将这些内容渲染到 Canvas。
+`GraphicsContext` 通过 buffer 向 `Canvas` 发送绘图命令。`GraphicsContext` 的绘图命令会将必要的参数推送到 buffer，然后在 pulse 结束前由渲染线程将这些内容渲染到 `Canvas`。
 
-每个 Canvas 有且只有一个 GraphicsContext 和一个 buffer。将 Canvas 添加到 scene 前，可以在任何线程修改。将 Canvas 添加到 scene 后，则只能在 JAT 线程修改。
+每个 `Canvas` 有且只有一个 `GraphicsContext` 和一个 buffer。将 `Canvas` 添加到 scene 前，可以在任何线程修改。将 `Canvas` 添加到 scene 后，则只能在 JAT 线程修改。
 
-GraphicsContext 还管理了一个 state 对象堆栈，可以随时保存或恢复。
+`GraphicsContext` 还管理了一个 state 对象堆栈，可以随时保存或恢复。
 
 ## 7. GraphicsContext attributes
 

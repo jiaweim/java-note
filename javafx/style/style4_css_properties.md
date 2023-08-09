@@ -1,17 +1,39 @@
 # CSS 属性
 
+2023-07-27, 11:16
+add: 1. 简介
+add: 4. 定义变量
 2023-06-20, 11:42
 ****
-## 1. CSS 属性继承
+## 1. 简介
 
-JavaFX 为 CSS 属性提供了两种继承类型：
+JavaFX CSS 属性名称包含 `-fx-` 前缀，通常称为规则(rules)，用于定义 nodes 的属性，如 border width, background fill color 等。
+
+CSS 文件中，样式定义:
+
+- 以 selector 开始，后面为大括号
+- 大括号中以 CSS 属性定义规则
+- 属性名称和属性值以冒号 `:` 分隔
+- CSS 属性格式：`-fx-` 属性名称`:`属性值`;`
+
+```css
+. or #<selector-name> <pattern>{
+    -fx-<some-property> : <some-value>; 
+}
+```
+
+CSS 注释为 `/**/` 格式。
+
+## 2. CSS 属性继承
+
+JavaFX 为 CSS 属性提供了两种继承方式：
 
 - CSS 属性类型继承
 - CSS 属性值继承
 
 对**类型继承**，JavaFX 类中声明的所有 CSS 属性，被其子类继承。例如，`Node` 类声明的 `cursor` 属性，对应的 CSS 属性为 `-fx-cursor`。因为 `Node` 是所有 JavaFX 控件的基类，所以所有控件类型都有 `-fx-cursor` CSS 属性。
 
-对**值继承**，`Node` 可以从 parent 继承 CSS 属性值，这里 parent 不是父类，而是 `Scene` graph 中 `Node` 的容器。`Node` 的部分属性值默认从 parent 继承，部分属性则需要显式指定想要从 parent 继承。
+对**值继承**，`Node` 可以从 parent 继承 CSS 属性值，这里 parent 不是父类，而是 scene graph 中 `Node` 的容器。`Node` 的部分属性值默认从 parent 继承，部分属性则需要显式指定想要从 parent 继承。
 
 将属性值为 `inherit`，即表示从 parent 继承属性值。例如，为 `HBox` 添加两个按钮，OK 看和 Cancel。下面为 `HBox` 和 OK 按钮设置 CSS 属性，没有为 Cancel 设置：
 
@@ -77,7 +99,7 @@ public class CSSInheritance extends Application {
 `-fx-cursor`, `-fx-text-alignment` 和 `-fx-font` 默认继承。
 ```
 
-## 2. CSS 属性类型
+## 3. CSS 属性类型
 
 Java 以及 JavaFX 中所有值都有类型，样式中指定的 CSS 属性值同样有类型。不同类型的值语法不同。JavaFX 支持以下类型：
 
@@ -102,11 +124,11 @@ Java 以及 JavaFX 中所有值都有类型，样式中指定的 CSS 属性值�
 CSS 类型与 Java 类型无关，它们只能在 CSS 样式表或内联样式中指定属性值。JavaFX 负责解析这些类型，并转换为合适的 JavaFX 类型。
 ```
 
-### 2.1. inherit
+### 3.1. inherit
 
 `inherit` 表示从父容器继承 CSS 属性值。
 
-### 2.2. boolean
+### 3.2. boolean
 
 boolean 类型值
 
@@ -121,7 +143,7 @@ boolean 类型值
 }
 ```
 
-### 2.3. string
+### 3.3. string
 
 string 类型可以用单引号或双引号括起来。字符串内部引号需转义：
 
@@ -141,7 +163,7 @@ string 类型可以用单引号或双引号括起来。字符串内部引号需�
 字符串值不能直接包含换行符，可以用转义表示，如 `\A` 或 `\00000a`
 ```
 
-### 2.4. number 和 integer
+### 3.4. number 和 integer
 
 数字可以为整数或实数，使用十进制格式。例如，将 opacity 设置为 0.60:
 
@@ -161,17 +183,17 @@ CSS 数值类型的属性值后面可以指定单位。长度单位包括 px, mm
 }
 ```
 
-### 2.5. size
+### 3.5. size
 
 以 length 或 percentage 为单位的数字。
 
-### 2.6. length 和 percentage
+### 3.6. length 和 percentage
 
 length 是数字加单位 px, mm, cm, in, pt, pc, em, ex。
 
 percentage 是数字加百分号 %。
 
-### 2.7. angle
+### 3.7. angle
 
 angle 也是数字加单位定义。角度的单位包括：
 
@@ -188,7 +210,7 @@ angle 也是数字加单位定义。角度的单位包括：
 }
 ```
 
-### 2.8. duration
+### 3.8. duration
 
 duration 是数字加上时间单位：
 
@@ -197,7 +219,7 @@ duration 是数字加上时间单位：
 
 或者为 "indefinite"。
 
-### 2.9. point
+### 3.9. point
 
 用于指定 x, y  坐标。可以使用空格分隔的数字指定，例如：`0 0`, `100 0`, `90 67`，或者用百分比形式，如 `2% 2%`。下面定义从点 (0, 0) 到 (100, 0) 的线性梯度颜色：
 
@@ -208,7 +230,7 @@ duration 是数字加上时间单位：
 }
 ```
 
-### 2.10. color-stop
+### 3.10. color-stop
 
 `color-stop` 用于在线性或径向颜色梯度中指定特定距离处的颜色。
 
@@ -216,7 +238,7 @@ duration 是数字加上时间单位：
 
 `color-stop` 示例：`white 0%`, `yellow 50%` 以及 `yellow 100px`。
 
-### 2.11. URI
+### 3.11. URI
 
 URI 使用 `url(<address>)` 函数指定。如果 `<address>` 为相对值，则从 CSS 文件所在位置开始解析。
 
@@ -226,7 +248,7 @@ URI 使用 `url(<address>)` 函数指定。如果 `<address>` 为相对值，则
 }
 ```
 
-### 2.12. effect
+### 3.12. effect
 
 drop shadow 和 inner shadow 特效可以使用 CSS 函数 `dropshadow()` 和 `innershadow()` CSS 指定：
 
@@ -257,7 +279,7 @@ innershadow(<blur-type>, <color>, <radius>, <choke>, <x-offset>, <y-offset>)
 }
 ```
 
-### 2.13. font
+### 3.13. font
 
 字体包括四个属性：family, size, style, weight。指定 font CSS 属性的方式有两种：
 
@@ -298,7 +320,7 @@ font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 50
 }
 ```
 
-### 2.14. paint 和 color
+### 3.14. paint 和 color
 
 `paint` 类型指定颜色，如形状的填充颜色、按钮的背景颜色。指定颜色的方式有三类：
 
@@ -326,7 +348,6 @@ font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 50
 - `hsb()` 和 `hsba()` 函数
 - `derive()` 和 `ladder()` 函数
 
-
 1. 使用预定义颜色的名称，如 red, blue, green, aqua 等
 
 ```css
@@ -337,7 +358,7 @@ font weight 的可选值：normal, bold, bolder, lighter, 100, 200, 300, 400, 50
 
 2. 查找颜色
 
-可以先在 Node 或其它父容器预定义颜色属性，然后通过名称引用其值。例如：
+可以先在 `Node` 或其它父容器预定义颜色属性，然后通过名称引用其值。例如：
 
 ```css
 .root {
@@ -433,3 +454,19 @@ ladder() 会根据 my-base-text-color 的亮度返回白色或黑色。如果亮
 使用该技术，可以动态更改 JavaFX 程序的颜色。默认样式表 modena.css 定义了一些基础颜色，然后使用 derive() 和 ladder() 派生出其它不同亮度的颜色。
 
 在 root 类中定义基础颜色，便于在整个应用范围更改颜色。
+
+## 4. 定义变量
+
+JavaFX 支持在 CSS 文件中定义变量，然后通过名称引用遍历值。
+
+**示例：** 在 `Node` 或其父容器预定义颜色属性，然后通过名称引用其值
+
+```css
+.root {
+    my-color: black;
+}
+
+.my-style {
+    -fx-fill: my-color;
+}
+```
