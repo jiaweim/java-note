@@ -130,7 +130,7 @@ https://bitbucket.org/datafx/datafx
 
 http://fxexperience.com/scenic-view/
 
-用于 debugging JavaFX 程序，可以很方便的查看 `Node` 属性，查看当前 scenegraph 的状态。
+用于 debugging JavaFX 程序，可以很方便的查看 `Node` 属性，查看当前 scene graph 的状态。
 
 #### ScenicView 运行
 
