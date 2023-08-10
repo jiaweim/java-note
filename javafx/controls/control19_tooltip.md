@@ -4,47 +4,51 @@
 ****
 ## 1. 简介
 
-tool tip 是一个弹窗组件，用于显示 node 的附加信息，鼠标悬停在 node 上时显示。从鼠标悬停到 tool-tip 显示有一个延迟；tool-tip 显示一段时间后自动隐藏，鼠标离开 node tool-tip 也会隐藏。
+tool-tip 是一个弹窗组件，用于显示 node 附加信息：
 
-下图黑框中为 tool tip 弹窗：
+- 鼠标悬停在 node 上时显示 tool-tip
+- 从鼠标悬停到 tool-tip 显示有一个延迟
+- tool-tip 显示一段时间后自动隐藏
+- 鼠标离开 node tool-tip 也会隐藏
 
-![|400](2019-12-03-20-43-51.png)
+下图黑框中为 tool-tip 弹窗：
+
+@import "images/2019-12-03-20-43-51.png" {width="400px" title=""}
 
 tool-tip 由 `Tooltip` 类表示。`Tooltip` 继承自 `PopupControl`，可以包含 text 和 graphic。内部由 `Label` 实现。
 
 ## 2. 创建 Tooltip
 
-```java
-// Create a Tooltip with No text and no graphic
+```java{.line-numbers}
+// 创建空 Tooltip，没有 text 和 graphic
 Tooltip tooltip1 = new Tooltip();
 
-// Create a Tooltip with text
+// 创建带 text 的 Tooltip
 Tooltip tooltip2 = new Tooltip("Closes the window");
 ```
 
 ## 3. 为 node 设置 Tooltip
 
-- 使用 `Tooltip` 的静态方法 `install()` 为 node 设置 `Tooltip`
+- 使用 `Tooltip` 的静态方法 `install()` 为 node 添加 `Tooltip`
+- 使用 `Tooltip.uninstall()`  删除 tool-tip
 
-使用 `Tooltip.uninstall()`  卸载 tool-tip。
-
-```java
+```java{.line-numbers}
 Button saveBtn = new Button("Save");
 Tooltip tooltip = new Tooltip("Saves the data");
 
-// Install a tooltip
+// 添加 tooltip
 Tooltip.install(saveBtn, tooltip);
 
 ...
-// Uninstall the tooltip
+// 删除 tooltip
 Tooltip.uninstall(saveBtn, tooltip);
 ```
 
 - 由于 `Tooltip` 使用十分频繁，所以 JavaFX 提供了更简单的设置方法
 
-Control 类包含一个 tooltip 属性，为 Tooltip 类型的 ObjectProperty。可以使用 Control 的 setTooltip() 设置 tool-tip。对非 Control 类型，如 Circle，则只能使用 install() 方法。
+`Control` 类包含一个 `tooltip` 属性，为 `Tooltip` 类型的 `ObjectProperty`。可以使用 `Control.setTooltip()` 设置 tool-tip。对非 `Control` 类型，如 `Circle`，则只能使用 `install()` 方法。
 
-```java
+```java{.line-numbers}
 Button saveBtn = new Button("Save");
 
 // Install a tooltip
@@ -54,9 +58,8 @@ saveBtn.setTooltip(new Tooltip("Saves the data"));
 saveBtn.setTooltip(null);
 ```
 
-```ad-info
-tool-tip 可以在多个 nodes 之间共享。tool-tip 使用 Label 显示其 text 和 graphic。
-```
+!!! info
+    tool-tip 可以在多个 nodes 之间共享。tool-tip 使用 `Label` 显示其 `text` 和 `graphic`。
 
 ## 4. Tooltip 属性
 
@@ -75,7 +78,7 @@ tool-tip 可以在多个 nodes 之间共享。tool-tip 使用 Label 显示其 te
 |showDelay|||
 |showDuration|||
 
-`textAlignment` 为 TextAlignment enum 类型，指定多行文本时的文本对齐方式。TextAlignment enum: LEFT, RIGHT, CENTER, JUSTIFY.
+`textAlignment` 为 `TextAlignment` enum 类型，指定多行文本时的文本对齐方式。TextAlignment enum: LEFT, RIGHT, CENTER, JUSTIFY.
 
 `textOverrun` 为 OverrunStyle enum 类型，指定没有足够空间显示所有文本时的行为，默认使用省略号。
 
@@ -91,7 +94,7 @@ font 为 Font 类型，指定 text 的默认字体。
 
 使用 `X` icon 作为 tool-tip 的 graphic，放在 text 上面
 
-```java
+```java{.line-numbers}
 // Create and configure the Tooltip
 Tooltip closeBtnTip = new Tooltip("Closes the window");
 closeBtnTip.setStyle("-fx-background-color: yellow; -fx-text-fill: black;");
@@ -108,13 +111,13 @@ Button closeBtn = new Button("Close");
 closeBtn.setTooltip(closeBtnTip);
 ```
 
-![|200](Pasted%20image%2020230725102147.png)
+@import "images/Pasted%20image%2020230725102147.png" {width="200px" title=""}
 
 **示例：** 创建、配置和设置 tool-tips
 
 鼠标悬停在 name-field, save-button 和 close-button，会显示 tool-tips。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -173,13 +176,13 @@ public class TooltipTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230725110136.png)
+@import "images/Pasted%20image%2020230725110136.png" {width="350px" title=""}
 
 ## 5. CSS
 
-Tooltip 的默认 CSS 样式类名为 tooltip。
+`Tooltip` 的默认 CSS 样式类名为 tooltip。
 
-Tooltip 添加了如下 CSS 属性：
+`Tooltip` 添加了如下 CSS 属性：
 
 - -fx-text-alignment
 - -fx-text-overrun
@@ -198,4 +201,3 @@ Tooltip 添加了如下 CSS 属性：
     -fx-wrap-text: true;
 }
 ```
-

@@ -5,6 +5,9 @@
 ```
 
 
+- Node.dirtyBits
+
 --add-opens javafx.graphics/javafx.scene=chartfx
+
 --add-exports javafx.graphics/javafx.scene=samples
 --add-exports javafx.graphics/com.sun.javafx.scene=samples

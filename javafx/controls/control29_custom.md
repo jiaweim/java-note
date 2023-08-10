@@ -1,5 +1,7 @@
 # 自定义控件
 
+@author Jiawei Mao
+****
 ## 简介
 
 当现有控件无法满足需求，就需要自定义实现新的控件。
@@ -190,31 +192,37 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 `Region` 是 `Control` 和 `Pane` 的父类，是一个 resizable 的 `Parent` node，可以通过 CSS 设置样式。扩展该类是实现自定义控件的最直观的方法。
 
-`Region` 和 Control+Skin 的主要区别在于，基于 Region 的控件同时包含逻辑和 UI，而 Control+Skin 的逻辑和 UI 分离，逻辑在 Control 中，UI 在 Skin 中。
+`Region` 和 Control+Skin 的主要区别在于，基于 `Region` 的控件同时包含逻辑和 UI，而 Control+Skin 的逻辑和 UI 分离，逻辑在 `Control` 中，UI 在 Skin 中。
 
 在 Mac 的每个窗口上有三个按钮（红、黄、绿），可用来关闭、最小化和缩放窗口。MacOS 的深色模式还不直接支持 JavaFX，如果在 MacOS 深色模式运行 JavaFX，JavaFX 依然为浅色模式。
 
 所以，我们现在自定义一个 MacOS 深色模式的按钮。按钮样式如下：
 
-![|100](Pasted%20image%2020230807144222.png)
+@import "images/Pasted%20image%2020230807144222.png" {width="120px" title=""}
 
-所有我们需要创建一个显示彩色圆圈的控件，鼠标移动到它上面，会显示一个符号。
+当鼠标悬停在按钮上，会显示符号。
 
-如果要**复现**现有控件，可以将控件的截图作为背景图片加载到矢量绘图程序，然后在截图上绘制副本。这样可以获得正确的尺寸、位置和颜色：
+即需要创建一个显示彩色圆圈的控件，鼠标悬停显示符号。
 
-![|400](Pasted%20image%2020230807144526.png)
+对**复现**现有控件，可以将控件的截图作为背景图片加载到矢量绘图程序，然后在截图上绘制副本。这样可以获得正确的尺寸、位置和颜色：
 
-确定圆的大小、距离和颜色后，还需要添加符号。这比较耗时，因为我们必须手动画符号。
+@import "images/Pasted%20image%2020230807144526.png" {width="400px" title=""}
 
-通常我们使用 JavaFX 提供的 :hover pseudo class 来显示/隐藏按钮上的符号，但这里需要自定义 :hover pseudo class，因为在 MacOS 中，当鼠标悬停在一个按钮上，所有按钮都会显示它们的符号。在代码中，我们将按钮放在 HBox 中，并添加一个 `MouseListener`，当鼠标悬停在 `HBox` ，触发显示符号。
+确定圆的大小、距离和颜色后，还需要添加符号。这比较耗时，因为必须手动绘制这些符号。
 
-该控件由两个元素组成，Circle 和 Region。Circle 继承自 Shape，没有 -fx-background-color 和 -fx-border-color，但有 -fx-fill 和  -fx-stroke。
+我们通常使用 JavaFX 提供的 `:hover` pseudo class 显示/隐藏按钮上的符号，但这里需要自定义 `:hover` pseudo class，因为在 MacOS 中，鼠标悬停在一个按钮上，所有按钮都显示符号。在代码中，我们将按钮放在 `HBox` 中，并添加一个 `MouseListener`，当鼠标悬停在 `HBox` ，将所有按钮设置为 `:hover`，触发显示符号。
 
-该控件的一个好处是不需要调整它的大小，它的尺寸保持不变。
+该控件由两个元素组成，`Circle` 和 `Region`。原则上，这里可以不用 `Circle`，将背景设置为圆形即可。不过我们保留 `Circle`。`Circle` 继承自 `Shape`，没有 `-fx-background-color` 和 `-fx-border-color` 属性，但有 `-fx-fill` 和 `-fx-stroke` 属性。
 
-首先，定义变量：
+因为已知颜色，所以不用为颜色添加 styleable 属性，而是直接在 CSS 中预定义这三种颜色。
 
-```java
+所以只需要为 close, minimize, zoom 和 hovered 状态定义属性。
+
+该控件另一个好处是不需要调整它的大小，它的尺寸保持不变。尽管如此，我们还是添加调整大小的代码，有备无患。
+
+- 定义所需变量
+
+```java{.line-numbers}
 public class RegionControl extends Region {
 
     public enum Type { CLOSE, MINIMIZE, ZOOM }
@@ -234,6 +242,7 @@ public class RegionControl extends Region {
                                     PseudoClass.getPseudoClass("minimize");
     private static final PseudoClass ZOOM_PSEUDO_CLASS = 
                                     PseudoClass.getPseudoClass("zoom");
+
     private static final PseudoClass HOVERED_PSEUDO_CLASS = 
                                     PseudoClass.getPseudoClass("hovered");
     private static final PseudoClass PRESSED_PSEUDO_CLASS = 
@@ -251,15 +260,15 @@ public class RegionControl extends Region {
     private Consumer<MouseEvent> mouseReleasedConsumer;
 ```
 
-这里为三种不同的状态定义了一个 enum 类，并为每种状态创建了一个 `PseudoClass`。并为 hovered 和 pressed 状态创建了 PseudoClass。
+这里为三种不同的状态定义了一个 enum 类，并为每种状态创建了一个 `PseudoClass`。并为 `hovered` 和 `pressed` 状态创建了 `PseudoClass`。
 
-还提供了 hovered 和 type 属性，便于从外部设置这些属性。
+还提供了 `hovered` 和 `type` 属性，便于从外部设置这些属性。
 
-因为该控件是一个按钮，所以还添加了鼠标按钮和释放的 Consumer，以便后续添加自定义 handler。
+因为该控件是一个按钮，所以添加了鼠标按钮和释放的 `Consumer`，以便后续添加自定义 handler。
 
-构造函数：
+- 构造函数
 
-```java
+```java{.line-numbers}
 public RegionControl() {
         this(Type.CLOSE);
 }
@@ -359,6 +368,10 @@ private void registerListeners() {
 ## 使用 Canvas
 
 为了理解 Canvas 及其优点，可以参考 [JavaFX 的渲染机制](../scene/scene2_rendering_mode.md)。
+
+直接在 Canvas 上绘图渲染非常快，缺点是事件处理起来比较麻烦。因此，只有控件非常复杂，直接在 Scene graph 上构建需要大量 nodes，才推荐使用 Canvas.
+
+
 
 在 Canvas 上的
 

@@ -1,6 +1,9 @@
 # Stroke
 
+2023-08-10, 14:31
+modify: 样式
 2023-06-05
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -43,7 +46,7 @@ stroke 沿着形状的边框绘制，`strokeType` 定义 `strokeWidth` 和边框
 - 第三个 `strokeWidth` 为 4px，`CENTERED` 类型，因此有 2px 在边框内，2px 在边框外，所以 `layoutBounds` 为 $54\times 54$；
 - 第四个 `strokeWidth` 为 4px，类型为 `OUTSIDE`，即整个 stroke 都在边框外，所以 `layoutBounds` 为 $58\times 58$；
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -99,28 +102,33 @@ public class StrokeTypeTest extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230714095315.png)
+@import "images/Pasted%20image%2020230714095315.png" {width="250px" title=""}
 
 ## 5. strokeLineCap
 
 `strokeLineCap` 定义未闭合路径或虚线片段末端的样式，可选样式为 `StrokeLineCap` enum 类型: 
 
-| StrokeLineCap | 说明                                                 |
-| ------------- | ---------------------------------------------------- |
-| `BUTT`        | 不添加装饰，默认                                     |
-| `ROUND`       | 在线段末端添加圆弧，圆弧半径为 strokeWidth 的一半。 |
-| `SQUARE`      | 线段向外延伸，延伸长度为 `strokeWidth` 的一半。      |
+| StrokeLineCap | 说明                                          |
+| ------------- | --------------------------------------------- |
+| `BUTT`        | 不添加装饰，默认                               |
+| `ROUND`       | 在线段末端添加圆弧，圆弧半径为 strokeWidth 的一半|
+| `SQUARE`      | 线段向外延伸，延伸长度为 `strokeWidth` 的一半   |
 
 下图三条线都是未闭合 subpath，长度均为 100px，宽度为 10px：
 
-- BUTT 类型的线段 layoutBounds 依旧为 100px
-- ROUND 和 SQUARE 类型线段的 layoutBounds 的宽度增加到 100px
+- `BUTT` 类型的线段 layoutBounds 依旧为 100px
+- `ROUND` 和 `SQUARE` 类型线段的 layoutBounds 的宽度增加到 110px
 
-![|200](Pasted%20image%2020230714100159.png)
+@import "images/Pasted%20image%2020230714100159.png" {width="200px" title=""}
 
-strokeLineCap 属性用于未闭合的 subpaths。下图使使用未闭合 subpath 创建的 3 个三角形。使用不同的 strokeLineCap 类型。SVGPath 数据均为 "M50, 0L0, 50 M0, 50 L100, 50 M100, 50 L50, 0"。fill 为 null，strokeWidth 为 10px：
+`strokeLineCap` 属性用于未闭合的 subpaths。下图使使用未闭合 subpath 创建的 3 个三角形：
 
-![|400](Pasted%20image%2020230714100633.png)
+- 使用不同的 `strokeLineCap` 类型
+- `SVGPath` 数据均为 "M50, 0L0, 50 M0, 50 L100, 50 M100, 50 L50, 0"
+- fill 为 null
+- strokeWidth 为 10px
+
+@import "images/Pasted%20image%2020230714100633.png" {width="400px" title=""}
 
 ## 6. strokeLineJoin
 
@@ -132,7 +140,7 @@ strokeLineJoin 属性指定如何连接某个 path 中两个连续 PathElement�
 
 下图显示 3 个三角形，SVG path 数据 "M50, 0L0, 50 L100, 50 Z"。fill 为 null，strokeWidth 为 10px：
 
-![|400](Pasted%20image%2020230714101339.png)
+@import "images/Pasted%20image%2020230714101339.png" {width="400px" title=""}
 
 ## 7. strokeMiterLimit
 
@@ -142,7 +150,7 @@ strokeMiterLimit 指定 miter 长度和 strokeWidth 的壁纸。miter 长度是�
 
 strokeMiterLimit 默认为 10，即 miter length 最多到 strokeWidth 的 10 倍。
 
-![|300](images/2019-06-05-16-14-57.png)
+@import "images/2019-06-05-16-14-57.png" {width="300px" title=""}
 
 当两条线段的夹角很小时，`MITER` 连接方式会使延伸距离很长，A 是完整的延伸长度，以该延伸长度和 stroke width 的比值为单位（4.65）。如果延伸长度大于 `strokeMiterLimit`，则直接截断。
 
@@ -155,7 +163,7 @@ strokeMiterLimit 默认为 10，即 miter length 最多到 strokeWidth 的 10 �
 
 因为 strokeWidth 为 10px，所以第 1 个三角形在尝试连接两条 pathElements 的外边缘时最多延伸 20px，因为在 20px 能无法连上，所以改用 BEVEL。
 
-```java
+```java{.line-numbers}
 SVGPath t1 = new SVGPath();
 t1.setContent("M50, 0L0, 50 L100, 50 Z");
 t1.setStrokeWidth(10);
@@ -170,13 +178,16 @@ t2.setFill(null);
 t2.setStroke(Color.BLACK);
 ```
 
-![|350](Pasted%20image%2020230714102331.png)
+@import "images/Pasted%20image%2020230714102331.png" {width="350px" title=""}
 
 ## 8. 虚线
 
 stroke 默认采用实线。定义虚线，需要指定 dashPattern 和 dashOffset。
 
-dashPattern 是类型为 `ObservableList<Double>` 的 double 数组。`Shape.getStrokeDashArray()` 返回该数组。数组按 dash length, gap, dash length 格式指定 dashPattern。
+`dashPattern` 是类型为 `ObservableList<Double>` 的 double 数组。`Shape.getStrokeDashArray()` 返回该数组。dashPattern 数组以下面两个两个元素交替指定 dash 和 gap 长度：
+
+1. dash-length
+2. gap
 
 `Shape.strokeDashOffset()` 返回 dashOffset 值，指定从 dashPattern 什么地方开始画虚线。
 
@@ -187,7 +198,7 @@ dashPattern 是类型为 `ObservableList<Double>` 的 double 数组。`Shape.get
 - 第一个 offset 为 0，为默认值。第一个矩形的第一段 dash 长度为 15px，为 dashPattern 的第一个元素
 - 第二个 offset 为 20.0，即从 dashPattern 的 20px 后才开始画虚线。前面两个元素 15px dash 和 5px gap 刚好 20px，所以从第 3 个元素开始
 
-```java
+```java{.line-numbers}
 Polygon p1 = new Polygon(0, 0, 100, 0, 100, 50, 0, 50, 0, 0);
 p1.setFill(null);
 p1.setStroke(Color.BLACK);
@@ -200,4 +211,4 @@ p2.getStrokeDashArray().addAll(15.0, 5.0, 5.0, 5.0);
 p2.setStrokeDashOffset(20.0);
 ```
 
-![](Pasted%20image%2020230605150248.png)
+@import "images/Pasted%20image%2020230605150248.png" {width="px" title=""}

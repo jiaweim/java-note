@@ -1,5 +1,7 @@
 # Screen
 
+2023-08-09, 16:46
+modify: 样式
 2023-07-04, 20:44
 ****
 ## 1. 简介
@@ -41,11 +43,10 @@ Rectangle2D getVisualBounds()
 
 ## 6. 示例
 
-```ad-note
-虽然 `Screen` 类的API没有明说，但是 `Screen` 只能在 JavaFX 程序中使用。即在 JavaFX launcher 启动后才能使用。但是不需要在 JAT 线程中，所以可以在 `init()` 方法中使用。
-```
+!!! note
+    虽然 `Screen` 类的API没有明说，但是 `Screen` 只能在 JavaFX 程序中使用。即在 JavaFX launcher 启动后才能使用，但是不需要在 JAT 线程中，在 `init()` 方法中也能使用。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
