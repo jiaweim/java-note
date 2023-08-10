@@ -375,6 +375,516 @@ private void registerListeners() {
 
 在 Canvas 上的
 
+## 示例
+
+### LED 控件
+
+LED 常用于指示状态（如开关）。现在要自定义一个 LED 样式的控件。LED 样式如下：
+
+@import "images/2023-08-10-17-22-29.png" {width="150px" title=""}
+
+LED 通常安装在插座上。要创建自定义 JavaFX 控件来模拟物理对象，首先要决定要描绘哪些材质和组件。
+
+Java 开发人员通常不喜欢使用绘图程序，但这对设计控件非常有帮助。准确地说，是适量绘图程序。当控件的外观非常重要，使用一种有利于可视化的工具非常有意义。因此，首先要做的是创建控件的矢量图，例如：
+
+@import "images/2023-08-10-17-27-08.png" {width="150px" title=""}
+
+在红色塑料周围有金属外框和白色高亮。红色部分包含 inner-shadow 和 outer-shadow，以创造一个更真实的外观。这里包含三个渐变填充的圆：
+
+@import "images/2023-08-10-17-30-04.png" {width="450px" title=""}
+
+在绘图程序中确定 LED 的大小、颜色、梯度以及位置。下面通过扩展 Region 并使用 CSS 实现 LED。
+
+### 代码结构
+
+按以下结构组织代码：
+
+- Constructor
+- Initialization
+  - `init()` 定义初始尺寸
+  - `initGraphics()` 设置 scene graph
+  - `registerListeners()` 为属性添加 listeners
+- Method block: get, set 和 property 方法
+- Resizing block: 根据需要 resize 和 redraw 控件
+
+### LED 属性
+
+LED 控件包含控件的逻辑（包括属性）和可视化代码。这里只使用 5 个属性：
+
+- On (Boolean property for current state)
+- Blinking (Boolean property to switch on/off blinking)
+- Interval (long property to define the blink interval)
+- FrameVisible (Boolean property to switch on/off the metal socket)
+- LedColor (object property of type `Color` to define the color of the LED)
+
+这些属性相关代码：
+
+```java
+public class Led extends Region {
+    private static final double PREFERRED_SIZE = 16;
+    private static final double MINIMUM_SIZE = 8;
+    private static final double MAXIMUM_SIZE = 1024;
+    private static final PseudoClass ON_PSEUDO_CLASS = PseudoClass.getPseudoClass("on");
+    private static final long SHORTEST_INTERVAL = 50_000_000l;
+    private static final long LONGEST_INTERVAL = 5_000_000_000l;
+    // Model/Controller related
+    private ObjectProperty<Color> ledColor;
+    private BooleanProperty on;
+    private boolean _blinking = false;
+    private BooleanProperty blinking;
+    private boolean _frameVisible = true;
+    private BooleanProperty frameVisible;
+    private long lastTimerCall;
+    private long _interval = 500_000_000l;
+    private LongProperty interval;
+    private AnimationTimer timer;
+    // View related
+    private double size;
+    private Region frame;
+    private Region led;
+    private Region highlight;
+    private InnerShadow innerShadow;
+    private DropShadow glow;
+
+    public final boolean isOn() {
+        return null == on ? false : on.get();
+    }
+
+    public final void setOn(final boolean ON) {
+        onProperty().set(ON);
+    }
+
+    public final BooleanProperty onProperty() {
+        if (null == on) {
+            on = new BooleanPropertyBase(false) {
+                @Override
+                protected void invalidated() {pseudoClassStateChanged(ON_PSEUDO_CLASS, get());}
+                @Override
+                public Object getBean() {return this;}
+                @Override
+                public String getName() {return "on";}
+            };
+        }
+        return on;
+    }
+
+    public final boolean isBlinking() {
+        return null == blinking ? _blinking : blinking.get();
+    }
+
+    public final void setBlinking(final boolean BLINKING) {
+        if (null == blinking) {
+            _blinking = BLINKING;
+            if (BLINKING) {
+                timer.start();
+            } else {
+                timer.stop();
+                setOn(false);
+            }
+        } else {
+            blinking.set(BLINKING);
+        }
+    }
+
+    public final BooleanProperty blinkingProperty() {
+        if (null == blinking) {
+            blinking = new BooleanPropertyBase() {
+                @Override
+                public void set(final boolean BLINKING) {
+                    super.set(BLINKING);
+                    if (BLINKING) {
+                        timer.start();
+                    } else {
+                        timer.stop();
+                        setOn(false);
+                    }
+                }
+
+                @Override
+                public Object getBean() {
+                    return Led.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "blinking";
+                }
+            };
+        }
+        return blinking;
+    }
+
+    public final long getInterval() {
+        return null == interval ? _interval : interval.get();
+    }
+
+    public final void setInterval(final long INTERVAL) {
+        if (null == interval) {
+            _interval = clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL);
+        } else {
+            interval.set(INTERVAL);
+        }
+    }
+
+    public final LongProperty intervalProperty() {
+        if (null == interval) {
+            interval = new LongPropertyBase() {
+                @Override
+                public void set(final long INTERVAL) {
+                    super.set(clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL));
+                }
+
+                @Override
+                public Object getBean() {
+                    return Led.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "interval";
+                }
+            };
+        }
+        return interval;
+    }
+
+    public final boolean isFrameVisible() {
+        return null == frameVisible ? _frameVisible : frameVisible.get();
+    }
+
+    public final void setFrameVisible(final boolean FRAME_VISIBLE) {
+        if (null == frameVisible) {
+            _frameVisible = FRAME_VISIBLE;
+        } else {
+            frameVisible.set(FRAME_VISIBLE);
+        }
+    }
+
+    public final BooleanProperty frameVisibleProperty() {
+        if (null == frameVisible) {
+            frameVisible = new SimpleBooleanProperty(this, "frameVisible", _frameVisible);
+        }
+        return frameVisible;
+    }
+
+    public final Color getLedColor() {
+        return null == ledColor ? Color.RED : ledColor.get();
+    }
+
+    public final void setLedColor(final Color LED_COLOR) {
+        ledColorProperty().set(LED_COLOR);
+    }
+
+    public final ObjectProperty<Color> ledColorProperty() {
+        if (null == ledColor) {
+            ledColor = new SimpleObjectProperty<>(this, "ledColor", Color.RED);
+        }
+        return ledColor;
+    }
+
+    // ******************** Utility Methods ***********************************
+    public static long clamp(final long MIN, final long MAX, final long VALUE) {
+        if (VALUE < MIN) return MIN;
+        if (VALUE > MAX) return MAX;
+        return VALUE;
+    }
+```
+
+### LED 控件初始化
+
+在构造函数中，首先加载样式表，添加样式类：
+
+```java
+public Led() {
+    getStylesheets().add(getClass().getResource("led.css").toExternalForm());
+    getStyleClass().add("led");
+}
+```
+
+因为需要让 LED 闪缩，所以在构造函数中添加 `AnimationTimer`：
+
+```java
+lastTimerCall = System.nanoTime();
+timer = new AnimationTimer() {
+    @Override
+    public void handle(final long NOW) {
+        if (NOW > lastTimerCall + getInterval()) {
+            setOn(!isOn());
+            lastTimerCall = NOW;
+        }
+    }
+};
+```
+
+然后在构造函数中添加初始化方法：
+
+```java
+init();
+initGraphics();
+registerListeners();
+```
+
+为了确保 LED 控件在初始化过程中正确设置大小，比如在 init() 方法中设置 minSize, prefSize 和 maxSize：
+
+```java
+private void init() {
+    if (Double.compare(getWidth(), 0) <= 0 || Double.compare(getHeight(), 0) <= 0 
+        || Double.compare(getPrefWidth(), 0) <= 0 || Double.compare(getPrefHeight(), 0) <= 0) {
+        setPrefSize(PREFERRED_SIZE, PREFERRED_SIZE);
+    }
+    if (Double.compare(getMinWidth(), 0) <= 0 || Double.compare(getMinHeight(), 0) <= 0) {
+        setMinSize(MINIMUM_SIZE, MINIMUM_SIZE);
+    }
+    if (Double.compare(getMaxWidth(), 0) <= 0 || Double.compare(getMaxHeight(), 0) <= 0) {
+        setMaxSize(MAXIMUM_SIZE, MAXIMUM_SIZE);
+    }
+}
+```
+
+### 可视化代码
+
+`javafx.scene.layout.Region` 是一个轻量级的 JavaFX 容器，可以包含其它 nodes，可以使用 CSS 设置样式。
+
+通过扩展 `Region` 自定义控件将包含控件逻辑和可视化代码。在 `initGraphics()` 方法中创建所需 nodes，应用合适的 CSS 样式。
+
+```java
+private void initGraphics() {
+    frame = new Region();
+    frame.getStyleClass().setAll("frame");
+    frame.setOpacity(isFrameVisible() ? 1 : 0);
+
+    led = new Region();
+    led.getStyleClass().setAll("main");
+    led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
+
+    innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 8, 0d, 0d, 0d);
+
+    glow = new DropShadow(BlurType.TWO_PASS_BOX, getLedColor(), 20, 0d, 0d, 0d);
+    glow.setInput(innerShadow);
+
+    highlight = new Region();
+    highlight.getStyleClass().setAll("highlight");
+
+    // Add all nodes
+    getChildren().addAll(frame, led, highlight);
+}
+```
+
+
+```java
+
+public class Led extends Region {
+
+    // ******************** Initialization ************************************
+
+
+    private void initGraphics() {
+        frame = new Region();
+        frame.getStyleClass().setAll("frame");
+        frame.setOpacity(isFrameVisible() ? 1 : 0);
+
+        led = new Region();
+        led.getStyleClass().setAll("main");
+        led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
+
+        innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 8, 0d, 0d, 0d);
+
+        glow = new DropShadow(BlurType.TWO_PASS_BOX, getLedColor(), 20, 0d, 0d, 0d);
+        glow.setInput(innerShadow);
+
+        highlight = new Region();
+        highlight.getStyleClass().setAll("highlight");
+
+        // Add all nodes
+        getChildren().addAll(frame, led, highlight);
+    }
+
+    private void registerListeners() {
+        widthProperty().addListener(observable -> resize());
+        heightProperty().addListener(observable -> resize());
+        frameVisibleProperty().addListener(observable -> frame.setOpacity(isFrameVisible() ? 1 : 0));
+        onProperty().addListener(observable -> led.setEffect(isOn() ? glow : innerShadow));
+        ledColorProperty().addListener(observable -> {
+            led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
+            resize();
+        });
+    }
+
+
+    // ******************** Methods *******************************************   
+    public final boolean isOn() {
+        return null == on ? false : on.get();
+    }
+
+    public final void setOn(final boolean ON) {
+        onProperty().set(ON);
+    }
+
+    public final BooleanProperty onProperty() {
+        if (null == on) {
+            on = new BooleanPropertyBase(false) {
+                @Override
+                protected void invalidated() {pseudoClassStateChanged(ON_PSEUDO_CLASS, get());}
+
+                @Override
+                public Object getBean() {return this;}
+
+                @Override
+                public String getName() {return "on";}
+            };
+        }
+        return on;
+    }
+
+    public final boolean isBlinking() {
+        return null == blinking ? _blinking : blinking.get();
+    }
+
+    public final void setBlinking(final boolean BLINKING) {
+        if (null == blinking) {
+            _blinking = BLINKING;
+            if (BLINKING) {
+                timer.start();
+            } else {
+                timer.stop();
+                setOn(false);
+            }
+        } else {
+            blinking.set(BLINKING);
+        }
+    }
+
+    public final BooleanProperty blinkingProperty() {
+        if (null == blinking) {
+            blinking = new BooleanPropertyBase() {
+                @Override
+                public void set(final boolean BLINKING) {
+                    super.set(BLINKING);
+                    if (BLINKING) {
+                        timer.start();
+                    } else {
+                        timer.stop();
+                        setOn(false);
+                    }
+                }
+
+                @Override
+                public Object getBean() {
+                    return Led.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "blinking";
+                }
+            };
+        }
+        return blinking;
+    }
+
+    public final long getInterval() {
+        return null == interval ? _interval : interval.get();
+    }
+
+    public final void setInterval(final long INTERVAL) {
+        if (null == interval) {
+            _interval = clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL);
+        } else {
+            interval.set(INTERVAL);
+        }
+    }
+
+    public final LongProperty intervalProperty() {
+        if (null == interval) {
+            interval = new LongPropertyBase() {
+                @Override
+                public void set(final long INTERVAL) {
+                    super.set(clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL));
+                }
+
+                @Override
+                public Object getBean() {
+                    return Led.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "interval";
+                }
+            };
+        }
+        return interval;
+    }
+
+    public final boolean isFrameVisible() {
+        return null == frameVisible ? _frameVisible : frameVisible.get();
+    }
+
+    public final void setFrameVisible(final boolean FRAME_VISIBLE) {
+        if (null == frameVisible) {
+            _frameVisible = FRAME_VISIBLE;
+        } else {
+            frameVisible.set(FRAME_VISIBLE);
+        }
+    }
+
+    public final BooleanProperty frameVisibleProperty() {
+        if (null == frameVisible) {
+            frameVisible = new SimpleBooleanProperty(this, "frameVisible", _frameVisible);
+        }
+        return frameVisible;
+    }
+
+    public final Color getLedColor() {
+        return null == ledColor ? Color.RED : ledColor.get();
+    }
+
+    public final void setLedColor(final Color LED_COLOR) {
+        ledColorProperty().set(LED_COLOR);
+    }
+
+    public final ObjectProperty<Color> ledColorProperty() {
+        if (null == ledColor) {
+            ledColor = new SimpleObjectProperty<>(this, "ledColor", Color.RED);
+        }
+        return ledColor;
+    }
+
+
+    // ******************** Utility Methods ***********************************
+    public static long clamp(final long MIN, final long MAX, final long VALUE) {
+        if (VALUE < MIN) return MIN;
+        if (VALUE > MAX) return MAX;
+        return VALUE;
+    }
+
+
+    // ******************** Resizing ******************************************
+    private void resize() {
+        size = getWidth() < getHeight() ? getWidth() : getHeight();
+        if (size > 0) {
+            if (getWidth() > getHeight()) {
+                setTranslateX(0.5 * (getWidth() - size));
+            } else if (getHeight() > getWidth()) {
+                setTranslateY(0.5 * (getHeight() - size));
+            }
+
+            innerShadow.setRadius(0.07 * size);
+            glow.setRadius(0.36 * size);
+            glow.setColor(getLedColor());
+
+            frame.setPrefSize(size, size);
+
+            led.setPrefSize(0.72 * size, 0.72 * size);
+            led.relocate(0.14 * size, 0.14 * size);
+            led.setEffect(isOn() ? glow : innerShadow);
+
+            highlight.setPrefSize(0.58 * size, 0.58 * size);
+            highlight.relocate(0.21 * size, 0.21 * size);
+        }
+    }
+}
+``````
 
 ## 参考
 

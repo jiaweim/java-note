@@ -4,13 +4,13 @@
 ****
 ## 1. 简介
 
-使用 Timeline 需要设置 keyframes，使用起来相对麻烦。例如，创建 keyframes 并设置 Timeline 让 node 沿着圆移动就不容易实现。JavaFX 提供了许多类，可以使用预定义属性对 node 实现动画，这些类就是 transition。
+使用 `Timeline` 需要设置 keyframes，使用起来相对麻烦。例如，创建 keyframes 并设置 Timeline 让 node 沿着圆移动就不容易实现。JavaFX 提供了许多类，可以使用预定义属性对 node 实现动画，这些类就是 transition。
 
-所有 transition 都继承 Transition 类，而 Transition 又继承自 Animation，所以 Animation 的属性很方法在 Transition 也能用。
+所有 transition 都继承 `Transition` 类，而 `Transition` 又继承自 `Animation`，所以 `Animation` 的属性和方法 `Transition` 也能用。
 
-使用 Transition 只需要设置 node、duration 和 end-value。
+使用 `Transition` 只需要设置 node、duration 和 end-value。
 
-Animation 的 interpolator 属性指定插值器。默认为 `Interpolator.EASE_BOTH`。
+`Animation` 的 `interpolator` 属性指定插值器。默认为 `Interpolator.EASE_BOTH`。
 
 ## 2. FadeTransition
 
