@@ -56,7 +56,7 @@ public class Led extends Region {
 
     // ******************** Constructors **************************************
     public Led() {
-        getStylesheets().add(getClass().getResource("led.css").toExternalForm());
+        getStylesheets().add(getClass().getResource("/css/led.css").toExternalForm());
         getStyleClass().add("led");
 
         lastTimerCall = System.nanoTime();

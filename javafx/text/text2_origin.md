@@ -1,5 +1,7 @@
 # Text Origin
 
+2023-08-15, 09:44
+modify: 样式
 2023-07-26, 15:15
 ****
 除了 local 和 parent 坐标系，`Text` 还有一个用于渲染文本的坐标系。
@@ -11,7 +13,7 @@
 
 如下图所示，该图显示了 local 坐标系和文本坐标系。 local  坐标系为实线，text 坐标系为虚线：
 
-![](Pasted%20image%2020230726150218.png)
+@import "images/Pasted%20image%2020230726150218.png" {width="600px" title=""}
 
 `textOrigin` 定义了文本坐标系的 x 轴相对文本高度的位置：
 
@@ -24,12 +26,12 @@
 
 当需要将 `Text` 和其它 node 垂直对齐，需要考虑 `textOrigin` 属性。如果要将 `Text` 垂直居中，需要设置 `textOrigin` 为 `VPos.TOP`。否则采用默认值 `VPos.BASELINE`，文本会明显高于中间位置。
 
-**示例：** 将 Text 水平和垂直居中
+**示例：** 将 `Text` 水平和垂直居中
 
-- 为了将 Text 垂直居中，需要将 textOrigin 设置为 VPos.TOP
-- 若不设置 textOrigin，y 轴默认与 baseline 对齐
+- 为了将 `Text` 垂直居中，需要将 `textOrigin` 设置为 `VPos.TOP`
+- 若不设置 `textOrigin`，y 轴默认与 baseline 对齐
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
@@ -69,5 +71,4 @@ public class TextCentering extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230726151449.png)
-
+@import "images/Pasted%20image%2020230726151449.png" {width="400px" title=""}

@@ -190,6 +190,8 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 ## 扩展 Region
 
+2023-08-14, 10:45
+
 `Region` 是 `Control` 和 `Pane` 的父类，是一个 resizable 的 `Parent` node，可以通过 CSS 设置样式。扩展该类是实现自定义控件的最直观的方法。
 
 `Region` 和 Control+Skin 的主要区别在于，基于 `Region` 的控件同时包含逻辑和 UI，而 Control+Skin 的逻辑和 UI 分离，逻辑在 `Control` 中，UI 在 Skin 中。
@@ -212,11 +214,11 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 我们通常使用 JavaFX 提供的 `:hover` pseudo class 显示/隐藏按钮上的符号，但这里需要自定义 `:hover` pseudo class，因为在 MacOS 中，鼠标悬停在一个按钮上，所有按钮都显示符号。在代码中，我们将按钮放在 `HBox` 中，并添加一个 `MouseListener`，当鼠标悬停在 `HBox` ，将所有按钮设置为 `:hover`，触发显示符号。
 
-该控件由两个元素组成，`Circle` 和 `Region`。原则上，这里可以不用 `Circle`，将背景设置为圆形即可。不过我们保留 `Circle`。`Circle` 继承自 `Shape`，没有 `-fx-background-color` 和 `-fx-border-color` 属性，但有 `-fx-fill` 和 `-fx-stroke` 属性。
+该控件由两个元素组成，`Circle` 和 `Region`。原则上，这里可以不用 `Circle`，将背景设置为圆形即可。不过这里保留 `Circle`。`Circle` 继承自 `Shape`，没有 `-fx-background-color` 和 `-fx-border-color` 属性，但有 `-fx-fill` 和 `-fx-stroke` 属性。
 
 因为已知颜色，所以不用为颜色添加 styleable 属性，而是直接在 CSS 中预定义这三种颜色。
 
-所以只需要为 close, minimize, zoom 和 hovered 状态定义属性。
+然后为 close, minimize, zoom 和 hovered 状态定义属性。
 
 该控件另一个好处是不需要调整它的大小，它的尺寸保持不变。尽管如此，我们还是添加调整大小的代码，有备无患。
 
@@ -242,7 +244,6 @@ public class RegionControl extends Region {
                                     PseudoClass.getPseudoClass("minimize");
     private static final PseudoClass ZOOM_PSEUDO_CLASS = 
                                     PseudoClass.getPseudoClass("zoom");
-
     private static final PseudoClass HOVERED_PSEUDO_CLASS = 
                                     PseudoClass.getPseudoClass("hovered");
     private static final PseudoClass PRESSED_PSEUDO_CLASS = 
@@ -264,7 +265,7 @@ public class RegionControl extends Region {
 
 还提供了 `hovered` 和 `type` 属性，便于从外部设置这些属性。
 
-因为该控件是一个按钮，所以添加了鼠标按钮和释放的 `Consumer`，以便后续添加自定义 handler。
+因为该控件是一个按钮，所以添加了鼠标按下和释放的 `Consumer`，以便后续添加自定义 handler。
 
 - 构造函数
 
@@ -304,6 +305,7 @@ public RegionControl(final Type type) {
         @Override public String getName() { return "hovered"; }
     };
 
+    // 使用传入的 type 参数初始化 type
     pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, Type.CLOSE == type);
     pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, Type.MINIMIZE == type);
     pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, Type.ZOOM == type);
@@ -313,11 +315,11 @@ public RegionControl(final Type type) {
 }
 ```
 
-在构造函数中，在 type 属性的 invalidated() 方法中位 type 设置了 pseudo-classes。
+在构造函数中，在 `type` 属性的 `invalidated()` 方法中为 `type` 设置了 pseudo-classes。有了它，就可以在运行时更改 `type`。
 
-为了确保正确初始化 type，在构造使用中使用给定的 type 参数调用 pseudoClassStateChanged()。
+为了确保正确初始化 `type`，在构造使用中使用给定的 `type` 参数调用 `pseudoClassStateChanged()`。
 
-initGraphics 和 registerListeners 实现：
+`initGraphics` 和 `registerListeners` 实现：
 
 ```java
 private void initGraphics() {
@@ -331,13 +333,15 @@ private void initGraphics() {
             setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
         }
     }
-
+    
+    // 为当前控件添加样式类
     getStyleClass().add("region-based");
 
     circle = new Circle();
     circle.getStyleClass().add("circle");
     circle.setStrokeType(StrokeType.INSIDE);
-
+    
+    // 用来显示 hover 符号
     symbol = new Region();
     symbol.getStyleClass().add("symbol");
 
@@ -361,9 +365,326 @@ private void registerListeners() {
 }
 ```
 
-在 initGraphics 中添加了 Circle 和 Region，并分别设置了样式类名。
+在 `initGraphics` 中添加了 `Circle` 和 `Region`，并分别设置了样式类名。
 
-在 registerListeners 中添加了常见的 size listeners。
+在 `registerListeners` 中：
+
+- 添加了常见的 size listeners（也可以在 layoutChildren() 方法中调整大小/重绘）
+- 设置了两个 `EventFilter` 来捕获 `MOUSE_PRESSED` 和 `MOUSE_RELEASED` 事件，并转发给 `mousePressedConsumer` 和 `mouseReleasedConsumer`
+- 在 EventFilter 方法调用 pseudoClassStateChanged，确保按下鼠标时控件样式被正确设置
+
+CSS 文件包含 UI 相关的所有内容，如下：
+
+```css
+.region-based {
+    /* 不同状态的颜色 */
+    -RED: #ff6058;
+    -YELLOW: #ffbc35;
+    -GREEN: #00c844;
+    /* 禁用状态颜色 */
+    -GRAY: #535353;
+    /* 符号颜色 */
+    -DARK_GRAY: #343535;
+}
+
+.region-based .circle {
+    -fx-stroke-width: 0.5px;
+}
+
+.region-based:close .circle,
+.region-based:close:hovered .circle {
+    -fx-fill: -RED;
+    -fx-stroke: derive(-RED, -10%);
+}
+.region-based:close:pressed .circle {
+    -fx-fill: derive(-RED, -20%);
+    -fx-stroke: derive(-RED, -30%);
+}
+
+.region-based:minimize .circle,
+.region-based:minimize:hovered .circle {
+    -fx-fill: -YELLOW;
+    -fx-stroke: derive(-YELLOW, -10%);
+}
+.region-based:minimize:pressed .circle {
+    -fx-fill: derive(-YELLOW, -20%);
+    -fx-stroke: derive(-YELLOW, -30%);
+}
+
+.region-based:zoom .circle,
+.region-based:zoom:hovered .circle {
+    -fx-fill: -GREEN;
+    -fx-stroke: derive(-GREEN, -10%);
+}
+.region-based:zoom:pressed .circle {
+    -fx-fill: derive(-GREEN, -20%);
+    -fx-stroke: derive(-GREEN, -30%);
+}
+
+.region-based:disabled:close .circle,
+.region-based:disabled:minimize .circle,
+.region-based:disabled:zoom .circle {
+    -fx-fill: -GRAY;
+    -fx-stroke: transparent;
+}
+
+.region-based:close .symbol,
+.region-based:minimize .symbol,
+.region-based:zoom .symbol {
+    -fx-background-color: transparent;
+}
+
+.region-based:hovered:close .symbol {
+    -fx-background-color: -DARK_GRAY;
+    -fx-border-color: -DARK_GRAY;
+    -fx-scale-shape: false;
+    -fx-shape: "M6.001,5.429l2.554,-2.555l0.571,0.571l-2.555,2.554l2.55,2.55l-0.572,0.572l-2.55,-2.55l-2.554,2.555l-0.571,-0.571l2.555,-2.554l-2.55,-2.55l0.572,-0.572l2.55,2.55Z";
+}
+.region-based:hovered:minimize .symbol {
+    -fx-background-color: -DARK_GRAY;
+    -fx-scale-shape: false;
+    -fx-shape: "M2.0,5.5l8,0l0,1l-8,0l0,-1Z";
+}
+.region-based:hovered:zoom .symbol {
+    -fx-background-color: -DARK_GRAY;
+    -fx-scale-shape: false;
+    -fx-shape: "M2.696,2.582l4.545,0.656l-3.889,3.889l-0.656,-4.545ZM9.533,9.418l-0.656,-4.545l-3.889,3.889l4.545,0.656Z";
+}
+```
+
+MacOS 按钮看起来要么有一个 inner-shadow，要么有一个比 fill 深一点的 border。因此，将 stroke 设置为 0.5px。同时定义一个比 fill 深一点的 stroke-color。
+
+在 JavaFX CSS 中通过 derive 方法很容易定义该颜色。创建一个深红色 border：
+
+```css
+-fx-stroke: derive(-RED, -10%);
+```
+
+对 pressed 状态使用相同技术，即 fill 和 stroke 颜色比圆来深一点，以表示 pressed 状态。
+
+上面对每个状态（:close, :minimize, :zoom, :hovered, :pressed）以及这些状态的组合都定义了相关颜色。
+
+当然也有其它技术实现该效果。这里采用组合 CSS PseudoClasses 设置控件样式并非唯一方式。
+
+Normal state:
+
+@import "images/2023-08-14-10-42-47.png" {width="250px" title=""}
+
+Hovered state:
+
+@import "images/2023-08-14-10-43-22.png" {width="250px" title=""}
+
+完整代码：
+
+```java
+@DefaultProperty("children")
+public class RegionControl extends Region {
+
+    public enum Type {CLOSE, MINIMIZE, ZOOM}
+
+    private static final double PREFERRED_WIDTH = 12;
+    private static final double PREFERRED_HEIGHT = 12;
+    private static final double MINIMUM_WIDTH = 12;
+    private static final double MINIMUM_HEIGHT = 12;
+    private static final double MAXIMUM_WIDTH = 12;
+    private static final double MAXIMUM_HEIGHT = 12;
+    private static final PseudoClass CLOSE_PSEUDO_CLASS = PseudoClass.getPseudoClass("close");
+    private static final PseudoClass MINIMIZE_PSEUDO_CLASS = PseudoClass.getPseudoClass("minimize");
+    private static final PseudoClass ZOOM_PSEUDO_CLASS = PseudoClass.getPseudoClass("zoom");
+    private static final PseudoClass HOVERED_PSEUDO_CLASS = PseudoClass.getPseudoClass("hovered");
+    private static final PseudoClass PRESSED_PSEUDO_CLASS = PseudoClass.getPseudoClass("pressed");
+    private static final PseudoClass STATE_PSEUDO_CLASS = PseudoClass.getPseudoClass("state");
+    private BooleanProperty hovered;
+    private BooleanProperty state;
+    private static String userAgentStyleSheet;
+    private ObjectProperty<Type> type;
+    private double size;
+    private double width;
+    private double height;
+    private Circle circle;
+    private Region symbol;
+    private Consumer<MouseEvent> mousePressedConsumer;
+    private Consumer<MouseEvent> mouseReleasedConsumer;
+
+    public RegionControl() {
+        this(Type.CLOSE);
+    }
+
+    public RegionControl(final Type type) {
+        this.type = new ObjectPropertyBase<>(type) {
+            @Override
+            protected void invalidated() {
+                switch (get()) {
+                    case CLOSE -> {
+                        pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, true);
+                        pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, false);
+                        pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, false);
+                    }
+                    case MINIMIZE -> {
+                        pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, false);
+                        pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, true);
+                        pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, false);
+                    }
+                    case ZOOM -> {
+                        pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, false);
+                        pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, false);
+                        pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, true);
+                    }
+                }
+            }
+
+            @Override
+            public Object getBean() {return RegionControl.this;}
+
+            @Override
+            public String getName() {return "type";}
+        };
+        this.hovered = new BooleanPropertyBase() {
+            @Override
+            protected void invalidated() {pseudoClassStateChanged(HOVERED_PSEUDO_CLASS, get());}
+
+            @Override
+            public Object getBean() {return RegionControl.this;}
+
+            @Override
+            public String getName() {return "hovered";}
+        };
+        this.state = new BooleanPropertyBase(false) {
+            @Override
+            protected void invalidated() {pseudoClassStateChanged(STATE_PSEUDO_CLASS, get());}
+
+            @Override
+            public Object getBean() {return RegionControl.this;}
+
+            @Override
+            public String getName() {return "state";}
+        };
+
+        pseudoClassStateChanged(CLOSE_PSEUDO_CLASS, Type.CLOSE == type);
+        pseudoClassStateChanged(MINIMIZE_PSEUDO_CLASS, Type.MINIMIZE == type);
+        pseudoClassStateChanged(ZOOM_PSEUDO_CLASS, Type.ZOOM == type);
+
+        initGraphics();
+        registerListeners();
+    }
+
+
+    // ******************** Initialization ************************************
+    private void initGraphics() {
+        if (Double.compare(getPrefWidth(), 0.0) <= 0 || Double.compare(getPrefHeight(), 0.0) <= 0 || Double.compare(getWidth(), 0.0) <= 0 ||
+                Double.compare(getHeight(), 0.0) <= 0) {
+            if (getPrefWidth() > 0 && getPrefHeight() > 0) {
+                setPrefSize(getPrefWidth(), getPrefHeight());
+            } else {
+                setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
+            }
+        }
+
+        getStyleClass().add("region-based");
+
+        circle = new Circle();
+        circle.getStyleClass().add("circle");
+        circle.setStrokeType(StrokeType.INSIDE);
+
+        symbol = new Region();
+        symbol.getStyleClass().add("symbol");
+
+        getChildren().setAll(circle, symbol);
+    }
+
+    private void registerListeners() {
+        widthProperty().addListener(o -> resize());
+        heightProperty().addListener(o -> resize());
+        addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            pseudoClassStateChanged(PRESSED_PSEUDO_CLASS, true);
+            if (null == mousePressedConsumer) {
+                return;
+            }
+            mousePressedConsumer.accept(e);
+        });
+        addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            pseudoClassStateChanged(PRESSED_PSEUDO_CLASS, false);
+            if (null == mouseReleasedConsumer) {
+                return;
+            }
+            mouseReleasedConsumer.accept(e);
+        });
+    }
+
+
+    @Override
+    protected double computeMinWidth(final double height) {return MINIMUM_WIDTH;}
+
+    @Override
+    protected double computeMinHeight(final double width) {return MINIMUM_HEIGHT;}
+
+    @Override
+    protected double computePrefWidth(final double height) {return super.computePrefWidth(height);}
+
+    @Override
+    protected double computePrefHeight(final double width) {return super.computePrefHeight(width);}
+
+    @Override
+    protected double computeMaxWidth(final double height) {return MAXIMUM_WIDTH;}
+
+    @Override
+    protected double computeMaxHeight(final double width) {return MAXIMUM_HEIGHT;}
+
+    @Override
+    public ObservableList<Node> getChildren() {return super.getChildren();}
+
+    public Type getType() {return type.get();}
+
+    public void setType(final Type type) {this.type.set(type);}
+
+    public ObjectProperty<Type> typeProperty() {return type;}
+
+    public boolean isHovered() {return hovered.get();}
+
+    public void setHovered(final boolean hovered) {this.hovered.set(hovered);}
+
+    public BooleanProperty hoveredProperty() {return hovered;}
+
+    public boolean getState() {return state.get();}
+
+    public void setState(final boolean state) {this.state.set(state);}
+
+    public BooleanProperty stateProperty() {return state;}
+
+    public void setOnMousePressed(final Consumer<MouseEvent> mousePressedConsumer) {this.mousePressedConsumer = mousePressedConsumer;}
+
+    public void setOnMouseReleased(final Consumer<MouseEvent> mouseReleasedConsumer) {this.mouseReleasedConsumer = mouseReleasedConsumer;}
+
+
+    // ******************** Layout ********************************************
+    private void resize() {
+        width = getWidth() - getInsets().getLeft() - getInsets().getRight();
+        height = getHeight() - getInsets().getTop() - getInsets().getBottom();
+        size = width < height ? width : height;
+
+
+        if (width > 0 && height > 0) {
+            setMaxSize(size, size);
+            setPrefSize(size, size);
+
+            double center = size * 0.5;
+            circle.setRadius(center);
+            circle.setCenterX(center);
+            circle.setCenterY(center);
+
+            symbol.setPrefSize(size, size);
+        }
+    }
+
+    @Override
+    public String getUserAgentStylesheet() {
+        if (null == userAgentStyleSheet) {
+            userAgentStyleSheet = RegionControl.class.getResource("region-based.css").toExternalForm();
+        }
+        return userAgentStyleSheet;
+    }
+}
+```
 
 ## 使用 Canvas
 
@@ -376,6 +697,8 @@ private void registerListeners() {
 在 Canvas 上的
 
 ## 示例
+
+2023-08-14, 15:59
 
 ### LED 控件
 
@@ -419,7 +742,7 @@ LED 控件包含控件的逻辑（包括属性）和可视化代码。这里只�
 
 这些属性相关代码：
 
-```java
+```java{.line-numbers}
 public class Led extends Region {
     private static final double PREFERRED_SIZE = 16;
     private static final double MINIMUM_SIZE = 8;
@@ -643,248 +966,138 @@ private void init() {
 
 ### 可视化代码
 
-`javafx.scene.layout.Region` 是一个轻量级的 JavaFX 容器，可以包含其它 nodes，可以使用 CSS 设置样式。
+`javafx.scene.layout.Region` 是一个轻量级的 JavaFX 容器，可以包含其它 nodes，支持 CSS 设置样式。
 
-通过扩展 `Region` 自定义控件将包含控件逻辑和可视化代码。在 `initGraphics()` 方法中创建所需 nodes，应用合适的 CSS 样式。
+通过扩展 `Region` 自定义控件将包含控件逻辑和可视化代码。
 
-```java
+在 `initGraphics()` 方法中创建所需 nodes，应用合适的 CSS 样式。
+
+```java{.line-numbers}
 private void initGraphics() {
+    // 金属边框 node
     frame = new Region();
     frame.getStyleClass().setAll("frame");
     frame.setOpacity(isFrameVisible() ? 1 : 0);
-
+    
+    // 红色 LED 塑料部分
     led = new Region();
     led.getStyleClass().setAll("main");
     led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
 
+    // 为 main LED 设置 inner shadow 特效
     innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 8, 0d, 0d, 0d);
-
+    
+    // 在 main LED body 上设置 dropShadow 特效
     glow = new DropShadow(BlurType.TWO_PASS_BOX, getLedColor(), 20, 0d, 0d, 0d);
     glow.setInput(innerShadow);
 
+    // 在 main LED body 上创建高亮效果
     highlight = new Region();
     highlight.getStyleClass().setAll("highlight");
 
-    // Add all nodes
+    // 将所有 nodes 添加到该控件
     getChildren().addAll(frame, led, highlight);
 }
 ```
 
+到目前为止，已经创建了 LED 控件所需的每个 nodes，并从 CSS 文件应用了合适的样式。
+
+### LED Control CSS
+
+在 `initGraphics()` 中创建的每个 nodes 都有自己的 CSS 样式类，在 led.css 文件中可以看到：
+
+```css
+.led {
+    -led-color  : red;
+    -frame-color: linear-gradient(from 14% 14% to 84% 84%,
+                                  rgba(20, 20, 20, 0.64706) 0%,
+                                  rgba(20, 20, 20, 0.64706) 15%,
+                                  rgba(41, 41, 41, 0.64706) 26%,
+                                  rgba(200, 200, 200, 0.40631) 85%,
+                                  rgba(200, 200, 200, 0.3451) 100%);
+}
+
+.led .frame {
+    -fx-background-color : -frame-color;
+    -fx-background-radius: 1024;
+}
+.led .main {
+    -fx-background-color : linear-gradient(from 15% 15% to 83% 83%,
+                                           derive(-led-color, -80%) 0%,
+                                           derive(-led-color, -87%) 49%,
+                                           derive(-led-color, -80) 100%);
+    -fx-background-radius: 1024;
+}
+.led:on .main {
+    -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
+                                          derive(-led-color, -23%) 0%,
+                                          derive(-led-color, -50%) 49%,
+                                          -led-color 100%);
+}
+.led .highlight {
+    -fx-background-color : radial-gradient(center 15% 15%, radius 50%,
+                                           white 0%,
+                                           transparent 100%);   
+    -fx-background-radius: 1024;
+}
+```
+
+在 CSS 中可以使用百分比定义渐变，不用担心控件的实际大小。与 Java Swing 相比，这是一个巨大优势。
+
+### Resizing LED Control
+
+在 JavaFX 中，layoutPane 的尺寸决定了它 children 的尺寸，所以必须确保控件能够根据 layoutPane 调整大小。如果将 LED 控件放在 StackPane 中，LED 尺寸将与 StackPane 相同。因此，比如在 `registerListeners()` 中将监听器连接到控件的 `widthProperty()` 和 `heightProperty()`。
 
 ```java
+private void registerListeners() {
+    widthProperty().addListener(observable -> resize());
+    heightProperty().addListener(observable -> resize());
 
-public class Led extends Region {
-
-    // ******************** Initialization ************************************
-
-
-    private void initGraphics() {
-        frame = new Region();
-        frame.getStyleClass().setAll("frame");
-        frame.setOpacity(isFrameVisible() ? 1 : 0);
-
-        led = new Region();
-        led.getStyleClass().setAll("main");
+    frameVisibleProperty().addListener(observable -> frame.setOpacity(isFrameVisible() ? 1 : 0));
+    onProperty().addListener(observable -> led.setEffect(isOn() ? glow : innerShadow));
+    ledColorProperty().addListener(observable -> {
         led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
+        resize();
+    });
+}
+```
 
-        innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 8, 0d, 0d, 0d);
+此方法对可能影响 LED 控件可视化或尺寸的属性添加监听器。
 
-        glow = new DropShadow(BlurType.TWO_PASS_BOX, getLedColor(), 20, 0d, 0d, 0d);
-        glow.setInput(innerShadow);
+当 width 和 height 的 listeners 被触发，它们调用 resize() 方法，该方法负责设置控件所有 nodes 的大小：
 
-        highlight = new Region();
-        highlight.getStyleClass().setAll("highlight");
-
-        // Add all nodes
-        getChildren().addAll(frame, led, highlight);
-    }
-
-    private void registerListeners() {
-        widthProperty().addListener(observable -> resize());
-        heightProperty().addListener(observable -> resize());
-        frameVisibleProperty().addListener(observable -> frame.setOpacity(isFrameVisible() ? 1 : 0));
-        onProperty().addListener(observable -> led.setEffect(isOn() ? glow : innerShadow));
-        ledColorProperty().addListener(observable -> {
-            led.setStyle("-led-color: " + (getLedColor()).toString().replace("0x", "#") + ";");
-            resize();
-        });
-    }
-
-
-    // ******************** Methods *******************************************   
-    public final boolean isOn() {
-        return null == on ? false : on.get();
-    }
-
-    public final void setOn(final boolean ON) {
-        onProperty().set(ON);
-    }
-
-    public final BooleanProperty onProperty() {
-        if (null == on) {
-            on = new BooleanPropertyBase(false) {
-                @Override
-                protected void invalidated() {pseudoClassStateChanged(ON_PSEUDO_CLASS, get());}
-
-                @Override
-                public Object getBean() {return this;}
-
-                @Override
-                public String getName() {return "on";}
-            };
+```java
+private void resize() {
+    size = getWidth() < getHeight() ? getWidth() : getHeight();
+    if (size > 0) {
+        if (getWidth() > getHeight()) {
+            setTranslateX(0.5 * (getWidth() - size));
+        } else if (getHeight() > getWidth()) {
+            setTranslateY(0.5 * (getHeight() - size));
         }
-        return on;
-    }
 
-    public final boolean isBlinking() {
-        return null == blinking ? _blinking : blinking.get();
-    }
+        innerShadow.setRadius(0.07 * size);
+        glow.setRadius(0.36 * size);
+        glow.setColor(getLedColor());
 
-    public final void setBlinking(final boolean BLINKING) {
-        if (null == blinking) {
-            _blinking = BLINKING;
-            if (BLINKING) {
-                timer.start();
-            } else {
-                timer.stop();
-                setOn(false);
-            }
-        } else {
-            blinking.set(BLINKING);
-        }
-    }
+        frame.setPrefSize(size, size);
 
-    public final BooleanProperty blinkingProperty() {
-        if (null == blinking) {
-            blinking = new BooleanPropertyBase() {
-                @Override
-                public void set(final boolean BLINKING) {
-                    super.set(BLINKING);
-                    if (BLINKING) {
-                        timer.start();
-                    } else {
-                        timer.stop();
-                        setOn(false);
-                    }
-                }
+        led.setPrefSize(0.72 * size, 0.72 * size);
+        led.relocate(0.14 * size, 0.14 * size);
+        led.setEffect(isOn() ? glow : innerShadow);
 
-                @Override
-                public Object getBean() {
-                    return Led.this;
-                }
-
-                @Override
-                public String getName() {
-                    return "blinking";
-                }
-            };
-        }
-        return blinking;
-    }
-
-    public final long getInterval() {
-        return null == interval ? _interval : interval.get();
-    }
-
-    public final void setInterval(final long INTERVAL) {
-        if (null == interval) {
-            _interval = clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL);
-        } else {
-            interval.set(INTERVAL);
-        }
-    }
-
-    public final LongProperty intervalProperty() {
-        if (null == interval) {
-            interval = new LongPropertyBase() {
-                @Override
-                public void set(final long INTERVAL) {
-                    super.set(clamp(SHORTEST_INTERVAL, LONGEST_INTERVAL, INTERVAL));
-                }
-
-                @Override
-                public Object getBean() {
-                    return Led.this;
-                }
-
-                @Override
-                public String getName() {
-                    return "interval";
-                }
-            };
-        }
-        return interval;
-    }
-
-    public final boolean isFrameVisible() {
-        return null == frameVisible ? _frameVisible : frameVisible.get();
-    }
-
-    public final void setFrameVisible(final boolean FRAME_VISIBLE) {
-        if (null == frameVisible) {
-            _frameVisible = FRAME_VISIBLE;
-        } else {
-            frameVisible.set(FRAME_VISIBLE);
-        }
-    }
-
-    public final BooleanProperty frameVisibleProperty() {
-        if (null == frameVisible) {
-            frameVisible = new SimpleBooleanProperty(this, "frameVisible", _frameVisible);
-        }
-        return frameVisible;
-    }
-
-    public final Color getLedColor() {
-        return null == ledColor ? Color.RED : ledColor.get();
-    }
-
-    public final void setLedColor(final Color LED_COLOR) {
-        ledColorProperty().set(LED_COLOR);
-    }
-
-    public final ObjectProperty<Color> ledColorProperty() {
-        if (null == ledColor) {
-            ledColor = new SimpleObjectProperty<>(this, "ledColor", Color.RED);
-        }
-        return ledColor;
-    }
-
-
-    // ******************** Utility Methods ***********************************
-    public static long clamp(final long MIN, final long MAX, final long VALUE) {
-        if (VALUE < MIN) return MIN;
-        if (VALUE > MAX) return MAX;
-        return VALUE;
-    }
-
-
-    // ******************** Resizing ******************************************
-    private void resize() {
-        size = getWidth() < getHeight() ? getWidth() : getHeight();
-        if (size > 0) {
-            if (getWidth() > getHeight()) {
-                setTranslateX(0.5 * (getWidth() - size));
-            } else if (getHeight() > getWidth()) {
-                setTranslateY(0.5 * (getHeight() - size));
-            }
-
-            innerShadow.setRadius(0.07 * size);
-            glow.setRadius(0.36 * size);
-            glow.setColor(getLedColor());
-
-            frame.setPrefSize(size, size);
-
-            led.setPrefSize(0.72 * size, 0.72 * size);
-            led.relocate(0.14 * size, 0.14 * size);
-            led.setEffect(isOn() ? glow : innerShadow);
-
-            highlight.setPrefSize(0.58 * size, 0.58 * size);
-            highlight.relocate(0.21 * size, 0.21 * size);
-        }
+        highlight.setPrefSize(0.58 * size, 0.58 * size);
+        highlight.relocate(0.21 * size, 0.21 * size);
     }
 }
-``````
+```
+
+在 resize() 方法中，唯一要做的是计算每个 node 的大小，并重新设置位置：
+
+- 首先计算 LED 的最小尺寸，因为它是方形的，如果宽度小于高度就取宽度，反之亦然
+- 确保只有当前大小大于 0 才调整
+
+
 
 ## 参考
 

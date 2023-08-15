@@ -1,5 +1,7 @@
 # Observable 集合
 
+2023-08-15, 09:36
+modify: 样式
 2023-07-04, 15:22
 ****
 ## 1. 什么是 Observable 集合
@@ -12,7 +14,8 @@ JavaFX `Observable` 集合对 Java 集合进行扩展，支持三种可观察内
 
 这三个接口分别继承 `java.util` 包中的 `List`, `Set` 和 `Map` 接口，同时继承 `javafx.collections.Observable` 接口。主要类图如下所示：
 
-![](images/2023-07-03-09-02-24.png)
+@import "images/2023-07-03-09-02-24.png" {width="600px" title=""}
+
 JavaFX `Observable` 集合具有两个额外功能：
 
 - 支持 Invalidation 通知
@@ -24,15 +27,14 @@ JavaFX `Observable` 集合具有两个额外功能：
 
 `ObservableList` 接口的类图如下：
 
-![](images/2023-07-03-09-26-53.png)
+@import "images/2023-07-03-09-26-53.png" {width="600px" title=""}
+
 添加 `ListChangeListener` 监听 `ObservableList` 的变化，当 `ObservableList` 发生变化，会自动调用 `ListChangeListener` 的 `onChanged()` 方法。
 
-```ad-note
-`javafx.collections.transformation` 中包含 `FilteredList` 和 `SortedList` 类：
-
-- `FilteredList` 也是 `ObservableList`，根据指定 `Predicate` 过滤内容
-- `SortedList` 对内容进行排序
-```
+!!! note
+    `javafx.collections.transformation` 中包含 `FilteredList` 和 `SortedList` 类：
+      - `FilteredList` 也是 `ObservableList`，根据指定 `Predicate` 过滤内容
+      - `SortedList` 对内容进行排序
 
 ### 2.1. 创建 ObservableList
 
@@ -62,7 +64,7 @@ ObservableList<String> emptyList = FXCollections.emptyObservableList();
 
 **示例：** 演示创建 `ObservableList`
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -122,7 +124,7 @@ After concatenating list2 and list3:[1, 2, 3, ten, twenty, thirty]
 
 `ObservableList` 支持 `InvalidationListener`。
 
-```java
+```java{.line-numbers}
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -168,14 +170,13 @@ List is invalid.
 After replacing one with one.
 ```
 
+!!! tip
+    `InvalidationListener` 对所有改变 `ObservableList` 的操作，都触发一次 Invalid 事件。    
 
-```ad-tip
-`InvalidationListener` 对所有改变 ObservableList 的操作，都触发一次 Invalid 事件。
-```
 
 ### 2.3. 监听 ObservableList 的 Change 事件
 
-列表的元素可以重拍、更新、替换、添加和删除，这些都属于 Change 事件。使用 `ObservableList.addListener()` 添加 `ListChangeListener` 来监听这些事件。例如：
+列表的元素可以重排、更新、替换、添加和删除，这些都属于 Change 事件。使用 `ObservableList.addListener()` 添加 `ListChangeListener` 来监听这些事件。例如：
 
 ```java
 ObservableList<String> list = FXCollections.observableArrayList();
@@ -190,7 +191,7 @@ list.addListener(new ListChangeListener<String>() {
 
 **示例：** 演示 `ListChangeListener`，添加 listener 后，操作 list 4 次，listener 每次都收到通知。
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -342,7 +343,7 @@ public interface Callback<P,R> {
 
 示例：演示 extractor 功能
 
-```java
+```java{.line-numbers}
 import javafx.beans.Observable;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -401,7 +402,7 @@ listWithExtractor updated
 
 #### 2.3.3. 完整示例
 
-```java
+```java{.line-numbers}
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -462,7 +463,7 @@ public class Person implements Comparable<Person> {
 }
 ```
 
-```java
+```java{.line-numbers}
 import javafx.collections.ListChangeListener;
 import java.util.List;
 
@@ -543,7 +544,7 @@ public class PersonListChangeListener implements ListChangeListener<Person> {
 }
 ```
 
-```java
+```java{.line-numbers}
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -674,11 +675,12 @@ After removeAll(): [Liz Na]
 `FilteredList` 实现了 `ObservableList`，根据 `Predicate` 过滤列表元素。对 ObservableList 的更改都会同步到 `FilteredList`。
 
 https://courses.bekwam.net/public_tutorials/bkcourse_filterlistapp.html
+
 ## 3. ObservableSet
 
 除了继承 `Set` 的所有方法，`ObservableSet` 的类图如下所示：
 
-![](images/2023-07-04-10-45-43.png)
+@import "images/2023-07-04-10-45-43.png" {width="600px" title=""}
 
 `ObservableSet` 支持 `InvalidationListener` 和 `SetChangeListener`。
 
@@ -694,7 +696,7 @@ https://courses.bekwam.net/public_tutorials/bkcourse_filterlistapp.html
 
 **示例：** 创建 `ObservableSet`
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 
@@ -731,7 +733,7 @@ s3: [one, two, three]
 
 **示例：** `ObservableSet` 的 `SetChangeListener` 演示
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -790,7 +792,7 @@ Removed: four, Set after the change: []
 
 **示例：** `ObservableSet` 的 `InvalidationListener` 演示
 
-```java
+```java{.line-numbers}
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
@@ -866,7 +868,7 @@ After removing 123.
 
 **示例：** 创建 `ObservableMap`
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -899,7 +901,7 @@ Map 2: {ten=10, twenty=20}
 
 **示例：** `MapChangeListener` 演示
 
-```java
+```java{.line-numbers}
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -967,7 +969,7 @@ After calling clear()
 
 **示例：** `InvalidationLisener` 演示
 
-```java
+```java{.line-numbers}
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;

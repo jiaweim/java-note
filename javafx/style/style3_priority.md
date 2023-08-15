@@ -76,7 +76,7 @@ public class StylesPriorities extends Application {
 }
 ```
 
-![|250](images/Pasted%20image%2020230619183256.png)
+@import "images/Pasted%20image%2020230619183256.png" {width="250px" title=""}
 
 yesBtn 的字体大小有四个来源：
 

@@ -79,7 +79,7 @@ Font f4 = Font.font("Arial", FontWeight.THIN, 30);
 
 - 第一个 Text 使用默认 font
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
@@ -129,7 +129,7 @@ public class TextFontTest extends Application {
 }
 ```
 
-![|450](Pasted%20image%2020230726153835.png)
+@import "images/Pasted%20image%2020230726153835.png" {width="450px" title=""}
 
 ## 3. 已安装字体
 

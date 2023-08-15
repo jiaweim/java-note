@@ -29,5 +29,6 @@ module java.module {
     opens mjw.study.javafx.transform;
     opens mjw.study.javafx.animation;
     opens mjw.study.javafx.image;
+    opens mjw.study.javafx.effect;
 
 }

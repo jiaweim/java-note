@@ -6,19 +6,19 @@
 
 `StackPane` 使用堆栈存储节点，子节点按照添加顺序渲染。
 
-下图以 `StackPane` 为 root，依次添加 Rectangle 和 Text。因为后添加 Text，所有在 Rectangle 上显示：
+下图以 `StackPane` 为 root，依次添加 `Rectangle` 和 `Text`。因为后添加 `Text`，所有在 `Rectangle` 上显示：
 
-![|250](Pasted%20image%2020230710133310.png)
+@import "images/Pasted%20image%2020230710133310.png" {width="250px" title=""}
 
-```ad-tip
-使用 StackPane 叠加不同类型的 nodes，可以创建很多有意思的 GUI。
-```
 
-StackPane 的 preferred width 为最宽子节点的宽度。preferred height 为最高字节点的高度。
+!!! tip
+    使用 `StackPane` 叠加不同类型的 nodes，可以创建很多有意思的 GUI。    
 
-StackPane 会裁剪 content，因此子节点可能渲染到 StackPane 外面。
+`StackPane` 的 prefWidth 为最宽子节点的宽度。prefHeight 为最高字节点的高度。
 
-对 maximum size 允许的子节点，StackPane 调整其大小以填充整个 content area。子节点相对 content area 默认 center 对齐。
+`StackPane` 会裁剪 content，因此子节点可能渲染到 StackPane 外面。
+
+对 maxSize 允许的子节点，`StackPane` 调整其大小以填充整个 content area。子节点相对 content area 默认 center 对齐。
 
 ## 2. 创建 StackPane
 
@@ -40,7 +40,7 @@ StackPane spane2 = new StackPane(r, new Text("A Rectangle"));
 
 **示例：** 创建 StackPane，添加 1 个 Rectangle 和 1 个 Text
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -84,7 +84,7 @@ public class StackPaneTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230710134612.png)
+@import "images/Pasted%20image%2020230710134612.png" {width="300px" title=""}
 
 使用 StackPane，添加节点的顺序很重要。下面的两个语句产生的结果不同：
 
@@ -108,7 +108,7 @@ HBox 包含 5 个 StackPane:
 - 第 4 个，Rectangle 在 Text 上，Text 比 Rectangle 大，超出 Rectangle 的部分可见
 - 第 5  个，Rectangle 在 Text 上，Text 比 Rectangle 大，将 Rectangle 设置为半透明，所以 Rectangle 部分 Text 可见性为 50%，超出部分为 100% 可见。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -174,19 +174,19 @@ public class StackPaneOverlayTest extends Application {
 }
 ```
 
-![|500](Pasted%20image%2020230710135050.png)
+@import "images/Pasted%20image%2020230710135050.png" {width="500px" title=""}
 
 ## 3. StackPane Properties
 
-StackPane alignment 属性为 `ObjectProperty<Pos>` 类型，定义**所有子节点**在 content area 的对齐方式，默认为 Pos.CENTER。
+`StackPane` alignment 属性为 `ObjectProperty<Pos>` 类型，定义**所有子节点**在 content area 的对齐方式，默认为 Pos.CENTER。
 
 单个子节点的对齐方式可以通过 alignment 约束来设置。如下一节所示。
 
-除了重叠节点外，StackPane 还有其它用途。如在正中心显示文本，可以将 Text 放在 StackPane 中，将 StackPane 作为 Scene 的 root，这样 Text 会自动居中。如果没有 StackPane，你需要通过 binding 来保持 text 居中。
+除了重叠节点外，`StackPane` 还有其它用途。如在正中心显示文本，可以将 `Text` 放在 `StackPane` 中，将 `StackPane` 作为 `Scene` 的 root，这样 Text 会自动居中。如果没有 `StackPane`，你需要通过 binding 来保持 text 居中。
 
-**示例：** 在 HBox 中放置 5 个 StackPane，每个 StackPane 都包含 Rectangle+Text。
+**示例：** 在 HBox 中放置 5 个 `StackPane`，每个 `StackPane` 都包含 Rectangle+Text。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -245,9 +245,9 @@ public class StackPaneAlignment extends Application {
 }
 ```
 
-![](Pasted%20image%2020230710142005.png)
+@import "images/Pasted%20image%2020230710142005.png" {width="px" title=""}
 
-Rectangle 较大，所以 StackPane 的 preferred size 为 Rectangle 的 size，Text 较小，根据 alignment 在 content area 不同位置显示。
+`Rectangle` 较大，所以 `StackPane` 的 prefSize 为 `Rectangle` 的 size，`Text` 较小，根据 alignment 在 content area 不同位置显示。
 
 ## 4. 约束
 
@@ -260,9 +260,8 @@ StackPane 也支持 alignment 和 margin 两个约束。其中 alignment 定义�
 
 所以，在绘制子节点时，JavaFX 优先使用 StackPane 的 alignment 约束对齐子节点，如果没有设置 alignment 约束，则使用 alignment 属性。
 
-```ad-tip
-`StackPane` 的 `alignment` 属性默认为 `Pos.CENTER`，而 alignment 约束的默认值为 `null`。
-```
+!!! tip
+    `StackPane` 的 `alignment` 属性默认为 `Pos.CENTER`，而 alignment 约束的默认值为 `null`。
 
 使用 static `StackPane.setAlignment(Node child, Pos value)` 设置 alignment 约束；使用 static StackPane.getAlignment(Node child) 查询约束。
 
@@ -278,7 +277,7 @@ Pos alignment = StackPane.getAlignment(topLeft);
 
 **示例：** StackPane 的 alignment 约束
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -326,7 +325,7 @@ public class StackPaneAlignmentConstraint extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230710143045.png)
+@import "images/Pasted%20image%2020230710143045.png" {width="250px" title=""}
 
 使用 static `StackPane.setMargin(Node child, Insets value)` 设置 margins：
 

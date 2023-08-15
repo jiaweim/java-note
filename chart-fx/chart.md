@@ -4,12 +4,13 @@
 
 Chart 定义图表，其类图如下：
 
-![|350](images/Pasted%20image%2020230605162405.png)
+@import "images/Pasted%20image%2020230605162405.png" {width="350px" title=""}
+
 ## Chart 结构
 
 如图所示：
 
-![](Pasted%20image%2020230803104444.png)
+@import "images/Pasted%20image%2020230803104444.png" {width="px" title=""}
 
 ### 创建坐标轴
 
@@ -40,7 +41,7 @@ yAxis4.setSide(Side.CENTER_VER);
 
 xAxis1 的位置如下图所示：
 
-![](Pasted%20image%2020230803212803.png)
+@import "images/Pasted%20image%2020230803212803.png" {width="px" title=""}
 
 其中 xAxis3 水平居中，为了美观，修改其 minorTick 数和 axisLabel：
 
