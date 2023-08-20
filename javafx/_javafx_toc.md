@@ -150,7 +150,9 @@
     - [创建可复用对象](fxml/fxml4_reusable.md)
     - [指定 Location](fxml/fxml5_location.md)
     - [ResourceBundle](fxml/fxml6_resource.md)
-
+    - [使用常量](./fxml/fxml8_constants.md)
+    - [引用另一个元素](./fxml/fxml9_refer.md)
+    - [复制元素](./fxml/fxml10_copy.md)
 
 - [概述](1.intro.md)
 - [Node](3.node.md)

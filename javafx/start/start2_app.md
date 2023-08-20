@@ -1,5 +1,7 @@
 # JavaFX 程序
 
+2023-08-17, 19:47
+modify: 样式
 2023-07-05, 12:54
 @author Jiawei Mao
 ****
@@ -121,13 +123,12 @@ public static void launch(Class<? extends Application> appClass, String... args)
 public static void launch(String... args)
 ```
 
-```ad-warning
-JavaFX `Application` 类必须有 no-args 构造函数；否则抛出 runtime 异常。
-```
+!!! warning
+    JavaFX `Application` 类必须有无参构造函数，否则抛出 runtime 异常。    
 
 **版本一：** 传入 `Application` 引用
 
-第一个 `launch()` 方法很清楚。参数一为 `Application` 类的引用，参数二为应用参数。例如：
+第一个 `launch()` 方法很清楚。参数 1 为 `Application` 类的引用，参数 2 为应用参数。例如：
 
 ```java
 public class MyJavaFXApp extends Application {
@@ -151,7 +152,7 @@ public class MyAppLauncher {
 
 **版本二**：不传入 `Application` 引用
 
-第二个 `launch()` 方法根据调用 `launch()` 的类来识别 `Application`。如果调用 `launch()` 方法的类继承自 `Application`，则启用该 JavaFX，否则抛出 runtime 异常。
+第二个 `launch()` 方法根据调用 `launch()` 的类来识别 `Application`。如果调用 `launch()` 方法的类继承自 `Application`，则启动该 JavaFX，否则抛出 runtime 异常。
 
 - 调用类继承自 `Application`
 
@@ -208,7 +209,7 @@ Exception in thread "Thread-0" java.lang.RuntimeException: Error: class MyJavaFX
     at java.lang.Thread.run(Thread.java:722)
 ```
 
-这个比较隐晦。虽然 `MyJavaFXApp` 继承了 `Application`，但实际调用 `launch()` 的是 `MyJavaFXApp$1` 匿名内部类，该类继承自 `Object`，而不是 `Application`。
+这个错误比较隐晦。虽然 `MyJavaFXApp` 继承了 `Application`，但实际调用 `launch()` 的是 `MyJavaFXApp$1` 匿名内部类，该类继承自 `Object`，而不是 `Application`。
 
 ## 4. 终止 JavaFX 应用
 
@@ -218,9 +219,9 @@ Exception in thread "Thread-0" java.lang.RuntimeException: Error: class MyJavaFX
 
 如果在 `Application` 的 `start()` 之后或在 `start()` 方法中调用 `Platform.exit()`，将调用 `Application.stop()` 方法，然后终止 JAT 线程。此时，如果剩下守护线程在运行，则退出 JVM。
 
-如果在 `Application` 的构造函数或 `init()` 中调用 `Platform.exit()`，则可能不会调用 `stop(`) 方法。
+如果在 `Application` 的构造函数或 `init()` 中调用 `Platform.exit()`，则可能不会调用 `stop()` 方法。
 
-直接调用 System.exit(int) 也可以退出 JavaFX 应用，但不会调用 stop() 方法。
+直接调用 `System.exit(int)` 也可以退出 JavaFX 应用，但不会调用 `stop()` 方法。
 
 - 隐式终止
 

@@ -30,7 +30,7 @@ JavaFX 使用自定义的窗口工具 `glass` 以及图形引擎 `prism`。两�
 
 实际上，`FXLauncher` 加载的 main 类并不是要运行的 JavaFX Application，而是 `FXHelper`。大致流程如下：
 
-![[Pasted image 20230601122041.png|500]]
+@import "images/Pasted image 20230601122041.png" {width="500px" title=""}
 
 ### 方法二：转换为 module
 
@@ -73,7 +73,7 @@ module my.project {
 
 然后，加这些参数添加到 IDE 运行的 VM 参数：
 
-![[Pasted image 20230601130256.png]]
+@import "images/Pasted image 20230601130256.png" {width="px" title=""}
 
 ### 方法四：为 Jar 添加参数
 
