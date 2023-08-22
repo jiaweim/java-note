@@ -1,6 +1,9 @@
 # 菜单
 
+2023-08-21, 20:25
+m: 样式
 2023-07-25, 17:06
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -19,7 +22,7 @@
 - "Save As" submenu 包含 2 个 menu items: Text 和 PDF
 - menuitem 是 actionable item
 
-![|350](Pasted%20image%2020230725144333.png)
+@import "images/Pasted%20image%2020230725144333.png" {width="350px" title=""}
 
 菜单的使用包含多个步骤：
 
@@ -30,7 +33,7 @@
 
 ## 2. Menu Bar
 
-menu-bar 是水平 bar，作为菜单的容器。MenuBar 类表示 menu-bar。创建 MenuBar:
+menu-bar 是水平 bar，作为菜单的容器。`MenuBar` 类表示 menu-bar。创建 `MenuBar`:
 
 ```java
 MenuBar menuBar = new MenuBar();
@@ -136,7 +139,7 @@ showing 属性为 read-only boolean 属性。menu 显示时为 true，隐藏时�
 
 创建 4 个 menus, 1 个 menu-bar，将 menus 添加到 menu-bar，将 menu-bar 添加到 BorderPane 的顶部。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -185,38 +188,38 @@ public class MenuTest extends Application {
 
 menu-item 是 menu 中的可操作项。menu-item 关联的功能通过鼠标或键盘来触发。menu-item 可以通过 CSS 设置样式。
 
-MenuItem 类表示 menu-item。MenuItem 不是 Node，而是继承 Object，因此不能直接将 MenuItem 添加到 scene graph，而是添加到 menu。
+`MenuItem` 类表示 menu-item。`MenuItem` 不是 `Node`，而是继承 `Object`，因此不能直接将 `MenuItem` 添加到 scene graph，而是添加到 menu。
 
-有多种类型的 menu-item。MenuItem 的类图如下：
+有多种类型的 menu-item。`MenuItem` 的类图如下：
 
-![](Pasted%20image%2020230725155105.png)
+@import "images/Pasted%20image%2020230725155105.png" {width="600px" title=""}
 
-- MenuItem 用于可操作菜单
-- RadioMenuItem 用于互斥选项
-- CheckMenuItem 用于切换选项
-- Menu，用于 menu-item 时，充当子菜单
-- CustomMenuItem，将任意 Node 用作菜单
-- SeparatorMenuItem，将分隔符用作 menu-item
+- `MenuItem` 用于可操作菜单
+- `RadioMenuItem` 用于互斥选项
+- `CheckMenuItem` 用于切换选项
+- `Menu`，用于 menu-item 时，充当子菜单
+- `CustomMenuItem`，将任意 Node 用作菜单
+- `SeparatorMenuItem`，将分隔符用作 menu-item
 
 ### 4.1. MenuItem
 
-MenuItem 表示可操作选项。点击时，注册的 ActionEvent handler 被调用。
+`MenuItem` 表示可操作选项。点击时，注册的 `ActionEvent` handler 被调用。
 
-**示例：** 创建 Exit MenuItem，添加 ActionEvent handler，点击时退出应用
+**示例：** 创建 Exit `MenuItem`，添加 `ActionEvent` handler，点击时退出应用
 
 ```java
 MenuItem exitItem = new MenuItem("Exit");
 exitItem.setOnAction(e -> Platform.exit());
 ```
 
-Menu.getItems() 返回 `ObservableList<MenuItem>`，为 Menu 包含的所有 MenuItem，可用来添加或删除 MenuItem：
+`Menu.getItems()` 返回 `ObservableList<MenuItem>`，为 `Menu` 包含的所有 `MenuItem`，可用来添加或删除 `MenuItem`：
 
 ```java
 Menu fileMenu = new Menu("File");
 fileMenu.getItems().add(exitItem);
 ```
 
-MenuItem 包含如下属性，适用于其它 menu-item 类型：
+`MenuItem` 包含如下属性，适用于其它 menu-item 类型：
 
 - text
 - graphic
@@ -231,11 +234,11 @@ MenuItem 包含如下属性，适用于其它 menu-item 类型：
 - style
 - id
 
-text 和 graphic 属性为 menu-item 的 text 和 graphic，类型分别为 String 和 Node。
+`text` 和 `graphic` 属性为 menu-item 的 text 和 graphic，类型分别为 `String` 和 `Node`。
 
-disable 和 visible 属性都是 boolean 类型，指定 menu-item 是否禁用和可见。
+`disable` 和 `visible` 属性都是 `boolean` 类型，指定 menu-item 是否禁用和可见。
 
-accelerator 属性为 KeyCombination 类型，用于指定 menu-item 的快捷键。
+`accelerator` 属性为 `KeyCombination` 类型，用于指定 menu-item 的快捷键。
 
 **示例：** 创建 "Rectangle" menu-item，快捷键设置为 Alt+R
 
@@ -269,9 +272,9 @@ parentPopup 是 ContextMenu 类型的 read-only 属性。它是显示 menu-items
 
 ### 4.2. RadioMenuItem
 
-RadioMenuItem 表示互斥选项。通常将多个 RadioMenuItem 添加到 ToggleGroup，group 中只能选择一个 RadioMenuItem。
+`RadioMenuItem` 表示互斥选项。通常将多个 `RadioMenuItem` 添加到 `ToggleGroup`，group 中只能选择一个 `RadioMenuItem`。
 
-RadioMenuItem 被选中时显示一个复选标记。
+`RadioMenuItem` 被选中时显示一个复选标记。
 
 **示例：** 创建 3  个 RadioMenuItem 并添加到 ToggleGroup
 
@@ -295,11 +298,11 @@ Menu fileMenu = new Menu("File");
 fileMenu.getItems().addAll(rectItem, circleItem, ellipseItem);
 ```
 
-![|200](Pasted%20image%2020230725162557.png)
+@import "images/Pasted%20image%2020230725162557.png" {width="200px" title=""}
 
-为 RadioMenuItem 添加 ActionEvent handler 用于在被选后执行操作。
+为 `RadioMenuItem` 添加 `ActionEvent` handler 用于在被选后执行操作。
 
-**示例：** 为每个 RadioMenuItem 添加一个 ActionEvent handler
+**示例：** 为每个 `RadioMenuItem` 添加一个 `ActionEvent` handler
 
 ```java
 rectItem.setOnAction(e -> draw());
@@ -322,17 +325,17 @@ strokeItem.setOnAction( e -> drawStroke());
 
 ### 4.4. SubMenu
 
-Menu 类继承自 MenuItem，所以也可以用作 menu-item，用来创建子菜单。
+`Menu` 类继承自 `MenuItem`，所以也可以用作 menu-item，用来创建子菜单。
 
 **示例：** SubMenu
 
-- 创建 MenuBar
-- 添加 File menu
-- File menu 中添加 "New" 和 "Open" menu-items
-- File menu 中添加 "Save As" submenu
+- 创建 `MenuBar`
+- 添加 `File` menu
+- `File` menu 中添加 "New" 和 "Open" menu-items
+- `File` menu 中添加 "Save As" submenu
 - "Save As" submenu 中添加 Text 和 PDF menu-items
 
-```java
+```java{.line-numbers}
 MenuBar menuBar = new MenuBar();
 Menu fileMenu = new Menu("File");
 menuBar.getMenus().addAll(fileMenu);
@@ -349,20 +352,20 @@ MenuItem pdfItem = new MenuItem("PDF");
 saveAsSubMenu.getItems().addAll(textItem, pdfItem);
 ```
 
-![|120](Pasted%20image%2020230725163344.png)
+@import "images/Pasted%20image%2020230725163344.png" {width="120px" title=""}
 
-通常不会为 submenu 添加 ActionEvent handler，而是为 onShowing 属性设置 event handler，用于在子菜单显示前启用或禁用 menu-items.
+通常不会为 submenu 添加 `ActionEvent` handler，而是为 `onShowing` 属性设置 eventHandler，用于在子菜单显示前启用或禁用 menu-items.
 
 ### 4.5. CustomMenuItem
 
-CustomMenuItem 是一个简单但功能强大的 menu-item 类型，可用于设计各种不同的 menu-items。CustomMenuItem 支持使用任何 Node 类型，如 Slider, TextField 或 HBox 用作 menu-item。
+`CustomMenuItem` 是一个简单但功能强大的 menu-item 类型，可用于设计各种不同的 menu-items。`CustomMenuItem` 支持使用任何 `Node` 类型，如 `Slider`, `TextField` 或 `HBox` 用作 menu-item。
 
-CustomMenuItem 包含 2 个属性：
+`CustomMenuItem` 包含 2 个属性：
 
-- content
-- hideOnClick
+- `content`
+- `hideOnClick`
 
-content 属性为 Node 类型，指定用作 menu-item 的 Node。
+`content` 属性为 `Node` 类型，指定用作 menu-item 的 `Node`。
 
 点击 menu-item 时，所有可见的 menu 隐藏，仅 menu-bar 的顶级菜单保持可见。当使用 CustomMenuItem，你可能不希望点击 menu-item 后隐藏 menu，因为用户可能需要继续与 menu-item 进行交互，比如，输入或选择一些数据。hideOnClick 属性为 boolean 类型，用于设置该行为。hideOnClick 属性默认为 true，表示单击 CustomMenuItem 时隐藏所有 menus。
 
@@ -409,7 +412,7 @@ menuBar.getMenus().add(optionsMenu);
 
 ### 4.6. SeparatorMenuItem
 
-SeparatorMenuItem 继承自 CustomMenuItem，`content` 属性为 `Separator`，hideOnClick 属性为 false。用于 menu-items 分组：
+`SeparatorMenuItem` 继承自 `CustomMenuItem`，`content` 属性为 `Separator`，hideOnClick 属性为 false。用于 menu-items 分组：
 
 ```java
 // Create a separator menu item
@@ -431,7 +434,7 @@ SeparatorMenuItem smi = SeparatorMenuItem();
 - "Options" 下用 Slider 实现了一个 CustomMenuItem，调整 slider，Canvas 中的 strokeWidth 随之变化
 - "Draw Stroke" 为 CheckMenuItem 类型，设置是否使用 stroke
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -623,7 +626,7 @@ public class MenuItemTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230725170216.png)
+@import "images/Pasted%20image%2020230725170216.png" {width="300px" title=""}
 
 ## 6. CSS
 
@@ -639,11 +642,11 @@ public class MenuItemTest extends Application {
 |CustomMenuItem|custom-menu-item|
 |SeparatorMenuItem|separator-menu-item|
 
-MenuBar 支持 `-fx-use-system-menu-bar` 属性，默认 false。
+`MenuBar` 支持 `-fx-use-system-menu-bar` 属性，默认 false。
 
-MenuBar 包含一个 menu 子结构，包含 menu-bar 中的所有 menus。
+`MenuBar` 包含一个 menu 子结构，包含 menu-bar 中的所有 menus。
 
-Menu 支持 showing CSS pseudo-class，menu 显示时应用。
+`Menu` 支持 showing CSS pseudo-class，menu 显示时应用。
 
-RadioMenuItem 和 CheckMenuItem 支持 `selected` CSS pseudo-class，menu-item 被选时应用。
+`RadioMenuItem` 和 `CheckMenuItem` 支持 `selected` CSS pseudo-class，menu-item 被选时应用。
 

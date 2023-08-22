@@ -1,5 +1,7 @@
 # ikonli
 
+2023-08-21, 21:38
+****
 ## 简介
 
 ikonli 为 Java 应用提供 icon 包。目前支持 Swing 和 JavaFX。
@@ -11,15 +13,21 @@ ikonli 为 Java 应用提供 icon 包。目前支持 Swing 和 JavaFX。
 | Swing  | ikonli-swing-12.3.1  | ikonli-swing-2.6.0  |
 | JavaFX | ikonli-javafx-12.3.1 | ikonli-javafx-2.6.0 |
 
-```ad-warning
-有些 icon 在 JDK8 版本中没有。
-```
+!!! warning
+    有些 icon 在 JDK8 版本中没有。    
 
 ## 使用
 
 ### JavaFX
 
 `ikonli-javafx:12.3.1` 提供了一个新的 `Node` 类：`org.kordamp.ikonli.javafx.FontIcon`。可以在支持 graphic 属性的任何 JavaFX control 中使用该类。也可以直接使用 icon，因为它是 `javafx.scene.text.Text` 的子类。
+
+例如，使用 Material2 Icon：
+
+```java
+MenuItem settingItem = new MenuItem("Settings...");
+settingItem.setGraphic(FontIcon.of(Material2OutlinedMZ.SETTINGS));
+```
 
 也可以在 FXML 文件中使用 icon 类：
 
