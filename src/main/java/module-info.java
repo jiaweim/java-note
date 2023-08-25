@@ -3,7 +3,6 @@ module java.module {
     requires javafx.controls;
     requires com.google.gson;
     requires java.desktop;
-    requires org.junit.jupiter.api;
     requires org.apache.avro;
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
@@ -11,7 +10,12 @@ module java.module {
     requires com.google.common;
     requires javafx.fxml;
     requires javafx.web;
+    requires com.fasterxml.jackson.annotation;
+    requires org.hamcrest;
 
+    requires org.junit.jupiter.api;
+
+    opens mjw.study.hamcrest.matcher;
     opens mjw.study.javafx.layout;
     opens mjw.study.javafx.canvas;
     opens mjw.study.javafx.node;

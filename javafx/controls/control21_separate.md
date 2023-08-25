@@ -4,13 +4,13 @@
 ****
 ## 1. 简介
 
-Separator 和 SplitPane 用于在视觉上分隔两个控件。
+`Separator` 和 `SplitPane` 用于在视觉上分隔两个控件。
 
 ## 2. Separator
 
-Separator 是分隔两组控件的水平或垂直线，常用于菜单和 ComboBox。
+`Separator` 是分隔两组控件的水平或垂直线，常用于菜单和 `ComboBox`。
 
-Separator 的默认构造函数创建水平 Separator。通过其它构造函数或 setOrientation() 方法可设置 separator 方向：
+`Separator` 的默认构造函数创建水平 Separator。通过其它构造函数或 setOrientation() 方法可设置 separator 方向：
 
 ```java
 // Create a horizontal separator
@@ -85,21 +85,21 @@ Separator 包含一个 line 子结构，为 Region 类型。Separator 中看到�
 
 ## 3. SplitPane
 
-SplitPane 将多个 nodes 使用 divider 分开。用户可以拖动 divider 调整 nodes 尺寸。
+`SplitPane` 将多个 nodes 使用 divider 分开。用户可以拖动 divider 调整 nodes 尺寸。
 
-SplitPane 的 nodes 可以是任意 Node 类型，通常是包含控件的 layoutPane。
+`SplitPane` 的 nodes 可以是任意 Node 类型，通常是包含控件的 layoutPane。
 
-下图是水平 SplitPane，左右两个各包含一个 VBox，每个 VBox 包含一个 Label 和一个 TextArea。
+下图是水平 `SplitPane`，左右两个各包含一个 VBox，每个 `VBox` 包含一个 `Label` 和一个 `TextArea`。
 
-![|400](Pasted%20image%2020230725132916.png)
+@import "images/Pasted%20image%2020230725132916.png" {width="400px" title=""}
 
-创建 SplitPane:
+创建 `SplitPane`:
 
 ```java
 SplitPane sp = new SplitPane();
 ```
 
-SplitPane.getItems() 返回 `ObservableList<Node>`，返回 SplitPane 中包含的 Nodes。可以通过该 list 添加 node:
+`SplitPane.getItems()` 返回 `ObservableList<Node>`，返回 `SplitPane` 中包含的 Nodes。可以通过该 list 添加 node:
 
 ```java
 // Create panes
@@ -114,7 +114,7 @@ SplitPane sp = new SplitPane();
 sp.getItems().addAll(leftPane, centerPane, rightPane);
 ```
 
-SplitPane 默认水平排列 nodes。其 orientation 属性指定方向：
+`SplitPane` 默认水平排列 nodes。其 `orientation` 属性指定方向：
 
 ```java
 // Place nodes vertically

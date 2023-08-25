@@ -1,6 +1,7 @@
 # Jackson
 
-[Jackson](https://github.com/FasterXML/jackson) 是使用最为广泛的一个JSON Java库，可用于Java对象的序列化，以及将JSON转换w为Java对象。
+
+[Jackson](https://github.com/FasterXML/jackson) 是使用最为广泛的一个 JSON Java 库，可用于Java对象的序列化，以及将JSON转换w为Java对象。
 
 官方文档：
 [https://github.com/FasterXML/jackson-docs](https://github.com/FasterXML/jackson-docs)
