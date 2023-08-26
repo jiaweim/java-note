@@ -1,72 +1,75 @@
 # Hamcrest 教程
 
 - [Hamcrest 教程](#hamcrest-教程)
-  - [简介](#简介)
-  - [第一个 Hamcrest 测试](#第一个-hamcrest-测试)
-  - [其它测试框架](#其它测试框架)
-  - [Core Matcher](#core-matcher)
-    - [is](#is)
-    - [equalTo](#equalto)
-    - [not](#not)
-    - [nullValue](#nullvalue)
-    - [notNullValue](#notnullvalue)
-    - [instanceOf](#instanceof)
-    - [isA](#isa)
-    - [sameInstance](#sameinstance)
-    - [any](#any)
-    - [allOf 和 anyOf](#allof-和-anyof)
-    - [hasItem 和 hasItems](#hasitem-和-hasitems)
-    - [both 和 either](#both-和-either)
-  - [Number Matcher](#number-matcher)
-    - [isClose-double](#isclose-double)
-    - [isClose-BigDecimal](#isclose-bigdecimal)
-    - [比较大小-Integer](#比较大小-integer)
-    - [比较大小-String](#比较大小-string)
-    - [比较大小-LocalDate](#比较大小-localdate)
-    - [比较大小-自定义类](#比较大小-自定义类)
-    - [NaN Matcher](#nan-matcher)
-  - [Object Matcher](#object-matcher)
-    - [toString](#tostring)
-    - [isCompatibleType](#iscompatibletype)
-  - [Bean Matcher](#bean-matcher)
-    - [hasProperty](#hasproperty)
-    - [samePropertyValuesAs](#samepropertyvaluesas)
-    - [getPropertyDescriptor](#getpropertydescriptor)
-    - [propertyDescriptorsFor](#propertydescriptorsfor)
-  - [Collections](#collections)
-    - [数组](#数组)
-    - [Map](#map)
-    - [Iterable](#iterable)
-  - [Text Matcher](#text-matcher)
-    - [equalToIgnoringCase](#equaltoignoringcase)
-    - [equalToCompressingWhiteSpace](#equaltocompressingwhitespace)
-    - [blankString](#blankstring)
-    - [emptyString](#emptystring)
-    - [matchesPattern](#matchespattern)
-    - [containsString 和 containsStringIgnoringCase](#containsstring-和-containsstringignoringcase)
-    - [stringContainsInOrder](#stringcontainsinorder)
-    - [startsWith 和 startsWithIgnoringCase](#startswith-和-startswithignoringcase)
-    - [endsWith 和 endsWithIgnoringCase](#endswith-和-endswithignoringcase)
-  - [File](#file)
-    - [aFileNamed](#afilenamed)
-    - [aFileWithCanonicalPath 和 aFileWithAbsolutePath](#afilewithcanonicalpath-和-afilewithabsolutepath)
-    - [aFileWithSize](#afilewithsize)
-    - [aReadableFile 和 aWritableFile](#areadablefile-和-awritablefile)
-    - [文件是否存在](#文件是否存在)
-  - [自定义 Matcher](#自定义-matcher)
-  - [参考](#参考)
+  - [1. 简介](#1-简介)
+  - [2. 第一个 Hamcrest 测试](#2-第一个-hamcrest-测试)
+  - [3. 其它测试框架](#3-其它测试框架)
+  - [4. Core Matcher](#4-core-matcher)
+    - [4.1. is](#41-is)
+    - [4.2. equalTo](#42-equalto)
+    - [4.3. not](#43-not)
+    - [4.4. nullValue](#44-nullvalue)
+    - [4.5. notNullValue](#45-notnullvalue)
+    - [4.6. instanceOf](#46-instanceof)
+    - [4.7. isA](#47-isa)
+    - [4.8. sameInstance](#48-sameinstance)
+    - [4.9. any](#49-any)
+    - [4.10. allOf 和 anyOf](#410-allof-和-anyof)
+    - [4.11. hasItem 和 hasItems](#411-hasitem-和-hasitems)
+    - [4.12. both 和 either](#412-both-和-either)
+  - [5. Number Matcher](#5-number-matcher)
+    - [5.1. isClose-double](#51-isclose-double)
+    - [5.2. isClose-BigDecimal](#52-isclose-bigdecimal)
+    - [5.3. 比较大小-Integer](#53-比较大小-integer)
+    - [5.4. 比较大小-String](#54-比较大小-string)
+    - [5.5. 比较大小-LocalDate](#55-比较大小-localdate)
+    - [5.6. 比较大小-自定义类](#56-比较大小-自定义类)
+    - [5.7. NaN Matcher](#57-nan-matcher)
+  - [6. Object Matcher](#6-object-matcher)
+    - [6.1. toString](#61-tostring)
+    - [6.2. isCompatibleType](#62-iscompatibletype)
+  - [7. Bean Matcher](#7-bean-matcher)
+    - [7.1. hasProperty](#71-hasproperty)
+    - [7.2. samePropertyValuesAs](#72-samepropertyvaluesas)
+    - [7.3. getPropertyDescriptor](#73-getpropertydescriptor)
+    - [7.4. propertyDescriptorsFor](#74-propertydescriptorsfor)
+  - [8. Collections](#8-collections)
+    - [8.1. 数组](#81-数组)
+    - [8.2. Map](#82-map)
+    - [8.3. Iterable](#83-iterable)
+  - [9. Text Matcher](#9-text-matcher)
+    - [9.1. equalToIgnoringCase](#91-equaltoignoringcase)
+    - [9.2. equalToCompressingWhiteSpace](#92-equaltocompressingwhitespace)
+    - [9.3. blankString](#93-blankstring)
+    - [9.4. emptyString](#94-emptystring)
+    - [9.5. matchesPattern](#95-matchespattern)
+    - [9.6. containsString 和 containsStringIgnoringCase](#96-containsstring-和-containsstringignoringcase)
+    - [9.7. stringContainsInOrder](#97-stringcontainsinorder)
+    - [9.8. startsWith 和 startsWithIgnoringCase](#98-startswith-和-startswithignoringcase)
+    - [9.9. endsWith 和 endsWithIgnoringCase](#99-endswith-和-endswithignoringcase)
+  - [10. File](#10-file)
+    - [10.1. aFileNamed](#101-afilenamed)
+    - [10.2. aFileWithCanonicalPath 和 aFileWithAbsolutePath](#102-afilewithcanonicalpath-和-afilewithabsolutepath)
+    - [10.3. aFileWithSize](#103-afilewithsize)
+    - [10.4. aReadableFile 和 aWritableFile](#104-areadablefile-和-awritablefile)
+    - [10.5. 文件是否存在](#105-文件是否存在)
+  - [11. 自定义 Matcher](#11-自定义-matcher)
+    - [11.1. 自定义示例一](#111-自定义示例一)
+    - [11.2. 自定义示例二](#112-自定义示例二)
+    - [11.3. 自定义示例三](#113-自定义示例三)
+  - [12. 参考](#12-参考)
 
 2023-08-25, 21:13
 @author Jiawei Mao
 ****
 
-## 简介
+## 1. 简介
 
 Hamcrest 是一个用于编写 matcher 的框架，允许以声明方式定义 match 规则。matchers 在很多情况都非常有用，例如 UI 验证、数据过滤，在测试领域应用最多。
 
 下面介绍如何使用 Hamcrest 进行单元测试。
 
-## 第一个 Hamcrest 测试
+## 2. 第一个 Hamcrest 测试
 
 下面编写一个简单的 JUnit5 测试，但不使用 JUnit 的 `assertEquals` 方法，而是使用 Hamcrest 的 `assertThat` 构造和标准 matchers 集合：
 
@@ -95,7 +98,7 @@ assertThat("chocolate chips", theBiscuit.getChocolateChipCount(), equalTo(10));
 assertThat("hazelnuts", theBiscuit.getHazelnutCount(), equalTo(3));
 ```
 
-## 其它测试框架
+## 3. 其它测试框架
 
 Hamcrest 支持不同测试框架，例如 Hamcrest 可以和 JUnit (所有版本) 和 TestNG 一起使用。
 
@@ -103,7 +106,7 @@ Hamcrest 支持不同测试框架，例如 Hamcrest 可以和 JUnit (所有版�
 
 Hamcrest 还提供了 EasyMock 2 的 adaptor。
 
-## Core Matcher
+## 4. Core Matcher
 
 - `anything`
 
@@ -113,7 +116,7 @@ Hamcrest 还提供了 EasyMock 2 的 adaptor。
 
 decorator，添加自定义失败描述。
 
-### is
+### 4.1. is
 
 - `is(T)` 以对象为参数，检查相等性。
 - `is(Matcher<T>)` 以另一个 matcher 为参数，使其可读性更好。
@@ -131,7 +134,7 @@ public void testIsForMatch() {
 }
 ```
 
-### equalTo
+### 4.2. equalTo
 
 `equalTo(T)` 测试两个对象是否相等。一般与 `is` 一起使用：
 
@@ -160,7 +163,7 @@ public void testDifferentStaticTypeUsingEqualToObject() {
 }
 ```
 
-### not
+### 4.3. not
 
 `not(T)` 和 `not(Matcher<T>)` 用于检查给定对象的不相等性。
 
@@ -176,7 +179,7 @@ public void testNot() {
 }
 ```
 
-### nullValue
+### 4.4. nullValue
 
 `nullValue()` 检查对象是否为 null。`nullValue(Class<T>)` 检查是否为指定类型的 null 值。
 
@@ -191,7 +194,7 @@ public void testNullValue() {
 }
 ```
 
-### notNullValue
+### 4.5. notNullValue
 
 `is(not(nullValue()))` 的快捷方式，检查对象不为 `null`。
 
@@ -205,7 +208,7 @@ void testNotNull() {
 }
 ```
 
-### instanceOf
+### 4.6. instanceOf
 
 `instanceOf(Class<?>)` 检查指定对象是否为特定类型。
 
@@ -217,7 +220,7 @@ public void testInstanceOf() {
 }
 ```
 
-### isA
+### 4.7. isA
 
 `isA(Class<T> type)` 是 `instanceOf(Class<?>)` 的简写形式。
 
@@ -229,7 +232,7 @@ public void testIsA() {
 }
 ```
 
-### sameInstance
+### 4.8. sameInstance
 
 `sameInstance()` 测试两个引用变量是否指向同一个对象：
 
@@ -244,7 +247,7 @@ public void testSameInstance() {
 }
 ```
 
-### any
+### 4.9. any
 
 `any(Class<T>)` 功能同 `instanceOf(Class<?>)`，只是要求 `any` 参数类型必须与 测试对象相同。
 
@@ -257,7 +260,7 @@ public void testAny() {
 }
 ```
 
-### allOf 和 anyOf
+### 4.10. allOf 和 anyOf
 
 `allOf(Matcher<? extends T>…)` 测试对象是否符合指定的所有条件：
 
@@ -282,7 +285,7 @@ void testAnyOf() {
 }
 ```
 
-### hasItem 和 hasItems
+### 4.11. hasItem 和 hasItems
 
 `hasItem` 检查集合是否有元素匹配指定条件：
 
@@ -310,7 +313,7 @@ public void testHasItems() {
 }
 ```
 
-### both 和 either
+### 4.12. both 和 either
 
 `both(Matcher<? extends T>)` 测试对象是否**同时**满足指定的两个条件。
 
@@ -336,9 +339,9 @@ public void testEither() {
 }
 ```
 
-## Number Matcher
+## 5. Number Matcher
 
-### isClose-double
+### 5.1. isClose-double
 
 检查 `actual` 是否在 [operand-error, operand+error] 范围。
 
@@ -364,7 +367,7 @@ public void testNotCloseTo() {
 }
 ```
 
-### isClose-BigDecimal
+### 5.2. isClose-BigDecimal
 
 `isClose` 为重载方法，可以用来检查 BigDecimal 对象：
 
@@ -389,7 +392,7 @@ public void testBigDecimalNotCloseTo() {
 !!! note
     `is` Matcher 用于修饰其它 matcher，不添加额外逻辑，只是使整个断言可读性更好。
 
-### 比较大小-Integer
+### 5.3. 比较大小-Integer
 
 包括：
 
@@ -456,7 +459,7 @@ public void given5_whenLessThanOrEqualTo5_thenCorrect() {
 }
 ```
 
-### 比较大小-String
+### 5.4. 比较大小-String
 
 比较 Matcher 适用于任何实现 Comparable 的类，所以也可以用来比较 String：
 
@@ -478,7 +481,7 @@ public void testStringLessThan() {
 
 `String` 的 `Comparable` 接口实现按字母顺序排序，所以 "Amanda" 在 "Benjamin" 前面，这里理解为更小。
 
-### 比较大小-LocalDate
+### 5.5. 比较大小-LocalDate
 
 和 String 一样，也可以比较 `LocalDate`。
 
@@ -498,7 +501,7 @@ public void testDateLessThan() {
 }
 ```
 
-### 比较大小-自定义类
+### 5.6. 比较大小-自定义类
 
 只要实现 Comparable 接口，就能够利用比较 Matchers。
 
@@ -550,7 +553,7 @@ public void testPersonLessThan() {
 }
 ```
 
-### NaN Matcher
+### 5.7. NaN Matcher
 
 ```java
 @Test
@@ -560,7 +563,7 @@ public void givenNaN_whenIsNotANumber_thenCorrect() {
 }
 ```
 
-## Object Matcher
+## 6. Object Matcher
 
 Object matcher 检查对象属性，为 Java 对象提供 `Object` 相关测试。
 
@@ -623,7 +626,7 @@ public class City extends Location {
 }
 ```
 
-### toString
+### 6.1. toString
 
 `hasToString` 测试 `toString` 返回值。
 
@@ -658,7 +661,7 @@ public void testHasToStringEmptyOrNullString() {
 }
 ```
 
-### isCompatibleType
+### 6.2. isCompatibleType
 
 `isCompatibleType` 测试 is-a 关系
 
@@ -695,11 +698,11 @@ public void testTypeCompatibleWithObject() {
 }
 ```
 
-## Bean Matcher
+## 7. Bean Matcher
 
 Bean Matcher 用于检查 POJOs 对象。
 
-### hasProperty
+### 7.1. hasProperty
 
 检查某个 bean 是否包含由属性名称标识的特定属性。
 
@@ -741,7 +744,7 @@ public void testHasPropertyWithValueEqualToIgnoringCase() {
 }
 ```
 
-### samePropertyValuesAs
+### 7.2. samePropertyValuesAs
 
 当需要检查 bean 的许多属性时，可以先创建一个新的 bean 来检查其它 bean。
 
@@ -767,7 +770,7 @@ public void testNotSamePropertyValuesAs() {
 }
 ```
 
-### getPropertyDescriptor
+### 7.3. getPropertyDescriptor
 
 提供查询类结构的功能：
 
@@ -785,7 +788,7 @@ public void testGetPropertyDescriptor() {
 
 `PropertyDescriptor` 包含属性状态的大量信息。
 
-### propertyDescriptorsFor
+### 7.4. propertyDescriptorsFor
 
 功能同上，但是用于所有 bean 属性。
 
@@ -805,7 +808,7 @@ public void testGetPropertyDescriptorsFor() {
 
 从 `City` bean 获取属性描述符直到 `Object` level 停止。
 
-## Collections
+## 8. Collections
 
 - 检查是否包含单个元素
 
@@ -828,7 +831,7 @@ public final void testMultipleElements() {
 }
 ```
 
-### 数组
+### 8.1. 数组
 
 - 检查数组是否包含指定元素
 
@@ -930,7 +933,7 @@ public final void testEmptyArray() {
 }
 ```
 
-### Map
+### 8.2. Map
 
 - 检查 `Map` 是否为空
 
@@ -975,7 +978,7 @@ public void testMapHasEntry() {
 }
 ```
 
-### Iterable
+### 8.3. Iterable
 
 - 检查 `Iterable` 是否为空
 
@@ -1027,7 +1030,7 @@ void testEachItem() {
 }
 ```
 
-## Text Matcher
+## 9. Text Matcher
 
 |Matcher|功能|
 |---|---|
@@ -1037,7 +1040,7 @@ void testEachItem() {
 
 除了标准的 `isEqual()`，Hamcrest 还为 `String` 类型提供了 `equalToIgnoringCase` 和 `equalToIgnoringWhiteSpace` 等 matchers。
 
-### equalToIgnoringCase
+### 9.1. equalToIgnoringCase
 
 匹配字符串时忽略大小写。
 
@@ -1051,7 +1054,7 @@ public final void testEqual() {
 }
 ```
 
-### equalToCompressingWhiteSpace
+### 9.2. equalToCompressingWhiteSpace
 
 ```java
 @Test
@@ -1075,7 +1078,7 @@ public final void testEqualWithWhiteSpace() {
 }
 ```
 
-### blankString
+### 9.3. blankString
 
 `blankString()` 检查是否为 blank 字符串（只包含 whitespace），`blankOrNullString()` 检查是否为 blank 字符串或 null。
 
@@ -1091,7 +1094,7 @@ public final void testStringIsBlank() {
 }
 ```
 
-### emptyString
+### 9.4. emptyString
 
 `emptyString()` 检查是否为空字符串：
 
@@ -1107,7 +1110,7 @@ public final void testStringIsEmpty() {
 }
 ```
 
-### matchesPattern
+### 9.5. matchesPattern
 
 `matchesPattern()` 检查字符串是否匹配正则表达式。
 
@@ -1120,7 +1123,7 @@ public final void testStringMatchPattern() {
 }
 ```
 
-### containsString 和 containsStringIgnoringCase
+### 9.6. containsString 和 containsStringIgnoringCase
 
 `containsString()` 和 `containsStringIgnoringCase()` 测试是否包含指定子字符串
 
@@ -1134,7 +1137,7 @@ public final void testContains() {
 }
 ```
 
-### stringContainsInOrder
+### 9.7. stringContainsInOrder
 
 `stringContainsInOrder` 指定包含子字符串的顺序。
 
@@ -1147,7 +1150,7 @@ public final void testContainsInOrder() {
 }
 ```
 
-### startsWith 和 startsWithIgnoringCase
+### 9.8. startsWith 和 startsWithIgnoringCase
 
 测试字符串是否以指定字符串开始。
 
@@ -1161,7 +1164,7 @@ public final void testStartsWith() {
 }
 ```
 
-### endsWith 和 endsWithIgnoringCase
+### 9.9. endsWith 和 endsWithIgnoringCase
 
 测试字符串是否以指定字符串结尾。
 
@@ -1175,9 +1178,9 @@ public final void testEndsWith() {
 }
 ```
 
-## File
+## 10. File
 
-### aFileNamed
+### 10.1. aFileNamed
 
 `aFileNamed` 用于验证文件名，与 String matcher 结合使用。
 
@@ -1190,7 +1193,7 @@ public final void testFileName() {
 }
 ```
 
-### aFileWithCanonicalPath 和 aFileWithAbsolutePath
+### 10.2. aFileWithCanonicalPath 和 aFileWithAbsolutePath
 
 ```java
 @Test
@@ -1202,7 +1205,7 @@ public void whenVerifyingFilePath_thenCorrect() {
 }
 ```
 
-### aFileWithSize
+### 10.3. aFileWithSize
 
 ```java
 @Test
@@ -1214,7 +1217,7 @@ public final void testFileSize() {
 }
 ```
 
-### aReadableFile 和 aWritableFile
+### 10.4. aReadableFile 和 aWritableFile
 
 ```java
 @Test
@@ -1226,7 +1229,7 @@ public final void testFileIsReadableAndWritable() {
 }
 ```
 
-### 文件是否存在
+### 10.5. 文件是否存在
 
 ```java
 @Test
@@ -1241,9 +1244,136 @@ public final void whenVerifyingFileOrDirExist_thenCorrect() {
 }
 ```
 
-## 自定义 Matcher
+## 11. 自定义 Matcher
+
+自定义 Matcher 主要继承 `TypeSafeMatcher` 类：
+
+- `matchesSafely(T t)` 包含主要逻辑
+- `describeTo(Description description)` 指定测试失败信息
 
 当你发现一段代码在不同测试中反复出现测试同一组属性时，将这段代码打包到断言中，编写自己的 Matcher，可以消除代码重复并使测试更易读。
+
+### 11.1. 自定义示例一
+
+实现断言：当字符串只包含数字，返回 true。
+
+- 首先继承 `TypeSafeMatcher`
+
+```java
+public class IsOnlyDigits extends TypeSafeMatcher<String> {
+   
+    @Override
+    protected boolean matchesSafely(String s) {
+        // ...
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        // ...
+    }
+}
+```
+
+因为要测试的 `String` 类型，所以这里指定 `TypeSafeMatcher` 的参数化类型为 `String`。
+
+- 实现
+
+```java
+public class IsOnlyDigits extends TypeSafeMatcher<String> {
+
+    @Override
+    protected boolean matchesSafely(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException nfe){
+            return false;
+        }
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("only digits");
+    }
+}
+```
+
+在 `matchesSafely` 方法内视图将输入的字符串解析为整数。如果成功，返回 true；否则返回 false。
+
+`describeTo` 方法中附件了期望了测试失败信息。
+
+- 最后，还需要一个 `static` 方法，从而与内置的 matchers 一样
+
+```java
+public static Matcher<String> onlyDigits() {
+    return new IsOnlyDigits();
+}
+```
+
+- 使用创建的 matcher
+
+```java
+@Test
+public void givenAString_whenIsOnlyDigits_thenCorrect() {
+    String digits = "1234";
+
+    assertThat(digits, onlyDigits());
+}
+```
+
+### 11.2. 自定义示例二
+
+如果我们想创建一个 Matcher 来定义一个数是否可以被另一个数整除，此时需要将其中一个参数存储起来。
+
+实现：
+
+```java
+public class IsDivisibleBy extends TypeSafeMatcher<Integer> {
+
+    private Integer divider;
+
+    // constructors
+
+    @Override
+    protected boolean matchesSafely(Integer dividend) {
+        if (divider == 0) {
+            return false;
+        }
+        return ((dividend % divider) == 0);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("divisible by " + divider);
+    }
+
+    public static Matcher<Integer> divisibleBy(Integer divider) {
+        return new IsDivisibleBy(divider);
+    }
+}
+```
+
+这里只需要添加一个新的属性。
+
+```java
+@Test
+public void givenAnEvenInteger_whenDivisibleByTwo_thenCorrect() {
+    Integer ten = 10;
+    Integer two = 2;
+
+    assertThat(ten,is(divisibleBy(two)));
+}
+
+@Test
+public void givenAnOddInteger_whenNotDivisibleByTwo_thenCorrect() {
+    Integer eleven = 11;
+    Integer two = 2;
+
+    assertThat(eleven,is(not(divisibleBy(two))));
+}
+```
+
+### 11.3. 自定义示例三
 
 例如，测试 double 是否为 NaN：
 
@@ -1306,7 +1436,7 @@ public class NumberTest {
 } 
 ```
 
-## 参考
+## 12. 参考
 
 - https://hamcrest.org/JavaHamcrest/tutorial
 - https://www.baeldung.com/tag/hamcrest

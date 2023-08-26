@@ -1,47 +1,19 @@
-- [简介](#%e7%ae%80%e4%bb%8b)
-- [Junit 5 快速入门](#junit-5-%e5%bf%ab%e9%80%9f%e5%85%a5%e9%97%a8)
-  - [相对 Junit 4的改变](#%e7%9b%b8%e5%af%b9-junit-4%e7%9a%84%e6%94%b9%e5%8f%98)
-  - [语法](#%e8%af%ad%e6%b3%95)
-  - [命名](#%e5%91%bd%e5%90%8d)
+- [Junit 5 快速入门](#junit-5-快速入门)
+  - [相对 Junit 4的改变](#相对-junit-4的改变)
+  - [语法](#语法)
+  - [命名](#命名)
 - [Writing Tests](#writing-tests)
-  - [注释](#%e6%b3%a8%e9%87%8a)
-  - [断言](#%e6%96%ad%e8%a8%80)
-  - [参数化测试](#%e5%8f%82%e6%95%b0%e5%8c%96%e6%b5%8b%e8%af%95)
+  - [断言](#断言)
+  - [参数化测试](#参数化测试)
     - [MethodSource](#methodsource)
-  - [重复测试](#%e9%87%8d%e5%a4%8d%e6%b5%8b%e8%af%95)
-- [运行测试](#%e8%bf%90%e8%a1%8c%e6%b5%8b%e8%af%95)
-  - [IDE 支持](#ide-%e6%94%af%e6%8c%81)
-- [扩展模型](#%e6%89%a9%e5%b1%95%e6%a8%a1%e5%9e%8b)
-  - [注册扩展](#%e6%b3%a8%e5%86%8c%e6%89%a9%e5%b1%95)
-    - [声明式注册](#%e5%a3%b0%e6%98%8e%e5%bc%8f%e6%b3%a8%e5%86%8c)
-- [高级话题](#%e9%ab%98%e7%ba%a7%e8%af%9d%e9%a2%98)
-- [从 JUnit 4 迁移](#%e4%bb%8e-junit-4-%e8%bf%81%e7%a7%bb)
-  - [迁移技巧](#%e8%bf%81%e7%a7%bb%e6%8a%80%e5%b7%a7)
-- [Junit 5 新特性 - 基础篇](#junit-5-%e6%96%b0%e7%89%b9%e6%80%a7---%e5%9f%ba%e7%a1%80%e7%af%87)
+  - [重复测试](#重复测试)
+- [扩展模型](#扩展模型)
+  - [注册扩展](#注册扩展)
+- [Junit 5 新特性 - 基础篇](#junit-5-新特性---基础篇)
   - [@DisplayName](#displayname)
-  - [@Nested](#nested)
-- [API 演变](#api-%e6%bc%94%e5%8f%98)
-  - [API 版本和状态](#api-%e7%89%88%e6%9c%ac%e5%92%8c%e7%8a%b6%e6%80%81)
+- [API 演变](#api-演变)
+  - [API 版本和状态](#api-版本和状态)
 - [Reference](#reference)
-# 简介
-JUnit 5 包含多个模块：
-
-**Junit 5** = ***JUnit Platform*** + ***JUnit Jupiter*** + ***JUnit Vintage***
-
-**JUnit Platform**
-
-JUnit Platform 是在JVM启动测试框架的基础：
-- 定义了用于开发测试框架的 `TestEngine` API；
-- 定义了 Console Launcher，用于在命令行启动测试；
-- JUnit 4 运行框架；
-
-**JUnit Jupiter**
-
-JUnit Jupiter 包含 JUnit 5 用于编写单元测试的最新的编程模型及扩展。
-
-**JUnit Vintage**
-
-JUnit Vintage 提供了运行 JUnit 3 和 JUnit 4测试的平台。
 
 # Junit 5 快速入门
 
@@ -102,18 +74,6 @@ void taggedTest() {}
 **`Assert` **和**`Assume`** 也被重新命名为 **`Assertions`** 和 **`Assumptions`**
 
 # Writing Tests
-
-## 注释
-JUnit Jupiter 支持如下的注释，用于配置测试。
-
-|注释|说明|
-|---|---|
-|`@Test`|标记测试方法，无任何属性|
-|`@ParameterizedTest`|标记参数化测试。这类方法可被继承|
-|`@RepeatedTest`|标记重复测试的测试模板方法。可继承|
-|`@BeforeAll`|标记方法在 `@Test`, `@RepeatedTest`, `@ParameterizedTest` 和 `@TestFactory` 之前运行的方法，同 JUnit 4 的 `@BeforeClass`。可继承|
-|`@Disabled`|禁用测试方法或类，同 JUnit 4 `@Ignore`|
-
 
 ## 断言
 JUnit Jupiter 包含了 JUnit 4 所有的断言，针对 Java 8 lambdas 还额外添加了一些断言。所有的断言都是 `org.junit.jupiter.api.Assertions` 类中的静态方法：
@@ -361,10 +321,6 @@ void repeatedTest() {
 }
 ```
 
-# 运行测试
-## IDE 支持
-
-
 # 扩展模型
 和 JUnit 4 中相互冲突的的 `Runner`, `TestRule`, `MethodRule` 不同，JUnit Jupiter 扩展模型包含单个一致的 `Extension` API。
 
@@ -373,17 +329,6 @@ void repeatedTest() {
 - 声明式的 `@ExtendWith`
 - 编程式的 `@RegisterExtension`
 - 自动的 `ServiceLoader` 机制
-
-### 声明式注册
-可以通过
-
-# 高级话题
-
-# 从 JUnit 4 迁移
-
-## 迁移技巧
-在迁移时需要注意以下方面：
-- `@RunWith` 被 `@ExtendWith` 替代
 
 # Junit 5 新特性 - 基础篇
 ## @DisplayName
@@ -394,15 +339,11 @@ void repeatedTest() {
 void displayNameTest() {}
 ```
 
-## @Nested
-
 # API 演变
 JUnit 5 的主要目标是在维护 JUnit 的同时能够添加新的功能。JUnit 4 由于内部添加了过多的东西，导致维护困难。所以 JUnit 5对所有的公有接口、类和方法引入了生命周期。
 
 ## API 版本和状态
 发布的版本号为 `<major>.<minor>.<patch>`,
-
-
 
 # Reference
 - https://junit.org/junit5/docs/current/user-guide/
