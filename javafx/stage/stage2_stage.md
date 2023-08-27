@@ -1,20 +1,25 @@
 # Stage
 
+2023-08-10, 15:22
+add: alwaysOnTop
+2023-08-09, 17:25
+modify: 样式
 2023-07-31, 23:02
 add: Stage 尺寸
 2023-07-06, 09:53
+@author Jiawei Mao
 ****
 ## 1. 简介
 
 `Stage` 是 JavaFX 的顶层容器，用于托管 `Scene`。`Scene` 包含所有的可视化组件。和主屏幕对应的主 `Stage` 由 JavaFx 平台创建，传递给 `Application.start(Stage s)`方法。还可以根据需要创建其它 `Stage`。
 
-```ad-tip
-`Stage` 是顶层容器并不代表它必须单独显示，如在 Web 环境中，`Stage`都是内嵌在网页中显示。
-```
+!!! tip
+    `Stage` 是顶层容器不代表它必须单独显示，如在 Web 环境中，`Stage`都是内嵌在网页中显示。    
 
 下面是 `Stage` 的类图：
 
-![|350](Pasted%20image%2020230704205908.png)
+@import "images/Pasted%20image%2020230704205908.png" {width="350px" title=""}
+
 `Window` 是窗口类容器的超类，包含窗口相关的通用功能：
 
 - 隐藏和显示窗口：`show()` 和 `hide()` 方法
@@ -40,9 +45,8 @@ JAT 线程在调用 `Platform.exit()` 方法或者所有 `stage` 被关掉才会
 - 关闭显示的窗口
 - 直接通过OS操作终止
 
-```ad-note
-`Stage.close()` 和 `Window.hide()` 效果一样。如果窗口没有显示，调用 `close()` 无效。
-```
+!!! note
+    `Stage.close()` 和 `Window.hide()` 效果一样。如果窗口没有显示，调用 `close()` 无效。    
 
 ## 3. 设置 Stage Bounds
 
@@ -52,7 +56,7 @@ stage bounds 由 x, y, width, height 四个属性决定。
 
 运行示例，可以看到窗口，标题栏、边框以及下面的空白区域。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -70,11 +74,10 @@ public class BlankStage extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230705170307.png)
+@import "images/Pasted%20image%2020230705170307.png" {width="350px" title=""}
 
-```ad-tip
-当 Stage 没有 Scene，且没有显式设置位置和尺寸，其位置和尺寸由 platform 自动设置。
-```
+!!! tip
+    当 `Stage` 没有 `Scene`，且没有显式设置位置和尺寸，其位置和尺寸由 platform 自动设置。
 
 stage 默认在屏幕居中，`Window.centerOnScreen` 实现该逻辑：
 
@@ -83,7 +86,7 @@ stage 默认在屏幕居中，`Window.centerOnScreen` 实现该逻辑：
 
 **示例：** 添加 Scene
 
-```java
+```java{.line-numbers}
 import javafx.scene.Group;
 import javafx.scene.Scene;
 ...
@@ -96,11 +99,11 @@ public void start(Stage stage) {
 }
 ```
 
-此时空白区域背景为 Scene 的默认背景颜色：白色。
+此时空白区域背景为 `Scene` 的默认背景颜色：白色。
 
 **示例：** 添加 Button
 
-```java
+```java{.line-numbers}
 import javafx.scene.control.Button;
 ...
 @Override
@@ -113,11 +116,11 @@ public void start(Stage stage) {
 }
 ```
 
-添加控件后，Stage 和位置和大小由 Scene 计算的尺寸确定。
+添加控件后，`Stage` 和位置和大小由 `Scene` 计算的尺寸确定。
 
-![|120](Pasted%20image%2020230705171115.png)
+@import "images/Pasted%20image%2020230705171115.png" {width="120px" title=""}
 
-**示例：** 显式设置 Stage 尺寸
+**示例：** 显式设置 `Stage` 尺寸
 
 ```java
 @Override
@@ -130,13 +133,13 @@ public void start(Stage stage) {
 }
 ```
 
-![|250](Pasted%20image%2020230705171343.png)
+@import "images/Pasted%20image%2020230705171343.png" {width="250px" title=""}
 
-此时 Stage 的 content 区域与指定大小一致。
+此时 `Stage` 的 content 区域与指定大小一致。
 
-**示例：** 显式设置 Stage 和 Scene 尺寸
+**示例：** 显式设置 `Stage` 和 `Scene` 尺寸
 
-```java
+```java{.line-numbers}
 @Override
 public void start(Stage stage) {
     stage.setTitle("A Sized Stage with a Sized Scene");
@@ -149,18 +152,17 @@ public void start(Stage stage) {
 }
 ```
 
-![|350](Pasted%20image%2020230705171549.png)
+@import "images/Pasted%20image%2020230705171549.png" {width="350px" title=""}
 
-Stage 位置和尺寸设置规则：
+`Stage` 位置和尺寸设置规则：
 
 - 如果没有 scene，bounds 由 platform 确定
 - 如果有 Scene，没有 node，bounds 由 platform 确定。此时没有指定 Scene 尺寸
 - 如果有 Scene，有 node，bounds 由 Scene 中的 node 确定。此时没有指定 Scene 尺寸，Stage 屏幕居中
 - 如果有 Scene，且指定 Scene 尺寸，则 Scene 的 bounds 由指定的尺寸确定。Stage 居中。
 
-```ad-tip
-使用 `Window.sizeToScene()` 使 `Stage` 尺寸匹配 `Scene` 内容。如果在运行时修改了 `Scene` 尺寸，使用该方法同步 `Stage` 和 `Scene` 尺寸非常有用。
-```
+!!! tip
+    使用 `Window.sizeToScene()` 使 `Stage` 尺寸匹配 `Scene` 内容。如果在运行时修改了 `Scene` 尺寸，使用该方法同步 `Stage` 和 `Scene` 尺寸非常有用。
 
 如果希望将 Stage 水平和垂直方向均居中，使用如下代码：
 
@@ -172,9 +174,8 @@ stage.setX(x);
 stage.setY(y);
 ```
 
-```ad-warning
-Stage 的 bounds 在显示后才由，因此在 Stage 显示前使用上面的代码无效。
-```
+!!! warning
+    `Stage` 的 bounds 在显示后才有，因此在 `Stage` 显示前使用上面的代码无效。    
 
 下面的代码不能达到目的：
 
@@ -204,36 +205,30 @@ public void start(Stage stage) {
 - 内容区域显示 `Scene` 的可视化组件
 - 装饰部分包含标题栏和边框
 
-标题栏及其内容根据平台不同有所差别，并且有些装饰还提供了额外的功能。例如，可以通过标题栏将 stage 拖曳到不同的地方；标题栏上的最大化、最小化、还原和关闭按钮；边框可用于调整 stage 大小等功能。
+标题栏及其内容根据平台不同有所差别，有些装饰还提供了额外功能。例如：
+
+- 通过标题栏将 stage 拖放到不同的地方
+- 标题栏上的最大化、最小化、还原和关闭按钮
+- 边框可用于调整 stage 大小等功能
 
 `Stage` 的 `style` 属性用于设置 `Stage` 的装饰部分和背景色，根据风格不同分为以下五类:
 
-| `StageStyle`  | 说明                                                         |
-| ------------- | ------------------------------------------------------------ |
-| `DECORATED`   | 白色背景，平台风格的装饰，默认选项                           |
-| `UNDECORATED` | 白色背景，无装饰(无标题栏)                                   |
-| `TRANSPARENT` | 透明背景，无装饰(无标题栏)                                   |
+| `StageStyle`  | 说明                                                     |
+| ------------- | -------------------------------------------------------- |
+| `DECORATED`   | 白色背景，平台风格的装饰，默认选项                          |
+| `UNDECORATED` | 白色背景，无装饰(无标题栏)                                 |
+| `TRANSPARENT` | 透明背景，无装饰(无标题栏)                                 |
 | `UNIFIED`     | 背景色和装饰一致，平台风格装饰，装饰和client area 之间无边框 |
-| `UTILITY`     | 白色背景，最低的平台风格装饰配置                             |
+| `UTILITY`     | 白色背景，最低的平台风格装饰配置                           |
 
-```ad-note
-stage 的样式仅仅指定装饰部分。而背景色由 Scene 的背景设置决定，默认为白色。因此，如果将 stage 的风格设置为 `TRANSPARENT`，对应的 stage 依然为白色背景，即 Scene 的背景色，要获得统一的透明 stage，需要调用 scene 的 `setFill(null)`方法。
-```
+!!! note
+    stage 的样式仅仅指定装饰部分。而背景色由 Scene 的背景设置决定，默认为白色。因此，如果将 stage 的风格设置为 `TRANSPARENT`，对应的 stage 依然为白色背景，即 Scene 的背景色，要获得统一的透明 stage，需要调用 scene 的 `setFill(null)`方法。
 
 使用 `Stage.initStyle(StageStyle style)` 设置 Stage 样式。样式设置要在 Stage 显示前完成，否则抛出 runtime 异常。
 
 **示例：** Stage 样式
 
-```java
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
+```java{.line-numbers}
 import static javafx.stage.StageStyle.*;
 
 public class StageStyleApp extends Application {
@@ -291,29 +286,29 @@ public class StageStyleApp extends Application {
 
 - DECORATED 
 
-![  | 300](Pasted%20image%2020230705201607.png) 
+@import "images/Pasted%20image%2020230705201607.png" {width="300px" title=""}
 
 - UNDECORATED
 
-![|100](Pasted%20image%2020230705201701.png)
+@import "images/Pasted%20image%2020230705201701.png" {width="100px" title=""}
 
 没有标题栏，无法拖动，也无法调整大小。
 
 - TRANSPARENT
 
-![|100](Pasted%20image%2020230705201808.png)
+@import "images/Pasted%20image%2020230705201808.png" {width="100px" title=""}
 
 完全透明，没有标题栏。因为桌面背景是红色，所以看着是红色。
 
 - UNIFIED
 
-![|300](Pasted%20image%2020230705201859.png)
+@import "images/Pasted%20image%2020230705201859.png" {width="300px" title=""}
 
 UNIFIED 和 DECORATED 主要差别：标题栏和内容之间没有边框，标题栏颜色不一样。
 
 - UTILITY
 
-![|180](Pasted%20image%2020230705202202.png)
+@import "images/Pasted%20image%2020230705202202.png" {width="180px" title=""}
 
 UTILITY 比较简洁，有标题栏，但是没有最小化、最大化按钮。
 
@@ -321,18 +316,8 @@ UTILITY 比较简洁，有标题栏，但是没有最小化、最大化按钮。
 
 拖动 Stage 的标题栏可以移动 Stage。但 UNDECORATED 和 TRANSPARENT 两种样式的 Stage 没有标题栏。此时可以通过鼠标事件实现拖动功能：
 
-```java
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
+```java{.line-numbers}
 public class DraggingStage extends Application {
-
     private Stage stage;
     private double dragOffsetX;
     private double dragOffsetY;
@@ -379,7 +364,7 @@ public class DraggingStage extends Application {
 }
 ```
 
-![](Pasted%20image%2020230705205524.png)
+@import "images/Pasted%20image%2020230705205524.png" {width="500px" title=""}
 
 按下鼠标时，dragOffsetX 和 dragOffsetY 为鼠标相对 Stage 的位置。
 
@@ -393,8 +378,8 @@ GUI应用的窗口可以分为两类：模态（modal）和非模态（modeless�
 
 JavaFX `Stage` 有三种模态类型，由 `Modality` enum 定义：
 
-| Modal                        | 说明                                                       |
-| ---------------------------- | ---------------------------------------------------------- |
+| Modal                        | 说明                                                    |
+| ---------------------------- | ------------------------------------------------------ |
 | `Modality.NONE`              | 默认值，不阻止其他窗口显示，效果等同于 modeless            |
 | `Modality.WINDOW_MODAL`      | 阻止其 owner 内的其它窗口，如果没有owner，则和 NONE 效果相同 |
 | `Modality.APPLICATION_MODAL` | 阻止该应用内所有其它的窗口                                 |
@@ -410,9 +395,8 @@ stage.initModality(Modality.WINDOW_MODAL);
 stage.show();
 ```
 
-```ad-important
-与样式一样，模态的设置也要在 Stage 显示之前进行。
-```
+!!! note
+    与样式一样，模态的设置也要在 Stage 显示之前进行。
 
 `Stage` 可以有一个 owner:
 
@@ -428,20 +412,11 @@ s1, s4 的 modal 为 `NONE`，没有owner；s1 是 s2 的 owner，s2 是 s3 的 
 - 如果 s3 的 modality 为 `WINDOW_MODAL`，则 s3 和 s4 可同时显示，s3 和 s1, s2 不能同时显示，显示 s3，它会阻止 s1 和 s2 显示。
 - 如果 s4 的 modality 为 `APPLICATION_MODAL`，则在 s4 关闭前，其它窗口都不能显示。
 
-**示例：** Stage modality 演示
+**示例：** `Stage` modality 演示
 
-在 primrary stage 显示 6 个按钮，每个按钮以指定 owner 和 Modality 创建新的 Stage.
+在 primrary stage 显示 6 个按钮，每个按钮以指定 owner 和 `Modality` 创建新的 `Stage`.
 
-```java
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-
+```java{.line-numbers}
 import static javafx.stage.Modality.*;
 
 public class StageModalityApp extends Application {
@@ -550,7 +525,7 @@ public final void setMinWidth(double value)
 
 **示例：** 将 `Stage` 全屏
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -599,17 +574,16 @@ public final boolean isFullScreen()
 
 `Window.show()` 直接返回，不适合实现该功能。`Stage.showAndWait()` 则会持续等待，直到 Stage 关闭，适合实现该功能。
 
-```ad-warning
-Stage.showAndWait() 必须在 JAT 调用。不能在 primary Stage 调用，否则抛出 runtime 异常。
-```
+!!! warning
+    `Stage.showAndWait()` 必须在 JAT 调用。不能在 primary Stage 调用，否则抛出 runtime 异常。
 
 假设有 2 个 Stage: s1, s2。
 
-s1 通过 s1.showAndWait() 打开，在 s1 代码中调用 s2.showAndWait() 打开 s2。此时有两个嵌套事件循环，分别由 s1.showAndWait() 和 s2.showAndWait() 创建。当 s1 和 s2 都关闭， s1.showAndWait() 才会返回，s2 关闭 s2.showAndWait() 返回。
+s1 通过 `s1.showAndWait()` 打开，在 s1 代码中调用 `s2.showAndWait()` 打开 s2。此时有两个嵌套事件循环，分别由 s1.showAndWait() 和 `s2.showAndWait()` 创建。当 s1 和 s2 都关闭， s1.showAndWait() 才会返回，s2 关闭 s2.showAndWait() 返回。
 
 **示例：** showAndWait() 功能演示
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -681,7 +655,7 @@ JavaFX UI 控件的创建和显示之间存在时间差。在创建 UI 控件时
 
 为了说明这一点，下面程序显示窗口显示前后 Stage 的尺寸。
 
-```java
+```java{.line-numbers}
 import static javafx.geometry.Pos.CENTER;
 
 public class StartVsShownJavaFXApp extends Application {
@@ -743,5 +717,19 @@ public class StartVsShownJavaFXApp extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230731225832.png)
+@import "images/Pasted%20image%2020230731225832.png" {width="400px" title=""}
 
+## 12. alwaysOnTop
+
+`Stage.alwaysOnTop` 属性指定当前 Stage 是否总是在其它窗口上面:
+
+- 如果已有其它窗口设置 alwaysOnTop，那么这些采用 alwaysOnTop 窗口的相对顺序不确定（取决于平台）
+- 如果存在安全管理器，则 `javafx.util.FXPermission` 必须包含 "setWindowAlwaysOnTop" 此属性才能发挥作用
+- 如果 Application 没有权限，设置该属性无效，设置后也会恢复为 false
+- 部分平台不支持该属性
+
+设置方法：
+
+```java
+primaryStage.setAlwaysOnTop(true);
+```

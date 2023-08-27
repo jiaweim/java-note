@@ -1,13 +1,16 @@
 # JavaFX 程序
 
+2023-08-17, 19:47
+modify: 样式
 2023-07-05, 12:54
+@author Jiawei Mao
 ****
 ## 1. JavaFX runtime
 
 `Application` 是 JavaFX 应用入口。在调用 `launch()` 启动 JavaFX 应用时，首先启动 JavaFX runtime。JavaFX runtime 会创建多个线程。其中两个线程在 JavaFX 生命周期中会调用 `Application` 的方法：
 
-- JavaFX-Launcher Thead (JLT)
-- JavaFX Application Thread (JAT)
+- JavaFX 启动线程（JavaFX Launcher Thread, JLT）
+- JavaFX 应用线程（JavaFX Application Thread, JAT）
 
 **启动 JavaFX runtime**
 
@@ -17,7 +20,11 @@
 public static void startup(Runnable runnable)
 ```
 
-然后在 **JAT 线程**中调用指定的 `Runnable`。通常没必要显式调用 `startup()`，因为在构建 JavaFX 应用时会自动调用。当然，直接调用 `startup()` 也没问题，该方法启动 JavaFX runtime，此时还没 JAT 线程，所以在 main 线程中直接调用该方法启动 JavaFX runtime。
+- `startup()` 启动 JavaFX runtime
+- JavaFX runtime 创建 JAT
+- 在 JAT 中调用 `runnable`
+
+通常没必要显式调用 `startup()`，因为在构建 JavaFX 应用时会自动调用。当然，直接调用 `startup()` 也没问题，该方法启动 JavaFX runtime，此时还没 JAT 线程，所以也可以在 main 线程中调用该方法启动 JavaFX runtime。
 
 `startup()` 不会被调用的 `Runnable` 阻塞，在 `startup()` 返回后，可以调用 `Platform.runLater(Runnable)` 调用更多的 `Runnable`，这些 `Runnable` 也是在 JAT 调用。
 
@@ -29,9 +36,8 @@ public static void startup(Runnable runnable)
 
 需要注意，只能在 JavaFx runtime 尚未初始化时调用 `startup()`。JavaFX runtime 正在运行时调用 `startup()` 抛出  `IllegalStateException`。
 
-```ad-note
-JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入。不支持从 classpath 载入。当 JavaFX 类不是从预期的命名模块中载入，在启动 JavaFX runtime 时会发出警告。不管 JavaFX runtime 是调用 `startup()` 启动 ，还是自动启动，都会发出警告。
-```
+!!! note
+    JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入。不支持从 classpath 载入。当 JavaFX 类不是从预期的命名模块中载入，在启动 JavaFX runtime 时会发出警告。不管 JavaFX runtime 是调用 `startup()` 启动 ，还是自动启动，都会发出警告。
 
 ## 2. JavaFX 应用的生命周期
 
@@ -50,13 +56,12 @@ JavaFX 类必须从 module 路径上的一组命名模块 `javafx.*` 中载入�
 
 `Application.init()` 在 JLT 线程中调用，JLT 线程中不能创建 `Stage` 和 `Scene`，它俩只能在 JAT 线程中创建。但是可以在 JLT 中创建 UI 控件，即可以在 `init()` 方法中提前初始化一些 UI 控件。
 
-```ad-important
-`Stage` 和 `Scene` 只能在 JAT 线程中创建。
-```
+!!! attention
+    `Stage` 和 `Scene` 只能在 JAT 中创建。
 
 **示例：** 演示 JavaFX 生命周期
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -105,9 +110,8 @@ start() method: JavaFX Application Thread
 stop() method: JavaFX Application Thread
 ```
 
-```ad-tip
-`Application` 的 `launch()` 方法在关闭所有窗口后，或者使用 `Platform.exit()` 退出后，才返回。
-```
+!!! tip
+    `Application` 的 `launch()` 方法在关闭所有窗口后，或者使用 `Platform.exit()` 退出后，才返回。    
 
 ## 3. 启动 JavaFX 应用
 
@@ -119,13 +123,12 @@ public static void launch(Class<? extends Application> appClass, String... args)
 public static void launch(String... args)
 ```
 
-```ad-warning
-JavaFX `Application` 类必须有 no-args 构造函数；否则抛出 runtime 异常。
-```
+!!! warning
+    JavaFX `Application` 类必须有无参构造函数，否则抛出 runtime 异常。    
 
 **版本一：** 传入 `Application` 引用
 
-第一个 `launch()` 方法很清楚。参数一为 `Application` 类的引用，参数二为应用参数。例如：
+第一个 `launch()` 方法很清楚。参数 1 为 `Application` 类的引用，参数 2 为应用参数。例如：
 
 ```java
 public class MyJavaFXApp extends Application {
@@ -149,7 +152,7 @@ public class MyAppLauncher {
 
 **版本二**：不传入 `Application` 引用
 
-第二个 `launch()` 方法根据调用 `launch()` 的类来识别 `Application`。如果调用 `launch()` 方法的类继承自 `Application`，则启用该 JavaFX，否则抛出 runtime 异常。
+第二个 `launch()` 方法根据调用 `launch()` 的类来识别 `Application`。如果调用 `launch()` 方法的类继承自 `Application`，则启动该 JavaFX，否则抛出 runtime 异常。
 
 - 调用类继承自 `Application`
 
@@ -206,7 +209,7 @@ Exception in thread "Thread-0" java.lang.RuntimeException: Error: class MyJavaFX
     at java.lang.Thread.run(Thread.java:722)
 ```
 
-这个比较隐晦。虽然 `MyJavaFXApp` 继承了 `Application`，但实际调用 `launch()` 的是 `MyJavaFXApp$1` 匿名内部类，该类继承自 `Object`，而不是 `Application`。
+这个错误比较隐晦。虽然 `MyJavaFXApp` 继承了 `Application`，但实际调用 `launch()` 的是 `MyJavaFXApp$1` 匿名内部类，该类继承自 `Object`，而不是 `Application`。
 
 ## 4. 终止 JavaFX 应用
 
@@ -216,9 +219,9 @@ Exception in thread "Thread-0" java.lang.RuntimeException: Error: class MyJavaFX
 
 如果在 `Application` 的 `start()` 之后或在 `start()` 方法中调用 `Platform.exit()`，将调用 `Application.stop()` 方法，然后终止 JAT 线程。此时，如果剩下守护线程在运行，则退出 JVM。
 
-如果在 `Application` 的构造函数或 `init()` 中调用 `Platform.exit()`，则可能不会调用 `stop(`) 方法。
+如果在 `Application` 的构造函数或 `init()` 中调用 `Platform.exit()`，则可能不会调用 `stop()` 方法。
 
-直接调用 System.exit(int) 也可以退出 JavaFX 应用，但不会调用 stop() 方法。
+直接调用 `System.exit(int)` 也可以退出 JavaFX 应用，但不会调用 `stop()` 方法。
 
 - 隐式终止
 

@@ -1,14 +1,17 @@
 # Region
 
+2023-08-10, 09:35
+modify: 修改样式，完善内容
 2023-07-07, 14:01
+@author Jiawei Mao
 ****
 ## 1. 简介
 
-Region 是一个 Node，继承自 Parent：
+`Region` 是一个 `Node`，继承自 `Parent`：
 
-- Region 的 backgrounds 和 borders 可以通过 CSS 设置样式
-- Region 通常是圆角矩形，但可以通过 CSS 修改为其它形状
-- Region 可以包含其它 Region（sub-regions）
+- `Region` 的 backgrounds 和 borders 可以通过 CSS 设置样式
+- `Region` 通常是圆角矩形，但可以通过 CSS 修改为其它形状
+- `Region` 可以包含其它 `Region`（sub-regions）
 - 与 `Group` 不同，`Region` 自身有大小
 - `Region` 为 resizable 类型
 
@@ -17,13 +20,13 @@ Region 是一个 Node，继承自 Parent：
 `Region` 的绘制区域分为几个部分：
 
 - backgrounds (fills and images)
-- content area
-- **padding**：content 外周到 border 之间的可选区域。如果 padding 为 0，则 padding edge 和 content edge 重合
+- **content-area**：绘制 children 的地方
+- **padding**：content-area 和 border 之间的可选区域。如果 padding 为 0，则 padding edge 和 content edge 重合
 - **borders** (strokes and images)：padding 外周区域。如果 border 为 0，则 border edge 和 padding edge 重合
-- **margin**：border 外周区域。margin 和 padding 非常相似，唯一差别是，margin 定义了 border 外周的区域，而 padding 定义的是 border 内周到 content 外周的区域
+- **margin**：外边距，Region 在其 parent 内与其它组件之间的空间
 - region **insets**：`Region` 的 `layoutBounds` 和 content area 之间的距离为 insets（内边距）。`Region` 类根据属性自动计算 insets，并提供 read-only 属性 `insets`，便于查询
 
-![|450](Pasted%20image%2020230706193337.png)
+@import "images/Pasted%20image%2020230706193337.png" {width="450px" title=""}
 
 `Region` 按照如下顺序渲染：
 
@@ -51,9 +54,8 @@ content, padding 和 borders 影响 `Region` 的 `layoutBounds`。将 borders �
 
 例如，顶部 10px inset 表示 `layoutBounds` 上边内 10px 没有填充。
 
-```ad-tip
-背景填充区域为 `Region` 的 `layoutBounds` 内区域。
-```
+!!! tip
+    背景填充区域为 `Region` 的 `layoutBounds` 内区域。    
 
 如果 inset 为负数，填充区域会超出 `Region` 的 `layoutBounds`。
 
@@ -84,9 +86,8 @@ content, padding 和 borders 影响 `Region` 的 `layoutBounds`。将 borders �
 
 也可以通过代码设置 `Region` 的 background。background 由 `Background` 类表示，该类定义的 `Background.EMPTY` 常量表示空背景（无 fill, 无 image）。
 
-```ad-tip
-`Background` 是 immutable 对象，可以安全地用作多个 `Region` 的背景。
-```
+!!! tip
+    `Background` 是 immutable 对象，可以安全地用作多个 `Region` 的背景。    
 
 一个 `Background`  可以包含 0 到多个 fills 和 images：
 
@@ -98,24 +99,16 @@ content, padding 和 borders 影响 `Region` 的 `layoutBounds`。将 borders �
 下面的代码片段创建一个包含 2 个 `BackgroundFill` 的 `Background`，效果与上面的 CSS 定义一样：
 
 ```java
-import javafx.geometry.Insets;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
-...
-BackgroundFill lightGrayFill = new BackgroundFill(Color.LIGHTGRAY, 
-                                                  new CornerRadii(4), new Insets(0));
-BackgroundFill redFill = new BackgroundFill(Color.RED, 
-                                            new CornerRadii(2), new Insets(4));
+BackgroundFill lightGrayFill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(4), new Insets(0));
+BackgroundFill redFill = new BackgroundFill(Color.RED, new CornerRadii(2), new Insets(4));
 Background bg = new Background(lightGrayFill, redFill);
 ```
 
 使用 `CornerRadii` 定义角半径，`Insets` 定义 insets。
 
-**示例：** `Pane` 是 `Region` 的一种，下面演示使用 API 和 CSS 设置 Pane 的 background。
+**示例：** `Pane` 是 `Region` 的一种，下面演示使用 API 和 CSS 设置 `Pane` 的 background。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -142,8 +135,7 @@ public class BackgroundFillTest extends Application {
 
         // Place p2 20px right to p1
         p2.layoutYProperty().bind(p1.layoutYProperty());
-        p2.layoutXProperty().bind(
-                        p1.layoutXProperty().add(p1.widthProperty()).add(20));
+        p2.layoutXProperty().bind(p1.layoutXProperty().add(p1.widthProperty()).add(20));
 
         Pane root = new Pane(p1, p2);
         root.setPrefSize(240, 70);
@@ -169,11 +161,9 @@ public class BackgroundFillTest extends Application {
         Pane p = new Pane();
         p.setPrefSize(100, 50);
 
-        BackgroundFill lightGrayFill =
-                new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(4), new Insets(0));
+        BackgroundFill lightGrayFill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(4), new Insets(0));
 
-        BackgroundFill redFill =
-                new BackgroundFill(Color.RED, new CornerRadii(2), new Insets(4));
+        BackgroundFill redFill = new BackgroundFill(Color.RED, new CornerRadii(2), new Insets(4));
 
         Background bg = new Background(lightGrayFill, redFill);
         p.setBackground(bg);
@@ -183,7 +173,7 @@ public class BackgroundFillTest extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230706204954.png)
+@import "images/Pasted%20image%2020230706204954.png" {width="250px" title=""}
 
 ### 2.2. background image
 
@@ -207,14 +197,7 @@ public class BackgroundFillTest extends Application {
 
 下面的代码与上面的 CSS 效果一样：
 
-```java
-import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-...
+```java{.line-numbers}
 Image image = new Image("your_image_url_goes_here");
 BackgroundSize bgSize = new BackgroundSize(100, 100, true, true, false, true);
 BackgroundImage bgImage = new BackgroundImage(image, 
@@ -228,21 +211,25 @@ Background bg = new Background(bgImage);
 
 ## 3. padding
 
-`Region` 的 padding 是 content 外周的区域，使用 Region 的 `ObjectProperty<Insets>` 类型 padding 属性设置。
+`Region` 的 padding 指定 content-area 和 border 之间的可选区域。`Region` 使用 `ObjectProperty<Insets>` 类型的 `padding` 属性存储该值，使用 `setPadding()` 方法设置。
 
-```java
+```java{.line-numbers}
 HBox hb = new HBox();
 
-// A uniform padding of 10px around all edges
+// HBox 所有边的 padding 都为 10px
 hb.setPadding(new Insets(10));
 
-// A non-uniform padding: 2px top, 4px right, 6px bottom, and 8px left
+// 为 HBox 的不同边设置不同 padding：
+// 2px top, 4px right, 6px bottom, 8px left
 hb.setPadding(new Insets(2, 4, 6, 8));
 ```
 
+!!! warning
+    并非所有 Region 子类都遵守设置的 padding，如 `Pane` 就不遵守。
+
 ## 4. borders
 
-Region 的 border 由 strokes 和/或 images 组成，没有指定 stroke 和 image 时，border 为空。
+`Region` 的 border 由 strokes 和/或 images 组成，没有指定 stroke 和 image 时，border 为空。
 
 strokes 和 images 按照指定的顺序渲染，所有 strokes 在 images 之前渲染。
 
@@ -251,12 +238,12 @@ strokes 和 images 按照指定的顺序渲染，所有 strokes 在 images 之�
 stroke 包含 5 个属性：
 
 | 属性   | 说明                                |
-| ------ | ----------------------------------- |
+| ------ | ---------------------------------- |
 | color  | stroke 颜色，4 个边可以定义不同颜色 |
 | style  | stroke 样式，4 个边可以定义不同样式 |
-| radii  | 4 个角的半径，0 对应矩形            |
+| radii  | 4 个角的半径，0 对应矩形           |
 | width  | stroke 宽度，4 个边可以定义不同宽度 |
-| insets | 4 个边的 insets                     |
+| insets | 4 个边的 insets                   |
 
 **style** 定义 stroke 样式，包括：
 
@@ -265,8 +252,9 @@ stroke 包含 5 个属性：
 
 **insets** 定义 stroke 和 layoutBounds 的距离，且正负数对应不同方向，如下图所示：
 
-![](Pasted%20image%2020230706212920.png)
-border stroke 相对 Parent 的 layoutBounds 的位置有三类：inside, outside 和 centered。
+@import "images/Pasted%20image%2020230706212920.png" {width="600px" title=""}
+
+border stroke 相对 `Parent` 的 layoutBounds 的位置有三类：inside, outside 和 centered。
 
 stroke 相对 `Parent` 的 `layoutBounds` 的位置受 2 个属性的影响，insets 和 styles:
 
@@ -276,7 +264,8 @@ stroke 相对 `Parent` 的 `layoutBounds` 的位置受 2 个属性的影响，in
 
 如下图所示:
 
-![](Pasted%20image%2020230706213459.png)
+@import "images/Pasted%20image%2020230706213459.png" {width="500px" title=""}
+
 其中虚线矩形为 Region 的 `layoutBounds`。borders 为浅灰色。
 
 下面的 CSS 属性定义 `Region` 的 border stroke：
@@ -313,20 +302,19 @@ stroke 相对 `Parent` 的 `layoutBounds` 的位置受 2 个属性的影响，in
 -fx-border-radius: 0, 0;
 ```
 
-```ad-tip
-border stroke 落在 `layoutBounds` 外面的部分不影响 `Region` 的 `layoutBounds`，落在 `layoutBounds` 里面的部分则影响。
-```
+!!! tip
+    border stroke 落在 `layoutBounds` 外面的部分不影响 `Region` 的 `layoutBounds`，落在 `layoutBounds` 里面的部分则影响。
 
 border 还有 **insets** 和 **outsets**，根据 strokes 和 images 自动计算：
 
 - 如果 strokes 和 images 在 layoutBounds 内，则 layoutBounds 和 border 的 **inner** edges 距离为 border 的 insets
 - 如果 strokes 和 images 在 layoutBounds 外，则 layoutBounds 和 border 的 **outer** edges 距离为 boder 的 outsets
 
-stroke insets 确定 stroke 位置，而 border 的 insets 和 outsets 指出 border 与 Region 的 `layoutBounds` 的距离。
+stroke insets 确定 stroke 位置，而 border 的 insets 和 outsets 指出 border 与 `Region` 的 `layoutBounds` 的距离。
 
 **示例：** 演示 border 的 insets 和 outsets
 
-虚线是 Region 的 layoutBounds，border 有 2 个 strokes：1 个绿色，1 个红色。Region 尺寸为 (150px,50px)。
+虚线是 `Region` 的 layoutBounds，border 有 2 个 strokes：1 个绿色，1 个红色。`Region` 尺寸为 (150px,50px)。
 
 ```css
 -fx-background-color: white;
@@ -338,14 +326,14 @@ stroke insets 确定 stroke 位置，而 border 的 insets 和 outsets 指出 bo
 -fx-border-radius: 0, 0, 0;
 ```
 
-![|400](Pasted%20image%2020230707090725.png)
+@import "images/Pasted%20image%2020230707090725.png" {width="400px" title=""}
 
 - border 的 insets 在 4 个方向均为 22px，即红色 stroke-insets 12 px 加上 stroke-width 10px
 - border 的 outsets 在 4 个方向均为 18px，即绿色 stroke -insets 10px 加上 stroke-width 8px
 
-也可以使用代码设置 border，`Border` 类表示 `Region` border。`Border.EMPTY`  常量表示空 border。Border 为 immutable 对象，可以安全地用在多个 Region 中。
+也可以使用代码设置 border，`Border` 类表示 `Region` border。`Border.EMPTY`  常量表示空 border。`Border` 为 immutable 对象，可以安全地用在多个 `Region` 中。
 
-Border 可以有 0 到多个 strokes 和 images。Region.border 属性为 `ObjectProperty<Border>`，存储 border 引用。使用 `Region.setBorder(Border b)` 设置 border.
+`Border` 可以有 0 到多个 strokes 和 images。`Region.border` 属性为 `ObjectProperty<Border>`，存储 border 引用。使用 `Region.setBorder(Border b)` 设置 border.
 
 `BorderStroke` 类表示 stroke，BorderImage 表示 image。
 
@@ -369,9 +357,9 @@ public BorderStroke(Paint topStroke, Paint rightStroke,
 
 `BorderWidths` 可以使用绝对值或相对 Region 尺寸的百分比指定。
 
-**示例：** 为 Pane 指定 Border
+**示例：** 为 `Pane` 指定 `Border`
 
-```java
+```java{.line-numbers}
 BorderStrokeStyle style = new BorderStrokeStyle(StrokeType.INSIDE, 
                                                 StrokeLineJoin.MITER,
                                                 StrokeLineCap.BUTT, 
@@ -388,17 +376,17 @@ Border b = new Border(stroke);
 p.setBorder(b);
 ```
 
-Border 类的 `getInsets()` 和 `getOutsets()` 返回 Border 的 insets 和 outsets。两个方法都返回 Insets 对象。记住，Border 的 insets 和 outsets 与 stroke insets 不同，这 2 个是根据 strokes 的 insets 和 styles 自动计算。
+`Border` 类的 `getInsets()` 和 `getOutsets()` 返回 Border 的 insets 和 outsets。两个方法都返回 Insets 对象。记住，`Border` 的 insets 和 outsets 与 stroke insets 不同，这 2 个是根据 strokes 的 insets 和 styles 自动计算。
 
 `Border.getStrokes()` 返回 `List<BorderStroke>`，即所有的 strokes。
 
-Border.getImages() 返回 `List<BorderImage>`，即所有的 images.
+`Border.getImages()` 返回 `List<BorderImage>`，即所有的 images.
 
 **示例：** 代码演示 border
 
 创建两个 `Pane`，一个用 CSS 设置 border，一个用代码设置 border。输出 borders 的 insets 和 outsets。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -518,7 +506,7 @@ public class BorderStrokeTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230707093712.png)
+@import "images/Pasted%20image%2020230707093712.png" {width="300px" title=""}
 
 ```
 cssBorder insets:Insets [top=22.0, right=22.0, bottom=22.0, left=22.0]
@@ -539,22 +527,22 @@ Borders are equal.
 
 ### 4.2. border image
 
-border image 的使用没有 border stroke 那么直接。
+border-image 的使用没有 border-stroke 那么直接。
 
-border image 在 Region 中有专门的绘制区域。根据四个边的 border-width 将绘制区域分为 9 个部分，image 同样分为 9 个部分。当 border image 区域与 Region 相同：
+border-image 在 `Region` 中有专门的绘制区域。根据四个边的 border-width 将绘制区域分为 9 个部分，image 同样分为 9 个部分。当 border image 区域与 `Region` 相同：
 
-![](Pasted%20image%2020230707102530.png)
-将 border image area 和 image 都分成 9 份后，需要指定每个 image slice 的位置和 resizing。通常丢弃 image 中间的 slice。
+@import "images/Pasted%20image%2020230707102530.png" {width="600px" title=""}
 
-border image area 和 Region 的 `layoutBounds` 可以相同，也可以不同。下面是 border image area 在 Region 的 layoutBounds 内和 layoutBounds 外的情形：
+将 border-image-area 和 image 都分成 9 份后，需要指定每个 image slice 的位置和 resizing。通常丢弃 image 中间的 slice。
 
-![|600](Pasted%20image%2020230707103849.png)
+border image area 和 `Region` 的 `layoutBounds` 可以相同，也可以不同。下面是 border image area 在 `Region` 的 layoutBounds 内和 layoutBounds 外的情形：
 
-```ad-note
-如果 `Region` 的形状不是矩形，则不绘制 border image。
-```
+@import "images/Pasted%20image%2020230707103849.png" {width="600px" title=""}
 
-下面的 CSS 属性定义 Region 的 border images:
+!!! note
+    如果 `Region` 的形状不是矩形，则不绘制 border-image。    
+
+下面的 CSS 属性定义 `Region` 的 border images:
 
 - -fx-border-image-source
 - -fx-border-image-repeat
@@ -575,13 +563,13 @@ border image area 和 Region 的 `layoutBounds` 可以相同，也可以不同�
 
 `-fx-border-image-width` 指定 border image area 的 top, right, bottom, left 四个边向内的 offsets，以将 image area 划分为 9 份。**注意**，是将 border image area 划分为 9 份，而不是 `Region`。该属性可以指定为绝对数值或相对 border image area 对应边的比例。
 
-`-fx-border-image-insets` 指定 Region 的 layoutBounds 和 border image area 四个边的边距。从 `layoutBounds` 向内为正数，向外为负数。
+`-fx-border-image-insets` 指定 `Region` 的 layoutBounds 和 border image area 四个边的边距。从 `layoutBounds` 向内为正数，向外为负数。
 
 **示例：** 为尺寸为 (100px, 70px) 的 `Pane` 定义 border image。
 
 使用下面的 image 定义 border image:
 
-![|250](Pasted%20image%2020230707110752.png)
+@import "images/Pasted%20image%2020230707110752.png" {width="250px" title=""}
 
 ```css
 -fx-border-image-source: url('image_url_goes_here') ;
@@ -594,9 +582,9 @@ border image area 和 Region 的 `layoutBounds` 可以相同，也可以不同�
 -fx-border-style: dashed inside;
 ```
 
-slice 和 width 都是 9px，使 image slice 和 area slice 完全匹配；`-fx-border-image-slice` 没有指定 `fill` 值，所以舍弃中心 slice。使用 border stroke 绘制 Pane 的 layoutBounds。指定不同 repeat 的效果：
+slice 和 width 都是 9px，使 image slice 和 area slice 完全匹配；`-fx-border-image-slice` 没有指定 `fill` 值，所以舍弃中心 slice。使用 border stroke 绘制 `Pane` 的 layoutBounds。指定不同 repeat 的效果：
 
-![|500](Pasted%20image%2020230707111304.png)
+@import "images/Pasted%20image%2020230707111304.png" {width="500px" title=""}
 
 **示例：** 对上例进行修改，为 `-fx-border-image-slice` 添加 `fill` 值。
 
@@ -611,7 +599,7 @@ slice 和 width 都是 9px，使 image slice 和 area slice 完全匹配；`-fx-
 -fx-border-style: dashed inside;
 ```
 
-![|500](Pasted%20image%2020230707111615.png)
+@import "images/Pasted%20image%2020230707111615.png" {width="500px" title=""}
 
 `BorderImage` 类表示 border-image。构造函数：
 
@@ -629,9 +617,9 @@ BorderImage(Image image,
 
 **示例：** 代码设置 border image
 
-两个 Pane 的 border 相同，只是一个用 CSS 设置，一个用代码设置。
+两个 `Pane` 的 border 相同，只是一个用 CSS 设置，一个用代码设置。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -738,13 +726,13 @@ public class BorderImageTest extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230707112118.png)
+@import "images/Pasted%20image%2020230707112118.png" {width="250px" title=""}
 
 ## 5. margins
 
-不支持直接为 Region 设置 margins。大多数 layout panes 支持为其子节点设置 margins。
+不支持直接为 `Region` 设置 margins。大多数 layoutPanes 支持为其子节点设置 margins。
 
-如果要为 Region 设置 margins，可以将其添加到一个 layout pane（如 HBox），然后使用 layout pane 设置 margins:
+如果要为 `Region` 设置 margins，可以将其添加到一个 layoutPane（如 `HBox）`，然后使用 layoutpane 设置 margins:
 
 ```java
 Pane p1 = new Pane();
@@ -758,6 +746,10 @@ box.getChildren().addAll(p1);
 ```
 
 同样使用 `box` 获取 `p1` 的 margins。
+
+## CSS
+
+
 
 ## 参考
 

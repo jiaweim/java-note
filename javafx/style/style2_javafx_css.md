@@ -1,5 +1,7 @@
 # JavaFX CSS
 
+2023-08-14, 11:13
+modify: 样式
 2023-07-27, 10:01
 add: 样式表资源和示例
 2023-06-19, 18:46
@@ -97,15 +99,7 @@ yesBtn.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
 
 **示例：** 创建两个 `VBox`，设置 4.0px 蓝色边框，各保存三个按钮。将两个 `VBox` 放入 `HBox`，边框设置为 10.0px navy。
 
-```java
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
+```java{.line-numbers}
 public class InlineStyles extends Application {
 
     public static void main(String[] args) {
@@ -153,7 +147,7 @@ public class InlineStyles extends Application {
 }
 ```
 
-![[Pasted image 20230619175302.png]]
+@import "images/Pasted image 20230619175302.png" {width="200px" title=""}
 
 ## 5. 样式表资源
 
@@ -161,16 +155,17 @@ public class InlineStyles extends Application {
 
 Claudine Zillmann 创建了 native Mac OS X 风格的 skin [AquaFX](http://aquafx-project.com/)。
 
-![](Pasted%20image%2020230726200740.png)
+@import "images/Pasted%20image%2020230726200740.png" {width="px" title=""}
 
 Pedro Duque Vieira 创建了 Windows Metro 风格的样式 [JMetro](https://pixelduke.com/java-javafx-theme-jmetro/)。
 
 JMetro 下载地址： https://github.com/JFXtras/jfxtras-styles 
 
-JMetro 提供了浅色和深色两个主题。例如，下面是 CheckBox 的浅色和深色主题：
+JMetro 提供了浅色和深色两个主题。例如，下面是 `CheckBox` 的浅色和深色主题：
 
-![|250](Pasted%20image%2020230726201620.png)
-![|250](Pasted%20image%2020230726201628.png)
+@import "images/Pasted%20image%2020230726201620.png" {width="250px" title=""}
+
+@import "images/Pasted%20image%2020230726201628.png" {width="250px" title=""}
 
 ### 5.2 Web laf
 
@@ -193,7 +188,7 @@ Bootstrap (Twitter)
 
 ## 6. 示例
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -313,7 +308,7 @@ public class LookNFeelChooser extends Application {
 }
 ```
 
-![](Pasted%20image%2020230727085645.png)
+@import "images/Pasted%20image%2020230727085645.png" {width="600px" title=""}
 
 ## 7. StyleableProperty
 
@@ -338,7 +333,7 @@ public class LookNFeelChooser extends Application {
 
 **示例：** 典型实现
 
-```java
+```java{.line-numbers}
 // StyleableProperty
 private final StyleableProperty<Color> color =
     new SimpleStyleableObjectProperty<>(COLOR, this, "color");
@@ -416,7 +411,7 @@ private static final StyleablePropertyFactory<MY_CTRL> FACTORY =
 
 // CssMetaData from StyleablePropertyFactory
 private static final CssMetaData<MY_CTRL, Color> COLOR =
-    FACTORY.createColorCssMetaData("-color", s -> s.color, Color.RED, false); 
+    FACTORY.createColorCssMetaData("-color", s -> s.color, Color.RED, false);
 
 // Return all CssMetadata information from StyleablePropertyFactory
 public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
@@ -430,8 +425,7 @@ public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
 
 `StyleableProperty` 的类图如下：
 
-![](Pasted%20image%2020230807164011.png)
+@import "images/Pasted%20image%2020230807164011.png" {width="px" title=""}
 
 为了在控件上使用 `StyleableProperty`，需要使用 `StyleableProperty` 创建新的 `CssMetaData`。为控件创建的 `CssMetaData` 需要添加从父类获取的 `List<CssMetaData>`。getControlCssMetaData() 返回该 list。
-
 

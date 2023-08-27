@@ -1,5 +1,21 @@
 # Apache Commons IO
 
+- [Apache Commons IO](#apache-commons-io)
+  - [1. 最佳实践](#1-最佳实践)
+    - [1.1. java.io.File](#11-javaiofile)
+    - [1.2. Buffer Streams](#12-buffer-streams)
+  - [2. Utility](#2-utility)
+    - [2.1. IOUtils](#21-ioutils)
+    - [2.2. FileUtils](#22-fileutils)
+    - [2.3. FilenameUtils](#23-filenameutils)
+    - [2.4. FileSystemUtils](#24-filesystemutils)
+  - [3. Endian](#3-endian)
+  - [4. Line Iterator](#4-line-iterator)
+  - [5. File Filters](#5-file-filters)
+  - [6. File Comparators](#6-file-comparators)
+  - [7. Stream](#7-stream)
+  - [8. 参考](#8-参考)
+
 2023-08-08, 15:49
 add: 完善内容
 2022-11-30, 10:31
@@ -161,7 +177,7 @@ http://www.cs.umass.edu/~verts/cs32/endian.html
 
 ## 4. Line Iterator
 
-`org.apache.commons.io.LineIterator` 提供了逐行读取文件的功能。可以通过 FileUtils 或 IOUtils 的工厂方法创建该类实例。
+`org.apache.commons.io.LineIterator` 提供了逐行读取文件的功能。可以通过 `FileUtils` 或 `IOUtils` 的工厂方法创建该类实例。
 
 推荐的使用模式：
 

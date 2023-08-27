@@ -121,6 +121,9 @@
     - [Text Origin](text/text2_origin.md)
     - [多行文本显示](text/text3_multiline.md)
     - [Font](text/text4_font.md)
+- [特效](effect/effect1_intro.md)
+  - [特效串联](effect/effect2_chain.md)
+  - [阴影特效](effect/effect3_shadow.md)
 - [Transformation](transformation/trans1_intro.md)
     - [Translation](transformation/trans2_translation.md)
     - [Rotation](transformation/trans3_rotation.md)
@@ -133,6 +136,7 @@
     - [Cue Point](animation/animation4_cuepoint.md)
     - [Transition](animation/animation5_transition.md)
     - [Interpolator](animation/animation6_interpolator.md)
+    - [AnimationTimer](animation/animation7_animation_timer.md)
 - [图像 API](image/image1_intro.md)
     - [加载图像](image/image2_load.md)
 - [JavaFX 并发](concurrency/concurrent1_intro.md)
@@ -146,7 +150,9 @@
     - [创建可复用对象](fxml/fxml4_reusable.md)
     - [指定 Location](fxml/fxml5_location.md)
     - [ResourceBundle](fxml/fxml6_resource.md)
-
+    - [使用常量](./fxml/fxml8_constants.md)
+    - [引用另一个元素](./fxml/fxml9_refer.md)
+    - [复制元素](./fxml/fxml10_copy.md)
 
 - [概述](1.intro.md)
 - [Node](3.node.md)
@@ -178,7 +184,8 @@ https://bitbucket.org/datafx/datafx
 [ControlsFX 特征](https://github.com/controlsfx/controlsfx/wiki/ControlsFX-Features)
 
 - [Font Awesome](font_awesome.md)
-## References
+
+## 参考
 
 - [ ] JavaFX 8 Introduction by Example
 - [ ] Learn JavaFX 8 Building User Experience and Interfaces with Java 8, book
@@ -191,7 +198,5 @@ https://bitbucket.org/datafx/datafx
 - [ ] [JavaFX 8 API](https://docs.oracle.com/javase/8/javafx/api/toc.htm)
 - [ ] [JavaFX 11 API](https://openjfx.io/javadoc/11/index.html)
 - [?] https://fxdocs.github.io/docs/html5/
-- [?] [Zetcode 教程](http://zetcode.com/gui/javafx/)
-没有 `TableView` 实例。
-
+- [x] [Zetcode 教程](http://zetcode.com/gui/javafx/)
 - http://www.guigarage.com/javafx-training-tutorials/

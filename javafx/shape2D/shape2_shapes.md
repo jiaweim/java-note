@@ -1,14 +1,17 @@
 # 2D Shapes
 
+2023-08-10, 12:20
+modify: 样式
 2023-07-13, 20:21
+@author Jiawei Mao
 ****
 ## 1. 简介
 
-下面对 JavaFX 提供各种 Shape 相关类进行详细介绍。
+下面对 JavaFX 提供各种 `Shape` 相关类进行详细介绍。
 
 ## 2. Line
 
-线段用 `Line` 类表示:
+线段用 `javafx.scene.shape.Line` 类表示:
 
 - `Line` 没有内部区域，`fill` 默认为 `null`，设置 `fill` 无效
 - `stroke` 默认为 `Color.BLACK`
@@ -29,7 +32,6 @@ Line 有两个构造函数，构造时指定参数：
 Line line = new Line(100, 10, 10, 110)
 ```
 
-
 构造后设置参数：
 
 ```java
@@ -42,7 +44,7 @@ line.setEndY(110);
 
 **示例：** 常见 Line
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -89,7 +91,7 @@ public class LineTest extends Application {
 }
 ```
 
-![|230](Pasted%20image%2020230713191555.png)
+@import "images/Pasted%20image%2020230713191555.png" {width="230px" title=""}
 
 ## 3. Rectangle
 
@@ -106,9 +108,9 @@ public class LineTest extends Application {
 
 矩形的四个角默认为直角，`arcWidth` 和 `arcHeight` 属性将四个角改成圆角，其值是椭圆弧线的水平和垂直直径，如下图所示：
 
-![|400](Pasted%20image%2020230713191959.png)
+@import "images/Pasted%20image%2020230713191959.png" {width="400px" title=""}
 
-Rectangle 提供了多个构造函数。Rectangle 的 x, y, width, height, arcWidth 和 arcHeigt 属性的默认值都是 0。构造函数如下：
+`Rectangle` 提供了多个构造函数。`Rectangle` 的 x, y, width, height, arcWidth 和 arcHeigt 属性的默认值都是 0。构造函数如下：
 
 ```java
 Rectangle()
@@ -117,16 +119,16 @@ Rectangle(double x, double y, double width, double height)
 Rectangle(double width, double height, Paint fill)
 ```
 
-将 Rectangle 添加到大多数 layout 容器中，属性 x 和 y 都无效。在绝对布局 Pane 中可以看出效果。
+将 `Rectangle` 添加到大多数 layout 容器中，属性 x 和 y 都无效。在绝对布局 Pane 中可以看出效果。
 
-**示例：** 在 Pane 中添加 2 个 Rectangle
+**示例：** 在 `Pane` 中添加 2 个 `Rectangle`
 
-2 个 Rectangle:
+2 个 `Rectangle`:
 
 - 第 1 个使用默认的 x, y 值，即 0
 - 第 2 个 x=120, y=20
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -162,11 +164,11 @@ public class RectangleTest extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230713192818.png)
+@import "images/Pasted%20image%2020230713192818.png" {width="250px" title=""}
 
 ## 4. Circle
 
-圆形由 Circle 类表示。Circle 使用如下属性定义圆：
+圆形由 `Circle` 类表示。`Circle` 使用如下属性定义圆：
 
 |属性|说明|
 |---|---|
@@ -174,7 +176,7 @@ public class RectangleTest extends Application {
 |centerY	|原点 Y 值|
 |radius|圆半径，default = 0|
 
-centerX, centerY 和 radius 默认均为 0。Circle 提供了多个构造函数：
+centerX, centerY 和 radius 默认均为 0。`Circle` 提供了多个构造函数：
 
 ```java
 Circle()
@@ -188,7 +190,7 @@ Circle(double radius, Paint fill)
 
 `HBox` 不使用 `centerX` 和 `centerY` 设置 `Circle` 位置。添加到 `Pane` 才能看到这 2 个属性的效果。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -230,11 +232,11 @@ public class CircleTest extends Application {
 }
 ```
 
-![|200](Pasted%20image%2020230713193558.png)
+@import "images/Pasted%20image%2020230713193558.png" {width="200px" title=""}
 
 ## 5. Ellipse
 
-椭圆由 Ellipse 类表示。定义椭圆所需属性（默认均为 0）：
+椭圆由 `Ellipse` 类表示。定义椭圆所需属性（默认均为 0）：
 
 |属性|说明|
 |---|---|
@@ -243,7 +245,7 @@ public class CircleTest extends Application {
 |radiusX|水平半径，default = 0|
 |radiuxY|垂直半径，default = 0|
 
-Ellipse 构造函数：
+`Ellipse` 构造函数：
 
 ```java
 Ellipse()
@@ -251,11 +253,11 @@ Ellipse(double radiusX, double radiusY)
 Ellipse(double centerX, double centerY, double radiusX, double radiusY)
 ```
 
-**示例：** Ellipse
+**示例：** `Ellipse`
 
-创建 3 个 Ellipse，第 3 个 radiusX 和 radiusY 相同，所以实际是圆。
+创建 3 个 `Ellipse`，第 3 个 `radiusX` 和 `radiusY` 相同，所以实际是圆。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -302,7 +304,7 @@ public class EllipseTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230713194048.png)
+@import "images/Pasted%20image%2020230713194048.png" {width="350px" title=""}
 
 ## 6. Polygon
 
@@ -329,7 +331,7 @@ Polygon triangle2 = new Polygon(50.0, 0.0,
 
 **示例：** 使用 Polygon 创建三角形、平行四边形和六边形
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -386,13 +388,13 @@ public class PolygonTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230713195248.png)
+@import "images/Pasted%20image%2020230713195248.png" {width="350px" title=""}
 
 ## 7. Polyline
 
-折线用 Polyline 类表示。折线定义方式和多边形类似，只是终点和起点不连接，没有构成封闭图形。不过 `fill` 属性通过假设该图形是封闭的来填充颜色。
+折线用 `Polyline` 类表示。折线定义方式和多边形类似，只是终点和起点不连接，没有构成封闭图形。不过 `fill` 属性通过假设该图形是封闭的来填充颜色。
 
-Polyline 也提供了两种构造方式。
+`Polyline` 也提供了两种构造方式。
 
 构造后添加数据点：
 
@@ -417,11 +419,11 @@ Polygon triangle2 = new Polygon(
     50.0, 0.0);
 ```
 
-**示例：** 使用 Polyline 创建三角形、平行四边形和六边形
+**示例：** 使用 `Polyline` 创建三角形、平行四边形和六边形
 
 六边形是完整的，因为在默认添加了第一点的坐标，使其封闭。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -481,7 +483,7 @@ public class PolylineTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230713195855.png)
+@import "images/Pasted%20image%2020230713195855.png" {width="350px" title=""}
 
 ## 8. Arc
 
@@ -499,7 +501,7 @@ public class PolylineTest extends Application {
 
 前面四个属性定义了一个椭圆，后面三个属性定义了椭圆上的一个扇形。如果将 length设置为 360，就得到完整的椭圆。
 
-![|400](Pasted%20image%2020230713200256.png)
+@import "images/Pasted%20image%2020230713200256.png" {width="400px" title=""}
 
 `type` 属性指定弧线封闭的方式，由 enum `ArcType` 指定：
 
@@ -509,7 +511,7 @@ public class PolylineTest extends Application {
 
 下图是三种弧线类型：
 
-![|350](Pasted%20image%2020230713200526.png)
+@import "images/Pasted%20image%2020230713200526.png" {width="350px" title=""}
 
 ```ad-warning
 如果不指定 `stroke`，指定 `ArcType` 无效。
@@ -520,7 +522,7 @@ public class PolylineTest extends Application {
 
 **示例：** Arc
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -581,17 +583,17 @@ public class ArcTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230713200758.png)
+@import "images/Pasted%20image%2020230713200758.png" {width="350px" title="Arc"}
 
 ## 9. QuadCurve
 
 计算机中使用 [Bezier 曲线](https://en.wikipedia.org/wiki/B%C3%A9zier_curve) 绘制平滑曲线。`QuadCurve` 类表示包含一个控制点两个指定点的 Bezier 曲线。这 3 个点由 6 个属性 startX, startY, controlX, controlY, endX, endY 指定。
 
-**示例：** 使用 QuadCurve 创建 2 个贝塞尔曲线
+**示例：** 使用 `QuadCurve` 创建 2 个贝塞尔曲线
 
 一个具有 stroke；另一个 stroke 为默认值 null，填充浅灰色。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -631,21 +633,21 @@ public class QuadcurveTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230713201423.png)
+@import "images/Pasted%20image%2020230713201423.png" {width="350px" title="QuadCurve"}
 
 ## 10. CubicCurve
 
-CubicCurve 表示有 2 个控制点、2 个指定点的 Bezier 曲线。CubicCurve 通过 8 个属性指定这 4 个点：(startX, startY), (controlX1, controlY1), (controlX2, controlY2), (endX, endY)。
+`CubicCurve` 表示有 2 个控制点、2 个指定点的 Bezier 曲线。`CubicCurve` 通过 8 个属性指定这 4 个点：(startX, startY), (controlX1, controlY1), (controlX2, controlY2), (endX, endY)。
 
-![|300](Pasted%20image%2020230713201902.png)
+@import "images/Pasted%20image%2020230713201902.png" {width="300px" title=""}
 
 控制点，可以看做曲线切线的交点。
 
-**示例：** 使用 CubicCurve 创建 2 条三次曲线
+**示例：** 使用 `CubicCurve` 创建 2 条三次曲线
 
 一条指定 stroke；另一条没有 stroke，用浅灰色填充。
 
-```java
+```java{.line-numbers}
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -685,5 +687,4 @@ public class CubicCurveTest extends Application {
 }
 ```
 
-![|200](Pasted%20image%2020230713202118.png)
-
+@import "images/Pasted%20image%2020230713202118.png" {width="200px" title="CubicCurve"}

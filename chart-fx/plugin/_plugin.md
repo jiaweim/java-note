@@ -2,12 +2,16 @@
 
 ## 简介
 
-![](Pasted%20image%2020230807201720.png)
 `ChartPlugin` 表示 Chart 的插件，为 Chart 添加**注释**或**装饰**，也可以与 Chart 进行交互。
 
 插件实现类可以通过 getChartChildren() 将自定义 Node 添加到 Chart。getChartChildren() 返回一个 observable 和 modifiable list of nodes，这些 Nodes 将添加到 XYChartPane 的顶部。
 
 插件也可以通过 `registerInputEventHandler(EventType, EventHandler)` 方法监听和响应 XYChartPane 上生成的事件。
+
+@import "images/Pasted%20image%2020230807201720.png" {width="px" title=""}
+
+- [Panner: 拖动图表区域](./panner.md)
+- [EditAxis: 编辑坐标轴](./editaxis.md)
 
 ## 事件
 

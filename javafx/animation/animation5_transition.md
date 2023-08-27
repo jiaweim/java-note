@@ -1,20 +1,23 @@
 # Transition
 
+2023-08-11, 09:06
+modify: 样式
 2023-07-31, 11:41
+@author Jiawei Mao
 ****
 ## 1. 简介
 
-使用 Timeline 需要设置 keyframes，使用起来相对麻烦。例如，创建 keyframes 并设置 Timeline 让 node 沿着圆移动就不容易实现。JavaFX 提供了许多类，可以使用预定义属性对 node 实现动画，这些类就是 transition。
+使用 `Timeline` 需要设置 keyframes，使用起来相对麻烦。例如，创建 keyframes 并设置 `Timeline` 让 node 沿着圆移动就不容易实现。JavaFX 提供了许多类，可以使用预定义属性对 node 实现动画，这些类就是 transition。
 
-所有 transition 都继承 Transition 类，而 Transition 又继承自 Animation，所以 Animation 的属性很方法在 Transition 也能用。
+所有 transition 都继承 `Transition` 类，而 `Transition` 又继承自 `Animation`，所以 `Animation` 的属性和方法 `Transition` 也能用。
 
-使用 Transition 只需要设置 node、duration 和 end-value。
+使用 `Transition` 只需要设置 node、duration 和 end-value。
 
-Animation 的 interpolator 属性指定插值器。默认为 `Interpolator.EASE_BOTH`。
+`Animation` 的 `interpolator` 属性指定插值器。默认为 `Interpolator.EASE_BOTH`。
 
 ## 2. FadeTransition
 
-FadeTransition 类在指定时间内逐渐增加或减少 node `opacity` 实现淡入或淡出效果。该类定义了如下属性来指定动画：
+`FadeTransition` 类在指定时间内逐渐增加或减少 node `opacity` 实现淡入或淡出效果。该类定义了如下属性来指定动画：
 
 - duration：指定一个动画周期的持续时间
 - node：该 node 的 `opacity` 属性被修改
@@ -26,11 +29,11 @@ FadeTransition 类在指定时间内逐渐增加或减少 node `opacity` 实现�
 
 例如，假设你想在动画中将 node 的 opacity 设置在 1.0 到 0.5 之间。那么可以设置 fromValue 为 1.0，toValue 为 0.5；也可以设置 fromValue 为 1.0，byValue 为 -0.50.
 
-opacity 有效值在 0.0 到 1.0 之间，超出该范围 FadeTransition 会自动截断。
+opacity 有效值在 0.0 到 1.0 之间，超出该范围 `FadeTransition` 会自动截断。
 
-**示例：** 为 Rectangle 实现淡出效果，在 2 秒内 opacity 从 1.0 到 0.2
+**示例：** 为 `Rectangle` 实现淡出效果，在 2 秒内 `opacity` 从 1.0 到 0.2
 
-```java
+```java{.line-numbers}
 Rectangle rect = new Rectangle(200, 50, Color.RED);
 FadeTransition fadeInOut = new FadeTransition(Duration.seconds(2), rect);
 fadeInOut.setFromValue(1.0);
@@ -40,7 +43,7 @@ fadeInOut.play();
 
 **示例：** 为 Rectangle 实现淡出和淡入动画的无效循环
 
-```java
+```java{.line-numbers}
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -89,13 +92,13 @@ public class FadeTest extends Application {
 - fromValue：初始 `fill` 值，默认为 Shape 的当前 `fill`
 - toValue：末端 `fill` 值
 
-在一个动画周期，Shape 的 `fill` 属性从 fromValue 到 toValue。
+在一个动画周期，Shape 的 `fill` 属性从 `fromValue` 到 `toValue`。
 
-Shape 的 fill 属性为 Paint 类型，而 fromValue 和 toValue 为 Color 类型，即 FillTransition 只支持 Color 渐变。
+`Shape` 的 `fill` 属性为 `Paint` 类型，而 `fromValue` 和 `toValue` 为 `Color` 类型，即 `FillTransition` 只支持 `Color` 渐变。
 
-**示例：** Rectangle 的 fill 属性在 2 秒内从 blueviolet 变为 blue
+**示例：** `Rectangle` 的 fill 属性在 2 秒内从 blueviolet 变为 blue
 
-```java
+```java{.line-numbers}
 FillTransition fillTransition = new FillTransition(Duration.seconds(2), rect);
 fillTransition.setFromValue(Color.BLUEVIOLET);
 fillTransition.setToValue(Color.AZURE);
@@ -104,7 +107,7 @@ fillTransition.play();
 
 **示例：** 上个示例的完整实现
 
-```java
+```java{.line-numbers}
 import javafx.animation.FillTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -144,9 +147,9 @@ public class FillTest extends Application {
 
 ## 4. StrokeTransition
 
-StrokeTransition 实现 `stroke` 属性的动画，与 FillTransition 的使用基本一致。
+`StrokeTransition` 实现 `stroke` 属性的动画，与 `FillTransition` 的使用基本一致。
 
-StrokeTransition 定义的属性与 FillTransition 一样，即：
+`StrokeTransition` 定义的属性与 `FillTransition` 一样，即：
 
 - duration：指定一个动画周期的持续时间
 - shape：`stroke` 属性被更改的 Shape
@@ -155,7 +158,7 @@ StrokeTransition 定义的属性与 FillTransition 一样，即：
 
 **示例：** Rectangle 的 stroke 动画，stroke 从 red 到 blue，2 秒一个周期
 
-```java
+```java{.line-numbers}
 Rectangle rect = new Rectangle(200, 50, Color.WHITE);
 StrokeTransition strokeTransition = 
                     new StrokeTransition(Duration.seconds(2), rect);
@@ -196,9 +199,9 @@ translateZ_end_value = translateZ_initial_value + byZ
 
 同时指定 (toX, toY, toZ) 和 (byX, byY, byZ)，前者优先。
 
-**示例：** Text 滚动效果
+**示例：** `Text` 滚动效果
 
-```java
+```java{.line-numbers}
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.VPos;
@@ -241,11 +244,12 @@ public class TranslateTest extends Application {
 ```
 
 ![](images/ani4.gif)
+
 ## 6. RotateTransition
 
-RotateTransition 类通过 Node 的 rotate 属性实现旋转动画。Node 沿着指定轴围绕 Node 的中心旋转。
+`RotateTransition` 类通过 Node 的 rotate 属性实现旋转动画。Node 沿着指定轴围绕 Node 的中心旋转。
 
-RotateTransition 通过如下属性指定动画：
+`RotateTransition` 通过如下属性指定动画：
 
 - duration
 - node
@@ -260,11 +264,11 @@ duration 属性指定一个动画周期持续的时间。
 
 `axis` 属性指定旋转的坐标轴。默认为 `rotationAxis` 属性的默认值 `Rotate.Z_AXIS`。可用值包括 `Rotate.X_AXIS`, `Rotate.Y_AXIS`, `Rotate.Z_AXIS`。
 
-fromAngle 属性指定旋转的初始角度。默认为 Node 的 rotate 属性值。
+`fromAngle` 属性指定旋转的初始角度。默认为 Node 的 rotate 属性值。
 
-toAngle 指定端点角度。
+`toAngle` 指定端点角度。
 
-byAngle 也用于指定端点角度：
+`byAngle` 也用于指定端点角度：
 
 ```java
 rotation_end_value = rotation_initial_value + byAngle
@@ -274,11 +278,11 @@ rotation_end_value = rotation_initial_value + byAngle
 
 所有角度单位为度数。0° 对应三点钟方向，正数指顺时针方向。
 
-**示例：** Rectangle 的旋转动画
+**示例：** `Rectangle` 的旋转动画
 
-Rectangle 顺时针和逆时针交替旋转。
+`Rectangle` 顺时针和逆时针交替旋转。
 
-```java
+```java{.line-numbers}
 import javafx.animation.RotateTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -320,7 +324,7 @@ public class RotateTest extends Application {
 
 ## 7. ScaleTransition
 
-ScaleTransition 类通过 Node 的 scaleX, scaleY 和 scaleZ 属性实现缩放动画。
+`ScaleTransition` 类通过 `Node` 的 scaleX, scaleY 和 scaleZ 属性实现缩放动画。
 
 该类通过如下属性指定动画：
 
@@ -356,9 +360,7 @@ scaleZ_end_value = scaleZ_initial_value + byZ
 
 **示例：** Rectangle 缩放动画
 
-
-
-```java
+```java{.line-numbers}
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -397,27 +399,28 @@ public class ScaleTest extends Application {
 ```
 
 ![](images/ani6.gif)
+
 ## 8. PathTransition
 
-PathTransition 类通过 Node 的 translateX 和 translateY 属性，让 Node 在指定路径移动。移动路径由 Shape 定义。
+`PathTransition` 类通过 `Node` 的 `translateX` 和 `translateY` 属性，让 Node 在指定路径移动。移动路径由 `Shape` 定义。
 
-PathTransition 使用如下属性定义动画：
+`PathTransition` 使用如下属性定义动画：
 
 - duration
 - node
 - path
 - orientation
 
-`path` 属性定义 node 移动的路经，为 Shape 类型。可以使用 Shape 任意子类，如 Arc, Circle, Rectangle, Ellipse, Path, SVGPath 等。
+`path` 属性定义 node 移动的路经，为 `Shape` 类型。可以使用 `Shape` 任意子类，如 `Arc`, `Circle`, `Rectangle`, `Ellipse`, `Path`, `SVGPath` 等。
 
 node 可以一直保持竖直，也可以随着运动旋转，从而一直与路径的切线垂直。`orientation` 属性指定该行为，为 `PathTransition.OrientationType` 类型：`NONE`, `ORTHOGONAL_TO_TANGENT`
 
-- 默认 NONE，表示一直保持竖直
-- ORTHOGONAL_TO_TANGENT 表示与路径的切线垂直
+- 默认 `NONE`，表示一直保持竖直
+- `ORTHOGONAL_TO_TANGENT` 表示与路径的切线垂直
 
-下图是 Rectangle 沿着 Circle 移动的 PathTransition 实现。
+下图是 `Rectangle` 沿着 `Circle` 移动的 `PathTransition` 实现。
 
-![|300](Pasted%20image%2020230731094347.png)
+@import "images/Pasted%20image%2020230731094347.png" {width="300px" title=""}
 
 构造函数：
 
@@ -427,9 +430,9 @@ PathTransition(Duration duration, Shape path)
 PathTransition(Duration duration, Shape path, Node node)
 ```
 
-**示例：** Rectangle 用沿着 Circle 运动
+**示例：** `Rectangle` 用沿着 `Circle` 运动
 
-```java
+```java{.line-numbers}
 import javafx.animation.PathTransition;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -476,11 +479,11 @@ public class PathTest extends Application {
 
 ## 9. PauseTransition
 
-PauseTransition 类定义暂停，不单独使用，而是在 `SequentialTransition` 中在两个动画之间插入暂停。duration 属性指定暂停时间。
+`PauseTransition` 类定义暂停，不单独使用，而是在 `SequentialTransition` 中在两个动画之间插入暂停。duration 属性指定暂停时间。
 
-如果希望在动画结束后指定时间执行 ActionEvent  handler，可以用 PauseTransition 实现。使用 Animation 类的 onFinished 属性即可。
+如果希望在动画结束后指定时间执行 `ActionEvent` handler，可以用 `PauseTransition` 实现。使用 `Animation` 类的 `onFinished` 属性即可。
 
-创建 PauseTransition：
+创建 `PauseTransition：`
 
 ```java
 // Create a pause transition of 400 milliseconds that is the default duration
@@ -495,16 +498,16 @@ PauseTransition pt2 = new PauseTransition(Duration.seconds(5));
 
 ## 10. SequentialTransition
 
-`SequentialTransition` 类按顺序执行一系列动画。支持 Transition 和 Timeline。
+`SequentialTransition` 类按顺序执行一系列动画。支持 `Transition` 和 `Timeline`。
 
-SequentialTransition 的 node 属性指定默认动画对象。如果所有的动画都指定了 node，则忽略该属性。
+`SequentialTransition` 的 node 属性指定默认动画对象。如果所有的动画都指定了 node，则忽略该属性。
 
-SequentialTransition.getChildren() 返回 `ObservableList<Animation>`，定义动画序列。
+`SequentialTransition.getChildren()` 返回 `ObservableList<Animation>`，定义动画序列。
 
-**示例：** SequentialTransition
+**示例：** `SequentialTransition`
 
-- 创建 3 个 transition: FadeTransition, PauseTransition, PathTransition
-- SequentialTransition 播放时，这个三个动画会依次播放。
+- 创建 3 个 transition: `FadeTransition`, `PauseTransition`, `PathTransition`
+- `SequentialTransition` 播放时，这个三个动画会依次播放。
 
 ```java
 FadeTransition fadeTransition = ...
@@ -516,17 +519,17 @@ st.getChildren().addAll(fadeTransition, pauseTransition, pathTransition);
 st.play();
 ```
 
-**示例：** SequentialTransition
+**示例：** `SequentialTransition`
 
-创建 ScaleTransition, FillTransition, PauseTransition, PathTransition 序列：
+创建 `ScaleTransition`, `FillTransition`, `PauseTransition`, `PathTransition` 序列：
 
-- 将 Rectangle 放大一倍，然后缩小到原来尺寸
-- 将 Rectangle 填充色从 red 变为 blue，然后再变为 red
+- 将 `Rectangle` 放大一倍，然后缩小到原来尺寸
+- 将 `Rectangle` 填充色从 red 变为 blue，然后再变为 red
 - 暂停 200 毫秒，在 stdout 输出一条消息
-- 沿着 Circle 移动 Rectangle
+- 沿着 `Circle` 移动 `Rectangle`
 - 循环
 
-```java
+```java{.line-numbers}
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -616,10 +619,10 @@ public class SequentialTest extends Application {
 
 `ParallelTransition.getChildren()` 返回 `ObservableList<Animation>`，为动画列表。
 
-**示例：** ParallelTransition
+**示例：** `ParallelTransition`
 
-- 创建 FadeTransition 和 PathTransition
-- 在 ParallelTransition 同时播放
+- 创建 `FadeTransition` 和 `PathTransition`
+- 在 `ParallelTransition` 同时播放
 
 ```java
 FadeTransition fadeTransition = ...
@@ -630,11 +633,11 @@ pt.getChildren().addAll(fadeTransition, pathTransition);
 pt.play();
 ```
 
-**示例：** ParallelTransition
+**示例：** `ParallelTransition`
 
-FadeTransition 和 RotateTransition 同时播放
+`FadeTransition` 和 `RotateTransition` 同时播放
 
-```java
+```java{.line-numbers}
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PathTransition;

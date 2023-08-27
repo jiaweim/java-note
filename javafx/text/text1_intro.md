@@ -16,7 +16,8 @@
 - 第二个字体加粗、加大
 - 第三个应用 Reflection 特效，字体加大，stroke, fill
 
-![|350](Pasted%20image%2020230726145257.png)
+
+@import "images/Pasted%20image%2020230726145257.png" {width="300px" title=""}
 
 不同行通过 `\n` 来区分。
 
@@ -101,7 +102,7 @@ public class TextTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230726145721.png)
+@import "images/Pasted%20image%2020230726145721.png" {width="350px" title=""}
 
 ## 3. Text Fill, Stroke
 
@@ -158,7 +159,7 @@ public class TextFillAndStroke extends Application {
 }
 ```
 
-![|500](Pasted%20image%2020230726155637.png)
+@import "images/Pasted%20image%2020230726155637.png" {width="500px" title=""}
 
 ## 4. 文字装饰
 
@@ -179,7 +180,7 @@ Text t2 = new Text("It uses the \nstrikethrough decoration.");
 t2.setStrikethrough(true);
 ```
 
-![](Pasted%20image%2020230726155815.png)
+@import "images/Pasted%20image%2020230726155815.png" {width="px" title=""}
 
 ## 5. 字体平滑
 
@@ -200,7 +201,7 @@ Text t2 = new Text("Hello world in GRAY.");
 t2.setFontSmoothingType(FontSmoothingType.GRAY);
 ```
 
-![|250](Pasted%20image%2020230726160522.png)
+@import "images/Pasted%20image%2020230726160522.png" {width="250px" title=""}
 
 ## 6. Text CSS
 
@@ -234,5 +235,5 @@ Text t1 = new Text("Styling Text Nodes!");
 t1.getStyleClass().add("my-text");
 ```
 
-![|200](Pasted%20image%2020230726160925.png)
+@import "images/Pasted%20image%2020230726160925.png" {width="200px" title=""}
 

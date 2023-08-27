@@ -15,7 +15,7 @@ Scene graph 在屏幕上呈现 JavaFX 应用起着至关重要的作用。
 
 对比即时模式，保留模式占用更多内存。但是使用更简单，JavaFX scene graph 使用保留模式。下图是这两种 API 的示意图：
 
-![|400](Pasted%20image%2020230706111657.png)
+@import "images/Pasted%20image%2020230706111657.png" {width="400px" title=""}
 
 JavaFX 这种保留模式对游戏开发不太好，因为游戏开发需要绝对控制渲染，通常会创建自己的游戏循环。在其中控制渲染。
 

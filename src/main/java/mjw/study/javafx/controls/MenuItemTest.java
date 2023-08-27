@@ -111,8 +111,7 @@ public class MenuItemTest extends Application {
         rectItem.setSelected(true);
 
         // Set Key Combinations for shapes
-        KeyCombination kr =
-                new KeyCodeCombination(KeyCode.R, KeyCombination.ALT_DOWN);
+        KeyCombination kr = new KeyCodeCombination(KeyCode.R, KeyCombination.ALT_DOWN);
         KeyCombination kc =
                 new KeyCodeCombination(KeyCode.C, KeyCombination.ALT_DOWN);
         KeyCombination ke =

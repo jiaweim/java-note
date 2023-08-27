@@ -1,6 +1,7 @@
 # Layout 概述
 
 2023-07-06, 16:37
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -28,7 +29,8 @@
 
 `Parent` 是所有容器的超类，类图如下：
 
-![](Pasted%20image%2020230706155615.png)
+@import "images/Pasted%20image%2020230706155615.png" {width="600px" title=""}
+
 说明：
 
 - `Group` 可用来对一组 nodes 同时应用特效和转换
@@ -83,7 +85,7 @@ protected <E extends Node> List<E> getManagedChildren()
 - 构造时添加
 - 构造后添加
 
-```java
+```java{.line-numbers}
 // 创建两个按钮
 Button okBtn = new Button("OK");
 Button cancelBtn = new Button("Cancel");

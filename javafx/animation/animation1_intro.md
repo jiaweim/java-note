@@ -1,6 +1,9 @@
 # Animation 概述
 
+2023-08-10, 21:09
+modify: 样式
 2023-07-27, 16:38
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -13,17 +16,17 @@
 - 关键值（Key value）
 - 插值器（Interpolator）
 
-动画在一段时间内执行，*timeline* 表示动画的时间轴。*key frame* 表示 Node 在时间轴特定时刻的状态。 *keyframe* 具有关联的 *keyvalue*，*keyvalue*  表示 node 的某个属性值以及要使用的插入器（interpolator）。
+动画在一段时间内执行，*timeline* 表示动画的时间轴。*key frame* 表示 `Node` 在特定时刻的状态。 *keyframe* 具有关联的 *keyvalue*，*keyvalue*  表示 node 的某个属性值以及要使用的插入器（interpolator）。
 
-假设你需要将 scene 中的一个圆在 10 秒内从左边移到右边。如下图所示：
+假设需要将 scene 中的一个圆在 10 秒内从左边移到右边。如下图所示：
 
 - 粗的水平线表示时间轴
 - 实线圆表示时间轴上特定时刻的 keyframe
-- 实线圆上方为 keyframe 对应的 keyvalue
+- 实线圆上方为 keyframe 对应的 keyvalue，即 `translateX` 值
 
-![|500](Pasted%20image%2020230727144802.png)
+@import "images/Pasted%20image%2020230727144802.png" {width="500px" title=""}
 
-例如：第 5 秒 keyframe 中 circle 的 translateX 属性值为 500，在上图中标识为 `tx=500`。
+例如：第 5 秒 keyframe 中 circle 的 `translateX` 属性值为 500，在上图中标识为 `tx=500`。
 
 开发人员提供 timeline, keyframe, keyvalue。上例中有 5 个 keyframes，如果 JavaFX 只在 5 个不同时刻显示 5 个 keyframes，动画看起来就不顺滑。为了提供平滑的动画，JavaFX 需要在 timeline 的任意时刻插入 Circle 的位置。即 JavaFX 需要在两个连续的 keyframes 之间插入中间 keyframes。该插入操作通过**插值器**（interpolator）完成。
 
@@ -31,11 +34,11 @@ JavaFX 默认使用线性插值器，即随着时间线性地改变属性。
 
 ## 2. Animation 类
 
-除了 Duration 类在 javafx.util 包中，其它动画相关的类都在 javafx.animation 包中。类图如下：
+除了 `Duration` 类在 `javafx.util` 包中，其它动画相关的类都在 `javafx.animation` 包中。类图如下：
 
-![](Pasted%20image%2020230727150514.png)
+@import "images/Pasted%20image%2020230727150514.png" {width="px" title=""}
 
-抽象类 Animation 包含动画相关的通用属性和方法。
+抽象类 `Animation` 包含动画相关的通用属性和方法。
 
 JavaFX 支持两种类型的动画：
 
@@ -47,20 +50,20 @@ JavaFX 支持两种类型的动画：
 有几种常用的动画，如 node 沿着路径移动、node 透明度随时间变化等。这种常见的动画称为 **transition**。
 
 - transition 提前内置了 timeline，由 `Transition` 类表示
-- Transition 有多个子类，用于提供不同类型的 transitions。例如，FadeTransition 随时间改变 node 的透明度实现渐隐动画
-- 创建 Transition 实例（通常为其子类），为动画属性指定初始值、最终值和持续时间
+- `Transition` 有多个子类，用于提供不同类型的 transitions。例如，`FadeTransition` 随时间改变 node 的透明度实现渐隐动画
+- 创建 `Transition` 实例（通常为其子类），为动画属性指定初始值、最终值和持续时间
 - 由 JavaFX 创建 timeline 和执行动画
 - transition 更容易使用
 
-`SequentialTransition` 用于按顺序执行多个动画。ParallelTransition 用于同时执行多个动画。
+`SequentialTransition` 用于按顺序执行多个动画。`ParallelTransition` 用于同时执行多个动画。
 
 ## 3. 工具类
 
 ### 3.1. Duration
 
-javafx.util 包中的 Duration 类表示持续时间，用于指定动画每个周期的时长。
+`javafx.util` 包中的 `Duration` 类表示持续时间，用于指定动画每个周期的时长。
 
-创建 Duration 有三种方式：
+创建 `Duration` 有三种方式：
 
 - 构造函数
 - factory 方法
@@ -72,7 +75,7 @@ javafx.util 包中的 Duration 类表示持续时间，用于指定动画每个�
 Duration tenMillis = new Duration(10);
 ```
 
-Duration 为不同时间单位提供了 factory 方法：
+`Duration` 为不同时间单位提供了 factory 方法：
 
 ```java
 Duration tenMillis = Duration.millis(10);
@@ -88,16 +91,16 @@ Duration tenMillis = Duration.valueOf("10.0ms");
 Duration tenMillisNeg = Duration.valueOf("-10.0ms");
 ```
 
-Duration 还定义了几个常量：
+`Duration` 还定义了几个常量：
 
-- UNKNOWN：持续时间未知，使用 isUnknown() 检查 duration 是否为该类型
-- INDEFINITE：持续时间无线，使用 isIndefinite() 检查 duration 是否为该类型
-- ONE：1 毫秒
-- ZERO：0
+- `UNKNOWN`：持续时间未知，使用 `isUnknown()` 检查 duration 是否为该类型
+- `INDEFINITE`：持续时间无线，使用 `isIndefinite()` 检查 duration 是否为该类型
+- `ONE`：1 毫秒
+- `ZERO`：0
 
 **示例：** Duration
 
-```java
+```java{.line-numbers}
 import javafx.util.Duration;
 
 public class DurationTest {
@@ -144,17 +147,18 @@ unknown.isUnknown() = true
 
 ### 3.2. KeyValue
 
-KeyValue 类表示 keyvalue，KeyValue 封装了三个信息：
+`KeyValue` 类表示 keyvalue，`KeyValue` 封装了三个信息：
 
 - target
 - target 最终值
 - 插值器
 
-target 为 WritableValue 类型，所以所有 JavaFX 属性都可以为 target。
+target 为 `WritableValue` 类型，所以所有 JavaFX 属性都可以为 target。
 
 keyframe 定义了 timeline 上特定点，一个 keyframe 包含 1 到多个 keyvalues。下图展示了 timeline 上的一个 interval。
 
-![|400](Pasted%20image%2020230727161731.png)
+@import "images/Pasted%20image%2020230727161731.png" {width="400px" title=""}
+
 interval 由两个时间点 instant1 和 instant2 定义。两个时间点都有关联的 keyframes，每个 keyframe 包含一个 keyvalue。
 
 在 timeline 上动画可能向前，也可能后退。当 interval 开始，从该 interval 的 end keyframe 的 keyvalue 获取 target end value，然后用插值器计算中间 keyframes。
@@ -199,9 +203,9 @@ KeyValue endKeyValue = new KeyValue(msg.translateXProperty(), 100.0,
 
 ### 3.3. KeyFrame
 
-keyframe 定义 timeline 上指定时间点 node 的 target 状态。target 状态由 keyvalue 定义。
+`keyframe` 定义 timeline 上指定时间点 node 的 target 状态。target 状态由 keyvalue 定义。
 
-keyframe 包含 4 部分：
+`keyframe` 包含 4 部分：
 
 - instant on the timeline
 - KeyValue
