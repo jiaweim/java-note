@@ -15,12 +15,17 @@ module java.module {
     requires org.hamcrest;
     requires org.junit.jupiter.api;
 
+
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.dataformat.xml;
+
+    requires org.slf4j;
 
     opens mjw.study.jackson.objectmapper;
-
+    opens mjw.study.jackson.xml;
+    opens mjw.study.jackson.annotation;
 
     opens mjw.study.hamcrest.matcher;
     opens mjw.study.javafx.layout;

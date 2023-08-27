@@ -18,7 +18,7 @@
 
 `@JsonAnyGetter` 注释可以灵活地将 `Map` 字段作为标准属性。
 
-例如，ExtendableBean 具有 name 属性和一组 key/value 可扩展属性：
+例如，`ExtendableBean` 具有 `name` 属性和一组 key/value 可扩展属性：
 
 ```java
 public class ExtendableBean {
@@ -60,19 +60,14 @@ public class ExtendableBean {
 操作代码：
 
 ```java
-@Test
-public void whenSerializingUsingJsonAnyGetter_thenCorrect()
-  throws JsonProcessingException {
- 
-    ExtendableBean bean = new ExtendableBean("My bean");
-    bean.add("attr1", "val1");
-    bean.add("attr2", "val2");
+ExtendableBean bean = new ExtendableBean("My bean");
+bean.add("attr1", "val1");
+bean.add("attr2", "val2");
 
-    String result = new ObjectMapper().writeValueAsString(bean);
- 
-    assertThat(result, containsString("attr1"));
-    assertThat(result, containsString("val1"));
-}
+String result = new ObjectMapper().writeValueAsString(bean);
+
+assertThat(result, containsString("attr1"));
+assertThat(result, containsString("val1"));
 ```
 
 
