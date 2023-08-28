@@ -2,27 +2,29 @@
 
 - [jackson-annotations](#jackson-annotations)
   - [简介](#简介)
-  - [Serialization 注释](#serialization-注释)
+  - [Serialization 注解](#serialization-注解)
     - [@JsonAnyGetter](#jsonanygetter)
+    - [@JsonGetter](#jsongetter)
+    - [@JsonPropertyOrder](#jsonpropertyorder)
+    - [@JsonRawValue](#jsonrawvalue)
   - [参考](#参考)
 
 ****
 
 ## 简介
 
-该项目包含 jackson 数据处理器的通用注释。
+见到介绍 jackson 数据处理器的通用注解。
 
-## Serialization 注释
+## Serialization 注解
 
 ### @JsonAnyGetter
 
-`@JsonAnyGetter` 注释可以灵活地将 `Map` 字段作为标准属性。
+`@JsonAnyGetter` 注解可以将 `Map` 字段作为标准属性。
 
-例如，`ExtendableBean` 具有 `name` 属性和一组 key/value 可扩展属性：
+**示例：** `ExtendableBean` 具有 `name` 属性和一组 key/value 可扩展 Map 属性
 
 ```java
 public class ExtendableBean {
-
     public String name;
     private Map<String, String> properties;
 
@@ -70,11 +72,100 @@ assertThat(result, containsString("attr1"));
 assertThat(result, containsString("val1"));
 ```
 
+### @JsonGetter
 
+`@JsonGetter` 注解与 `@JsonProperty` 注解功能相同，将方法标记为 getter 方法。
+
+**示例：** 使用 @JsonGetter 注解将 getTheName() 方法指定为 name 属性的 getter 方法
+
+```java
+public class MyBean {
+    public int id;
+    private String name;
+
+    @JsonGetter("name")
+    public String getTheName() {
+        return name;
+    }
+}
+```
+
+使用：
+
+```java
+MyBean bean = new MyBean(1, "My bean");
+
+String result = new ObjectMapper().writeValueAsString(bean);
+
+assertThat(result, containsString("My bean"));
+assertThat(result, containsString("1"));
+```
+
+### @JsonPropertyOrder
+
+@JsonPropertyOrder 注解指定属性序列化顺序。
+
+**示例：** 设置 MyBean 属性的序列化顺序
+
+```java
+@JsonPropertyOrder({ "name", "id" })
+public class MyBean {
+    public int id;
+    public String name;
+}
+```
+
+输出：
+
+```json
+{
+    "name":"My bean",
+    "id":1
+}
+```
+
+还可以使用 `@JsonPropertyOrder(alphabetic=true)` 按字母顺序序列化属性。
+
+### @JsonRawValue
+
+`@JsonRawValue` 注解让 Jackson 按照原样序列化属性。
+
+**示例：** 使用 `@JsonRawValue` 注解嵌入自定义 JSON 作为字段值
+
+```java
+public class RawBean {
+    public String name;
+
+    @JsonRawValue
+    public String json;
+}
+```
+
+输出：
+
+```json
+{
+    "name":"My bean",
+    "json":{
+        "attr":false
+    }
+}
+```
+
+测试代码：
+
+```java
+RawBean bean = new RawBean("My bean", "{\"attr\":false}");
+
+String result = new ObjectMapper().writeValueAsString(bean);
+assertThat(result, containsString("My bean"));
+assertThat(result, containsString("{\"attr\":false}"));
+```
 
 
 
 ## 参考
 
 - https://github.com/FasterXML/jackson-annotations
-- https://www.baeldung.com/jackson
+- https://www.baeldung.com/jackson-annotations
+- https://www.baeldung.com/jackson-advanced-annotations
