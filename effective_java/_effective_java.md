@@ -1,5 +1,8 @@
-# 
+# Effective Java
 
+
+
+- [重写 equals 时一定要重写 hashCode](./11_hashCode.md)
 
 https://www.bookstack.cn/read/effective-java-3rd-chinese/docs-README.md
 

@@ -54,7 +54,7 @@ NumberFormat nf = NumberFormat.getInstance(Locale.CHINA);
 
 此方法与格式化无关。如果希望在小数点后面没有数值的情况下不显示小数点，则使用 `setDecimalSeparatorAlwaysShown`。 
 
-，只影响小数点后没有数值的情况，例如模式 "#,##0.##"，如果为 true，则 3456.00 -> "3,456."，如果为 false，则 3456.00 -> "3456"。此方法与解析无关。如果希望解析在小数点处停止，则使用 setParseIntegerOnly
+`setDecimalSeparatorAlwaysShown` 只影响小数点后没有数值的情况，例如模式 "#,##0.##"，如果为 true，则 3456.00 -> "3,456."，如果为 false，则 3456.00 -> "3456"。此方法与解析无关。如果希望解析在小数点处停止，则使用 setParseIntegerOnly
 
 要更细致的控制数值的格式，直接使用 `DecimalFormat`、
 
