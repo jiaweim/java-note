@@ -19,9 +19,8 @@ modify: 目录结构
 
 `Node` 的 `styleClass` 变量为 `ObservableList<String>` 类型，包含 node 的 JavaFX 样式类名。
 
-```ad-note
-JavaFX 样式类名与 Java 类是不同概念。JavaFX 样式类名是字符串类型，用在 CSS 样式表中。
-```
+!!! note
+    JavaFX 样式类名与 Java 类是不同概念。JavaFX 样式类名是字符串类型，用在 CSS 样式表中。
 
 - 可以为 node 指定多个 CSS 类名，例如，给 `HBox` 指定两个类名
 

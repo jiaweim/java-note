@@ -1,5 +1,11 @@
 # Font
 
+- [Font](#font)
+  - [1. 简介](#1-简介)
+  - [2. 创建字体](#2-创建字体)
+  - [3. 已安装字体](#3-已安装字体)
+  - [4. 自定义字体](#4-自定义字体)
+
 2023-07-26, 15:52
 ****
 ## 1. 简介
@@ -168,24 +174,24 @@ for(String fullName: Font.getFontNames("Times New Roman")) {
 
 ## 4. 自定义字体
 
-可以从外部加载自定义字体，如从文件或 URL 加载。`Font` 的 loadFont() 加载自定义字体：
+可以从外部加载自定义字体，如从文件或 URL 加载。`Font` 的 `loadFont()` 加载自定义字体：
 
-- loadFont(InputStream in, double size)
-- loadFont(String urlStr, double size)
+- `loadFont(InputStream in, double size)`
+- `loadFont(String urlStr, double size)`
 
 使用这两个方法，可以载入本地或网络上的字体。
 
-加载自定义字体成功后，loadFont() 使用 JavaFX graphics engine 注册该字体。这样 Font 类就可以使用构造函数或 factory 方法创建 Font。
+加载自定义字体成功后，`loadFont()` 使用 JavaFX graphics engine 注册该字体。这样 `Font` 类就可以使用构造函数或 factory 方法创建 `Font`。
 
-loadFont() 同时返回指定 size 的 Font 对象，即 `size` 参数的目的是为了加载字体后创建指定 size 的字体。
+`loadFont()` 同时返回指定 `size` 的 `Font` 对象，即 `size` 参数的目的是为了加载字体后创建指定 size 的字体。
 
-加载失败返回 null。
+加载失败返回 `null`。
 
 **示例：** 从本地文件系统加载字体
 
 - 字体文件名为 4starfac.ttf，放在 `resources/font` 目录。
 - 加载成功后，设置第一个 Text 的字体
-- 使用加载字体的 family name 创建一个新的 Font，设置第二个 Text 的字体
+- 使用加载字体的 family name 创建一个新的 `Font`，设置第二个 `Text` 的字体
 - 如果字体文件不存在或加载失败，抛出错误信息
 
 ```java
@@ -256,4 +262,4 @@ public class TextCustomFont extends Application {
 }
 ```
 
-![](Pasted%20image%2020230726155014.png)
+![](images/Pasted%20image%2020230726155014.png)

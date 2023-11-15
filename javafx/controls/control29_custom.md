@@ -1,12 +1,30 @@
 # 自定义控件
 
+- [自定义控件](#自定义控件)
+  - [简介](#简介)
+  - [使用 CSS 重新定义控件样式](#使用-css-重新定义控件样式)
+    - [修改 checkmark](#修改-checkmark)
+    - [修改 box](#修改-box)
+    - [CheckBox 状态](#checkbox-状态)
+  - [扩展已有控件](#扩展已有控件)
+  - [扩展 Region](#扩展-region)
+  - [使用 Canvas](#使用-canvas)
+  - [示例](#示例)
+    - [LED 控件](#led-控件)
+    - [代码结构](#代码结构)
+    - [LED 属性](#led-属性)
+    - [LED 控件初始化](#led-控件初始化)
+    - [可视化代码](#可视化代码)
+    - [LED Control CSS](#led-control-css)
+    - [Resizing LED Control](#resizing-led-control)
+  - [参考](#参考)
+
+2023-11-14, 22:47
 @author Jiawei Mao
 ****
 ## 简介
 
-当现有控件无法满足需求，就需要自定义实现新的控件。
-
-JavaFX 提供了多种创建自定义控件的方法：
+当现有控件无法满足需求，就需要自定义实现新的控件。JavaFX 提供了多种自定义控件的方法：
 
 - 使用 CSS 重新定义控件样式
 - 组合已有控件
@@ -192,7 +210,7 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 2023-08-14, 10:45
 
-`Region` 是 `Control` 和 `Pane` 的父类，是一个 resizable 的 `Parent` node，可以通过 CSS 设置样式。扩展该类是实现自定义控件的最直观的方法。
+`Region` 是 `Control` 和 `Pane` 的父类，是一个 resizable 的 `Parent` node，可以通过 CSS 设置样式。扩展该类是自定义控件最直观的方法。
 
 `Region` 和 Control+Skin 的主要区别在于，基于 `Region` 的控件同时包含逻辑和 UI，而 Control+Skin 的逻辑和 UI 分离，逻辑在 `Control` 中，UI 在 Skin 中。
 
