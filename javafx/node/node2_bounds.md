@@ -227,7 +227,7 @@ b1(boundsInLocal)=BoundingBox [minX:-9.0, minY:-9.0, minZ:0.0, width:65.33332824
 
 ## 4. bounds 示例
 
-下面通过一个矩形及其不同属性、特效和变换来展示如何计算 `Node` 的 `bounds`。完整代码可参考 [NodeBoundsApp](/src/main/java/mjw/study/javafx/node/NodeBoundsApp.java)。
+下面通过一个矩形及其不同属性、特效和变换来展示如何计算 `Node` 的 `bounds`。完整代码可参考 [NodeBoundsApp](/mjw/javafx/node/NodeBoundsApp.java)。
 
 - 首先创建一个 50x20 的矩形，放在矩形的 local 坐标空间的 (0,0) 位置
 

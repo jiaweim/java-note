@@ -23,28 +23,29 @@ module java.module {
 
     requires org.slf4j;
 
-    opens mjw.study.jackson.objectmapper;
-    opens mjw.study.jackson.xml;
-    opens mjw.study.jackson.annotation;
+    opens mjw.jackson.objectmapper;
+    opens mjw.jackson.xml;
+    opens mjw.jackson.annotation;
+    opens mjw.java.util;
 
-    opens mjw.study.hamcrest.matcher;
-    opens mjw.study.javafx.layout;
-    opens mjw.study.javafx.canvas;
-    opens mjw.study.javafx.node;
-    opens mjw.study.javafx.css;
-    opens mjw.study.javafx.color;
-    opens mjw.study.javafx.event;
-    opens mjw.study.javafx.bean;
-    opens mjw.study.javafx.stage;
-    opens mjw.study.javafx.intro;
-    opens mjw.study.javafx.mvc;
-    opens mjw.study.javafx.concurrent;
-    opens mjw.study.javafx.fxml;
-    opens mjw.study.javafx.shape;
-    opens mjw.study.javafx.controls;
-    opens mjw.study.javafx.transform;
-    opens mjw.study.javafx.animation;
-    opens mjw.study.javafx.image;
-    opens mjw.study.javafx.effect;
+    opens mjw.hamcrest.matcher;
+    opens mjw.javafx.layout;
+    opens mjw.javafx.canvas;
+    opens mjw.javafx.node;
+    opens mjw.javafx.css;
+    opens mjw.javafx.color;
+    opens mjw.javafx.event;
+    opens mjw.javafx.bean;
+    opens mjw.javafx.stage;
+    opens mjw.javafx.intro;
+    opens mjw.javafx.mvc;
+    opens mjw.javafx.concurrent;
+    opens mjw.javafx.fxml;
+    opens mjw.javafx.shape;
+    opens mjw.javafx.controls;
+    opens mjw.javafx.transform;
+    opens mjw.javafx.animation;
+    opens mjw.javafx.image;
+    opens mjw.javafx.effect;
 
 }

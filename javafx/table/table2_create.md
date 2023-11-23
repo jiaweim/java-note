@@ -67,7 +67,7 @@ table.getColumns().add(fNameCol);
 **示例：** `TableView` 简单示例
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 @SuppressWarnings("unchecked")
 public class SimplestTableView extends Application {
@@ -319,7 +319,8 @@ ageCol.setCellValueFactory(cellData -> {
 下面分别使用 JavaFX Property, POJO property 以及计算方法创建 cellValueFactory。
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
+
 import java.time.LocalDate;
 
 import static java.time.temporal.ChronoUnit.YEARS;

@@ -226,7 +226,7 @@ ChoiceBox 的 converter 属性默认为 null。设置 converter 属性后，Choi
 
 ```java
 import javafx.util.StringConverter;
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 public class PersonStringConverter extends StringConverter<Person> {
 
@@ -261,19 +261,18 @@ public class PersonStringConverter extends StringConverter<Person> {
 使用该 converter 显示 Person:
 
 ```java
-import mjw.study.javafx.mvc.Person;
-import javafx.scene.control.ChoiceBox;
+
 ...
-ChoiceBox<Person> persons = new ChoiceBox<>();
+        ChoiceBox<Person> persons=new ChoiceBox<>();
 
 // Set a converter to convert a Person object to a String object
-persons.setConverter(new PersonStringConverter());
+        persons.setConverter(new PersonStringConverter());
 
 // Add five person objects to the ChoiceBox
-persons.getItems().addAll(new Person("John", "Jacobs", null),
-                        new Person("Donna", "Duncan", null),
-                        new Person("Layne", "Estes", null),
-                        new Person("Mason", "Boyd", null));
+        persons.getItems().addAll(new Person("John","Jacobs",null),
+        new Person("Donna","Duncan",null),
+        new Person("Layne","Estes",null),
+        new Person("Mason","Boyd",null));
 ```
 
 ## 3. Null

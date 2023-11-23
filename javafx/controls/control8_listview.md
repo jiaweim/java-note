@@ -286,7 +286,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 public class ListViewDomainObjects extends Application {
 
@@ -407,7 +407,7 @@ persons.setCellFactory(cellFactory);
 **示例：** `TextField` 类型的 editable `ListView`
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 public class ListViewEditing extends Application {
 

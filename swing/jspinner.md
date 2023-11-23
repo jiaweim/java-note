@@ -117,4 +117,4 @@ public JFormattedTextField getTextField(JSpinner spinner) {
 - Month `JSpinner` 显示第一个月的名称，可选值使用字符串数组指定；
 - Year `JSpinner` 
 
-[DateSpinner](../src/main/java/mjw/study/swing/spinner/DateSpinner.java)
+[DateSpinner](../src/main/java/mjw/swing/spinner/DateSpinner.java)

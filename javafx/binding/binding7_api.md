@@ -508,7 +508,7 @@ public class BindNestedProperty {
 35217
 Jun 28, 2023 1:59:25 PM com.sun.javafx.binding.SelectBinding$SelectBindingHelper getObservableValue
 警告: Exception while evaluating select-binding [addr, state]
-java.lang.NoSuchMethodException: mjw.study.javafx.bean.BindNestedProperty$Address.getState()
+java.lang.NoSuchMethodException: mjw.javafx.bean.BindNestedProperty$Address.getState()
 	at java.base/java.lang.Class.getMethod(Class.java:2108)
     ...
 null

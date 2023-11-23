@@ -152,7 +152,7 @@ TableView 包含 Id, First Name, Last Name, Birth Date, Baby 和 Gender columns�
 - Gender column 用 ComboBoxTableCell
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 import java.time.LocalDate;
 
@@ -428,7 +428,7 @@ DatePickerTableCell 特点：
 **示例：** 使用 DatePickerTableCell
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 import java.time.LocalDate;
 

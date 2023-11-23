@@ -82,6 +82,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import mjw.javafx.concurrent.PrimeFinderTask;
+import mjw.javafx.concurrent.WorkerStateUI;
 
 import static javafx.concurrent.Worker.State.RUNNING;
 import static javafx.concurrent.Worker.State.SCHEDULED;
@@ -151,7 +153,7 @@ public class PrimeFinderService extends Application {
 
     public void bindButtonsState() {
         cancelBtn.disableProperty()
-                 .bind(service.stateProperty().isNotEqualTo(RUNNING));
+                .bind(service.stateProperty().isNotEqualTo(RUNNING));
         resetBtn.disableProperty()
                 .bind(Bindings.or(service.stateProperty().isEqualTo(RUNNING),
                         service.stateProperty().isEqualTo(SCHEDULED)));

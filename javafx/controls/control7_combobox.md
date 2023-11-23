@@ -175,7 +175,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 public class ComboBoxWithConverter extends Application {
 
@@ -231,16 +231,16 @@ public class ComboBoxWithConverter extends Application {
 
     // A change listener to track the change in item selection
     public void personChanged(ObservableValue<? extends Person> observable,
-                              Person oldValue,
-                              Person newValue) {
+            Person oldValue,
+            Person newValue) {
         System.out.println("Itemchanged: old = " + oldValue +
                 ", new = " + newValue);
     }
 
     // A change listener to track the change in index selection
     public void indexChanged(ObservableValue<? extends Number> observable,
-                             Number oldValue,
-                             Number newValue) {
+            Number oldValue,
+            Number newValue) {
         System.out.println("Indexchanged: old = " + oldValue + ", new = " + newValue);
     }
 }

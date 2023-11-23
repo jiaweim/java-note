@@ -96,7 +96,7 @@ babyCol.setCellFactory(CheckBoxTableCell.<Person>forTableColumn(babyCol));
 自定义 cellFactory 完整示例。
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

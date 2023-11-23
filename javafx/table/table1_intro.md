@@ -54,7 +54,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 import java.time.LocalDate;
 

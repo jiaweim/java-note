@@ -36,7 +36,7 @@ table.getItems().add(row1);
 **示例：** MapValueFactory
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -75,8 +75,8 @@ public class TableViewMapDataTest extends Application {
     }
 
     public ObservableList<Map<String, Object>> getMapData() {
-        ObservableList<Map<String, Object>> items = 
-                            FXCollections.<Map<String, Object>>observableArrayList();
+        ObservableList<Map<String, Object>> items =
+                FXCollections.<Map<String, Object>>observableArrayList();
 
         // Extract the person data, add the data to a Map, and add the Map to
         // the items list

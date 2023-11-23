@@ -25,7 +25,8 @@
 - 最下面为 TableView，启用了多行选择，按 Ctrl 或 Shift 多选
 
 ```java
-import mjw.study.javafx.mvc.Person;
+import mvc.mjw.javafx.Person;
+
 import static javafx.scene.control.TableView.TableViewSelectionModel;
 
 public class TableViewAddDeleteRows extends Application {

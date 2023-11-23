@@ -1,5 +1,5 @@
 <!-- items.fxml -->
-<?import mjw.study.javafx.fxml.Item?>
+<?import mjw.javafx.fxml.Item?>
 <?import java.util.ArrayList?>
 <ArrayList>
     <Item name="Kishori" id="100"/>
