@@ -4,9 +4,11 @@
   - [简介](#简介)
   - [线程安全](#线程安全)
   - [顺序](#顺序)
+  - [要点](#要点)
 
+2023-11-24, 17:21
 @author Jiawei Mao
-***
+****
 
 ## 简介
 
@@ -61,4 +63,54 @@ Map<Integer, Long> shortWordCounts = words.parallelStream()
 Stream<String> sample = words.parallelStream().unordered().limit(n);
 ```
 
+如 [toMap](toMap.md) 中所述，合并 maps 操作也很昂贵。因此 `Collectors.groupingByConcurrent` 采用共享 `ConcurrentMap`。为了从并行受益，map 值顺序与 Stream 顺序不要求一样。
+
+```java
+Map<Integer, List<String>> result = 
+words.parallelStream().collect( 
+   Collectors.groupingByConcurrent(String::length)); 
+   // Values aren't collected in stream order
+```
+
+当然，如果下游 collector 不受顺序影响，则无需在意顺序，例如：
+
+```java
+Map<Integer, Long> wordCounts 
+   = words.parallelStream() 
+      .collect( 
+         groupingByConcurrent( 
+            String::length, 
+            counting()));
+```
+
+## 要点
+
+不要认为将任何 Stream 转换为 parallelStream 就能提速。要考虑：
+
+- 并行开销较大，数据量较大时才能从中受益
+- 只有在底层数据能够有效地拆分为多个部分，并行才有益
+- parallelStream 使用的线程池有可能被阻塞操作（如文件 IO，网络访问）堵死
+
+并行流适合内存中大量数据的集合以及计算密集型任务。
+
+!!! tip
+    Java 9 之前，将 `Files.lines` 返回的 Stream 并行化没有任何意义，因为文件是按顺序读取的。现在该方法使用 memory-mapped 文件，能够有效分割任务，因此并行可能提高性能。
+
+并行流默认使用 `ForkJoinPool.commonPool` 返回全局 fork-join 线程池。如果操作不阻塞，并且没有与其它任务共享池，则没问题。
+
+有一个技巧可以替换为不同的线程池，将操作放入自定义池的 submit 方法：
+
+```java
+ForkJoinPool customPool = . . .; 
+result = customPool.submit(() -> 
+   stream.parallel().map(. . .).collect(. . .)).get();
+```
+
+或者，异步：
+
+```java
+CompletableFuture.supplyAsync(() -> 
+   stream.parallel().map(. . .).collect(. . .), 
+   customPool).thenAccept(result -> . . .);
+```
 

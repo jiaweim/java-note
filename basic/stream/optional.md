@@ -241,7 +241,9 @@ Stream<User> users = ids.map(Users::lookup)
    .map(Optional::get);
 ```
 
-但是这里使用了 `isPresent` 和 `get` 这两个不建议的方法。使用 `flatMap` 则更优雅：
+但是这里使用了 `isPresent` 和 `get` 这两个不建议的方法。
+
+**推荐**使用 `flatMap`：
 
 ```java
 Stream<User> users = ids.map(Users::lookup) 

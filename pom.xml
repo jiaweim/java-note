@@ -24,7 +24,7 @@
                 <version>3.1.2</version>
                 <configuration>
                     <argLine>
-                        --add-opens java.module/mjw.study.java.util=org.junit.platform.commons
+                        --add-opens java.module/mjw.java.util=org.junit.platform.commons
                         --add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
                         --add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
                     </argLine>

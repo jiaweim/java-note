@@ -1,0 +1,28 @@
+package mjw.java.util;
+
+/**
+ * @author Jiawei Mao
+ * @version 0.0.1
+ * @since 27 Nov 2023, 3:32 PM
+ */
+public class Point {
+
+    private double x;
+    private double y;
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+}

@@ -4,7 +4,8 @@
 
 | JavaFX 版本 | 最新版|LTS    | JDK     |
 | ----------- | ------ | ------- |---|
-| 21          |	early access| no     | JDK 17+ |
+|22|early access|no|JDK 17+|
+| 21          |	21.0.1 (October 2023)| yes     | JDK 17+ |
 | 20          | 20.0.2 (July 2023)|no     | JDK 17+ |
 | 19          | 19.0.2.1 (January 2023)|no     | JDK 11+ |
 | 18          | 18.0.2 (July 2022)|no     | JDK 11+ |

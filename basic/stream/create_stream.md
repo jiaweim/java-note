@@ -14,6 +14,7 @@
   - [Stream.builder](#streambuilder)
   - [基本类型流](#基本类型流)
   - [String 流](#string-流)
+  - [concat](#concat)
 
 2023-11-22, 21:47
 @author Jiawei Mao
@@ -98,7 +99,7 @@ void testIter() throws IOException {
 
 ## 集合
 
-对所有集合类型，`Collection` 接口定义的 `stream` 方法可以将集合转换为 `Stream`：
+对所有集合类型，`Collection` 接口定义的 `stream` 方法返回 `Stream`：
 
 ```java
 Collection<String> collection = Arrays.asList("a", "b", "c");
@@ -123,7 +124,7 @@ Stream<String> stream1 = Stream.of(arr);
 Stream<String> stream2 = Arrays.stream(arr);
 ```
 
-`Arrays.stream(array, from, to)` 可以使用数组的部分元素生成流：
+- `Arrays.stream(array, from, to)` 可以使用数组的部分或全部元素生成流
 
 ```java
 Arrays.stream(array, from, to)
@@ -151,6 +152,8 @@ public Stream<String> streamOf(List<String> list) {
 `Stream` 接口有两个生成无限流的静态方法，其中 `generate` 方法根据提供的函数生成流。函数是 `Supplier<T>` 类型，即无参函数。
 
 ### generate
+
+循环调用 `Supplier<T>` 函数生成无限流。
 
 - 生成常量的无限流
 
@@ -231,6 +234,18 @@ Stream<String> streamBuilder =
   Stream.<String>builder().add("a").add("b").add("c").build();
 ```
 
+- 生成 `DoubleStream` 流
+
+```java
+DoubleStream.Builder builder = DoubleStream.builder();
+
+for (Double number : list) {
+    builder.add(number);
+}
+return builder.build();
+```
+
+
 ## 基本类型流
 
 Java 8 提供了 3 种基本类型的流：int, long 和 double，分别为 `IntStream`, `LongStream`, `DoubleStream`。
@@ -239,6 +254,17 @@ Java 8 提供了 3 种基本类型的流：int, long 和 double，分别为 `Int
 ```java
 IntStream intStream = IntStream.range(1, 3);
 LongStream longStream = LongStream.rangeClosed(1, 3);
+```
+
+- 使用 Random 生成随机数流
+
+```java
+Random random = new Random();
+DoubleStream doubleStream = random.doubles(10);
+double average = doubleStream
+        .parallel()
+        .peek(System.out::println)
+        .average().getAsDouble();
 ```
 
 ## String 流
@@ -277,4 +303,20 @@ try (Stream<String> lines = Files.lines(path))
 { 
    // Process lines 
 }
+```
+
+## concat
+
+`Stream.concat` 合并两个 Stream，例如：
+
+```java
+Stream<String> s1 = Stream.of("1", "2", "3", "4");
+Stream<String> s2 = Stream.of("5", "6", "7", "8");
+
+Stream<String> s = Stream.concat(s1, s2);
+s.parallel().forEach(s3 -> System.out.printf("%s : ", s3));
+```
+
+```
+6 : 5 : 8 : 7 : 3 : 4 : 2 : 1 : 
 ```
