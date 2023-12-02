@@ -14,7 +14,7 @@ add: 5. 示例
 - 通知 `listeners`
 - 处理 `handle` 事件
 
-其中事件通知机制由 JavaFX 平台自动完成。因此，我们只需要考虑如何 `fire` 事件、listen 事件以及 handle 事件。
+其中**事件通知机制**由 JavaFX 平台自动完成。因此，我们只需要考虑如何触发、监听和处理事件。
 
 JavaFX 事件由 `javafx.event.Event` 类表示。每个事件至少包含三个属性：
 

@@ -9,7 +9,10 @@
     - [mapMulti](#mapmulti)
     - [peek](#peek)
   - [有状态操作](#有状态操作)
-    - [Substream](#substream)
+    - [limit](#limit)
+    - [skip](#skip)
+    - [takeWhile](#takewhile)
+    - [dropWhile](#dropwhile)
     - [合并 Stream](#合并-stream)
     - [distinct](#distinct)
     - [排序](#排序)
@@ -205,9 +208,9 @@ Mapped value: FOUR
 
 ## 有状态操作
 
-### Substream
+### limit
 
-- `stream.limit(n)` 保留前 n 个元素
+`stream.limit(n)` 保留前 n 个元素
 
 该方法对分割无限流非常有用。例如，生成 100 个随机数：
 
@@ -215,6 +218,8 @@ Mapped value: FOUR
 Stream<Double> randoms =
         Stream.generate(Math::random).limit(100);
 ```
+
+### skip
 
 - `stream.skip(n)` 与 `limit` 相反，抛弃前 n 个元素
 
@@ -228,7 +233,9 @@ list.stream().skip(3).forEach(System.out::println);
 5
 ```
 
-- `stream.takeWhile(predicate)` 接受元素直到 `predicate` 不再为 `true`
+### takeWhile
+
+`stream.takeWhile(predicate)` 接受元素直到 `predicate` 不再为 `true`：
 
 ```java
 Stream.of('A', 'B', 'c', 'D')
@@ -243,7 +250,12 @@ B
 
 到 `c` 不再为大写字母，终止接收元素。
 
-- `dropWhile` 当条件为 `true` 时丢弃元素，接收第一个条件为 `false` 元素后的所有元素
+!!! note
+    对无序流，并且某些元素（不是全部）满足 predicate，则 `takeWhile` 的行为不确定，可能返回各种元素子集，包括空集。
+
+### dropWhile
+
+`dropWhile` 当条件为 `true` 时丢弃元素，接收第一个条件为 `false` 元素后的所有元素
 
 `dropWhile` 和 `takeWhile` 相反，不再赘述。
 

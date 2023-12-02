@@ -8,6 +8,7 @@ module java.module {
 
     requires com.google.gson;
     requires com.google.common;
+    requires org.apache.beam.sdk;
 
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
@@ -21,6 +22,7 @@ module java.module {
     requires com.fasterxml.jackson.dataformat.xml;
 
     requires org.slf4j;
+    requires org.jsoup;
 
     opens mjw.jackson.objectmapper;
     opens mjw.jackson.xml;
