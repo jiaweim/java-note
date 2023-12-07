@@ -8,7 +8,6 @@ module java.module {
 
     requires com.google.gson;
     requires com.google.common;
-    requires org.apache.beam.sdk;
 
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
@@ -28,6 +27,8 @@ module java.module {
     opens mjw.jackson.xml;
     opens mjw.jackson.annotation;
     opens mjw.java.util;
+    opens mjw.java.time;
+    opens mjw.gson;
 
     opens mjw.hamcrest.matcher;
     opens mjw.javafx.layout;

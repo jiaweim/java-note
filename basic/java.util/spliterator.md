@@ -1,5 +1,19 @@
 # Spliterator
 
+- [Spliterator](#spliterator)
+  - [简介](#简介)
+  - [characteristics](#characteristics)
+    - [ORDERED](#ordered)
+  - [tryAdvance](#tryadvance)
+  - [forEachRemaining](#foreachremaining)
+  - [trySplit](#trysplit)
+  - [estimateSize](#estimatesize)
+  - [参考](#参考)
+
+2023-12-02, 19:19
+@author Jiawei Mao
+***
+
 ## 简介
 
 JDK 8 添加了 `Spliterator` 接口。其功能类似 `Iterator`，但是比 `Iterator` 和 `ListIterator` 功能更强。更重要的是，`Spliterator` 支持序列的并行迭代。在并并行环境也可以使用 `Spliterator`，它将 `hasNext` 和 `next` 合并为一个操作。
@@ -29,7 +43,24 @@ interface Spliterator<T>
 
 特征值以简单的 union bit-set 返回。有些特征还约束了方法的行为，例如对 `ORDERED`，遍历方法必须符合它们的记录顺序。
 
-不报告 IMMUTABLE 或 CONCURRENT 的 `Spliterator` 
+所有流都以 `Spliterator` 作为数据源，通过 `StreamSupport.stream` 就可以将 `Spliterator` 转换为流。例如 `Collection.stream` 实现：
+
+```java
+default Stream<E> stream() {
+    return StreamSupport.stream(spliterator(), false);
+}
+
+default Stream<E> parallelStream() {
+    return StreamSupport.stream(spliterator(), true);
+}
+```
+
+`Spliterator` 和 `Iterator` 也可以互转：
+
+- `Spliterator` 转 `Iterator`: `Spliterators.iterator(spliterator)`
+- `Iterator` 转 `Spliterator`：`Spliterators.spliteratorUnknownSize(iterator)`
+
+
 
 ## characteristics
 
