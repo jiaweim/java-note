@@ -1,18 +1,44 @@
-package mjw.swing;
+# GridBagLayout
 
-import javax.swing.*;
-import java.awt.*;
+- [GridBagLayout](#gridbaglayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 13 Nov 2021, 10:03 PM
- */
+2023-12-22, 01:31
+****
+
+## 简介
+
+`GridBagLayout` 是自由度较高的布局管理器，通过网格划分，一个组件可以占据一个或多个网格。
+
+组件在网格中的位置由 4 个参数控制：
+
+- `gridX` 和 `gridY` 定义组件左上角行和列的位置；
+- `gridwidth` 和 `gridheight` 定义组件占据的行数和列数。
+
+`fill` 指定组件不能填满单元格时的行为：
+
+- `GridBagConstraints.NONE`，每个方向都不填充，即保持原状；
+- `GridBagConstraints.HORIZONTAL`，水平方向填充；
+- `GridBagConstraints.VERTICAL`，垂直方向填充；
+- `GridBagConstraints.BOTH`，两个方向都填充。
+
+`anchor` 指定组件大于分配区域时的行为：
+
+- `GridBagConstraints.CENTER`，居中缩小；
+- `GridBagConstraints.NORTH`，顶部缩小；
+- `GridBagConstraints.NORTHEASY`，左上角缩小；
+- `GridBagConstraints`，右侧缩小。
+
+## 示例
+
+```java
 public class GridBagLayoutDemo extends JPanel {
 
     JFrame loginframe;
-
-    public void add(Component c, GridBagConstraints constraints, int x, int y, int w, int h) {//此方法用来添加控件到容器中
+	
+    //用来添加控件到容器中
+    public void add(Component c, GridBagConstraints constraints, int x, int y, int w, int h) {
         constraints.gridx = x;
         constraints.gridy = y;
         constraints.gridwidth = w;
@@ -69,3 +95,6 @@ public class GridBagLayoutDemo extends JPanel {
         new GridBagLayoutDemo();
     }
 }
+```
+
+<img src="images/image-20231222013006860.png" width="300"/>

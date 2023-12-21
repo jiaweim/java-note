@@ -1,5 +1,18 @@
 # Observable 集合
 
+- [Observable 集合](#observable-集合)
+  - [1. 什么是 Observable 集合](#1-什么是-observable-集合)
+  - [2. ObservableList](#2-observablelist)
+    - [2.1. 创建 ObservableList](#21-创建-observablelist)
+    - [2.2. 监听 ObservableList 的 Invalidation](#22-监听-observablelist-的-invalidation)
+    - [2.3. 监听 ObservableList 的 Change 事件](#23-监听-observablelist-的-change-事件)
+      - [2.3.1. ListChangeListener.Change 类](#231-listchangelistenerchange-类)
+      - [2.3.2. Update 事件](#232-update-事件)
+      - [2.3.3. 完整示例](#233-完整示例)
+    - [2.4 FilteredList](#24-filteredlist)
+  - [3. ObservableSet](#3-observableset)
+  - [4. ObservableMap](#4-observablemap)
+
 2023-08-15, 09:36
 modify: 样式
 2023-07-04, 15:22
@@ -14,7 +27,7 @@ JavaFX `Observable` 集合对 Java 集合进行扩展，支持三种可观察内
 
 这三个接口分别继承 `java.util` 包中的 `List`, `Set` 和 `Map` 接口，同时继承 `javafx.collections.Observable` 接口。主要类图如下所示：
 
-@import "images/2023-07-03-09-02-24.png" {width="600px" title=""}
+![](images/2023-07-03-09-02-24.png){width="600px"}
 
 JavaFX `Observable` 集合具有两个额外功能：
 

@@ -7,20 +7,19 @@ import javax.swing.*;
  * @version 1.0.0
  * @since 15 Nov 2021, 9:00 PM
  */
-public class ButtonDemo extends JPanel
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class ButtonDemo extends JPanel {
 
-    public ButtonDemo()
-    {
+    public ButtonDemo() {
         JFrame frame = new JFrame("按钮测试");
-        frame.setSize(WIDTH, HEIGHT);
+        frame.setSize(300, 200);
         frame.setContentPane(this);
 
-        JLabel name = new JLabel("王鹏");
+        JLabel name = new JLabel("李磊");
         JRadioButton b1 = new JRadioButton("男");
         JRadioButton b2 = new JRadioButton("女");
+        add(name);
+        add(b1);
+        add(b2);
 
         ButtonGroup bg1 = new ButtonGroup();
         bg1.add(b1);
@@ -34,9 +33,6 @@ public class ButtonDemo extends JPanel
         JCheckBox cb5 = new JCheckBox("电影");
         JCheckBox cb6 = new JCheckBox("录像");
 
-        add(name);
-        add(b1);
-        add(b2);
 
         add(interesting);
         add(cb1);
@@ -49,8 +45,7 @@ public class ButtonDemo extends JPanel
         frame.setVisible(true);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new ButtonDemo();
     }
 }

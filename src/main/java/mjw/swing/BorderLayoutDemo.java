@@ -8,16 +8,13 @@ import java.awt.*;
  * @version 1.0.0
  * @since 13 Nov 2021, 9:35 PM
  */
-public class BorderLayoutDemo
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class BorderLayoutDemo {
 
-    public static void main(String[] args)
-    {
+
+    public static void main(String[] args) {
         JFrame jf = new JFrame("测试程序");
-        jf.setSize(WIDTH, HEIGHT);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setSize(300, 200);
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jf.setVisible(true);
         JPanel contentPane = new JPanel();
         jf.setContentPane(contentPane);
@@ -28,10 +25,11 @@ public class BorderLayoutDemo
         JButton b4 = new JButton("购物");
         JButton b5 = new JButton("饮食");
 
-        BorderLayout lay = new BorderLayout();//创建一个布局管理器对象，将中间容器设置为此布局管理
+        //创建一个布局管理器对象，将中间容器设置为此布局管理
+        BorderLayout lay = new BorderLayout();
         jf.setLayout(lay);
 
-        contentPane.add(b1, "North");//将五个普通按钮组件分别按照东、南、西、北、中五个方位添加到中间容器中
+        contentPane.add(b1, "North");
         contentPane.add(b2, "South");
         contentPane.add(b3, "East");
         contentPane.add(b4, "West");

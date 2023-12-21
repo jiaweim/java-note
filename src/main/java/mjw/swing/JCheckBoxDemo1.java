@@ -7,20 +7,17 @@ import javax.swing.*;
  * @version 1.0.0
  * @since 15 Nov 2021, 8:55 PM
  */
-public class JCheckBoxDemo1
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class JCheckBoxDemo1 {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame frame = new JFrame("测试");
-        frame.setSize(WIDTH, HEIGHT);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 200);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
         JPanel contentPane = new JPanel();
         frame.setContentPane(contentPane);
+        // 6 个复选框
         JCheckBox box1 = new JCheckBox("羽毛球");
         JCheckBox box2 = new JCheckBox("足球");
         JCheckBox box3 = new JCheckBox("电脑书");

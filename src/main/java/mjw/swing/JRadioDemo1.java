@@ -7,15 +7,11 @@ import javax.swing.*;
  * @version 1.0.0
  * @since 15 Nov 2021, 8:49 PM
  */
-public class JRadioDemo1
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class JRadioDemo1 {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame frame = new JFrame("测试");
-        frame.setSize(WIDTH, HEIGHT);
+        frame.setSize(300, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 

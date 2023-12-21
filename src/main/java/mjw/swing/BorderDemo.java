@@ -8,17 +8,12 @@ import java.awt.*;
  * @version 1.0.0
  * @since 13 Nov 2021, 7:36 PM
  */
-public class BorderDemo
-{
-    //这段代码主要是为读者介绍如何设置按钮组件的边框
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class BorderDemo {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame jf = new JFrame("添加内容面板测试程序");
-        jf.setSize(WIDTH, HEIGHT);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setSize(300, 200);
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jf.setVisible(true);
 
         JPanel contentPane = new JPanel();

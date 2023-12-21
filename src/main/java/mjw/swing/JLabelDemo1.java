@@ -7,16 +7,12 @@ import javax.swing.*;
  * @version 1.0.0
  * @since 15 Nov 2021, 8:37 PM
  */
-public class JLabelDemo1
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class JLabelDemo1 {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame frame = new JFrame("标签测试");
-        frame.setSize(WIDTH, HEIGHT);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 200);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
         JPanel contentPane = new JPanel();
@@ -27,6 +23,6 @@ public class JLabelDemo1
         contentPane.add(label1);
         contentPane.add(label2);
 
-        frame.pack();
+//        frame.pack();
     }
 }

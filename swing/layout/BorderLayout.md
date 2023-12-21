@@ -1,15 +1,68 @@
-package mjw.swing;
+# BorderLayout
 
-import javax.swing.*;
-import java.awt.*;
+- [BorderLayout](#borderlayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 13 Nov 2021, 9:37 PM
- */
+2023-12-22, 01:02
+****
+
+## 简介
+
+布局管理器将容器分为 5 个区域，用 5 个常量字段定义：
+
+| 常量                                           | 说明 |
+| ---------------------------------------------- | ---- |
+| `public static final String NORTH  = "North"`  | 北   |
+| `public static final String SOUTH  = "South"`  | 南   |
+| `public static final String EAST   = "East"`   | 东   |
+| `public static final String WEST   = "West"`   | 西   |
+| `public static final String CENTER = "Center"` | 中   |
+
+`BorderLayout` 构造函数：
+
+| 构造函数                     | 说明               |
+| ---------------------------- | ------------------ |
+| `BorderLayout()`             | 间距为 0           |
+| `BorderLayout(int h, int v)` | 指定水平和垂直间距 |
+
+## 示例
+
+```java
+public class BorderLayoutDemo {
+    public static void main(String[] args) {
+        JFrame jf = new JFrame("测试程序");
+        jf.setSize(300, 200);
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jf.setVisible(true);
+        JPanel contentPane = new JPanel();
+        jf.setContentPane(contentPane);
+
+        JButton b1 = new JButton("生活");
+        JButton b2 = new JButton("工作");
+        JButton b3 = new JButton("睡觉");
+        JButton b4 = new JButton("购物");
+        JButton b5 = new JButton("饮食");
+
+        //创建一个布局管理器对象，将中间容器设置为此布局管理
+        BorderLayout lay = new BorderLayout();
+        jf.setLayout(lay);
+
+        contentPane.add(b1, "North");
+        contentPane.add(b2, "South");
+        contentPane.add(b3, "East");
+        contentPane.add(b4, "West");
+        contentPane.add(b5, "Center");
+    }
+}
+```
+
+<img src="images/image-20231222010204137.png" width="300"/>
+
+`BorderLayout` 的每个区域，除了组件，也可以放中间容器，构建更复杂的布局：
+
+```java
 public class BorderLayoutDemo2 {
-
     public static void main(String[] args) {
         JFrame jf = new JFrame("测试程序");
         jf.setSize(300, 200);
@@ -58,7 +111,7 @@ public class BorderLayoutDemo2 {
         p3.setLayout(new BorderLayout());
         p4.setLayout(new BorderLayout());
         p5.setLayout(new BorderLayout());
-        //将五个中间容器对象分别加入到上层中间容器中，并且是按照 BorderLayout 的方式进行布局
+        //将五个中间容器对象分别加入到上层中间容器中，并且按照 BorderLayout 的方式进行布局
         contentPane.add(p1, BorderLayout.NORTH);
         contentPane.add(p2, BorderLayout.SOUTH);
         contentPane.add(p3, BorderLayout.EAST);
@@ -97,3 +150,6 @@ public class BorderLayoutDemo2 {
         jf.pack();
     }
 }
+```
+
+<img src="images/image-20231222011013847.png" width="550"/>

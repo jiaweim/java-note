@@ -7,13 +7,12 @@ import javax.swing.*;
  * @version 1.0.0
  * @since 13 Nov 2021, 7:22 PM
  */
-public class MenuTest2
-{
+public class MenuTest2 {
+
     static final int WIDTH = 300;
     static final int HEIGHT = 200;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

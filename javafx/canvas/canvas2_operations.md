@@ -1,5 +1,20 @@
 # Canvas 操作
 
+- [Canvas 操作](#canvas-操作)
+  - [1. 创建 Canvas](#1-创建-canvas)
+  - [2. 绘制操作](#2-绘制操作)
+    - [2.1. 基本形状](#21-基本形状)
+    - [2.2. 绘制文本](#22-绘制文本)
+    - [2.3. 绘制路径](#23-绘制路径)
+    - [2.4. 绘制图像](#24-绘制图像)
+    - [2.5. 绘制像素](#25-绘制像素)
+  - [3. 清除 canvas 区域](#3-清除-canvas-区域)
+  - [4. 保存和恢复 GraphicsContext 配置](#4-保存和恢复-graphicscontext-配置)
+  - [5. Canvas 示例](#5-canvas-示例)
+  - [6. GraphicsContext 详解](#6-graphicscontext-详解)
+  - [7. GraphicsContext attributes](#7-graphicscontext-attributes)
+  - [8. 方法属性对照表](#8-方法属性对照表)
+
 2023-07-13, 14:37
 添加 GraphicsContext 详解
 2023-06-12

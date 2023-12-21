@@ -1,15 +1,25 @@
-package mjw.swing;
+# GridLayout
 
-import javax.swing.*;
-import java.awt.*;
+- [GridLayout](#gridlayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 13 Nov 2021, 9:48 PM
- */
+2023-12-22, 01:25
+****
+
+## 简介
+
+`GridLayout` 将整个布局空间划分为网格。
+
+| 构造函数                   | 说明           |
+| -------------------------- | -------------- |
+| `GridLayout()`             | 默认 1 行 1 列 |
+| `GridLayout(int h, int v)` | 指定行数和列数 |
+
+## 示例
+
+```java
 public class GridLayoutDemo {
-
     public static void main(String[] args) {
         JFrame jf = new JFrame("测试程序");
         jf.setSize(300, 200);
@@ -46,3 +56,8 @@ public class GridLayoutDemo {
         jf.pack();
     }
 }
+```
+
+
+
+<img src="images/image-20231222012235462.png" width="250"/>

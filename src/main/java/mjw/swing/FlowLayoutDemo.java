@@ -8,16 +8,12 @@ import java.awt.*;
  * @version 1.0.0
  * @since 13 Nov 2021, 9:45 PM
  */
-public class FlowLayoutDemo
-{
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
+public class FlowLayoutDemo {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFrame jf = new JFrame("测试程序");
-        jf.setSize(WIDTH, HEIGHT);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setSize(300, 200);
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jf.setVisible(true);
 
         JPanel contentPane = new JPanel();
@@ -29,9 +25,10 @@ public class FlowLayoutDemo
         JButton b4 = new JButton("欧元");
         JButton b5 = new JButton("英镑");
 
-        contentPane.setLayout(new FlowLayout());//将中间容器的布局管理器设置为FlowLayout
+        //将中间容器的布局管理器设置为FlowLayout
+        contentPane.setLayout(new FlowLayout());
 
-        contentPane.add(b1); //将五个按钮分别按照FlowLayout布局管理器方式添加到中间容器中
+        contentPane.add(b1);
         contentPane.add(b2);
         contentPane.add(b3);
         contentPane.add(b4);

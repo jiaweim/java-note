@@ -3,25 +3,30 @@ package mjw.swing;
 import javax.swing.*;
 
 /**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 15 Nov 2021, 8:46 PM
+ * @author Jiawei Mao
+ * @version 0.0.1
+ * @since 21 Dec 2023, 23:22
  */
-public class JButtonDemo1 {
+public class HelloTooltip {
+
+    static final int WIDTH = 300;
+    static final int HEIGHT = 200;
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("测试程序");
-        frame.setSize(300, 200);
+        JFrame frame = new JFrame("Tooltip test");
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setVisible(true);
 
         JPanel contentPane = new JPanel();
         frame.setContentPane(contentPane);
 
         JButton b1 = new JButton("确定");
         JButton b2 = new JButton("取消");
+        b1.setToolTipText("这是确定按钮");
+        b2.setToolTipText("这是取消按钮");
 
         contentPane.add(b1);
         contentPane.add(b2);
+        frame.setVisible(true);
     }
 }

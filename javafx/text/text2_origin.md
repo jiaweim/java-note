@@ -6,14 +6,14 @@ modify: 样式
 ****
 除了 local 和 parent 坐标系，`Text` 还有一个用于渲染文本的坐标系。
 
-`Text` 使用三个属性定义该坐标系：x, y, textOrigin.
+`Text` 使用三个属性定义该坐标系：`x`, `y`, `textOrigin`.
 
-- x, y 定义了 Text 的原点坐标
+- x, y 定义了 `Text` 的原点坐标
 - `textOrigin` 为 `VPos` enum 类型： `BASELINE`, `TOP`, `CENTER`, `BOTTOM`，默认值为 `BASELINE`。
 
-如下图所示，该图显示了 local 坐标系和文本坐标系。 local  坐标系为实线，text 坐标系为虚线：
+如下图所示，local  坐标系为实线，text 坐标系为虚线：
 
-@import "images/Pasted%20image%2020230726150218.png" {width="600px" title=""}
+![](images/Pasted%20image%2020230726150218.png){width="600px"}
 
 `textOrigin` 定义了文本坐标系的 x 轴相对文本高度的位置：
 
@@ -71,4 +71,5 @@ public class TextCentering extends Application {
 }
 ```
 
-@import "images/Pasted%20image%2020230726151449.png" {width="400px" title=""}
+![](images/Pasted%20image%2020230726151449.png){width="400px"}
+

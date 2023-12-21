@@ -1,12 +1,21 @@
 # Text Input 控件
 
+- [Text Input 控件](#text-input-控件)
+  - [1. 简介](#1-简介)
+  - [2. 定位和移动插入符](#2-定位和移动插入符)
+  - [3. 选择文本](#3-选择文本)
+  - [4. 修改内容](#4-修改内容)
+  - [5. 剪切、复制和粘贴](#5-剪切复制和粘贴)
+  - [6. 示例](#6-示例)
+  - [7. CSS](#7-css)
+
 2023-07-24, 18:24
 ****
 ## 1. 简介
 
 JavaFX 的文本输入控件支持输入单行或多行文本。包括 TextField, PasswordField 和 TextArea。所有文本输入控件继承自 TextInputControl，类图如下：
 
-![|300](Pasted%20image%2020230724152601.png)
+![](images/Pasted%20image%2020230724152601.png){width="300px"}
 
 `TextInputControl` 定义了所有文本输入控件支持的属性和方法。
 
