@@ -1,12 +1,28 @@
-package mjw.swing;
+# SpringLayout
 
-import javax.swing.*;
+- [SpringLayout](#springlayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 15 Nov 2021, 10:25 PM
- */
+2023-12-22, 11:23
+****
+
+## 简介
+
+`SpringLayout` 通过定义组件的边距实现布局。边距使用 `Spring` 对象表示，每个 Spring 对象具有 4 个属性值：minimum, maximum, preferred, value，其中 value 是真实值。
+
+| 常量 | 说明 |
+| ---- | ---- |
+|`String NORTH  = "North";`|指定组件的上边距|
+|`String SOUTH  = "South";`|指定组件的下边距|
+|`String EAST   = "East";`|指定组件的右边距|
+|`String WEST   = "West";`|指定组件的左边距|
+
+`SpringLayout` 使用起来相对 GridBagLayout 和 BoxLayout 更复杂一些。
+
+## 示例
+
+```java
 public class SpringLayoutDemo1 {
 
     public static void main(String[] args) {
@@ -44,3 +60,8 @@ public class SpringLayoutDemo1 {
         lay.putConstraint(SpringLayout.EAST, b2, 25, SpringLayout.EAST, contentPane);
     }
 }
+```
+
+
+
+<img src="images/image-20231222112232632.png" width="300"/>

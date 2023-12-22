@@ -1,15 +1,20 @@
-package mjw.swing;
+# GroupLayout
 
-import javax.swing.*;
-import java.awt.*;
+- [GroupLayout](#grouplayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 15 Nov 2021, 10:29 PM
- */
+2023-12-22, 11:29
+****
+
+## 简介
+
+把多个组件按区域划分到不同的 Group，再根据各个 Group 相对于水平轴和垂直轴的排列来管理。
+
+## 示例
+
+```java
 public class GroupLayoutDemo1 extends JFrame {
-
     public GroupLayoutDemo1() throws HeadlessException {
         //创建一个中间容器，并且创建一个GroupLayout布局管理器对象
         Container c = getContentPane();
@@ -52,3 +57,6 @@ public class GroupLayoutDemo1 extends JFrame {
         new GroupLayoutDemo1();
     }
 }
+```
+
+<img src="images/image-20231222112908331.png" width="140"/>

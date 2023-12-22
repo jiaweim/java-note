@@ -1,13 +1,32 @@
-package mjw.swing;
+# CardLayout
 
-import javax.swing.*;
-import java.awt.*;
+- [CardLayout](#cardlayout)
+  - [简介](#简介)
+  - [示例](#示例)
 
-/**
- * @author JiaweiMao
- * @version 1.0.0
- * @since 15 Nov 2021, 10:11 PM
- */
+2023-12-22, 10:41
+****
+
+## 简介
+
+`CardLayout` 以堆叠的方式放置组件，一次仅有一个卡片可见。
+
+| 构造函数                         | 说明                             |
+| -------------------------------- | -------------------------------- |
+| `CardLayout()`                   | gap 为 0                         |
+| `CardLayout(int hgap, int vgap)` | 指定水平和垂直 gap，gap 放在边缘 |
+
+| 方法                                       | 说明                   |
+| ------------------------------------------ | ---------------------- |
+| `void first(Container parent)`             | 翻到容器的第一个卡片   |
+| `void next(Container parent)`              | 翻到容器的下一个卡片   |
+| `void previous(Container parent)`          | 翻到容器的上一个卡片   |
+| `void last(Container parent)`              | 翻到容器的最后一个卡片 |
+| `void show(Container parent, String name)` | 翻到指定卡片           |
+
+## 示例
+
+```java
 public class CardLayoutDemo1 extends JFrame {
 
     public CardLayoutDemo1() {
@@ -18,9 +37,10 @@ public class CardLayoutDemo1 extends JFrame {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        CardLayout card = new CardLayout(5, 5); //创建一个具有指定的水平和垂直间隙的新卡片布局
+        //创建一个具有指定的水平和垂直 gap 的卡片布局
+        CardLayout card = new CardLayout(5, 5); 
         // 主要的JPanel，该JPanel的布局管理将被设置成CardLayout
-        JPanel mainPane = new JPanel(card); // JPanel的布局管理将被设置成CardLayout
+        JPanel mainPane = new JPanel(card);
 
         // 放按钮的 JPanel
         JPanel p = new JPanel(); // 构造放按钮的JPanel
@@ -77,3 +97,9 @@ public class CardLayoutDemo1 extends JFrame {
         new CardLayoutDemo1();
     }
 }
+```
+
+<img src="images/image-20231222104015809.png" width="300"/>
+
+
+

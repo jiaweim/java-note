@@ -1,6 +1,6 @@
 # Swing
 
-- [Swing 程序结构](component/component.md)
+- [Swing 程序结构](component/structure.md)
 - [JComponent](component/JComponent.md)
   - [JLabel](component/JLabel.md)
   - [按钮](component/JButton.md)
@@ -9,14 +9,16 @@
   - [FlowLayout](layout/FlowLayout.md)
   - [GridLayout](layout/GridLayout.md)
   - [GridBagLayout](layout/GridBagLayout.md)
+  - [CardLayout](layout/CardLayout.md)
+  - [BoxLayout](layout/BoxLayout.md)
+  - [SpringLayout](layout/SpringLayout.md)
+  - [GroupLayout](layout/GroupLayout.md)
 - 窗口组件 
-  - [JFrame](jframe.md)
   - [JDialog](jdialog.md)
-- [组件](component.md)
   - [Poppup](popup.md)
-- [布局管理器](layout.md)
   - [JFileChooser](jfilechooser.md)
   - [列表组件](list.md)
+- [设置样式](laf/设置%20laf.md)
 - [Look and Feel](lnf.md)
 
 ## 参考

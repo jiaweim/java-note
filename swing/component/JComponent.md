@@ -16,9 +16,27 @@
 
 ## 简介
 
-`JComponent` 是所有组件的父类，包含许多特性，下面会依次描述。
+除了顶层容器，所以以 "J" 开头的 Swing 组件都继承自`JComponent`。
 
-所有继承 `JComponent` 的组件都是基本组件类，需要放在中间容器展示。
+`JComponent` 继承自 `Container`，`Container` 又继承 `Component`：
+
+- `Component` 类包含支持布局、绘制和事件等所有内容。
+- `Container` 支持向容器添加组件，并进行布局
+
+所有继承 `JComponent` 的组件都是基本组件类，需要放在中间容器展示。下面总结 `Component`, `Container` 和 `JComponent` 中常用方法。
+
+## JComponent 功能
+
+JComponent 为其子类添加了如下功能：
+
+| 功能       | 说明                                                         |
+| ---------- | ------------------------------------------------------------ |
+| tool-tip   | 使用 `setToolTipText` 指定字符串，可以为组件提供帮助信息。光标停留在组件上，指定的字符串将在组件附近出现的一个小窗口中显示 |
+| 渲染和边框 | 使用 `setBorder` 可以指定在组件边缘周围显示的边框。覆盖 `paintComponent` 可以绘制组件内部 |
+| 可插入 laf | 在底层，每个 JComponent 都有一个对应的 ComponentUI 对象，用于执行该 JComponent 的所有绘制、事件处理、尺寸调整等操作。而使用哪个 ComponentUI 取决于当前的 laf，通过 `UIManager.setLookAndFeel` 可以设置 |
+|            |                                                              |
+
+
 
 ## Tool tips
 

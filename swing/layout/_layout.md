@@ -11,7 +11,7 @@
 
 布局管理器，能够对顶层容器中的组件按照指定规则进行排列。
 
-手动编写 layout 十分麻烦，如果对布局细节不感兴趣，可以使用 `GroupLayout` 结合 GUI builder(如WindowBuilder)。如果想手动编写 layout，又不想用 `GroupLayout`，则推荐使用 `GridBagLayout`，灵活而强大。
+手动编写 layout 十分麻烦，如果对布局细节不感兴趣，可以使用 `GroupLayout` 结合 GUI builder，如WindowBuilder，NetBeans IDE，Intellij IDEA 等。如果想手动编写 layout，又不想用 `GroupLayout`，则推荐使用 `GridBagLayout`，其灵活性仅次于 `GroupLayout`。
 
 ## 种类
 
