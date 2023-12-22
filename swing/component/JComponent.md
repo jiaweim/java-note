@@ -2,8 +2,7 @@
 
 - [JComponent](#jcomponent)
   - [简介](#简介)
-  - [Tool tips](#tool-tips)
-  - [边框](#边框)
+  - [JComponent 功能](#jcomponent-功能)
   - [可插入样式](#可插入样式)
   - [自定义属性](#自定义属性)
   - [layout 支持](#layout-支持)
@@ -31,79 +30,10 @@ JComponent 为其子类添加了如下功能：
 
 | 功能       | 说明                                                         |
 | ---------- | ------------------------------------------------------------ |
-| tool-tip   | 使用 `setToolTipText` 指定字符串，可以为组件提供帮助信息。光标停留在组件上，指定的字符串将在组件附近出现的一个小窗口中显示 |
-| 渲染和边框 | 使用 `setBorder` 可以指定在组件边缘周围显示的边框。覆盖 `paintComponent` 可以绘制组件内部 |
+| tool-tip   | `setToolTipText` 指定字符串，为组件提供帮助信息。光标停留在组件上，指定的字符串将在组件附近出现的一个小窗口中显示。详情参考 [如何使用 Tool Tip](tool-tip.md) |
+| 绘制和边框 | `setBorder` 指定在组件边缘周围显示的边框。覆盖 `paintComponent` 可以绘制组件内部。[边框详情](border.md)。 |
 | 可插入 laf | 在底层，每个 JComponent 都有一个对应的 ComponentUI 对象，用于执行该 JComponent 的所有绘制、事件处理、尺寸调整等操作。而使用哪个 ComponentUI 取决于当前的 laf，通过 `UIManager.setLookAndFeel` 可以设置 |
 |            |                                                              |
-
-
-
-## Tool tips
-
-设置工具提示功能，通过 `setToolTipText` 方法指定提示字符串，在鼠标悬停在组件上时，可以显示提示信息。例如：
-
-```java
-public class HelloTooltip {
-
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Tooltip test");
-        frame.setSize(WIDTH, HEIGHT);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        JPanel contentPane = new JPanel();
-        frame.setContentPane(contentPane);
-
-        JButton b1 = new JButton("确定");
-        JButton b2 = new JButton("取消");
-        b1.setToolTipText("这是确定按钮");
-        b2.setToolTipText("这是取消按钮");
-
-        contentPane.add(b1);
-        contentPane.add(b2);
-        frame.setVisible(true);
-    }
-}
-```
-
-
-
-
-
-<img src="images/image-20231221232657504.png" width="300"/>
-
-## 边框
-
-每个 `JComponent` 可以有一个或多个边框，边框不仅可以绘制线条和漂亮的边界，还可以提供标题和组件周围的空白控件。
-
-可以使用 `setBorder` 设置 `JComponent` 的边框，可以使用 `BorderFactory` 创建 Swing 所提供的大多数边框。例如：
-
-```java
-public class BorderDemo {
-
-    public static void main(String[] args) {
-        JFrame jf = new JFrame("添加内容面板测试程序");
-        jf.setSize(300, 200);
-        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        jf.setVisible(true);
-
-        JPanel contentPane = new JPanel();
-        jf.setContentPane(contentPane);
-        JButton b1 = new JButton("确定");
-        JButton b2 = new JButton("取消");
-        contentPane.add(b1);
-        contentPane.add(b2);
-
-        b1.setBorder(BorderFactory.createLineBorder(Color.red));//用来设置按钮组件的边框
-    }
-}
-```
-
-<img src="images/image-20231221233113870.png" width="300"/>
-
-在实际开发中，一般会使用边框美化组件。
 
 ## 可插入样式
 

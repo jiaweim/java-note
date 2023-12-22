@@ -4,6 +4,8 @@
 - [JComponent](component/JComponent.md)
   - [JLabel](component/JLabel.md)
   - [按钮](component/JButton.md)
+  - [tool tip](component/tool-tip.md)
+- [边框](component/border.md)
 - [布局管理器](layout/_layout.md)
   - [BorderLayout](layout/BorderLayout.md)
   - [FlowLayout](layout/FlowLayout.md)

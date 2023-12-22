@@ -13,6 +13,7 @@
   - [参考](#参考)
 
 2023-12-22, 15:23⭐
+
 ****
 
 ## 简介
@@ -314,7 +315,7 @@ public class LookAndFeelDemo implements ActionListener {
      * 创建 GUI 并显示，需从 EDT 调用
      */
     private static void createAndShowGUI() {
-        //Set the look and feel.
+        // 在创建 Swing 组件前设置 Laf
         initLookAndFeel();
 
         //Make sure we have nice window decorations.

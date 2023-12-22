@@ -8,13 +8,9 @@ import javax.swing.*;
  * @since 21 Dec 2023, 23:22
  */
 public class HelloTooltip {
-
-    static final int WIDTH = 300;
-    static final int HEIGHT = 200;
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("Tooltip test");
-        frame.setSize(WIDTH, HEIGHT);
+        frame.setSize(300, 200);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JPanel contentPane = new JPanel();
