@@ -4,20 +4,39 @@
   - [简介](#简介)
   - [示例](#示例)
 
-2023-12-22, 01:16
+2023-12-22, 01:16⭐
+
 ****
 
 ## 简介
 
-`FlowLayout` 按照控件加入的先后顺序从左到右排列，一行排满了，再换下一行，然后继续从左到右排列。每行的组件都是居中排列。
+`FlowLayout` 规则：
 
-如果有些控件看不到，可以调用 `pack` 方法自动调整 `JFrame` 大小。
+- 按照组件加入的先后顺序从左到右排列
+- 一行排满了，再换下一行，继续从左到右排列
+- 每行组件都是居中排列
+
+`FlowLayout` 一般用于按钮的布局。
+
+如果有些组件看不到，可以调用 `pack` 方法自动调整 `JFrame` 大小。
 
 | 构造函数                       | 说明                              |
 | ------------------------------ | --------------------------------- |
-| `FlowLayout()`                 | 居中对齐，默认水平和垂直 gap 为 5 |
+| `FlowLayout()`                 | 居中对齐，默认水平和垂直 gap 为 5 pixels |
 | `FlowLayout(int align)`        | 指定对齐方式，默认 gap            |
-| `FlowLayout(int align, int v)` | 指定对齐方式和 gap                |
+| `FlowLayout(int align, int hgap, int vgap)` | 指定对齐方式和 gap         |
+
+对齐方式：
+
+|对齐方式|说明|
+|---|---|
+|`FlowLayout.LEFT`|每行组件左对齐|
+|`FlowLayout.RIGHT`|每行组件右对齐|
+|`FlowLayout.CENTER`|每行组件居中|
+|`FlowLayout.LEADING`|每行组件与容器前沿对齐。如，对 left-to-right 方向为左对齐|
+|`FlowLayout.TRAILING`|每行组件与容器末尾对齐。如，对 left-to-right 方向为右对齐|
+
+`alignOnBaseline` 属性说明：该属性设置组件垂直方向是否沿 base-line 对齐，`false` 表示垂直居中，默认 false。
 
 ## 示例
 

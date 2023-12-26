@@ -12,7 +12,7 @@
   - [主题](#主题)
   - [参考](#参考)
 
-2023-12-22, 15:23⭐
+2023-12-22, 15:23⭐⭐
 
 ****
 
@@ -84,7 +84,12 @@ com.sun.java.swing.plaf.windows.WindowsLookAndFeel
 
 Swing 组件使用的 LaF 通过 `javax.swing` 包中的 `UIManager` 类指定。在创建 Swing 组件时，该组件会向 `UIManager` 请求实现组件 LaF 的 `ComponentUI`。例如，`JLabel` 构造函数会向 `UIManager` 请求实现组件 LaF 的 `ComponentUI`。然后使用 `ComponentUI` 实现它所有的绘图和事件处理。
 
-使用 `UIManager.setLookAndFeel()` 设置 LaF，参数为 `LookAndFeel` 子类的完全限定名。例如：
+使用 `UIManager.setLookAndFeel()` 设置 LaF，参数为 `LookAndFeel` 子类的完全限定名。
+
+- `UIManager.getCrossPlatformLookAndFeelClassName()`， 返回适用于所有平台的 Laf 名称
+- `UIManager.getSystemLookAndFeelClassName()`，返回当前平台系统 Laf 名称
+
+例如：
 
 ```java
 public static void main(String[] args) {
@@ -110,7 +115,7 @@ public static void main(String[] args) {
 }
 ```
 
-使用 System LaF:
+使用 System Laf:
 
 ```java
 public static void main(String[] args) {
