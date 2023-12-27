@@ -23,7 +23,7 @@ Swing 常用组件的类层次结构如下所示：
 再细分一下：
 
 - 顶层窗口，`JFrame`, `JDialog` 等，可以独立显示的组件；
-- 中间容器，如 `JPanel`, `JScrollPaane`, `JSplitPane` 等，可以充当基本组件的载体，但不能独立显示；
+- 中间容器，如 `JPanel`, `JScrollPane`, `JSplitPane` 等，可以充当基本组件的载体，但不能独立显示；
 - 基本组件，如 `JButton`, `JComboBox` 等。
 
 下面通过一个简单示例，展示这些组件的使用：
@@ -48,7 +48,7 @@ public class HelloWorld {
 Swing 主要有两个顶层容器：
 
 - `JFrame` 用来设计类似于 Windows 系统中窗口形式的应用程序；
-- `JDialog` ，和 `JFrame` 类似，不过 `JDialog` 从来设计弹出对话框。
+- `JDialog` ，和 `JFrame` 类似，不过 `JDialog` 用于设计弹出对话框。
 
 基于 Swing 的图形界面**至少有一个顶层容器**。
 
@@ -59,7 +59,7 @@ Swing 主要有两个顶层容器：
 - 顶层容器可以包含菜单栏，菜单栏直接在顶层容器，位于内容面板外
 - 每个 GUI 组件只能包含一次，如果一个组件已经在一个容器中，将其添加到另一个容器，它将自动从第一个容器删除。
 
-例如，如果一个应用包含一个 JFrame 和两个 JDialog，那么该应用就包含三棵树，对应三个顶级容器。
+例如，如果一个应用包含一个 `JFrame` 和两个 `JDialog`，那么该应用就包含三棵树，对应三个顶级容器。
 
 下面的 Frame 包含一个绿色菜单栏，内容面板中有一个黄色 label，其结构为：
 
@@ -118,13 +118,13 @@ public class TopLevelDemo {
 
 Swing 组件不能添加到顶层容器中，而必须添加到一个与 Swing 顶层容器关联的内容面板（`ContentPane`），内容面板就是一个中间容器。
 
-上例中获取 JFrame 的内容面板并添加黄色标签：
+上例中获取 `JFrame` 的内容面板并添加黄色标签：
 
 ```java
 frame.getContentPane().add(yellowLabel, BorderLayout.CENTER);
 ```
 
-`JFrame` 的默认内容创个是一个简单的中间容器，它继承自 `JComponent`，`BorderLayout` 作为布局管理器。
+`JFrame` 的默认内容面板是一个简单的中间容器，它继承自 `JComponent`，`BorderLayout` 作为布局管理器。
 
 不过 `getContentPane()` 返回的是 `Container` 对象，而不是 `JComponent`。如果需要使用 `JComponent` 的特性，选项有三种：
 

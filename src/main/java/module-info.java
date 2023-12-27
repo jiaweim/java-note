@@ -1,5 +1,7 @@
 module java.module {
 
+    requires com.formdev.flatlaf;
+
     requires javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;

@@ -1,6 +1,7 @@
 # Swing
 
 - [Swing 程序结构](component/structure.md)
+- [JFrame](component/JFrame.md)
 - [JComponent](component/JComponent.md)
   - [JLabel](component/JLabel.md)
   - [按钮](component/JButton.md)
@@ -27,3 +28,4 @@
 
 - https://zetcode.com/javaswing/
 - https://docs.oracle.com/javase/tutorial/uiswing/components/spinner.html
+- [Java Swing 框架、库和软件](https://github.com/parubok/awesome-swing)

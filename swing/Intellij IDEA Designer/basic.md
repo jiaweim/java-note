@@ -6,6 +6,8 @@
     - [绑定类](#绑定类)
     - [GUI Designer 输出选项](#gui-designer-输出选项)
   - [自定义组件面板](#自定义组件面板)
+    - [添加 GUI 组件](#添加-gui-组件)
+  - [参考](#参考)
 
 ***
 
@@ -20,11 +22,11 @@ IntelliJ IDEA 中的 GUI Designer 能够使用 Swing 组件创建 GUI。该工�
 GUI Designer 有如下限制：
 
 - GUI Designer 不支持非 Swing 组件
-- GUI Designer 不创建 JFrame，也不创建菜单
+- GUI Designer 不创建 `JFrame`，也不创建菜单
 
 ### GUI Designer 文件
 
-在设计时，GUI 信息存储在扩展名为 `.form` 的特殊文件中，该文件是符合特定 schema 的 XML 文件。form 文件可以与 java 源文件关联。
+在设计时，GUI 信息存储在扩展名为 `.form` 的文件中，该文件使以特定 schema 设计的 XML 文件。form 文件可以与 java 源文件关联。
 
 ### 绑定类
 
@@ -38,3 +40,20 @@ IntelliJ IDEA 的 GUI Designer 提供两个输出选项：
 - **Java Source code**，UI 组件的所有代码都会生成到绑定的类。
 
 ## 自定义组件面板
+
+GUI Designer 的组件面板可以自定义，能够添加自定义的 UI 组件和第三方库的组件。
+
+自定义面板流程：
+
+1. 安装所需的 UI 组件
+2. 打开 Project Settings dialog
+3. 配置 UI 组件包
+4. 在 GUI 设计面板，创建 groups 并添加 UI 类或 forms
+
+### 添加 GUI 组件
+
+
+
+## 参考
+
+- https://www.jetbrains.com/help/idea/gui-designer-basics.html

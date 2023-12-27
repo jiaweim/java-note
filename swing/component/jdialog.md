@@ -1,10 +1,29 @@
 # JDialog
 
+- [JDialog](#jdialog)
+  - [简介](#简介)
+  - [创建](#创建)
+  - [属性](#属性)
+  - [事件处理](#事件处理)
+  - [JOptionPane](#joptionpane)
+  - [参考](#参考)
+
+
 ## 简介
 
 `JDialog` 是类似于 `JFrame` 的顶层容器类，其 `JRootPane` 包含一个内容窗格和一个可选的 `JMenuBar`，实现了 `RootPaneContainer` 和 `WindowContants` 接口。
 
-Java 提供了 `JDialog` 和 `JOptionPane` 两个创建对话框的类，`JOptionPane` 只是将内容放到 `JDialog` 的 `contentPane` 中。
+为了方便使用，有几个类可以直接实例化对话框：
+
+- `JOptionPane` 简单标准的对话框
+- `ProgressMonitor` 显示进度的对话框
+- `JColorChooser` 和 `JFileChooser` 也是提供标准对话框
+- 使用 Printing API 可以显示打印对话框
+- 自定义对话框，则直接使用 `JDialog`
+
+对话框支持模态。模态对话框显示时，阻止用户与其它窗口的交互。`JOptionPane` 创建的 `JDialog` 是模态的，要创建非模态对话框，需要直接使用 `JDialog`。
+
+
 
 ## 创建
 
@@ -60,3 +79,11 @@ dialog.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
 `JDialog` 的事件处理和 `JFrame` 完全一样。
 
 针对对话框，我们可能希望按 `Escape` 键可以取消对话框。实现该功能的最简单方式是对 `JRootPane` 中的键盘操作注册 `Escape` 按钮。
+
+## JOptionPane
+
+
+
+## 参考
+
+- https://docs.oracle.com/javase%2Ftutorial%2F/uiswing/components/dialog.html
