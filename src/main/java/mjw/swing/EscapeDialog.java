@@ -9,73 +9,59 @@ import java.awt.event.ActionEvent;
  * @version 1.0.0
  * @since 19 Nov 2021, 12:51 PM
  */
-public class EscapeDialog extends JDialog
-{
-    public EscapeDialog()
-    {
+public class EscapeDialog extends JDialog {
+
+    public EscapeDialog() {
         this((Frame) null, false);
     }
 
-    public EscapeDialog(Frame owner)
-    {
+    public EscapeDialog(Frame owner) {
         this(owner, false);
     }
 
-    public EscapeDialog(Frame owner, boolean modal)
-    {
+    public EscapeDialog(Frame owner, boolean modal) {
         this(owner, null, modal);
     }
 
-    public EscapeDialog(Frame owner, String title)
-    {
+    public EscapeDialog(Frame owner, String title) {
         this(owner, title, false);
     }
 
-    public EscapeDialog(Frame owner, String title, boolean modal)
-    {
+    public EscapeDialog(Frame owner, String title, boolean modal) {
         super(owner, title, modal);
     }
 
     public EscapeDialog(Frame owner, String title, boolean modal,
-                        GraphicsConfiguration gc)
-    {
+            GraphicsConfiguration gc) {
         super(owner, title, modal, gc);
     }
 
-    public EscapeDialog(Dialog owner)
-    {
+    public EscapeDialog(Dialog owner) {
         this(owner, false);
     }
 
-    public EscapeDialog(Dialog owner, boolean modal)
-    {
+    public EscapeDialog(Dialog owner, boolean modal) {
         this(owner, null, modal);
     }
 
-    public EscapeDialog(Dialog owner, String title)
-    {
+    public EscapeDialog(Dialog owner, String title) {
         this(owner, title, false);
     }
 
-    public EscapeDialog(Dialog owner, String title, boolean modal)
-    {
+    public EscapeDialog(Dialog owner, String title, boolean modal) {
         super(owner, title, modal);
     }
 
     public EscapeDialog(Dialog owner, String title, boolean modal,
-                        GraphicsConfiguration gc)
-    {
+            GraphicsConfiguration gc) {
         super(owner, title, modal, gc);
     }
 
-    protected JRootPane createRootPane()
-    {
+    protected JRootPane createRootPane() {
         JRootPane rootPane = new JRootPane();
         KeyStroke stroke = KeyStroke.getKeyStroke("ESCAPE");
-        Action actionListener = new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent actionEvent)
-            {
+        Action actionListener = new AbstractAction() {
+            public void actionPerformed(ActionEvent actionEvent) {
                 setVisible(false);
             }
         };

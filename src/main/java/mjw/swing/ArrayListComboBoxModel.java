@@ -10,42 +10,36 @@ import java.util.Collection;
  * @version 1.0.0
  * @since 17 Nov 2021, 11:02 AM
  */
-public class ArrayListComboBoxModel extends AbstractListModel implements ComboBoxModel
-{
+public class ArrayListComboBoxModel extends AbstractListModel implements ComboBoxModel {
+
     private Object selectedItem;
     private ArrayList anArrayList;
 
-    public ArrayListComboBoxModel(ArrayList arrayList)
-    {
+    public ArrayListComboBoxModel(ArrayList arrayList) {
         anArrayList = arrayList;
     }
 
     @Override
-    public Object getSelectedItem()
-    {
+    public Object getSelectedItem() {
         return selectedItem;
     }
 
     @Override
-    public void setSelectedItem(Object newValue)
-    {
+    public void setSelectedItem(Object newValue) {
         selectedItem = newValue;
     }
 
     @Override
-    public int getSize()
-    {
+    public int getSize() {
         return anArrayList.size();
     }
 
     @Override
-    public Object getElementAt(int i)
-    {
+    public Object getElementAt(int i) {
         return anArrayList.get(i);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Runnable runner = () -> {
             JFrame frame = new JFrame("ArrayListComboBoxModel");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,6 +52,6 @@ public class ArrayListComboBoxModel extends AbstractListModel implements ComboBo
             frame.setSize(300, 225);
             frame.setVisible(true);
         };
-        SwingUtilities.invokeLater(runner);
+        EventQueue.invokeLater(runner);
     }
 }

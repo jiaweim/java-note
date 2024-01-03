@@ -1,51 +1,31 @@
 package mjw.swing;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class ImageLoader extends JFrame
-{
-    private JTextArea log;
-    private JPanel viewer;
+public final class ImageLoader {
 
-    public ImageLoader()
-    {
-        super("Image Loader");
+    private ImageLoader() {}
 
-        this.log = new JTextArea(4, 4);
-        this.viewer = new JPanel();
-
-        JButton start = new JButton("Start");
-        start.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                String[] files = new String[]{
-                        "Bodie_small.png", "Carmela_small.png",
-                        "Unknown.png", "Denied.png",
-                        "Death Valley_small.png", "Lake_small.png"
-                };
-                new ImageLoadingWorker(log, viewer, files).execute();
+    public static Image getImage(Class relativeClass, String filename) {
+        Image returnValue = null;
+        InputStream is = relativeClass.getResourceAsStream(filename);
+        if (is != null) {
+            BufferedInputStream bis = new BufferedInputStream(is);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                int ch;
+                while ((ch = bis.read()) != -1) {
+                    baos.write(ch);
+                }
+                returnValue = Toolkit.getDefaultToolkit().createImage(baos.toByteArray());
+            } catch (IOException exception) {
+                System.err.println("Error loading: " + filename);
             }
-        });
-
-        add(new JScrollPane(log), BorderLayout.NORTH);
-        add(new JScrollPane(viewer), BorderLayout.CENTER);
-        add(start, BorderLayout.SOUTH);
-
-        setSize(360, 280);
-    }
-
-    public static void main(String... args)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                new ImageLoader().setVisible(true);
-            }
-        });
+        }
+        return returnValue;
     }
 }

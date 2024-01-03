@@ -12,14 +12,13 @@ import java.io.StringWriter;
  * @version 1.0.0
  * @since 17 Nov 2021, 10:21 AM
  */
-public class ModifyModelSample
-{
+public class ModifyModelSample {
+
     static String[] labels = {"Chardonnay", "Sauvignon", "Riesling", "Cabernet",
             "Zinfandel", "Merlot", "Pinot Noir", "Sauvignon Blanc", "Syrah",
             "Gewürztraminer"};
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Runnable runner = () -> {
             JFrame frame = new JFrame("Modifying Model");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,42 +30,32 @@ public class ModifyModelSample
             JList<String> jlist = new JList<>(model);
             JScrollPane scrollPane1 = new JScrollPane(jlist);
             frame.add(scrollPane1, BorderLayout.WEST);
+
             final JTextArea textArea = new JTextArea();
             textArea.setEditable(false);
             JScrollPane scrollPane2 = new JScrollPane(textArea);
             frame.add(scrollPane2, BorderLayout.CENTER);
 
-            ListDataListener listDataListener = new ListDataListener()
-            {
-                public void contentsChanged(ListDataEvent listDataEvent)
-                {
+            ListDataListener listDataListener = new ListDataListener() {
+                public void contentsChanged(ListDataEvent listDataEvent) {
                     appendEvent(listDataEvent);
                 }
 
-                public void intervalAdded(ListDataEvent listDataEvent)
-                {
+                public void intervalAdded(ListDataEvent listDataEvent) {
                     appendEvent(listDataEvent);
                 }
 
-                public void intervalRemoved(ListDataEvent listDataEvent)
-                {
+                public void intervalRemoved(ListDataEvent listDataEvent) {
                     appendEvent(listDataEvent);
                 }
 
-                private void appendEvent(ListDataEvent listDataEvent)
-                {
+                private void appendEvent(ListDataEvent listDataEvent) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     switch (listDataEvent.getType()) {
-                        case ListDataEvent.CONTENTS_CHANGED:
-                            pw.print("Type: Contents Changed");
-                            break;
-                        case ListDataEvent.INTERVAL_ADDED:
-                            pw.print("Type: Interval Added");
-                            break;
-                        case ListDataEvent.INTERVAL_REMOVED:
-                            pw.print("Type: Interval Removed");
-                            break;
+                        case ListDataEvent.CONTENTS_CHANGED -> pw.print("Type: Contents Changed");
+                        case ListDataEvent.INTERVAL_ADDED -> pw.print("Type: Interval Added");
+                        case ListDataEvent.INTERVAL_REMOVED -> pw.print("Type: Interval Removed");
                     }
                     pw.print(", Index0: " + listDataEvent.getIndex0());
                     pw.print(", Index1: " + listDataEvent.getIndex1());
@@ -151,6 +140,6 @@ public class ModifyModelSample
             frame.setSize(640, 300);
             frame.setVisible(true);
         };
-        SwingUtilities.invokeLater(runner);
+        EventQueue.invokeLater(runner);
     }
 }

@@ -1,12 +1,28 @@
-package mjw.swing;
+# JSpinner
 
-/*
- * This application demonstrates using spinners.
- * Other files required:
- *   SpringUtilities.java
- *   CyclingSpinnerListModel.java
- */
+## 简介
 
+spinner 类似 combo-box 和 list，允许用户从一系列值中选择。与可编辑 combo-box 一样，spinner 允许用户直接输入值。与 combo-box 不同的是，spinner 没有下拉框。
+
+spinner 是复合组件，包含三部分：两个按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 formatted-text-field 的 Panel。
+
+spinner 的可能值和当前值由 model 管理。
+
+下面包含三个 spinner，用于指定日期：
+
+![](images/2023-12-28-23-28-32.png)
+
+创建 spinner：
+
+```java
+String[] monthStrings = getMonthStrings(); //get month names
+SpinnerListModel monthModel = new SpinnerListModel(monthStrings); // 先创建模型
+JSpinner spinner = new JSpinner(monthModel);
+```
+
+完整代码：
+
+```java
 import javax.swing.*;
 import java.awt.*;
 import java.util.Calendar;
@@ -138,3 +154,32 @@ public class SpinnerDemo extends JPanel {
         });
     }
 }
+```
+
+## 使用标准 Spinner Model 和 Editor
+
+Swing API 提供了三种 Spinner 模型：
+
+**SpinnerListModel**
+
+`SpinnerListModel` 的值由数组或 List 定义。上例展示 "Month:" 的 spinner 就是该类型。
+
+**SpinnerNumberModel**
+
+`SpinnerNumberModel` 支持 double, int, Number 序列。可以指定：min, max 和 step 值。上例的 Year spinner 使用的该模型：
+
+```java
+SpinnerModel yearModel = new SpinnerNumberModel(currentYear, //initial value
+        currentYear - 100, //min
+        currentYear + 100, //max
+        1);                //step
+```
+
+**SpinnerDateModel**
+
+`SpinnerDateModel` 是专门为 `Date` 设计的。可以指定 min 和 max date，以及 spinner 调整的字段，如 `Calendar.YEAR`。
+
+
+## 参考
+
+- https://docs.oracle.com/javase/tutorial/uiswing/components/spinner.html
