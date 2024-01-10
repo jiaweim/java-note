@@ -1,10 +1,18 @@
 # JSpinner
 
+- [JSpinner](#jspinner)
+  - [简介](#简介)
+  - [创建 JSpinner](#创建-jspinner)
+  - [JSpinner 属性](#jspinner-属性)
+  - [使用标准 Spinner Model 和 Editor](#使用标准-spinner-model-和-editor)
+  - [参考](#参考)
+
+
 ## 简介
 
 spinner 类似 combo-box 和 list，允许用户从一系列值中选择。与可编辑 combo-box 一样，spinner 允许用户直接输入值。与 combo-box 不同的是，spinner 没有下拉框。
 
-spinner 是复合组件，包含三部分：两个按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 formatted-text-field 的 Panel。
+spinner 是复合组件，包含三部分：两个按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 `JFormattedTextField` 的 Panel。
 
 spinner 的可能值和当前值由 model 管理。
 
@@ -155,6 +163,38 @@ public class SpinnerDemo extends JPanel {
     }
 }
 ```
+
+## 创建 JSpinner
+
+```java
+public JSpinner()
+JSpinner spinner = new JSpinner();
+
+public JSpinner(SpinnerModel model)
+SpinnerModel model = new SpinnerListModel(args);
+JSpinner spinner = new JSpinner(model);
+```
+ 
+`SpinnerModel` 有三个子类：`SpinnerListModel`, `SpinnerNumberModel` 和 `SpinnerDateModel`。默认为 `SpinnerNumberModel`。
+
+## JSpinner 属性
+
+|属性|类型|权限|
+|---|---|---|
+|accessibleContext AccessibleContext Read-only|
+|changeListeners ChangeListener[ ] Read-only|
+|editor JComponent Read-write bound|
+|model SpinnerModel Read-write bound|
+|nextValue Object Read-only|
+|previousValue Object Read-only|
+|UI SpinnerUI Read-write|
+|UIClassID String Read-only|
+|value Object Read-write|
+
+
+
+
+
 
 ## 使用标准 Spinner Model 和 Editor
 

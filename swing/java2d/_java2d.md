@@ -8,3 +8,4 @@
 
 - https://zetcode.com/gfx/java2d/
 - https://docs.oracle.com/javase/tutorial/2d/
+- Filthy Rich Clients

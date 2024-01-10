@@ -66,7 +66,7 @@ Swing 事件处理代码在专门的事件派发线程（Event Dispatch Thread, 
 
 > 不遵守这条规则的程序，可能大多数情况下运行正常，但有可能出现无法重现不可预测的错误。
 
-可以将 EDT 上运行的代码看作一系列的短任务。大多数任务是调用事件处理方法，如 `ActionListener.actionPerformed`。其它任务可以由应用代码通过 `invokeLater` 或 `invokeAndWait` 调度。EDT 上的任务必须快完成，否则导致界面无响应。
+可以将 EDT 上运行的代码看作一系列的短任务。大多数任务是调用事件处理方法，如 `ActionListener.actionPerformed`。其它任务可以由应用代码通过 `invokeLater` 或 `invokeAndWait` 调度。EDT 上的任务必须**快速完成**，否则导致界面无响应。
 
 Swing 的线程模式规则：EDT负责执行任何修改组件的方法。Swing 不是一个线程安全的API，它应该只在 EDT 中调用。
 
@@ -176,54 +176,43 @@ public class ButtonSample{
 
 ## 工作线程
 
-在 Swing 程序中，长时间任务需要在工作线程运行，也称为后台线程。在工作线程运行的任务由 `javax.swing.SwingWorker` 实例方式。SwingWorker 是抽象类，因此创建 SwingWorker 需要定义子类。对简单任务可以采用匿名内部类。
+在 Swing 程序中，耗时任务需要在工作线程运行，也称为**后台线程**。在工作线程运行的任务由 `javax.swing.SwingWorker` 实例方式。SwingWorker 是抽象类，因此创建 SwingWorker 需要定义子类。对简单任务可以采用匿名内部类。
 
 `SwingWorker` 提供了许多通信和控制功能：
 
-- `SwingWorker` 子类可以定义 `done` 方法，在后台任务完成时，该方法自动在 EDT 调用
-- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口。该接口允许后台任务完成后为其它线程提供返回值，还可以查看后台线程是否完成或取消。
-- 后台任务调用 `SwingWorker.publish` 可以提供临时结果，导致从 EDT 调用 `SwingWorker.process`
-- 后台任务可以定义绑定属性。修改这些属性可以触发事件。
+- `SwingWorker` 的 `done` 方法在后台任务完成后，自动在 EDT 执行（可以再 done 里更新 UI）
+- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口，因此可以再任务完成后为其它线程提供返回值、取消任务、检查任务是否完成、是否取消等功能
+- 后台任务调用 `SwingWorker.publish` 可以提供临时结果，触发在 EDT 调用 `SwingWorker.process`
+- 后台任务可以定义绑定属性，修改这些属性可以触发事件，从而触发 EDT 上的事件处理方法的调用
+
+<img src="images/2021-11-16-13-17-15.png" width="600"/>
 
 ### 简单后台线程
 
-
-
 `SwingUtilities` 对确保程序平稳、正确运行十分有用，但是需要创建大量的匿名 `Runnable` 类，使得代码难以维护。为了解决该问题，Swing 团队创建了 `SwingWorker`，它简化了创建需要更新用户界面的耗时任务。使用 `SwingWorker` 可以在后台线程执行特定任务，在 EDT 上更新结果。
 
-下面我们来看一个简单的用例以更好理解 `SwingWorker`。假设我们要从硬盘加载图像，并在 UI 显示这些图像。为了避免阻塞 UI，需要将加载图像放在后台线程。
+下面来看一个简单的用例以更好地理解 `SwingWorker`。假设需要要从硬盘加载图像，并在 UI 显示这些图像。为了避免阻塞 UI，需要将加载图像放在后台线程。
 
-同时，我们希望通过显示已加载图像的名称，向用户展示进度信息。当后台线程完成时，要求返回它加载的图像列表。要在 `SwingWorker` 实现该任务，需要继承 `SwingWorker` 并覆盖 `doInBackground()` 方法。
+同时，我们希望通过显示已加载图像的名称，向用户展示进度信息。当后台线程完成时，要求返回它加载的图像列表。要在 `SwingWorker` 实现该任务，需要继承 `SwingWorker` 并覆盖 `doInBackground()` 方法。`doInBackground()` 在后台线程执行。
 
 `SwingWorker` 是泛型类，有两个泛型参数 `T` 和 `V`：
 
-- `T` 是 `doInBackground()` 的返回值；
+- `T` 是 `doInBackground()` 的返回值
 - `V` 是中间值类型，可以使用 `publish(V...)` 发送到 EDT。
 
 然后 `SwingWorker` 在 EDT 上调用 `process(V...)` 方法。需要覆盖 `process` 方法从而在 GUI 上显示中间值。任务完成后，`SwingWorker` 在 EDT 上调用 `done()` 方法。
 
 通常还会覆盖 `done()` 方法以显示最终结果。`doInBackground()` 完成后，`SwingWorker` 会自动在 EDT 中调用 `done()`。在 `done()` 中，可以使用 `get()` 方法获得 `doInBackground` 的返回值。
 
-总结：
-
-- `done` 方法在任务完成后，自动在 EDT 调用（可以在 done 里更新 UI）；
-- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口，提供了获取返回值、取消任务、检查任务是否完成、是否取消等功能；
-- 使用 `SwingWorker.publish` 可以发布中间结果，触发 `SwingWorker` 在 EDT 上调用；
-- 后台线程可以定义 bound 属性，修改属性触发事件，从而触发 EDT 上的事件处理方法的调用。
-
-![](images/2021-11-16-13-17-15.png)
-
 下面是载入图像的 `SwingWorker` 实现：
 
 ```java
-public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
-{
+public class ImageLoadingWorker extends SwingWorker<List<Image>, String>{
     private JTextArea log;
     private JPanel viewer;
     private String[] filenames;
 
-    public ImageLoadingWorker(JTextArea log, JPanel viewer, String... filenames)
-    {
+    public ImageLoadingWorker(JTextArea log, JPanel viewer, String... filenames){
         this.log = log;
         this.viewer = viewer;
         this.filenames = filenames;
@@ -231,8 +220,7 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 
     // EDT 中执行：doInBackground() 结束后，使用 get() 获得图像列表
     @Override
-    protected void done()
-    {
+    protected void done(){
         try {
             for (Image image : get()) {
                 viewer.add(new JLabel(new ImageIcon(image)));
@@ -243,8 +231,7 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 
     // In the EDT
     @Override
-    protected void process(List<String> messages)
-    {
+    protected void process(List<String> messages){
         for (String message : messages) {
             log.append(message);
             log.append("\n");
@@ -253,8 +240,7 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 
     // 后台线程执行，载入图像
     @Override
-    public List<Image> doInBackground()
-    {
+    public List<Image> doInBackground(){
         List<Image> images = new ArrayList<Image>();
         for (String filename : filenames) {
             try {
@@ -273,7 +259,7 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 
 使用 `SwingWorker` 的 `get()` 方法获得 `doInBackground` 执行的返回值。
 
-之所以不直接在 `doInBackground` 直接使用计算结果，是因为 `doInBackground` 中的代码是在后台线程执行，而 `done` 方法是在 EDT 执行，所以为了线程安全，专门设计了 `done` 方法。
+之所以不直接在 `doInBackground` 直接使用计算结果，是因为 `doInBackground` 中的代码是在后台线程执行，而 `done` 方法是在 EDT 执行，所以为了线程安全，专门设计了 `get` 方法，`get` 是线程安全的。
 
 获得 `doInBackground` 返回结果的`get` 方法有两个重载：
 
@@ -284,23 +270,23 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>
 
 ### 中间结果
 
-后台线程在执行过程中提供已计算出来的结果有时候很有用。可以通过调用 `SwingWorker.publish` 方法实现。该方法接受可变参数，参数类型为 `SwingWorker` 的第二个泛型参数类型。
+后台线程在执行过程中提供已计算出来的结果有时候很有用:
 
-覆盖 `SwingWorker.process` 方法收集 `publish` 发布的结果。该方法在 EDT 中执行。出于性能考虑，往往多次调用的 `publish` 结果累计到一次 `process` 调用中。
+- 通过调用 `SwingWorker.publish` 方法发送结果。该方法接受可变参数，参数类型为 `SwingWorker` 的第二个泛型参数类型。
+- 覆盖 `SwingWorker.process` 方法收集 `publish` 发布的结果。该方法在 EDT 中执行。出于性能考虑，往往多次调用的 `publish` 结果累计到一次 `process` 调用中。
 
 下面使用一个实例来演示该功能，该程序 `java.util.Random` 在后台生成一系列随机 `boolean` 值测试 `java.util.Random` 的公平性，和抛硬币一样，所以命名为 `Flipper`。后台任务使用 `FlipPair` 发布结果。
 
 ```java
-public class Flipper extends JFrame implements ActionListener
-{
+public class Flipper extends JFrame implements ActionListener{
+
     private final GridBagConstraints constraints;
     private final JTextField headsText, totalText, devText;
     private final Border border = BorderFactory.createLoweredBevelBorder();
     private final JButton startButton, stopButton;
     private FlipTask flipTask;
 
-    private JTextField makeText()
-    {
+    private JTextField makeText(){
         JTextField t = new JTextField(20);
         t.setEditable(false);
         t.setHorizontalAlignment(JTextField.RIGHT);
@@ -309,8 +295,7 @@ public class Flipper extends JFrame implements ActionListener
         return t;
     }
 
-    private JButton makeButton(String caption)
-    {
+    private JButton makeButton(String caption){
         JButton b = new JButton(caption);
         b.setActionCommand(caption);
         b.addActionListener(this);
@@ -318,8 +303,7 @@ public class Flipper extends JFrame implements ActionListener
         return b;
     }
 
-    public Flipper()
-    {
+    public Flipper(){
         super("Flipper");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

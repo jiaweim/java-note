@@ -9,21 +9,20 @@ import java.beans.PropertyChangeListener;
 import java.util.Random;
 
 public class ProgressBarDemo2 extends JPanel
-        implements ActionListener, PropertyChangeListener
-{
+        implements ActionListener, PropertyChangeListener {
+
     private JProgressBar progressBar;
     private JButton startButton;
     private JTextArea taskOutput;
     private Task task;
 
-    class Task extends SwingWorker<Void, Void>
-    {
+    class Task extends SwingWorker<Void, Void> {
+
         /*
          * Main task. Executed in background thread.
          */
         @Override
-        public Void doInBackground()
-        {
+        public Void doInBackground() {
             Random random = new Random();
             int progress = 0;
             //Initialize progress property.
@@ -31,12 +30,14 @@ public class ProgressBarDemo2 extends JPanel
             //Sleep for at least one second to simulate "startup".
             try {
                 Thread.sleep(1000 + random.nextInt(2000));
-            } catch (InterruptedException ignore) {}
+            } catch (InterruptedException ignore) {
+            }
             while (progress < 100) {
                 //Sleep for up to one second.
                 try {
                     Thread.sleep(random.nextInt(1000));
-                } catch (InterruptedException ignore) {}
+                } catch (InterruptedException ignore) {
+                }
                 //Make random progress.
                 progress += random.nextInt(10);
                 setProgress(Math.min(progress, 100));
@@ -47,16 +48,14 @@ public class ProgressBarDemo2 extends JPanel
         /*
          * Executed in event dispatch thread
          */
-        public void done()
-        {
+        public void done() {
             Toolkit.getDefaultToolkit().beep();
             startButton.setEnabled(true);
             taskOutput.append("Done!\n");
         }
     }
 
-    public ProgressBarDemo2()
-    {
+    public ProgressBarDemo2() {
         super(new BorderLayout());
 
         //Create the demo's UI.
@@ -87,8 +86,7 @@ public class ProgressBarDemo2 extends JPanel
     /**
      * Invoked when the user presses the start button.
      */
-    public void actionPerformed(ActionEvent evt)
-    {
+    public void actionPerformed(ActionEvent evt) {
         progressBar.setIndeterminate(true);
         startButton.setEnabled(false);
         //Instances of javax.swing.SwingWorker are not reusuable, so
@@ -101,8 +99,7 @@ public class ProgressBarDemo2 extends JPanel
     /**
      * Invoked when task's progress property changes.
      */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
+    public void propertyChange(PropertyChangeEvent evt) {
         if ("progress" == evt.getPropertyName()) {
             int progress = (Integer) evt.getNewValue();
             progressBar.setIndeterminate(false);
@@ -112,11 +109,9 @@ public class ProgressBarDemo2 extends JPanel
     }
 
     /**
-     * Create the GUI and show it. As with all GUI code, this must run
-     * on the event-dispatching thread.
+     * Create the GUI and show it. As with all GUI code, this must run on the event-dispatching thread.
      */
-    private static void createAndShowGUI()
-    {
+    private static void createAndShowGUI() {
         //Create and set up the window.
         JFrame frame = new JFrame("ProgressBarDemo2");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -131,8 +126,7 @@ public class ProgressBarDemo2 extends JPanel
         frame.setVisible(true);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> createAndShowGUI());
     }
 }

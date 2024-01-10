@@ -7,21 +7,26 @@
   - [滚动 JList](#滚动-jlist)
   - [渲染 JList 元素](#渲染-jlist-元素)
     - [更复杂的 ListCellRenderer 实现](#更复杂的-listcellrenderer-实现)
-  - [创建 List](#创建-list)
-  - [选择 Item](#选择-item)
-  - [添加和删除项](#添加和删除项)
+  - [选择 JList 元素](#选择-jlist-元素)
+    - [ListSelectionModel 接口和 DefaultListSelectionModel 类](#listselectionmodel-接口和-defaultlistselectionmodel-类)
+    - [ListSelectionListener](#listselectionlistener)
+    - [手动选择 JList 事件](#手动选择-jlist-事件)
+  - [显示多个 columns](#显示多个-columns)
+  - [自定义 JList Laf](#自定义-jlist-laf)
+  - [示例：Dual List](#示例dual-list)
+  - [添加 Tooltip](#添加-tooltip)
   - [参考](#参考)
 
-2021-11-25, 09:29
+2021-11-25, 09:29⭐
 ***
 
 ## 简介
 
 `JList` 组件提供从一组选项中单选和多选的功能。`JList` 结构特征有三点：
 
-- 数据模型 `ListModel` 用于保存数据；
-- `ListCellRenderer` 用于渲染列表 cell；
-- `ListSelectionModel` 用于元素选择模型。
+- 数据模型 `ListModel` 用于保存数据
+- `ListCellRenderer` 用于渲染列表 cell
+- `ListSelectionModel` 用于元素选择模型
 
 ## 创建 JList
 
@@ -129,7 +134,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SizingSamples {
-
     public static void main(String[] args) {
         Runnable runner = () -> {
             String labels[] = {"Chardonnay", "Sauvignon", "Riesling", "Cabernet",
@@ -169,7 +173,7 @@ public class SizingSamples {
 }
 ```
 
-![](images/2024-01-02-20-51-59.png)
+<img src="images/2024-01-02-20-51-59.png" width="300"/>
 
 除了将 `JList` 放在 `JScrollPane` 中，还可以设置哪些选项可见，或者使特定元素可见：
 
@@ -283,7 +287,7 @@ public class CustomBorderSample {
 }
 ```
 
-![](images/2024-01-02-21-28-28.png)
+<img src="images/2024-01-02-21-28-28.png" width="250"/>
 
 ### 更复杂的 ListCellRenderer 实现
 
@@ -293,7 +297,7 @@ public class CustomBorderSample {
 
 数据模型的元素包括 font、foreground-color、icon, text。
 
-下面通过定制 DefaultListCellRenderer 返回的组件来实现新的 cell-renderer。
+下面通过定制 `DefaultListCellRenderer` 返回的组件来实现新的 cell-renderer。
 
 ```java
 import javax.swing.*;
@@ -337,42 +341,192 @@ public class ComplexCellRenderer implements ListCellRenderer {
 } 
 ```
 
-
-## 创建 List
-
-如下是一段初始化 List 的代码：
+使用：
 
 ```java
-list = new JList(data); //data has type Object[]
-list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-list.setVisibleRowCount(-1);
-...
-JScrollPane listScroller = new JScrollPane(list);
-listScroller.setPreferredSize(new Dimension(250, 80));
+import javax.swing.*;
+import java.awt.*;
+
+public class ComplexRenderingSample {
+
+    public static void main(String[] args) {
+        Runnable runner = () -> {
+            Object[][] elements = {
+                    {new Font("Helvetica", Font.PLAIN, 20), Color.RED,
+                            new DiamondIcon(Color.BLUE), "Help"},
+                    {new Font("TimesRoman", Font.BOLD, 14), Color.BLUE,
+                            new DiamondIcon(Color.GREEN), "Me"},
+                    {new Font("Courier", Font.ITALIC, 18), Color.GREEN,
+                            new DiamondIcon(Color.BLACK), "I'm"},
+                    {new Font("Helvetica", Font.BOLD | Font.ITALIC, 12), Color.GRAY,
+                            new DiamondIcon(Color.MAGENTA), "Trapped"},
+                    {new Font("TimesRoman", Font.PLAIN, 32), Color.PINK,
+                            new DiamondIcon(Color.YELLOW), "Inside"},
+                    {new Font("Courier", Font.BOLD, 16), Color.YELLOW,
+                            new DiamondIcon(Color.RED), "This"},
+                    {new Font("Helvetica", Font.ITALIC, 8), Color.DARK_GRAY,
+                            new DiamondIcon(Color.PINK), "Computer"}
+            };
+
+            JFrame frame = new JFrame("Complex Renderer");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            JList jlist = new JList(elements);
+            ListCellRenderer renderer = new ComplexCellRenderer();
+            jlist.setCellRenderer(renderer);
+            JScrollPane scrollPane = new JScrollPane(jlist);
+            frame.add(scrollPane, BorderLayout.CENTER);
+
+            JComboBox comboBox = new JComboBox(elements);
+            comboBox.setRenderer(renderer);
+            frame.add(comboBox, BorderLayout.NORTH);
+
+            frame.setSize(300, 200);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
 ```
 
-将元素数组传递给 `JList` 构造函数。
+<img src="images/2024-01-03-09-30-41.png" width="300"/>
 
-调用 `setSelectionMode` 可以设置选择模型。
+!!! tip
+    创建自定义 renderer 组件时，最好从 DefaultListCellRenderer 开始。这样可以专注于感兴趣的细节，其它内容由 DefaultListCellRenderer 处理。
 
-调用 `setLayoutOrientation` 可以让列表多列显示:
+## 选择 JList 元素
 
-- `JList.HORIZONTAL_WRAP` 指定列表先填充行，填满后再换行；
-- `JList.VERTICAL_WRAP` 指定列表先填充列，填满后换列；
-- `JList.VERTICAL` 单列显示，默认选项。
+`JList` 默认为多选模式。当然，如何选择多个元素取决于 Laf，多数以 Ctrl+点击多选，Shift+点击范围选择。
 
-![](images/2021-11-25-09-40-19.png)
+### ListSelectionModel 接口和 DefaultListSelectionModel 类
 
-和 `setLayoutOrientation` 结合使用，调用 `setVisibleRowCount(-1)` 使得 `JList` 尽可能多显示项目。`setVisibleRowCount` 还常用于指定带滚动窗格的 List 一次显示多少项。
+`ListSelectionModel` 接口实现 `JList` 的选择机制。其定义包括：
 
-## 选择 Item
+- 定义选择模式的常量
+- 不同选择方式
+- 管理 `ListSelectionListener`
 
-`JList` 使用 `ListSelectionModel` 管理 item 选择。`JList` 默认支持一次选择任意 item。调用 `setSelectionMode` 方法可以设置选择模型。支持的三种选择模型如下：
+```java
+public interface ListSelectionModel{
+
+    // 选择模式
+    int SINGLE_SELECTION = 0;
+    int SINGLE_INTERVAL_SELECTION = 1;
+    int MULTIPLE_INTERVAL_SELECTION = 2;
+
+    // 不同选择方法
+    void setSelectionInterval(int index0, int index1);
+    void addSelectionInterval(int index0, int index1);
+
+    void removeSelectionInterval(int index0, int index1);
+
+    int getMinSelectionIndex();
+    int getMaxSelectionIndex();
+
+    boolean isSelectedIndex(int index);
+
+    int getAnchorSelectionIndex();
+    void setAnchorSelectionIndex(int index);
+
+    int getLeadSelectionIndex();
+    void setLeadSelectionIndex(int index);
+
+    void clearSelection();
+    boolean isSelectionEmpty();
+
+    void insertIndexInterval(int index, int length, boolean before);
+
+    void removeIndexInterval(int index0, int index1);
+
+    void setValueIsAdjusting(boolean valueIsAdjusting);
+    boolean getValueIsAdjusting();
+
+    void setSelectionMode(int selectionMode);
+    int getSelectionMode();
+
+    // listeners
+    void addListSelectionListener(ListSelectionListener x);
+    void removeListSelectionListener(ListSelectionListener x);
+
+    default int[] getSelectedIndices() {
+        int iMin = getMinSelectionIndex();
+        int iMax = getMaxSelectionIndex();
+
+        if ((iMin < 0) || (iMax < 0)) {
+            return new int[0];
+        }
+
+        int[] rvTmp = new int[1+ (iMax - iMin)];
+        int n = 0;
+        for(int i = iMin; i <= iMax; i++) {
+            if (isSelectedIndex(i)) {
+                rvTmp[n++] = i;
+            }
+        }
+        int[] rv = new int[n];
+        System.arraycopy(rvTmp, 0, rv, 0, n);
+        return rv;
+    }
+
+    default int getSelectedItemsCount() {
+        int iMin = getMinSelectionIndex();
+        int iMax = getMaxSelectionIndex();
+        int count = 0;
+
+        for(int i = iMin; i <= iMax; i++) {
+            if (isSelectedIndex(i)) {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+```
+
+|选择模式|说明|
+|---|---|
+|`SINGLE_SELECTION`|单选|
+|`SINGLE_INTERVAL_SELECTION`|单个连续范围选择|
+|`MULTIPLE_INTERVAL_SELECTION`|任意范围选择，默认|
+
+如下图所示：
 
 ![](images/2021-11-25-09-45-59.png)
 
-不管使用哪种选择模式，在选择项发生改变时都会触发事件。可以添加 `ListSelectionListener` 监听该事件。`ListSelectionListener` 必须实现 `valueChanged` 方法，例如：
+调用 `setSelectionMode` 设置选择模式：
+
+```java
+JList list = new JList(...);
+list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+```
+
+`DefaultListSelectionModel` 是 `ListSelectionModel` 的默认实现。通过如下 9 个属性可以了解当前选择范围。
+
+|属性|类型|权限|
+|---|---|---|
+|anchorSelectionIndex|int|Read-write|
+|leadAnchorNotificationEnabled|boolean|Read-write|
+|leadSelectionIndex|int|Read-write|
+|listSelectionListeners|ListSelectionListener[]|Read-only|
+|maxSelectionIndex|int|Read-only|
+|minSelectionIndex|int|Read-only|
+|selectionEmpty|boolean|Read-only|
+|selectionMode|int|Read-write|
+|valueIsAdjusting|boolean|Read-write|
+
+### ListSelectionListener
+
+如果需要监听 `JList` 的选择事件，需要为 `JList` 或 `ListSelectionModel` 添加 `ListSelectionListener`。`JList` 的 `addListSelectionListener()` 和 `removeListenerListener()` 也是委托给底层的 `ListSelectionModel`。
+
+当选择的元素发生变化，注册的 listeners 受到通知。其定义如下：
+
+```java
+public interface ListSelectionListener extends EventListener{
+    void valueChanged(ListSelectionEvent e);
+}
+```
+
+`ListSelectionEvent` 包含受选择影响的元素范围，以及选择是否仍在变化。当用户仍在修改所选元素，valueIsAdjusting 为 true。对昂贵操作，如绘制高分辨率的图形，此时可能希望延迟操作。因此，在 valueIsAdjusting 为 false 时执行操作，例如：
 
 ```java
 public void valueChanged(ListSelectionEvent e) {
@@ -390,171 +544,586 @@ public void valueChanged(ListSelectionEvent e) {
 }
 ```
 
-单个用户操作（如点击鼠标）可产生许多列表选择事件。如果用户仍在操作选择，`getValueIsAdjusting` 返回 true。上例的程序只感兴趣最终的选择结果，所以只在 `getValueIsAdjusting` 返回 false 时操作。
+ListSelectionEvent 属性：
 
-上例中是单选模式，所以 `getSelectionIndex` 返回单个选择的项。`JList` 提供了多个设置和获取选项的方法。
+|属性|类型|权限|
+|---|---|---|
+|firstIndex|int|Read-only|
+|lastIndex|int|Read-only|
+|valueIsAdjusting|boolean|Read-only|
 
-另外，可以直接在 `ListSelectionModel` 上监听事件，而不是 `JList` 本身。如下展示在 `ListSelectionModel` 上添加 `ListSelectionListener`，并可以动态选择列表的选择模式：
+**示例：** JList 中选择事件
 
 ```java
-public class ListSelectionDemo extends JPanel
-{
-    JTextArea output;
-    JList list;
-    String newline = "\n";
-    ListSelectionModel listSelectionModel;
+import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-    public ListSelectionDemo()
-    {
-        super(new BorderLayout());
+public class SelectingJListSample {
 
-        String[] listData = {"one", "two", "three", "four",
-                "five", "six", "seven"};
-        list = new JList(listData);
+    public static void main(String[] args) {
+        Runnable runner = () -> {
+            String[] labels = {"Chardonnay", "Sauvignon", "Riesling", "Cabernet",
+                    "Zinfandel", "Merlot", "Pinot Noir", "Sauvignon Blanc", "Syrah",
+                    "Gewürztraminer"};
+            JFrame frame = new JFrame("Selecting JList");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        listSelectionModel = list.getSelectionModel();
-        listSelectionModel.addListSelectionListener(new SharedListSelectionHandler());
-        JScrollPane listPane = new JScrollPane(list);
+            JList<String> jlist = new JList<>(labels);
+            JScrollPane scrollPane1 = new JScrollPane(jlist);
+            frame.add(scrollPane1, BorderLayout.WEST);
 
-        JPanel controlPane = new JPanel();
-        String[] modes = {"SINGLE_SELECTION",
-                "SINGLE_INTERVAL_SELECTION",
-                "MULTIPLE_INTERVAL_SELECTION"};
+            final JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            JScrollPane scrollPane2 = new JScrollPane(textArea);
+            frame.add(scrollPane2, BorderLayout.CENTER);
 
-        final JComboBox comboBox = new JComboBox(modes);
-        comboBox.setSelectedIndex(2);
-        comboBox.addActionListener(e -> {
-            String newMode = (String) comboBox.getSelectedItem();
-            if (newMode.equals("SINGLE_SELECTION")) {
-                listSelectionModel.setSelectionMode(
-                        ListSelectionModel.SINGLE_SELECTION);
-            } else if (newMode.equals("SINGLE_INTERVAL_SELECTION")) {
-                listSelectionModel.setSelectionMode(
-                        ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-            } else {
-                listSelectionModel.setSelectionMode(
-                        ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            }
-            output.append("----------"
-                    + "Mode: " + newMode
-                    + "----------" + newline);
-        });
-        controlPane.add(new JLabel("Selection mode:"));
-        controlPane.add(comboBox);
-
-        //Build output area.
-        output = new JTextArea(1, 10);
-        output.setEditable(false);
-        JScrollPane outputPane = new JScrollPane(output,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-        //Do the layout.
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        add(splitPane, BorderLayout.CENTER);
-
-        JPanel topHalf = new JPanel();
-        topHalf.setLayout(new BoxLayout(topHalf, BoxLayout.LINE_AXIS));
-        JPanel listContainer = new JPanel(new GridLayout(1, 1));
-        listContainer.setBorder(BorderFactory.createTitledBorder(
-                "List"));
-        listContainer.add(listPane);
-
-        topHalf.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-        topHalf.add(listContainer);
-        //topHalf.add(tableContainer);
-
-        topHalf.setMinimumSize(new Dimension(100, 50));
-        topHalf.setPreferredSize(new Dimension(100, 110));
-        splitPane.add(topHalf);
-
-        JPanel bottomHalf = new JPanel(new BorderLayout());
-        bottomHalf.add(controlPane, BorderLayout.PAGE_START);
-        bottomHalf.add(outputPane, BorderLayout.CENTER);
-        //XXX: next line needed if bottomHalf is a scroll pane:
-        //bottomHalf.setMinimumSize(new Dimension(400, 50));
-        bottomHalf.setPreferredSize(new Dimension(450, 135));
-        splitPane.add(bottomHalf);
-    }
-
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event-dispatching thread.
-     */
-    private static void createAndShowGUI()
-    {
-        //Create and set up the window.
-        JFrame frame = new JFrame("ListSelectionDemo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        //Create and set up the content pane.
-        ListSelectionDemo demo = new ListSelectionDemo();
-        demo.setOpaque(true);
-        frame.setContentPane(demo);
-
-        //Display the window.
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    public static void main(String[] args)
-    {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(ListSelectionDemo::createAndShowGUI);
-    }
-
-    class SharedListSelectionHandler implements ListSelectionListener
-    {
-        public void valueChanged(ListSelectionEvent e)
-        {
-            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-
-            int firstIndex = e.getFirstIndex();
-            int lastIndex = e.getLastIndex();
-            boolean isAdjusting = e.getValueIsAdjusting();
-            output.append("Event for indexes "
-                    + firstIndex + " - " + lastIndex
-                    + "; isAdjusting is " + isAdjusting
-                    + "; selected indexes:");
-
-            if (lsm.isSelectionEmpty()) {
-                output.append(" <none>");
-            } else {
-                // Find out which indexes are selected.
-                int minIndex = lsm.getMinSelectionIndex();
-                int maxIndex = lsm.getMaxSelectionIndex();
-                for (int i = minIndex; i <= maxIndex; i++) {
-                    if (lsm.isSelectedIndex(i)) {
-                        output.append(" " + i);
+            ListSelectionListener listSelectionListener = listSelectionEvent -> {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                pw.print("First index: " + listSelectionEvent.getFirstIndex());
+                pw.print(", Last index: " + listSelectionEvent.getLastIndex());
+                boolean adjust = listSelectionEvent.getValueIsAdjusting();
+                pw.println(", Adjusting? " + adjust);
+                if (!adjust) {
+                    JList list = (JList) listSelectionEvent.getSource();
+                    int selections[] = list.getSelectedIndices();
+                    Object selectionValues[] = list.getSelectedValues();
+                    for (int i = 0, n = selections.length; i < n; i++) {
+                        if (i == 0) {
+                            pw.print("  Selections: ");
+                        }
+                        pw.print(selections[i] + "/" + selectionValues[i] + " ");
                     }
+                    pw.println();
                 }
-            }
-            output.append(newline);
-            output.setCaretPosition(output.getDocument().getLength());
-        }
+                textArea.append(sw.toString());
+            };
+            jlist.addListSelectionListener(listSelectionListener);
+
+            frame.setSize(350, 200);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner);
     }
 }
 ```
 
-## 添加和删除项
+<img src="images/2024-01-03-10-32-22.png" width="450"/>
 
-创建可变列表模型的方式如下：
+!!! note
+    如果知道 JList 是单选模式，可以直接用 selectedIndex 或 selectedValue 属性获得当前选项。
+
+说明：
+
+- 在用鼠标选择时：鼠标按下，`getValueIsAdjusting` 为 true，松开，变化为 false。
+- 上例仅在 valueIsAdjusting 为 false 时输出所选元素，否则仅报告选择范围
+- 通过 getSelectedIndices 和 getSelectedValues 获得所需元素的有序列表
+
+JList 中对鼠标双击事件没有特殊支持，如果对其感兴趣，则需要注册对应事件。例如，将下面代码添加到上例中：
 
 ```java
-listModel = new DefaultListModel();
-listModel.addElement("Jane Doe");
-listModel.addElement("John Smith");
-listModel.addElement("Kathy Green");
-
-
-list = new JList(listModel);
+MouseListener mouseListener = new MouseAdapter() {
+    public void mouseClicked(MouseEvent mouseEvent) {
+        JList theList = (JList) mouseEvent.getSource();
+        if (mouseEvent.getClickCount() == 2) {
+            int index = theList.locationToIndex(mouseEvent.getPoint());
+            if (index >= 0) {
+                Object o = theList.getModel().getElementAt(index);
+                textArea.append("Double-clicked on: " + o.toString());
+                textArea.append(System.getProperty("line.separator"));
+            }
+        }
+    }
+};
+jlist.addMouseListener(mouseListener);
 ```
 
-上面使用的 `DefaultListModel`，虽然名字叫 default，其实不是默认模型，`JList` 默认使用内部实现的 immutable 模型。
+这里的关键方法是 JList 的 public int locationToIndex(Point location)，该方法将屏幕坐标映射到 JList 元素位置。
 
-余下的删除和添加操作都在 `DefaultListModel` 上进行。
+JList 还提供了  `public Point indexToLocation(int index)`，具有相反行为。
+
+### 手动选择 JList 事件
+
+除了检测用户选择列表元素，也可以通过编程方式进行选择。通过编程方式进行的选择，也会通知注册的 `ListSelectionListener`，下面是常用的选择方法：
+
+- 单选
+
+```java
+public void setSelectedValue(Object element, boolean shouldScroll)
+```
+
+选择第一个匹配 element 的元素。如果 element 之前没有被选中，则先取消之前所选元素。
+
+- 范围选择
+
+```java
+public void setSelectedInterval(int index0, int index1)
+```
+
+- 在已有选项的基础上继续添加选项
+
+```java
+public void addSelectedInterval(int index0, int index1)
+```
+
+- 清除选择
+
+```java
+public void clearSelection()
+```
+
+- 清除指定范围的选择
+
+```java
+public void removeSelectedInterval(int index0, int index1)
+```
+
+## 显示多个 columns
+
+使用 JList，通常单列显示。不过 JList 还是提供了多列显示功能。通过调用 `setLayoutOrientation` 可以让列表多列显示:
+
+- `JList.HORIZONTAL_WRAP` 先填充行，填满后再换行；
+- `JList.VERTICAL_WRAP` 先填充列，填满后换列；
+- `JList.VERTICAL` 单列显示，默认选项。
+
+数据模型按字母顺序，不同模式的效果：
+
+![](images/2021-11-25-09-40-19.png)
+
+使用 `visibleRowCount` 属性控制 row 数。否则根据 `JList` 宽度决定 `HORIZONTAL_WRAP` 的行数和 `VERTICAL_WRAP` 的高度。调用 `setVisibleRowCount(-1)` 使得 `JList` 尽可能多显示项目。
+
+## 自定义 JList Laf
+
+每个 Swing Laf 都为 JList 提供了不同的外观和一组 `UIResource` 设置。
+
+JList 中可用的 `UIResource` 相关属性如下表所示。
+
+|属性|类型|
+|---|---|
+|List.actionMap|ActionMap|
+|List.background|Color|
+|List.border|Border|
+|List.cellHeight|Integer|
+|List.cellRenderer|ListCellRenderer|
+|List.focusCellHighlightBorder|Border|
+|List.focusInputMap|InputMap|
+|List.focusInputMap.RightToLeft|InputMap|
+|List.font|Font|
+|List.foreground|Color|
+|List.lockToPositionOnScroll|Boolean|
+|List.rendererUseListColors|Boolean|
+|List.rendererUseUIBorder|Boolean|
+|List.selectionBackground|Color|
+|List.selectionForeground|Color|
+|List.timeFactor|Long|
+|ListUI|String|
+
+大多数 `UIResource` 属性的含义不言自明。
+
+JList 默认自带键盘选择行为，即在键入时，JList 将找到与目前键入内容匹配的 items。该行为通过 `public int getNextMatch(String prefix, int startIndex, Position.Bias bias)` 方法实现。`List.timeFactor` 指定延迟毫秒（默认 1000），只要按键之间的延迟不超过该值，就将新键添加到原来的输入。一旦超出该与之，搜索字符串被重置。
+
+## 示例：Dual List
+
+下面创建一个名为 `DualListBox` 的 Swing 组件。DualListBox 创建两个 JList，一个包含可选项，一个包含所选项。
+
+当可选项列表非常大时，这个组件非常有用。图示：
+
+<img src="images/2024-01-03-13-41-57.png" width="360"/>
+
+操作：
+
+- 通过 `DualListBox sdual = new DualListBox()` 创建 `DualListBox`
+- 通过 `setSourceElements()` 或 `addSourceElements()` 填充数据
+- `destinationIterator()` 查询所选元素
+
+另外还支持设置：
+
+- 包含可选项部分的标题
+- 所选项部分的标题
+- list-cell-renderer
+- visible row count
+- 前景和背景色
+
+**实现：** `SortedListModel`，采用 TreeSet 实现排序
+
+```java
+import javax.swing.*;
+import java.util.*;
+
+public class SortedListModel extends AbstractListModel {
+
+    SortedSet<Object> model;
+
+    public SortedListModel() {
+        model = new TreeSet<Object>();
+    }
+
+    public int getSize() {
+        return model.size();
+    }
+
+    public Object getElementAt(int index) {
+        return model.toArray()[index];
+    }
+
+    public void add(Object element) {
+        if (model.add(element)) {
+            fireContentsChanged(this, 0, getSize());
+        }
+    }
+
+    public void addAll(Object elements[]) {
+        Collection<Object> c = Arrays.asList(elements);
+        model.addAll(c);
+        fireContentsChanged(this, 0, getSize());
+    }
+
+    public void clear() {
+        model.clear();
+        fireContentsChanged(this, 0, getSize());
+    }
+
+    public boolean contains(Object element) {
+        return model.contains(element);
+    }
+
+    public Object firstElement() {
+        return model.first();
+    }
+
+    public Iterator iterator() {
+        return model.iterator();
+    }
+
+    public Object lastElement() {
+        return model.last();
+    }
+
+    public boolean removeElement(Object element) {
+        boolean removed = model.remove(element);
+        if (removed) {
+            fireContentsChanged(this, 0, getSize());
+        }
+        return removed;
+    }
+}
+```
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+
+public class DualListBox extends JPanel {
+
+    private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
+    private static final String ADD_BUTTON_LABEL = "Add >>";
+    private static final String REMOVE_BUTTON_LABEL = "<< Remove";
+    private static final String DEFAULT_SOURCE_CHOICE_LABEL =
+            "Available Choices";
+    private static final String DEFAULT_DEST_CHOICE_LABEL =
+            "Your Choices";
+    private JLabel sourceLabel;
+    private JList sourceList;
+    private SortedListModel sourceListModel;
+    private JList destList;
+    private SortedListModel destListModel;
+    private JLabel destLabel;
+    private JButton addButton;
+    private JButton removeButton;
+
+    public DualListBox() {
+        initScreen();
+    }
+
+    public String getSourceChoicesTitle() {
+        return sourceLabel.getText();
+    }
+
+    public void setSourceChoicesTitle(String newValue) {
+        sourceLabel.setText(newValue);
+    }
+
+    public String getDestinationChoicesTitle() {
+        return destLabel.getText();
+    }
+
+    public void setDestinationChoicesTitle(String newValue) {
+        destLabel.setText(newValue);
+    }
+
+    public void clearSourceListModel() {
+        sourceListModel.clear();
+    }
+
+    public void clearDestinationListModel() {
+        destListModel.clear();
+    }
+
+    public void addSourceElements(ListModel newValue) {
+        fillListModel(sourceListModel, newValue);
+    }
+
+    public void setSourceElements(ListModel newValue) {
+        clearSourceListModel();
+        addSourceElements(newValue);
+    }
+
+    public void addDestinationElements(ListModel newValue) {
+        fillListModel(destListModel, newValue);
+    }
+
+    private void fillListModel(SortedListModel model, ListModel newValues) {
+        int size = newValues.getSize();
+        for (int i = 0; i < size; i++) {
+            model.add(newValues.getElementAt(i));
+        }
+    }
+
+    public void addSourceElements(Object newValue[]) {
+        fillListModel(sourceListModel, newValue);
+    }
+
+    public void setSourceElements(Object newValue[]) {
+        clearSourceListModel();
+        addSourceElements(newValue);
+    }
+
+    public void addDestinationElements(Object newValue[]) {
+        fillListModel(destListModel, newValue);
+    }
+
+    private void fillListModel(SortedListModel model, Object newValues[]) {
+        model.addAll(newValues);
+    }
+
+    public Iterator sourceIterator() {
+        return sourceListModel.iterator();
+    }
+
+    public Iterator destinationIterator() {
+        return destListModel.iterator();
+    }
+
+    public void setSourceCellRenderer(ListCellRenderer newValue) {
+        sourceList.setCellRenderer(newValue);
+    }
+
+    public ListCellRenderer getSourceCellRenderer() {
+        return sourceList.getCellRenderer();
+    }
+
+    public void setDestinationCellRenderer(ListCellRenderer newValue) {
+        destList.setCellRenderer(newValue);
+    }
+
+    public ListCellRenderer getDestinationCellRenderer() {
+        return destList.getCellRenderer();
+    }
+
+    public void setVisibleRowCount(int newValue) {
+        sourceList.setVisibleRowCount(newValue);
+        destList.setVisibleRowCount(newValue);
+    }
+
+    public int getVisibleRowCount() {
+        return sourceList.getVisibleRowCount();
+    }
+
+    public void setSelectionBackground(Color newValue) {
+        sourceList.setSelectionBackground(newValue);
+        destList.setSelectionBackground(newValue);
+    }
+
+    public Color getSelectionBackground() {
+        return sourceList.getSelectionBackground();
+    }
+
+    public void setSelectionForeground(Color newValue) {
+        sourceList.setSelectionForeground(newValue);
+        destList.setSelectionForeground(newValue);
+    }
+
+    public Color getSelectionForeground() {
+        return sourceList.getSelectionForeground();
+    }
+
+    private void clearSourceSelected() {
+        Object selected[] = sourceList.getSelectedValues();
+        for (int i = selected.length - 1; i >= 0; --i) {
+            sourceListModel.removeElement(selected[i]);
+        }
+        sourceList.getSelectionModel().clearSelection();
+    }
+
+    private void clearDestinationSelected() {
+        Object selected[] = destList.getSelectedValues();
+        for (int i = selected.length - 1; i >= 0; --i) {
+            destListModel.removeElement(selected[i]);
+        }
+        destList.getSelectionModel().clearSelection();
+    }
+
+    private void initScreen() {
+        setBorder(BorderFactory.createEtchedBorder());
+        setLayout(new GridBagLayout());
+        sourceLabel = new JLabel(DEFAULT_SOURCE_CHOICE_LABEL);
+        sourceListModel = new SortedListModel();
+        sourceList = new JList(sourceListModel);
+        add(sourceLabel,
+                new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER,
+                        GridBagConstraints.NONE, EMPTY_INSETS, 0, 0));
+        add(new JScrollPane(sourceList),
+                new GridBagConstraints(0, 1, 1, 5, .5, 1, GridBagConstraints.CENTER,
+                        GridBagConstraints.BOTH, EMPTY_INSETS, 0, 0));
+
+        addButton = new JButton(ADD_BUTTON_LABEL);
+        add(addButton,
+                new GridBagConstraints(1, 2, 1, 2, 0, .25, GridBagConstraints.CENTER,
+                        GridBagConstraints.NONE, EMPTY_INSETS, 0, 0));
+        addButton.addActionListener(new AddListener());
+        removeButton = new JButton(REMOVE_BUTTON_LABEL);
+        add(removeButton,
+                new GridBagConstraints(1, 4, 1, 2, 0, .25, GridBagConstraints.CENTER,
+                        GridBagConstraints.NONE, new Insets(0, 5, 0, 5), 0, 0));
+        removeButton.addActionListener(new RemoveListener());
+
+        destLabel = new JLabel(DEFAULT_DEST_CHOICE_LABEL);
+        destListModel = new SortedListModel();
+        destList = new JList(destListModel);
+        add(destLabel,
+                new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.CENTER,
+                        GridBagConstraints.NONE, EMPTY_INSETS, 0, 0));
+        add(new JScrollPane(destList),
+                new GridBagConstraints(2, 1, 1, 5, .5, 1.0, GridBagConstraints.CENTER,
+                        GridBagConstraints.BOTH, EMPTY_INSETS, 0, 0));
+    }
+
+    private class AddListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            Object selected[] = sourceList.getSelectedValues();
+            addDestinationElements(selected);
+            clearSourceSelected();
+        }
+    }
+
+    private class RemoveListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            Object selected[] = destList.getSelectedValues();
+            addSourceElements(selected);
+            clearDestinationSelected();
+        }
+    }
+
+    public static void main(String args[]) {
+        Runnable runner = new Runnable() {
+            public void run() {
+                JFrame frame = new JFrame("Dual List Box Tester");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                DualListBox dual = new DualListBox();
+                dual.addSourceElements(
+                        new String[]{"One", "Two", "Three"});
+                dual.addSourceElements(
+                        new String[]{"Four", "Five", "Six"});
+                dual.addSourceElements(
+                        new String[]{"Seven", "Eight", "Nine"});
+                dual.addSourceElements(
+                        new String[]{"Ten", "Eleven", "Twelve"});
+                dual.addSourceElements(
+                        new String[]{"Thirteen", "Fourteen", "Fifteen"});
+                dual.addSourceElements(
+                        new String[]{"Sixteen", "Seventeen", "Eighteen"});
+                dual.addSourceElements(
+                        new String[]{"Nineteen", "Twenty", "Thirty"});
+                frame.add(dual, BorderLayout.CENTER);
+                frame.setSize(400, 300);
+                frame.setVisible(true);
+            }
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
+
+<img src="images/2024-01-03-14-48-17.png" width="400"/>
+
+## 添加 Tooltip
+
+所有 Swing 组件都支持 tooltip。通过 Component 的 `setToolTipText()` 可以在组件上显示单个文本字符串。对 JList, JTree 或 JTable 这类复合组件，单个 tooltip 可能时不够的。如何为 JList 的每个元素显示 tooltip。
+
+要在每个 item 上显示 tooltip，需要创建 JList 的子类，然后在子类中使用 `ToolTipManager` 手动注册 tooltip。如下所示：
+
+```java
+ToolTipManager.sharedInstance().registerComponent(this);
+```
+
+当鼠标移动到组件上，`ToolTipManager` 会通知组件。通过覆盖 JList 的 `getToolTipText(MouseEvent mouseEvent)` 可以为鼠标下的 item 提供合适的 tooltip。
+
+**示例：** 为鼠标下的元素提供 tooltip
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
+import java.util.Properties;
+
+public class PropertiesList extends JList {
+
+    SortedListModel model;
+    Properties tipProps;
+
+    public PropertiesList(Properties props) {
+        model = new SortedListModel();
+        setModel(model);
+        ToolTipManager.sharedInstance().registerComponent(this);
+
+        tipProps = props;
+        addProperties(props);
+    }
+
+    private void addProperties(Properties props) {
+        // Load
+        Enumeration names = props.propertyNames();
+        while (names.hasMoreElements()) {
+            model.add(names.nextElement());
+        }
+    }
+
+    @Override
+    public String getToolTipText(MouseEvent event) {
+        Point p = event.getPoint();
+        int location = locationToIndex(p);
+        String key = (String) model.getElementAt(location);
+        String tip = tipProps.getProperty(key);
+        return tip;
+    }
+
+    public static void main(String args[]) {
+        Runnable runner = () -> {
+            JFrame frame = new JFrame("Custom Tip Demo");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            Properties props = System.getProperties();
+            PropertiesList list = new PropertiesList(props);
+            JScrollPane scrollPane = new JScrollPane(list);
+            frame.add(scrollPane);
+            frame.setSize(300, 300);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
 
 
 ## 参考
