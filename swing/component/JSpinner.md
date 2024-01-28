@@ -1,170 +1,17 @@
 # JSpinner
 
-- [JSpinner](#jspinner)
-  - [简介](#简介)
-  - [创建 JSpinner](#创建-jspinner)
-  - [JSpinner 属性](#jspinner-属性)
-  - [使用标准 Spinner Model 和 Editor](#使用标准-spinner-model-和-editor)
-  - [参考](#参考)
-
-
+v1: 2024-01-16⭐😎
+***
 ## 简介
 
-spinner 类似 combo-box 和 list，允许用户从一系列值中选择。与可编辑 combo-box 一样，spinner 允许用户直接输入值。与 combo-box 不同的是，spinner 没有下拉框。
+`JSpinner` 是复合组件，包含三部分：两个箭头按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 `JFormattedTextField` 的 `JPanel`。使用 `JSpinner` 涉及多个类：
 
-spinner 是复合组件，包含三部分：两个按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 `JFormattedTextField` 的 Panel。
+- `JSpinner`，主要类
+- `SpinnerModel`，数据模型
+- `JSpinner.DefaultEditor`，编辑器，用于数据的显示和编辑
+### 创建 JSpinner
 
-spinner 的可能值和当前值由 model 管理。
-
-下面包含三个 spinner，用于指定日期：
-
-![](images/2023-12-28-23-28-32.png)
-
-创建 spinner：
-
-```java
-String[] monthStrings = getMonthStrings(); //get month names
-SpinnerListModel monthModel = new SpinnerListModel(monthStrings); // 先创建模型
-JSpinner spinner = new JSpinner(monthModel);
-```
-
-完整代码：
-
-```java
-import javax.swing.*;
-import java.awt.*;
-import java.util.Calendar;
-import java.util.Date;
-
-public class SpinnerDemo extends JPanel {
-
-    public SpinnerDemo(boolean cycleMonths) {
-        super(new SpringLayout());
-
-        String[] labels = {"Month: ", "Year: ", "Another Date: "};
-        int numPairs = labels.length;
-        Calendar calendar = Calendar.getInstance();
-
-        //Add the first label-spinner pair.
-        String[] monthStrings = getMonthStrings(); //get month names
-        SpinnerListModel monthModel;
-        if (cycleMonths) { // 使用自定义模型
-            monthModel = new CyclingSpinnerListModel(monthStrings);
-        } else { // 使用标准模型
-            monthModel = new SpinnerListModel(monthStrings);
-        }
-        JSpinner spinner = addLabeledSpinner(this,
-                labels[0],
-                monthModel);
-        // Tweak the spinner's formatted text field.
-        JFormattedTextField ftf = getTextField(spinner);
-        if (ftf != null) {
-            ftf.setColumns(8); //specify more width than we need
-            ftf.setHorizontalAlignment(JTextField.RIGHT);
-        }
-
-        //Add second label-spinner pair.
-        int currentYear = calendar.get(Calendar.YEAR);
-        SpinnerModel yearModel = new SpinnerNumberModel(currentYear, //initial value
-                currentYear - 100, //min
-                currentYear + 100, //max
-                1);                //step
-        //If we're cycling, hook this model up to the month model.
-        if (monthModel instanceof CyclingSpinnerListModel) {
-            ((CyclingSpinnerListModel) monthModel).setLinkedModel(yearModel);
-        }
-        spinner = addLabeledSpinner(this, labels[1], yearModel);
-        //Make the year be formatted without a thousands separator.
-        spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
-
-
-        //Add the third label-spinner pair.
-        Date initDate = calendar.getTime();
-        calendar.add(Calendar.YEAR, -100);
-        Date earliestDate = calendar.getTime();
-        calendar.add(Calendar.YEAR, 200);
-        Date latestDate = calendar.getTime();
-        SpinnerModel dateModel = new SpinnerDateModel(initDate,
-                earliestDate,
-                latestDate,
-                Calendar.YEAR);//ignored for user input
-        spinner = addLabeledSpinner(this, labels[2], dateModel);
-        spinner.setEditor(new JSpinner.DateEditor(spinner, "MM/yyyy"));
-
-        //Lay out the panel.
-        SpringUtilities.makeCompactGrid(this,
-                numPairs, 2, //rows, cols
-                10, 10,        //initX, initY
-                6, 10);       //xPad, yPad
-    }
-
-    /**
-     * Return the formatted text field used by the editor, or
-     * null if the editor doesn't descend from JSpinner.DefaultEditor.
-     */
-    public JFormattedTextField getTextField(JSpinner spinner) {
-        JComponent editor = spinner.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            return ((JSpinner.DefaultEditor) editor).getTextField();
-        } else {
-            System.err.println("Unexpected editor type: "
-                    + spinner.getEditor().getClass()
-                    + " isn't a descendant of DefaultEditor");
-            return null;
-        }
-    }
-
-    /**
-     * DateFormatSymbols returns an extra, empty value at the
-     * end of the array of months.  Remove it.
-     */
-    static protected String[] getMonthStrings() {
-        String[] months = new java.text.DateFormatSymbols().getMonths();
-        int lastIndex = months.length - 1;
-
-        if (months[lastIndex] == null
-                || months[lastIndex].length() == 0) { //last item empty
-            String[] monthStrings = new String[lastIndex];
-            System.arraycopy(months, 0, monthStrings, 0, lastIndex);
-            return monthStrings;
-        } else { // last item not empty
-            return months;
-        }
-    }
-
-    static protected JSpinner addLabeledSpinner(Container c, String label,
-            SpinnerModel model) {
-        JLabel l = new JLabel(label);
-        c.add(l);
-
-        JSpinner spinner = new JSpinner(model);
-        l.setLabelFor(spinner);
-        c.add(spinner);
-
-        return spinner;
-    }
-
-    private static void createAndShowGUI() {
-        JFrame frame = new JFrame("SpinnerDemo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        frame.add(new SpinnerDemo(false));
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            //Turn off metal's use of bold fonts
-            UIManager.put("swing.boldMetal", Boolean.FALSE);
-            createAndShowGUI();
-        });
-    }
-}
-```
-
-## 创建 JSpinner
+`JSpinner` 提供了两个构造函数：
 
 ```java
 public JSpinner()
@@ -174,52 +21,365 @@ public JSpinner(SpinnerModel model)
 SpinnerModel model = new SpinnerListModel(args);
 JSpinner spinner = new JSpinner(model);
 ```
- 
-`SpinnerModel` 有三个子类：`SpinnerListModel`, `SpinnerNumberModel` 和 `SpinnerDateModel`。默认为 `SpinnerNumberModel`。
 
-## JSpinner 属性
+其中 `SpinnerModel` 有三个子类：`SpinnerDateModel`, `SpinnerListModel` 和 `SpinnerNumberModel`，默认为 `SpinnerNumberModel`。
 
-|属性|类型|权限|
-|---|---|---|
-|accessibleContext AccessibleContext Read-only|
-|changeListeners ChangeListener[ ] Read-only|
-|editor JComponent Read-write bound|
-|model SpinnerModel Read-write bound|
-|nextValue Object Read-only|
-|previousValue Object Read-only|
-|UI SpinnerUI Read-write|
-|UIClassID String Read-only|
-|value Object Read-write|
+虽然组件的展示和编辑组件为 `JFormattedTextField`，但具体编辑功能通过 `JSpinner` 的内部类 `DateEditor`, `ListEditor` 或 `NumberEditor` 完成。
+### JSpinner 属性
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| accessibleContext|AccessibleContext|Read-only |
+| changeListeners|ChangeListener[]|Read-only |
+| editor|JComponent|Read-write bound|
+| model|SpinnerModel|Read-write bound |
+| `nextValue` |Object|Read-only |
+| `previousValue` | Object | Read-only |
+| UI | SpinnerUI|Read-write |
+| UIClassID|String|Read-only |
+| `value` |Object|Read-write |
+`value` 属性可用于修改组件当前值；`nextValue` 和 `previousValue` 属性用于从不同方向查看 model。
+### 使用 ChangeListener 监听 JSpinner 事件
 
+`JSpinner` 只支持一种类型的 listener：`ChangeListener`。当调用相关组件的 `commitEdit()` 方法时，listener 会收到通知。
 
-
-
-
-
-## 使用标准 Spinner Model 和 Editor
-
-Swing API 提供了三种 Spinner 模型：
-
-**SpinnerListModel**
-
-`SpinnerListModel` 的值由数组或 List 定义。上例展示 "Month:" 的 spinner 就是该类型。
-
-**SpinnerNumberModel**
-
-`SpinnerNumberModel` 支持 double, int, Number 序列。可以指定：min, max 和 step 值。上例的 Year spinner 使用的该模型：
+**示例：** 演示 `JSpinner` 的 `ChangeListener`
 
 ```java
-SpinnerModel yearModel = new SpinnerNumberModel(currentYear, //initial value
-        currentYear - 100, //min
-        currentYear + 100, //max
-        1);                //step
+import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.text.DateFormatSymbols;
+import java.util.Locale;
+
+public class SpinnerSample
+{
+    public static void main(String[] args) {
+        Runnable runner = () -> {
+            JFrame frame = new JFrame("JSpinner Sample");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            DateFormatSymbols symbols = new DateFormatSymbols(Locale.FRENCH);
+            ChangeListener listener = e -> System.out.println("Source: " + e.getSource());
+
+            String[] days = symbols.getWeekdays();
+
+            SpinnerModel model1 = new SpinnerListModel(days);
+            JSpinner spinner1 = new JSpinner(model1);
+            spinner1.addChangeListener(listener);
+
+            JLabel label1 = new JLabel("French Days/List");
+            JPanel panel1 = new JPanel(new BorderLayout());
+            panel1.add(label1, BorderLayout.WEST);
+            panel1.add(spinner1, BorderLayout.CENTER);
+            frame.add(panel1, BorderLayout.NORTH);
+
+            SpinnerModel model2 = new SpinnerDateModel();
+            JSpinner spinner2 = new JSpinner(model2);
+            spinner2.addChangeListener(listener);
+
+            JLabel label2 = new JLabel("Dates/Date");
+            JPanel panel2 = new JPanel(new BorderLayout());
+            panel2.add(label2, BorderLayout.WEST);
+            panel2.add(spinner2, BorderLayout.CENTER);
+            frame.add(panel2, BorderLayout.CENTER);
+
+            SpinnerModel model3 = new SpinnerNumberModel();
+            JSpinner spinner3 = new JSpinner(model3);
+            spinner3.addChangeListener(listener);
+
+            JLabel label3 = new JLabel("Numbers");
+            JPanel panel3 = new JPanel(new BorderLayout());
+            panel3.add(label3, BorderLayout.WEST);
+            panel3.add(spinner3, BorderLayout.CENTER);
+
+            frame.add(panel3, BorderLayout.SOUTH);
+            frame.setSize(200, 90);
+            frame.setVisible(true);
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
+### 自定义 JSpinner Laf
+
+## SpinnerModel
+
+`SpinnerModel` 是 `JSpinner` 的数据模型，其定义如下：
+
+```java
+public interface SpinnerModel
+{
+    // 属性
+    Object getValue();
+    void setValue(Object value);
+    Object getNextValue();
+    Object getPreviousValue();
+
+    // listener
+    void addChangeListener(ChangeListener l);
+    void removeChangeListener(ChangeListener l);
+}
 ```
 
-**SpinnerDateModel**
+`JSpinner` 中的相关方法重定向到 `SpinnerModel` 的这 6 个方法。相关实现：
 
-`SpinnerDateModel` 是专门为 `Date` 设计的。可以指定 min 和 max date，以及 spinner 调整的字段，如 `Calendar.YEAR`。
+![[images/Pasted image 20240116192443.png|600]]
+### AbstractSpinnerModel
 
+`AbstractSpinnerModel` 提供了 `SpinnerModel` 的基础实现，包含 listener 的管理和通知。子类需要实现余下 4 个与值相关的方法。
+### SpinnerDateModel
 
-## 参考
+`SpinnerDateModel` 提供日期选择模型。该类有两个构造函数，默认的支持选择所有日期，另一个可以限制日期范围。
 
-- https://docs.oracle.com/javase/tutorial/uiswing/components/spinner.html
+```java
+public SpinnerDateModel()
+
+SpinnerModel model = new SpinnerDateModel();
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerDateModel(Date value, Comparable start, Comparable end, int calendarField)
+
+Calendar cal = Calendar.getInstance();
+Date now = cal.getTime();
+cal.add(Calendar.YEAR, -50);
+
+Date startDate = cal.getTime();
+cal.add(Calendar.YEAR, 100);
+
+Date endDate = cal.getTime();
+SpinnerModel model = new SpinnerDateModel(now, startDate, endDate, Calendar.YEAR);
+
+JSpinner spinner = new JSpinner(model);
+```
+
+如果不指定参数，则没有起始和结束日期。最后一个参数为 `Calendar` 类常量，指定 `JSpinner` 调节的字段：
+
+- Calendar.AM_PM
+- Calendar.DAY_OF_MONTH
+- Calendar.DAY_OF_WEEK
+- Calendar.DAY_OF_WEEK_IN_MONTH
+- Calendar.DAY_OF_YEAR
+- Calendar.ERA
+- Calendar.HOUR
+- Calendar.HOUR- F_DAY
+- Calendar.MILLISECOND
+- Calendar.MINUTE
+- Calendar.MONTH
+- Calendar.SECOND
+- Calendar.WEEK_OF_MONTH
+- Calendar.WEEK_OF_YEAR
+- Calendar.YEAR
+
+下表是 `SpinnerModel` 的 3 个属性和 `SpinnerDateModel` 特有的 4 个属性：
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| calendarField | int | Read-write |
+| date | Date | Read-only |
+| end | Comparable | Read-write |
+| nextValue | Object | Read-only |
+| previousValue | Object | Read-only |
+| start | Comparable | Read-write |
+| value | Object | Read-only |
+如果在构造函数中指定日期范围，则在边界处 `previousValue` 和 `nextValue` 可能为 `null`。
+
+### SpinnerListModel
+
+`SpinnerListModel` 支持从 List 值中进行选择，它提供了 3 个构造函数：
+
+```java
+public SpinnerListModel()
+SpinnerModel model = new SpinnerListModel();
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerListModel(List<?> values)
+List<String> list = args;
+SpinnerModel model = new SpinnerListModel(list);
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerListModel(Object[] values)
+SpinnerModel model = new SpinnerListModel(args);
+JSpinner spinner = new JSpinner(model);
+```
+
+说明：
+
+- 无参构造函数，模型只包含一个空字符串
+- `List` 版本保留对 `List` 引用，`JSpinner` 不会复制 `List`，更改 `List`，模型元素随之更改
+- 数组版本提供初始元素，但无法更改
+- `List` 和数组版本默认选择第一个元素
+
+`SpinnerListModel` 只是接口上增加了 list 属性：
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| `list` | `List<?>` | Read-write |
+| `nextValue` | `Object` | Read-only |
+| `previousValue` | `Object` | Read-only |
+| `value` | `Object` | Read-write |
+### SpinnerNumberModel
+
+`SpinnerNumberModel` 提供从开区间或闭区间选择数字的功能。数字可以是 `Number` 的任意子类，包括 `Integer`, `Double` 等。
+
+`SpinnerNumberModel` 有 4 个构造函数，前 3 个都是第 4 个简单形式：
+
+```java
+public SpinnerNumberModel()
+SpinnerModel model = new SpinnerNumberModel();
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerNumberModel(double value, double minimum, double maximum, double stepSize)
+SpinnerModel model = new SpinnerNumberModel(50, 0, 100, .25);
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerNumberModel(int value, int minimum, int maximum, int stepSize)
+SpinnerModel model = new SpinnerNumberModel(50, 0, 100, 1);
+JSpinner spinner = new JSpinner(model);
+
+public SpinnerNumberModel(Number value, Comparable minimum, Comparable maximum, Number stepSize)
+Number value = new Integer(50);
+Number min = new Integer(0);
+Number max = new Integer(100);
+Number step = new Integer(1);
+SpinnerModel model = new SpinnerNumberModel(value, min, max, step);
+JSpinner spinner = new JSpinner(model);
+```
+
+如果 `minimum` 或 `maximum` 为 `null`，表示为开区间。无参构造函数的初始值为 0，`stepSize` 为 1。
+
+`SpinnerNumberModel` 的属性如下表所示：
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| maximum | Comparable | Read-write |
+| minimum | Comparable | Read-write |
+| nextValue | Object | Read-only |
+| number | Number | Read-only |
+| previousValue | Object | Read-only |
+| stepSize | Number | Read-write |
+| value | Object | Read-write |
+### 自定义模型
+
+虽说 `JSpinner` 提供的模型基本够用，但总有需要自定义的地方。
+
+**示例：** 定制 `SpinnerListModel`，使得到末端不停止，而是循环到另一端
+
+```java
+public class RolloverSpinnerListModel extends SpinnerListModel
+{
+    public RolloverSpinnerListModel(List<?> values) {
+        super(values);
+    }
+
+    public RolloverSpinnerListModel(Object[] values) {
+        super(values);
+    }
+
+    @Override
+    public Object getNextValue() {
+        Object nextValue = super.getNextValue();
+        if (nextValue == null) {
+            nextValue = getList().get(0);
+        }
+        return nextValue;
+    }
+
+    @Override
+    public Object getPreviousValue() {
+        Object previousValue = super.getPreviousValue();
+        if (previousValue == null) {
+            List<?> list = getList();
+            previousValue = list.get(list.size() - 1);
+        }
+        return previousValue;
+    }
+}
+```
+## JSpinner Editor
+
+JSpinner Editor 负责显示和编辑选择的值。
+### JSpinner.DefaultEditor
+
+使用 `JSpinner.setEditor()` 可以将任何 `JComponent` 设置为 `JSpinner` 的编辑器。不过大多时候我们使用内置编辑器。类图如下：
+
+![[images/Pasted image 20240116201141.png|400]]
+
+`DefaultEditor` 提供了基于 `JFormattedTextField` 的简单编辑器，只有一个构造函数：
+
+```java
+public JSpinner.DefaultEditor(JSpinner spinner)
+
+JSpinner spinner = new JSpinner();
+JComponent editor = JSpinner.DefaultEditor(spinner);
+spinner.setEditor(editor);
+```
+
+`DefaultEditor` 有两个属性：
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| `spinner` | `JSpinner` | Read-only |
+| `textField` | `JFormattedTextField` | Read-only |
+对 `DefaultEditor`，常通过修改 `JFormattedTextField` 自定义显示。
+### JSpinner.DateEditor
+
+`DateEditor` 通过 `java.text.SimpleDateFormat` 格式化日期。
+
+```java
+public JSpinner.DateEditor(JSpinner spinner)
+
+SpinnerModel model = new SpinnerDateModel();
+JSpinner spinner = new JSpinner(model);
+JComponent editor = JSpinner.DateEditor(spinner);
+spinner.setEditor(editor);
+
+public JSpinner.DateEditor(JSpinner spinner, String dateFormatPattern)
+
+SpinnerModel model = new SpinnerDateModel();
+JSpinner spinner = new JSpinner(model);
+JComponent editor = JSpinner.DateEditor(spinner, "MMMM yyyy");
+spinner.setEditor(editor);
+```
+
+默认格式为 "M/d/yy hLmm a"，即 "12/25/04 13:34 PM" 样式。
+
+该编辑器也有两个属性：
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| `format` | `SimpleDateFormat` | read-only |
+| `model` | `SpinnerDateModel` | read-only |
+### JSpinner.ListEditor
+
+`ListEditor` 为 `SpinnerListModel` 提供提前输入功能，不额外提供格式化功能。由于模型的所有元素已知，因此该编辑器会尝试将用户已输入的字符与已有元素匹配。
+
+`ListEditor` 只有一个构造函数，一般用不着。
+
+```java
+public JSpinner.ListEditor(JSpinner spinner)
+```
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| `model` | `SpinnerListModel` | Read-only |
+### JSpinner.NumberEditor
+
+`NumberEditor` 的工作方式类似于 `DateEditor`，允许通过格式化字符串定义显示格式。`NumberEditor` 使用 `java.text.DecimalFormat` 格式化数字。`NumberEditor` 提供了 2 个构造函数：
+
+```java
+public JSpinner.NumberEditor(JSpinner spinner)
+SpinnerModel model = new SpinnerNumberModel(50, 0, 100, .25);
+JSpinner spinner = new JSpinner(model);
+JComponent editor = JSpinner.NumberEditor(spinner);
+spinner.setEditor(editor);
+
+public JSpinner.NumberEditor(JSpinner spinner, String decimalFormatPattern)
+SpinnerModel model = new SpinnerNumberModel(50, 0, 100, .25);
+JSpinner spinner = new JSpinner(model);
+JComponent editor = JSpinner.NumberEditor(spinner, "#,##0.###");
+spinner.setEditor(editor);
+```
+
+| 属性 | 类型 | 权限 |
+| ---- | ---- | ---- |
+| format | DecimalFormat | Read-only |
+| model | SpinnerNumberModel | Read-only |

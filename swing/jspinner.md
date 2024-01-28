@@ -8,12 +8,7 @@
 
 2021-11-25, 13:22
 ***
-
 ## 简介
-
-`JSpinner` 类图如下：
-
-![](images/2021-11-25-11-25-39.png)
 
 `JSpinner` 和 `JComboBox`, `JList` 类似，允许用户从一系列值中做选择。与可编辑的 `JComboBox` 一样，`JSpinner` 允许直接键入值。
 

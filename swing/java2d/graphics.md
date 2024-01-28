@@ -6,7 +6,14 @@
   - [Graphics2D 方法](#graphics2d-方法)
   - [Graphics2D 属性](#graphics2d-属性)
     - [渲染提示](#渲染提示)
+      - [图像缩放提示](#图像缩放提示)
+      - [反锯齿](#反锯齿)
+    - [clip](#clip)
+    - [Composite](#composite)
+    - [Paint](#paint)
+    - [Transform](#transform)
 
+2024-01-11, 09:33
 ***
 
 ## 简介
@@ -259,6 +266,211 @@ public Object getRenderingHint(RenderingHints.Key key)
 
 渲染提示信息存储在 `RenderingHints` 的键/值对中。
 
-1. 图像缩放提示
+#### 图像缩放提示
 
+使用 `RenderingHints.KEY_INTERPOLATION` 键和下面三个值控制图像缩放的品质。
+
+**RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR**
+
+这是默认设置，速度最快的缩放方法。在图像缩放操作中，该方法在确定目标像素时，从那个位置最近的源像素中选择一个颜色。该技术有可能丢失原始图像的许多信息。例如，假设把一个高清晰的图像从 100x100 缩小到 10x10。将从每 100 个像素的颜色信息中去掉 99 个，这个结果可能和原始图像的品质相差很多。
+
+然而，这种方式在许多情况下已经足够了，尤其是如果这个图像时临时的；或者缩放因子很小，修饰颜色信息不多。这种方式的性能要比其它方式好很多。
+
+**RenderingHints.VALUE_INTERPOLATION_BILINEAR**
+
+在确定目标像素时，混合最接近那个位置的 4 个像素的值。该技术比 NEAREST_NEIGHBOR 缩放更平滑，结果更好。如果图像品质很重要，考虑使用该提示。
+
+**RenderingHints.VALUE_INTERPOLATION_BICUBIC**
+
+类似 BILINEAR，但使用了最接近目标位置的 4x4 格的像素。该提示比 BILINEAR 品质更好，但缩放算法的复杂度增加了。
+
+#### 反锯齿
+
+反锯齿使基本渲染元素的硬边界变得平滑。如下图所示：
+
+![](images/2024-01-10-21-02-10.png)
+
+反锯齿使用边界像素和背景颜色相混合填充周围以消除非反锯齿的基本元素的硬边界效果。
+
+**示例：** 绘制两条线，第一条使用默认属性，第二个启用反锯齿渲染提示
+
+```java
+public class AntiAliasingDemo extends JComponent
+{
+    public void paintComponent(Graphics g) {
+        // we will need a Graphics2D Object to set the RenderingHint
+        Graphics2D g2d = (Graphics2D) g;
+
+        // Erase to white
+        g2d.setBackground(Color.WHITE);
+        g2d.clearRect(0, 0, getWidth(), getHeight());
+
+        //Draw line with default setting.
+        g2d.drawLine(0, 0, 50, 50);
+
+        //Enable antialiasing
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        //Draw line with new setting
+        g2d.drawLine(50, 0, 100, 50);
+
+    }
+
+    private static void createAndShowGui() {
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(150, 100);
+        JComponent component = new AntiAliasingDemo();
+
+        frame.add(component);
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        Runnable doCreateAndShowGui = () -> createAndShowGui();
+        EventQueue.invokeLater(doCreateAndShowGui);
+    }
+}
+```
+
+![](images/2024-01-10-21-07-08.png)
+
+> 左边使用默认属性绘制的线，右边是开启反锯齿后绘制的线
+
+绘图和文本有不同的反锯齿提示。
+
+- 形状反锯齿提示
+
+Java 2D 中绘图元素默认非反锯齿。`KEY_ANTIALIASING` 对应的值有两个：`VALUE_ANTIALIAS_ON` 和 `VALUE_ANTIALIAS_OFF`。
+
+默认为 `VALUE_ANTIALIAS_OFF`，即禁用反锯齿渲染。反锯齿试试一个比较费时的渲染操作，所以启用可能对性能有影响。
+
+- 文本反锯齿提示
+
+`KEY_TEXT_ANTIALIASING` 控制文本反锯齿。文本反锯齿技术与图形相同：通过混合文本字符边界和背景颜色值来使锯齿现象变得平滑。
+
+文本反锯齿有如下可选值：
+
+**RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT**
+
+默认值，等同于 `VALUE_TEXT_ANTIALIAS_OFF`。不过，如果将文本反锯齿设置为 DEFAULT，将 `KEY_ANTIALIASING` 设置为 `VALUE_ANTIALIAS_ON` 会导致文本反锯齿。
+
+**RenderingHints.VALUE_TEXT_ANTIALIAS_OFF**
+
+关闭反锯齿。
+
+**RenderingHints.VALUE_TEXT_ANTIALIAS_ON**
+
+开启反锯齿。在 Java SE 6 之前这是唯一可用的文本反锯齿类型，大多时候足够好了。但是，有时候反锯齿后效果变得更差。例如，当字符很小时，反锯齿引起模糊。
+
+**RenderingHints.VALUE_TEXT_ANTIALIAS_GASP**
+
+使用来自字体的信息，来确定是否对字体进行反锯齿。
+
+**RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR**, **RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB**, **RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR**, **RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB** 用于液晶显示器文本的设置。对这 4 个提示，反锯齿算法在液晶显示器中采用红色、绿色和蓝色条纹的倾向不同。RGB 这个提示按照红-绿-蓝的顺序；HRGB 和 HBGR 提示假设条纹按照水平方向，VRGB 和 VBGR 提示假设条纹是垂直的。
+
+液晶显示器最典型的配置是 HRGB，所以这个提示的最典型配置是 `VALUE_TEXT_ANTIALIAS_LCD_HRGB`。然而，即使知道用户使用液晶显示器，而且知道这个屏幕的设置是 HRGB（运行时很难确定这两点），自动强制这种渲染提示可能产生错误。替代地，应该尽可能使用下面的 FontHints 例子中的方法。
+
+**示例：** 为定制组件匹配桌面设置
+
+先用默认 Graphics 渲染一个字符串；然后设置 RenderingHints 以匹配桌面设置，用修改后的 Graphics 渲染另一个字符串。
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.util.Map;
+
+public class FontHints extends JComponent
+{
+
+    Map desktopHints = null;
+
+    /**
+     * Creates a new instance of FontHints
+     */
+    public FontHints() {
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
+    }
+
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        g2d.setColor(Color.BLACK);
+
+        g2d.drawString("Unhinted string", 10, 20);
+        if (desktopHints != null) {
+            g2d.addRenderingHints(desktopHints);
+        }
+        g2d.drawString("Desktop-hinted string", 10, 40);
+    }
+
+    private static void createAndShowGUI() {
+        JFrame f = new JFrame("FontHints");
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setSize(200, 90);
+        FontHints component = new FontHints();
+        f.add(component);
+        f.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        Runnable doCreateAndShowGUI = FontHints::createAndShowGUI;
+        SwingUtilities.invokeLater(doCreateAndShowGUI);
+    }
+}
+```
+
+![](images/2024-01-10-21-32-40.png)
+
+为了在构造器中获得桌面属性，这里使用 `awt.font.desktophints` 查询，它返回包含所有这些属性的 Map。然后通过 Graphics2D.addRenderingHints() 简单地添加所有提示。现在，我们的 Graphics 对象设置为采用和本地应用程序一样的方式渲染文本。
+
+### clip
+
+```java
+public void clipRec(int x, int y, int width, int height)
+public void clip(Shape s)
+public void setClip(int x, int y, int width, int height)
+public void setClip(Shape s)
+public Shape getClip()
+public Rectangle getClipBounds()
+```
+
+剪辑属性把渲染操作的限制在一个形状内部。即对 Graphics 对象，将来的渲染操作都在剪辑范围内。
+
+`setClip()` 把剪辑设置为指定区域，而 `clipRec()` 和 `clip()` 把指定区域与当前设置在 Graphics 上的剪辑组合起来。
+
+通常应该使用组合剪辑方式，不要创建一个全新剪辑而忽视之前设置在 Graphics 上的剪辑。
+
+Swing 内部使用这些剪辑方法限制任何组件层次的渲染的可见区域。例如，如果由于某一窗口事件或一个程序的更新请求，Swing 后台的缓冲图像的左上区域需要重新绘制，那么，一个剪辑将被设置到那个 Graphics 对象上把这个操作限制在那个区域。
+
+渲染过程中设置剪辑有两个理由：
+
+1. 内容保存：窗口在一个特定区域之外可能还有不应该改变的内容。限制这个剪辑以确保不改变这些内容，因为渲染操作将限制在这个剪辑区域。
+2. 性能：为什么做不需要做的事情呢？如果只有窗口的一小块区域需要重新绘制，绘制窗口的其他部分是浪费时间。
+
+我们应该只操心绘制位于当前剪辑中的那些项。代码或许不必设置这个剪辑。Swing 为 `paintComponent()` 设置的 Graphics 对象中得到的剪辑对于大部分需求已经足够了。但是可能经常需要通过调用 `getClip()` 得到这个剪辑，然后相应地渲染。
+
+### Composite
+
+```java
+public void setComposite(Composite c)
+public Composite getComposite()
+```
+
+### Paint
+
+### Transform
+
+```java
+public void rotate(double theta)
+public void rotate(double theta, double x, double y)
+public void scale(double sx, double sy)
+public void translate(double tx, double ty)
+public void translate(int x, int y)
+public void transform(AffineTransform Tx)
+public void setTransform(AffineTransform Tx)
+public AffineTransform getTransform()
+```
 

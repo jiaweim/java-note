@@ -1,50 +1,17 @@
 # 表格
 
-- [表格](#表格)
-  - [简介](#简介)
-  - [JTable 类](#jtable-类)
-    - [创建 JTable](#创建-jtable)
-    - [滚动 JTable](#滚动-jtable)
-    - [手动定位 JTable 视图](#手动定位-jtable-视图)
-    - [删除 column headers](#删除-column-headers)
-  - [JTable 属性](#jtable-属性)
-    - [显示设置](#显示设置)
-    - [选择模式](#选择模式)
-    - [自动调整大小模式](#自动调整大小模式)
-  - [渲染 Table cell](#渲染-table-cell)
-    - [TableCellRenderer 和 DefaultTableCellRenderer](#tablecellrenderer-和-defaulttablecellrenderer)
-    - [使用 Tooltips](#使用-tooltips)
-  - [JTable 事件](#jtable-事件)
-  - [自定义 JTable Laf](#自定义-jtable-laf)
-  - [TableModel 接口](#tablemodel-接口)
-    - [AbstractTableModel 类](#abstracttablemodel-类)
-      - [固定 column](#固定-column)
-      - [启用默认 table cell renderer](#启用默认-table-cell-renderer)
-    - [DefaultTableModel](#defaulttablemodel)
-      - [创建 DefaultTableModel](#创建-defaulttablemodel)
-      - [填充 DefaultTableModel](#填充-defaulttablemodel)
-      - [DefaultTableModel 属性](#defaulttablemodel-属性)
-      - [创建稀疏 TableModel](#创建稀疏-tablemodel)
-      - [使用 TableModelListener 监听 JTable 事件](#使用-tablemodellistener-监听-jtable-事件)
-    - [JTable 元素排序](#jtable-元素排序)
-  - [TableColumnModel](#tablecolumnmodel)
-    - [DefaultTableColumnModel](#defaulttablecolumnmodel)
-    - [TableColumnModelListener](#tablecolumnmodellistener)
-    - [TableColumn](#tablecolumn)
-      - [创建 TableColumn](#创建-tablecolumn)
-      - [TableCOlumn 属性](#tablecolumn-属性)
-      - [设置 column-header icon](#设置-column-header-icon)
-      - [设置 column 宽度](#设置-column-宽度)
-  - [JTableHeader](#jtableheader)
-    - [创建 JTableHeader](#创建-jtableheader)
-    - [JTableHeader 属性](#jtableheader-属性)
-  - [参考](#参考)
-
+2024-01-19
+@author Jiawei Mao
 ***
-
 ## 简介
 
-`JTable` 用于显示和编辑表格数据。相关类在 `javax.swing.table` 包中：
+`JTable` 用于显示和编辑表格数据。其基本结构为：
+
+- 标题行（头部）
+- 表格列
+- 单元格
+
+相关类在 `javax.swing.table` 包中：
 
 - `ListSelectionModel`：选择模型
 - `TableCellRenderer`：绘制 cell，默认实现 `DefaultTableCellRenderer` 为 `JLabel` 子类
@@ -169,6 +136,41 @@ JTable table = new JTable(...);
 JScrollPane scrollPane = new JScrollPane(table);
 ```
 
+如下所示：
+
+![[images/Pasted image 20240119123740.png|400]]
+
+这是两个相同的表格，上面的表格直接添加到面板，第二个表格添加到 `JScrollPane` 中。主要差别：不放在 `JScrollPane` 中，`JTable` 的标题行不可见，且不能调整大小。
+
+`JTable` 实现 `Scrollable` 接口，其 `getPreferredScrollableViewportSize` 返回 view-port 的首选尺寸，默认 (450, 400)，上图表格 2 即以该尺寸显示。
+
+`boolean getScrollableTracksViewportWidth()` 方法，设置表格宽度是否与 view-port 宽度相同。
+
+**示例：** 上面两个表格的实现代码
+
+```java
+import javax.swing.*;
+import java.awt.*;
+
+public class ScrollTableDemo1 extends JFrame
+{
+    public ScrollTableDemo1() throws HeadlessException {
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new FlowLayout());
+        contentPane.add(new JTable(10, 10));
+        contentPane.add(new JScrollPane(new JTable(10, 10)));
+    }
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            ScrollTableDemo1 demo1 = new ScrollTableDemo1();
+            demo1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            demo1.setVisible(true);
+        });
+    }
+}
+```
+
 ### 手动定位 JTable 视图
 
 将 `JTable` 放在 `JScrollPane` 中，默认位置满足左上角显示第一行和第一列。如果需要将表格调整会初始位置，可以将 viewport 位置设置为 (0,0)：
@@ -177,13 +179,18 @@ JScrollPane scrollPane = new JScrollPane(table);
 scrollPane.getViewport().setViewPosition(new Point(0,0));
 ```
 
-滚动尺度：
+`Scrollable` 接口定义了两个方法：
+
+- `getScrollableBlockIncrement`
+- `getScrollableUnitIncrement`
+
+它们定义表格的块增量和单元增量。
 
 - block-increment 值为 viewport 的可见宽度和高度
 - 对水平滚动，unit-increment 为 100 像素
-- 对垂直滚动，unit-increment 为单个 row 的高度
+- 对垂直滚动，单元增量为单个 row 的高度
 
-![](images/2024-01-08-22-22-52.png)
+![|500](images/2024-01-08-22-22-52.png)
 
 下面是将 `JScrollPane` 作为表格容器的典型代码：
 
@@ -530,10 +537,23 @@ JTable 的 UIResource 相关属性如下表所示，共 21 个：
 |able.selectionForeground|Color|
 |able.shadow|Color|
 |ableUI|String|
-
 ## TableModel 接口
 
-`TableModel` 负责管理 `JTable` 的数据，提供表格的标题和单元格数据，并对可编辑 `JTable` 修改值。其定义如下：
+表格维护了三个不同的模型：
+
+- 表格模型（`TableModel`）：负责管理表格数据，提供标题，支持编辑 `JTable` 
+- 表格列模型（`TableColumnModel`）：负责选择 column
+- 列表选择模型（`ListSelectionModel`）：负责选择 row
+
+`JTable` 实现了 `ListSelectionListener`, `TableModelListener` 和 `TableColumnModelListener` 接口来监听这些模型。
+
+| 模型 | 功能 | 事件 |
+| ---- | ---- | ---- |
+| `ListSelectionModel` | 维护行选取模式、选取间隔以及是否正在调整选择 | `ListSelectionEvent` |
+| `TableColumnModel` | 存储表格列；添加、移动和删除列；跟踪列属性：选取、边距、索引、总宽度和列数 | `TableColumnModelEvent`, `ChangeEvent` |
+| `TableModel` | 为单元数据、数据类型、行数、列数及是否可编辑提供访问方法 | `TableModelEvent` |
+
+`TableModel` 接口定义表格数据操作和获取方式，在单元值变化时把 `TableModelEvent` 发送给 `TableModelListener`，其定义如下：
 
 ```java
 public interface TableModel{
@@ -546,8 +566,8 @@ public interface TableModel{
     public String getColumnName(int columnIndex);
     public Class<?> getColumnClass(int columnIndex);
 
+    // cell 值和可编辑性
     public boolean isCellEditable(int rowIndex, int columnIndex);
-    // cell 值
     public Object getValueAt(int rowIndex, int columnIndex);
     public void setValueAt(Object aValue, int rowIndex, int columnIndex);
 
@@ -559,26 +579,39 @@ public interface TableModel{
 
 ### AbstractTableModel 类
 
-`AbstractTableModel` 提供了 `TableModel` 的基本实现，包括 `TableModelListener` 的管理功能。继承该类，只需要：
+`AbstractTableModel` 提供了 `TableModel` 的基本实现，包括 `TableModelListener` 的管理功能。继承该类，只需要提供数据：
 
 - 提供 `rowCount` 和 `columnCount`
 - 特定位置的值 `getValueAt`
 - `column` 标题默认为 A, B, C,..., Z, AA, BB 等
 - 默认只读，除非覆盖 `isCellEditable` 方法
 
+即实现如下方法：
+
+```java
+public int getRowCount();
+public int getColumnCount();
+public Object getValueAt(int rowIndex, int columnIndex);
+```
+
 如果继承 `AbstractTableModel` 并使数据模型可编辑，则需要调用 `AbstractTableModel` 的 `fireXXX()` 系列方法，确保当模型数据发生变化时，触发合适的事件通知 `TableModelListener`：
 
 ```java
-public void fireTableCellUpdated(int row, int column);
+public void fireTableCellUpdated(int row, int column) // 单元值更新
 public void fireTableChanged(TableModelEvent e);
-public void fireTableDataChanged();
-public void fireTableRowsDeleted(int firstRow, int lastRow);
-public void fireTableRowsInserted(int firstRow, int lastRow);
+public void fireTableDataChanged(); // 任何或全部单元值更新
+public void fireTableRowsDeleted(int firstRow, int lastRow); // 指定范围 row 被删除
+public void fireTableRowsInserted(int firstRow, int lastRow); // 插入 row
 public void fireTableRowsUpdated(int firstRow, int lastRow);
 public void fireTableStructureChanged();
 ```
 
 为了重用现有数据结构，经常需要继承 `AbstractTableModel`。
+
+```ad-tip
+建议通过继承 `AbstractTableModel` 实现自定义 `TableModel`，而不是直接实现 `TableModel` 接口，从头开始实现。
+```
+
 
 **示例：** 使用数组为 `AbstractTableModel` 提供数据
 
@@ -628,7 +661,7 @@ public class CreateTable {
 
 **示例：** 下表包含一个固定 column 和 4 个滚动 column
 
-![](images/2024-01-09-10-57-51.png)
+![|400](images/2024-01-09-10-57-51.png)
 
 水平滚动时，第一列保持不同。
 
@@ -744,11 +777,11 @@ public Class getColumnClass(int column) {
 
 ### DefaultTableModel
 
-`DefaultTableModel` 是 AbstractTableModel 的子类，使用 Vector 存储数据。如果数据意在合适的数据结构中，则不推荐使用 DefaultTableModel。扩展 AbstractTableModel 更合适。
+`DefaultTableModel` 是 `AbstractTableModel` 的子类，使用 `Vector` 存储数据。如果数据意在合适的数据结构中，则不推荐使用 `DefaultTableModel`，而是扩展 `AbstractTableModel` 更合适。
 
 #### 创建 DefaultTableModel
 
-DefaultTableModel 有 6 个构造函数：
+`DefaultTableModel` 有 6 个构造函数：
 
 ```java
 public DefaultTableModel()
@@ -1589,8 +1622,3 @@ JComponent headerComponent = new JTableHeader(aColumnModel)
 
 ### JTableHeader 属性
 
-
-
-## 参考
-
-- https://docs.oracle.com/javase%2Ftutorial%2F/uiswing/components/table.html

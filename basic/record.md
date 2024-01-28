@@ -1,9 +1,8 @@
 # record
 
-2023-12-07, 15:30
+2023-12-07, 15:30⭐
 @author Jiawei Mao
 ****
-
 ## 简介
 
 考虑如下 `Point` 类：
@@ -29,9 +28,8 @@ class Point {
 }
 ```
 
-我们只是想表示平面上的一个点，创建类显得过于繁琐。JDK 14 引入了 record preview，在 JDK 16 中正式启用，用于简化这类提供数据类的创建。
-
-## record 使用
+我们只是想表示平面上的一个点，创建类显得过于繁琐。JDK 14 引入了 record preview，在 JDK 16 中正式启用，用于简化这种数据类的创建。
+## 使用 record
 
 record 是一种特殊形式的类，其状态为 public immutable。以 `record` 定义相同功能的 `Point`:
 

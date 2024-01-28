@@ -1,4 +1,4 @@
-package mjw.java2d;
+package mjw.swing.j2d;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,8 +10,7 @@ import java.awt.*;
  */
 public class AntiAliasingDemo extends JComponent
 {
-    public void paintComponent(Graphics g)
-    {
+    public void paintComponent(Graphics g) {
         // we will need a Graphics2D Object to set the RenderingHint
         Graphics2D g2d = (Graphics2D) g;
 
@@ -30,8 +29,7 @@ public class AntiAliasingDemo extends JComponent
 
     }
 
-    private static void createAndShowGui()
-    {
+    private static void createAndShowGui() {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(150, 100);
@@ -41,8 +39,7 @@ public class AntiAliasingDemo extends JComponent
         frame.setVisible(true);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Runnable doCreateAndShowGui = () -> createAndShowGui();
         EventQueue.invokeLater(doCreateAndShowGui);
     }

@@ -1,46 +1,59 @@
 # Apache Commons CSV
 
-- [Apache Commons CSV](#apache-commons-csv)
-  - [CSV 格式](#csv-格式)
-    - [DEFAULT](#default)
-    - [EXCEL](#excel)
-    - [INFORMIX\_UNLOAD](#informix_unload)
-    - [INFORMIX\_UNLOAD\_CSV](#informix_unload_csv)
-    - [TDF](#tdf)
-    - [使用 CSVFormat](#使用-csvformat)
-    - [定义 CSVFormat](#定义-csvformat)
-  - [读 CSV](#读-csv)
-    - [解析 Excel CSV 文件](#解析-excel-csv-文件)
-  - [写 CSV](#写-csv)
-  - [标题](#标题)
-    - [索引](#索引)
-    - [自定义标题](#自定义标题)
-    - [使用 enum 定义标题](#使用-enum-定义标题)
-    - [自动检测标题](#自动检测标题)
-    - [打印标题](#打印标题)
-
+2024-01-16⭐
 @author Jiawei Mao
-****
+***
+## 简介
 
-## CSV 格式
+```xml
+<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-csv</artifactId>
+    <version>1.10.0</version>
+</dependency>
+```
 
-`CSVFormat` 类提供了常用的 CSV 格式：
+`CSVFormat` 类提供了常用的 CSV 格式，采用如下信息定义 CSV 格式：
 
-|FORMAT|说明|
-|---|---|
-|DEFAULT|标准 CSV 格式 (RFC4180)，但允许空行|
-|EXCEL|Excel CSV 格式|
-|INFORMIX_UNLOAD|Informix UNLOAD format used by the `UNLOAD TO file_name` operation|
-|INFORMIX_UNLOAD_CSV|Informix CSV UNLOAD format used by the UNLOAD TO file_name operation (escaping is disabled.)|
-|MONGO_CSV|mongoexport 操作使用的 MongoDB CSV 格式|
-|MONGO_TSV|mongoexport 操作使用的 MongoDB TSV 格式|
-|MYSQL|MySQL CSV 格式|
-|ORACLE|Default Oracle format used by the SQL*Loader utility|
-|POSTGRESSQL_CSV|PostgreSQL COPY 操作对应的默认 CSV 格式|
-|POSTGRESSQL_TEXT|PostgreSQL COPY 操作对应的默认 text 格式|
-|RFC-4180|RFC-4180 定义格式|
-|TDF|tab 分隔格式|
+| 字段 | 说明 |
+| ---- | ---- |
+| delimiter | 分隔符，通常为 ";", "," 或 "\t" |
+| quoteCharacter | 引号字符，用于将特殊字符括起来 |
+| quoteMode | 加引号策略 |
+| commentMarker | 注释字符 |
+| escapeCharacter | 转义字符 |
+| ignoreSurroundingSpaces | 解析时是否忽略值周围的空格 |
+| allowMissingColumnNames | 解析标题时，是否允许丢失 column 名 |
+| ignoreEmptyLines | 解析时是否跳过空行 |
+| recordSeparator | record 分隔符，一般为换行符 |
+| nullString | 指定转换为 null 的字符串 |
+| headerComments | 标题注释数组 |
+| headers | 标题 |
+| skipHeaderRecord | 是否跳过标题行 |
+| ignoreHeaderCase | 解析时访问 header names 时忽略大小写 |
+| trailingDelimiter | 是否添加 trailing 分隔符 |
+| trim | 输出时字符移出前后空格 |
+| autoFlush | 关闭时是否 flush |
+| quotedNullString | quoteCharacter+nullString+quoteCharacter |
+| duplicateHeaderMode | 是否允许标题中有重复值 |
 
+`CSVFormat` 提供了如下几套常用配置：
+
+| FORMAT | 说明 |
+| ---- | ---- |
+| `DEFAULT` | 标准 CSV 格式 (RFC4180)，允许空行 |
+| `EXCEL` | Excel CSV 格式 |
+| `INFORMIX_UNLOAD` | Informix UNLOAD format used by the `UNLOAD TO file_name` operation |
+| `INFORMIX_UNLOAD_CSV` | Informix CSV UNLOAD format used by the UNLOAD TO file_name operation (escaping is disabled.) |
+| `MONGO_CSV` | mongoexport 操作使用的 MongoDB CSV 格式 |
+| `MONGO_TSV` | mongoexport 操作使用的 MongoDB TSV 格式 |
+| `MYSQL` | MySQL CSV 格式 |
+| `ORACLE` | Default Oracle format used by the SQL*Loader utility |
+| `POSTGRESSQL_CSV` | PostgreSQL COPY 操作对应的默认 CSV 格式 |
+| `POSTGRESSQL_TEXT` | PostgreSQL COPY 操作对应的默认 text 格式 |
+| `RFC-4180` | RFC-4180 定义格式 |
+| `TDF` | tab 分隔格式 |
 ### DEFAULT
 
 标准 CSV 格式，同 RFC4180，但是自动跳过空行。对应 `CSVFormat.Builder` 配置：
@@ -52,7 +65,6 @@ setRecordSeparator("\r\n")
 setIgnoreEmptyLines(true)
 setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_ALL)
 ```
-
 ### EXCEL
 
 Excel 文件格式（用逗号作为分隔符）。不过 Excel 实际使用的分隔符与 locale 相关，可能需要根据 locale 调整该格式。
@@ -74,9 +86,9 @@ setAllowMissingColumnNames(true)
 setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_ALL)
 ```
 
-!!! note
-    EXCEL 在 RFC4180 基础上添加了 `Builder#setAllowMissingColumnNames(true)` 和 `Builder#setIgnoreEmptyLines(false)`
-
+```ad-note
+EXCEL 在 RFC4180 基础上添加了 `Builder#setAllowMissingColumnNames(true)` 和 `Builder#setIgnoreEmptyLines(false)`
+```
 ### INFORMIX_UNLOAD
 
 `UNLOAD TO file_name` 使用的 Informix CSV UNLOAD 格式。逗号分隔以 LF 换行，值不加引号，特殊字符用 `'\'` 转义。默认 NULL 字符串为 `"\\N"`。
@@ -89,7 +101,6 @@ setEscape('\\')
 setQuote("\"")
 setRecordSeparator('\n')
 ```
-
 ### INFORMIX_UNLOAD_CSV
 
 `UNLOAD TO file_name` 使用的 Informix CSV UNLOAD 格式（禁用转义）。逗号分隔以 LF 换行，值不加引号。默认 NULL 字符串为 `"\\N"`。
@@ -99,8 +110,6 @@ setDelimiter(',')
 setQuote("\"")
 setRecordSeparator('\n')
 ```
-
-
 ### TDF
 
 对应 `CSVFormat.Builder` 设置：
@@ -111,7 +120,6 @@ setQuote('"')
 setRecordSeparator("\r\n")
 setIgnoreSurroundingSpaces(true)
 ```
-
 ### 使用 CSVFormat
 
 例如：
@@ -125,7 +133,6 @@ CSVParser parser = CSVFormat.EXCEL.parse(reader);
 ```java
 CSVParser parser = CSVParser.parse(file, StandardCharsets.US_ASCII, CSVFormat.EXCEL);
 ```
-
 ### 定义 CSVFormat
 
 - 设置分隔符
@@ -172,21 +179,14 @@ public Builder setIgnoreEmptyLines(final boolean ignoreEmptyLines)
 public Builder setDuplicateHeaderMode(final DuplicateHeaderMode duplicateHeaderMode)
 ```
 
-
-
 可以通过调用 set 方法扩展已有 format。例如：
 
 ```java
 CSVFormat.EXCEL.withNullString("N/A").withIgnoreSurroundingSpaces(true);
 ```
-
-
-
 ## 读 CSV
 
-
-
-### 解析 Excel CSV 文件
+例如，读取 Excel CSV 文件：
 
 ```java
 Reader in = new FileReader("path/to/file.csv");
@@ -196,9 +196,7 @@ for (CSVRecord record : records) {
     String firstName = record.get("First Name");
 }
 ```
-
 ## 写 CSV
-
 
 
 ## 标题

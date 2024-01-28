@@ -1,5 +1,8 @@
 # ProgressMonitorInputStream
 
+2024-01-18
+@author Jiawei Mao
+***
 ## 简介
 
 `ProgressMonitorInputStream` 是一个输入流，它使用 `ProgressMonitor` 展示读取进度。

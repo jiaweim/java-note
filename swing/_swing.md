@@ -21,9 +21,10 @@
   - [JDialog](jdialog.md)
   - [Poppup](popup.md)
   - [JFileChooser](jfilechooser.md)
-- [x] [ProgressMonitor](./component/ProgressMonitor.md)
+- [-] [ProgressMonitor](./component/ProgressMonitor.md)
 - [x] [列表类型组件](list/list.md)
   - [x] [JList](./list/JList.md)
+  - [x] [[component/JSpinner|JSpinner]]
 - [设置样式](laf/设置%20laf.md)
 - [Look and Feel](lnf.md)
 - [x] [事件处理](event/_event.md)
@@ -31,6 +32,7 @@
   - [x] [Swing 组件支持的 Listener](event/events_and_components.md)
   - [x] [ActionListener](event/actionListener.md)
   - [x] [Listener API](event/api.md)
+- [x] [[jfilechooser | JFileChooser]]
 
 ## 参考
 
