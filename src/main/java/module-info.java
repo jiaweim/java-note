@@ -8,6 +8,9 @@ module java.module {
     requires javafx.web;
     requires javafx.swing;
 
+    requires com.esotericsoftware.kryo.kryo5;
+    opens mjw.kryo;
+
     requires com.google.gson;
     requires com.google.common;
 

@@ -31,13 +31,13 @@ class Point {
 我们只是想表示平面上的一个点，创建类显得过于繁琐。JDK 14 引入了 record preview，在 JDK 16 中正式启用，用于简化这种数据类的创建。
 ## 使用 record
 
-record 是一种特殊形式的类，其状态为 public immutable。以 `record` 定义相同功能的 `Point`:
+`record` 是一种特殊形式的类，其状态为 `public` immutable。以 `record` 定义相同功能的 `Point`:
 
 ```java
 record Point(double x, double y) { }
 ```
 
-JVM 会自动为 record 创建多个方法。包括：
+JVM 会自动为 `record` 创建多个方法。包括：
 
 - 两个字段
 
@@ -66,7 +66,7 @@ var p = new Point(3, 4);
 System.out.println(p.x() + " " + p.y());
 ```
 
-另外，JVM 自动为 record 实现了三个方法：`toString`, `equals` 和 `hashCode`。
+另外，JVM 自动为 `record` 实现了三个方法：`toString`, `equals` 和 `hashCode`。
 
 对这些方法，可以自定义实现覆盖默认实现（其实不推荐）：
 
@@ -76,7 +76,7 @@ record Point(double x, double y) {
 }
 ```
 
-在 record 中也可以添加自定义方法：
+在 `record` 中也可以添加自定义方法：
 
 ```java
 record Point(double x, double y) {
@@ -86,7 +86,7 @@ record Point(double x, double y) {
 }
 ```
 
-和其它类一样，record 也可以静态字段和方法：
+和其它类一样，`record` 也可以包含静态字段和方法：
 
 ```java
 record Point(double x, double y) {
@@ -103,7 +103,7 @@ record Point(double x, double y) {
 }
 ```
 
-**但是**，在 record 中不能添加实例字段。例如：
+**但是**，在 `record` 中不能添加实例字段。例如：
 
 ```java
 record Point(double x, double y) {
@@ -111,10 +111,9 @@ record Point(double x, double y) {
     ...
 }
 ```
-
 ## Immutable
 
-record 字段自动为 `final`，但是如果字段自身是 mutable 的，例如：
+`record` 字段自动为 `final`，但是如果字段自身是 mutable 的，例如：
 
 ```java
 record PointInTime(double x, double y, Date when) { }
@@ -127,13 +126,12 @@ var pt = new PointInTime(0, 0, new Date());
 pt.when().setTime(0);
 ```
 
-如果你希望 record 为 immutable，就不要使用 mutable 类型字段。
+如果希望 `record` 为 immutable，就不要使用 mutable 类型字段。
 
-在并发应用中，record 更高效、安全。
-
+在并发应用中，`record` 更高效、安全。
 ## 构造函数
 
-record 自动创建的构造函数称为**规范构造函数**（canonical constructor）。
+`record` 自动创建的构造函数称为**规范构造函数**（canonical constructor）。
 
 可以额外自定义构造函数。在自定义构造函数中，第一句必须调用其它构造函数，所以最终必然重定向到规范构造函数：
 
@@ -162,7 +160,7 @@ public record Range(int from, int to) {
 }
 ```
 
-不过，在实现规范构造函数时，可以省略参数，即：
+不过，在实现规范构造函数时，可以**省略参数**，即：
 
 ```java
 public record Range(int from, int to) {
@@ -177,4 +175,3 @@ public record Range(int from, int to) {
 ```
 
 紧凑形式的规范构造函数，其主体只是在将参数变量 `from` 和 `to` 赋值给实例字段 `this.from` 和 `this.to` 之前修改它们。不能在紧凑构造函数中修改实例字段。
-
