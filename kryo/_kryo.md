@@ -356,11 +356,11 @@ Class IDs 1 和 2 保留。Class IDs 0-8 用于基本类型和 String。ID 被�
 
 #### ClassResolver
 
-ClassResolver 读写表示类的字节。默认实现大多情况下是够用的，但也可以自定义，如注册类时的额外行为，序列化时遇到未注册类的行为，以及读写表示类的内容。
+`ClassResolver` 读写表示类的字节。默认实现大多情况下是够用的，但也可以自定义，如注册类时的额外行为，序列化时遇到未注册类的行为，以及读写表示类的内容。
 
 #### Optional registration
 
-Kryo 通过设置，可以无效注册就能序列化：
+Kryo 通过设置，可以无需注册就能序列化：
 
 ```java
 Kryo kryo = new Kryo();
@@ -556,7 +556,7 @@ output.close();
 
 如果需要，可以使用 serializer 对 object-graph 的部分字节进行压缩或加密。例如，参考 `DeflateSerializer` 或 `BlowfishSerializer`。这些 serializers 包装另一个 serializer 来编码或解码字节。
 
-## Implementing a serializer
+## 实现 serializer
 
 `Serializer` 抽象类定义从对象到字节和从字节到对象的方法。
 
@@ -892,7 +892,7 @@ public class SomeClass implements KryoCopyable<SomeClass> {
 Kryo 提供了许多具有不同配置和兼容性的 serializers。在[ kryo-serializers](https://github.com/magro/kryo-serializers) 项目中还有其他 serializers，它们要么访问 private API，或者不是在所有 JVMs 都安全。
 ### FieldSerializer
 
-`FieldSerializer` 序列化每个非 `transient` 字段。无需任何配置就可以序列化 POJOs 和许多其它类。默认情况下，它会读写所有 non-public 字段，因此评估每个被序列化的类很重要。如果字段是 public，序列化可能更快。
+`FieldSerializer` 序列化每个非 `transient` 字段。无需配置就可以序列化 POJOs 和许多其它类。它默认会读写所有 non-public 字段，因此评估每个被序列化的类很重要。如果字段是 public，序列化可能更快。
 
 `FieldSerializer` 使用 Java 类作为 schema，只写入字段数据而不写入任何 schema 信息，从而提高了效率。在不使之前序列化字节失效的前提下，它不支持添加、删除或更改字段类型；要重命名字段，也不能改变字段的字典顺序。
 
