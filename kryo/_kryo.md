@@ -152,7 +152,7 @@ unsafe-buffer 的最大性能差异是在不使用变长编码的大型基本类
 
 ### Variable length encoding
 
-IO 类提供读写变长 int (varint) 和 long (varlong) 值的方法。该功能通过使用每个字节的第 8 位来指示后面是否有更多字节来实现，所以 varint 使用 1-5 bytes，varlong 使用 1-9 bytes。变长编码成本更高，但会使序列化的数据更小。
+IO 类提供读写变长 int (varint) 和 long (varlong) 值的方法。该功能通过使用每个字节的第 8 位来指示后面是否有更多字节来实现，所以 `varint` 使用 1-5 bytes，`varlong` 使用 1-9 bytes。变长编码成本更高，但会使序列化的数据更小。
 
 在写入变长值时，可以只针对正数优化，也可以同时针对正数和负数。例如，当针对正数进行优化，0 到 127 只写入一个字节，128-16383 写入两个字节，等等。当同时对正数和负数进行优化，值的范围减半。例如，-64 到 63 写入一个字节，64 到 8192 以及 -65 到 -8192 写入两字节，等等。
 
@@ -203,13 +203,13 @@ input.close();
 
 ### Buffer performance
 
-Output 和 Input 的性能通常良好。Unsafe buffers 的性能可能更好，特别是对基本类型数组，但是跨平台不兼容。`ByteBufferOutput` 和 `ByteBufferInput` 的性能稍差，但如果必须是 ByteBuffer 接收数据，其性能也可以接受。
+`Output` 和 `Input` 的性能通常良好。Unsafe buffers 的性能可能更好，特别是对基本类型数组，但是跨平台不兼容。`ByteBufferOutput` 和 `ByteBufferInput` 的性能稍差，但如果必须是 ByteBuffer 接收数据，其性能也可以接受。
 
 ![[images/Pasted image 20240201095658.png]]
 
 ![[images/Pasted image 20240201095841.png]]
 
-变长编码比定长慢，数据越多越明显。
+**变长编码比定长慢**，数据越多越明显。
 
 ![[images/Pasted image 20240201100133.png]]
 
@@ -814,7 +814,7 @@ public class SomeClassSerializer extends Serializer<SomeClass> {
 
 ### KryoSerializable
 
-不使用 serializer，通过实现 KryoSerializable （类似 java.io.Externalizable）类可以自定义序列化。
+不使用 serializer，通过实现 `KryoSerializable` （类似 `java.io.Externalizable`）类可以自定义序列化。
 
 ```java
 public class SomeClass implements KryoSerializable {
@@ -828,7 +828,7 @@ public class SomeClass implements KryoSerializable {
 }
 ```
 
-显然，在调用 `read` 之前必须已经创建实例，因此该类无法控制自己的创建。KryoSerializable 类使用默认的 serializer KryoSerializableSerializer，而它使用 Kryo `newInstance` 创建新的实例。编写自定义 serializer 来定制该过程很简单。
+显然，在调用 `read` 之前必须已经创建实例，因此该类无法控制自己的创建。`KryoSerializable` 类使用默认的 serializer `KryoSerializableSerializer`，该 Serializer 使用 Kryo `newInstance` 创建新的实例。编写自定义 serializer 来定制该过程很简单。
 
 ### Serializer copying
 

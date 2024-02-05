@@ -1,63 +1,81 @@
-- [简介](#简介)
-- [选项（Options）和参数（Parameters）](#选项options和参数parameters)
-  - [选项（Options）](#选项options)
-  - [交互式选项（Interactive Options, Password）](#交互式选项interactive-options-password)
-    - [实例](#实例)
-    - [可选交互模式](#可选交互模式)
-  - [Short Options](#short-options)
-  - [位置参数（Positional Parameters）](#位置参数positional-parameters)
-- [强类型（Strongly Typed）](#强类型strongly-typed)
-  - [内置类型](#内置类型)
-  - [自定义类型转换](#自定义类型转换)
-- [默认值](#默认值)
-  - [](#)
-- [必需参数（Required Arguments）](#必需参数required-arguments)
-  - [必需选项（Required Options）](#必需选项required-options)
-- [多值参数（Multiple Values）](#多值参数multiple-values)
-  - [多次出现（Multiple Occurrences）](#多次出现multiple-occurrences)
-    - [重复选项（Repeated Options）](#重复选项repeated-options)
-    - [多个位置参数（Multiple Positional Parameters）](#多个位置参数multiple-positional-parameters)
-    - [多个Boolean选项](#多个boolean选项)
-  - [正则表达式分隔参数](#正则表达式分隔参数)
-  - [元数（Arity）](#元数arity)
-- [Usage Help](#usage-help)
-- [参考](#参考)
-# 简介
-`Picocli` 是一个创建 Java 命令行应用的开源辅助工具包，包含如下特性：
-- 源码文件只有一个，把源码放在项目中就能使用。
-- 支持 `POSIX`, `GNU` 和 `MS-DOS`等多种命令行语法样式。
-- 生成的帮助信息可通过ANSI 颜色和样式自定义。
-- 命令输入支持 TAB 自动完成。
+# picocli
 
-`picocli` 通过注释完成字段的识别，然后将输入转换为字段对应的类型。例：
+@author Jiawei Mao
+***
+## 简介
+
+`Picocli` 是一个用于辅助创建命令行应用的工具包，支持多种 JVM 语言。包含如下特性：
+
+- 源码文件只有一个，把源码放在项目中就能使用；
+- 支持 `POSIX`, `GNU` 和 `MS-DOS`等多种命令行语法风格；
+- 生成的帮助信息可通过 ANSI 颜色和样式自定义；
+- 命令输入支持 TAB 自动补全。
+
+`picocli` 通过注释完成字段的识别，然后将输入转换为字段对应的类型。
+
+### 示例
+
+下面是一个简短但功能齐全的基于 picocli 的 `checksum` 命令行应用：
+
 ```java
-import org.testng.annotations.Test;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.util.concurrent.Callable;
 
-public class Example
-{
-    @Option(names = {"-v", "--verbose"}, description = "Be verbose.")
-    private boolean verbose = false;
+@Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
+         description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
+class CheckSum implements Callable<Integer> {
 
-    @Parameters(arity = "1..*", paramLabel = "FILE", description = "File(s) to process.")
-    private File[] inputFiles;
+    @Parameters(index = "0", description = "The file whose checksum to calculate.")
+    private File file;
 
-    @Test
-    public void test()
-    {
-        String[] args = {"-v", "inputFile1", "inputFile2"};
-        Example app = CommandLine.populateCommand(new Example(), args);
-        assert app.verbose;
-        assert app.inputFiles != null && app.inputFiles.length == 2;
+    @Option(names = {"-a", "--algorithm"}, description = "MD5, SHA-1, SHA-256, ...")
+    private String algorithm = "SHA-256";
+
+    @Override
+    public Integer call() throws Exception { // your business logic goes here...
+        byte[] fileContents = Files.readAllBytes(file.toPath());
+        byte[] digest = MessageDigest.getInstance(algorithm).digest(fileContents);
+        System.out.printf("%0" + (digest.length*2) + "x%n", new BigInteger(1, digest));
+        return 0;
+    }
+
+    // this example implements Callable, so parsing, error handling and handling user
+    // requests for usage help or version help can be done with one line of code.
+    public static void main(String... args) {
+        int exitCode = new CommandLine(new CheckSum()).execute(args);
+        System.exit(exitCode);
     }
 }
-
 ```
-注释类的字段后，使用 `CommandLine.parse` 或 `CommandLine.populateCommand` 即可实现参数的解析。
+
+上例调用 `CommandLine.execute` 解析命令行。
+## 快速入门
+
+picocli 可以作为外部依赖项使用，也可以直接包含其源代码。
+### 添加外部依赖
+
+```xml
+<dependency>
+  <groupId>info.picocli</groupId>
+  <artifactId>picocli</artifactId>
+  <version>4.7.5</version>
+</dependency>
+```
+### 包含源码
+
+从 [picocli GitHub](https://github.com/remkop/picocli/blob/main/src/main/java/picocli/CommandLine.java) 下载源码，直接添加到项目中。
+### Annotation Processor
+
+
+
 
 # 选项（Options）和参数（Parameters）
 命令行参数可以分为选项（*options*）和位置参数（*positional parameters*）两类。
@@ -348,8 +366,41 @@ class ArityDemo {
 
 如果参数值个数达不到指定数目，抛出 `MissingParameterException`。
 
-# Usage Help
+## Version Help
+
+### Static Version Information
+
+
+## Usage Help
+
+### Compact Example
+
+picocli 默认的使用帮助信息类似：
+
+```sh
+Usage: cat [-AbeEnstTuv] [--help] [--version] [FILE...]
+Concatenate FILE(s), or standard input, to standard output.
+      FILE                 Files whose contents to display
+  -A, --show-all           equivalent to -vET
+  -b, --number-nonblank    number nonempty output lines, overrides -n
+  -e                       equivalent to -vE
+  -E, --show-ends          display $ at end of each line
+  -n, --number             number all output lines
+  -s, --squeeze-blank      suppress repeated empty output lines
+  -t                       equivalent to -vT
+  -T, --show-tabs          display TAB characters as ^I
+  -u                       (ignored)
+  -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB
+      --help               display this help and exit
+      --version            output version information and exit
+Copyright(c) 2017
+```
+
+
+## Usage Help API
+
 
 
 # 参考
 - <https://github.com/remkop/picocli>
+- https://picocli.info/
