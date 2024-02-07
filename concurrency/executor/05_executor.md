@@ -1,23 +1,3 @@
-- [简介](#%e7%ae%80%e4%bb%8b)
-- [Executor 的生命周期](#executor-%e7%9a%84%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f)
-  - [线程池状态](#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e7%8a%b6%e6%80%81)
-- [线程池使用方法](#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95)
-  - [创建线程池](#%e5%88%9b%e5%bb%ba%e7%ba%bf%e7%a8%8b%e6%b1%a0)
-  - [提交任务](#%e6%8f%90%e4%ba%a4%e4%bb%bb%e5%8a%a1)
-  - [关闭线程池](#%e5%85%b3%e9%97%ad%e7%ba%bf%e7%a8%8b%e6%b1%a0)
-- [延迟任务与周期任务](#%e5%bb%b6%e8%bf%9f%e4%bb%bb%e5%8a%a1%e4%b8%8e%e5%91%a8%e6%9c%9f%e4%bb%bb%e5%8a%a1)
-- [Callable & Future](#callable--future)
-  - [Callable 实例](#callable-%e5%ae%9e%e4%be%8b)
-- [线程池配置](#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e9%85%8d%e7%bd%ae)
-
-# 简介
-线程池复用线程具有以下优点：
-- 减少内存开销，创建线程占用内存；
-- 降低系统开销，创建线程需要时间，会延迟处理的请求；
-- 提高稳定性，避免无线创建线程导致的 `OutOfMemoryError`。
-
-但是，一味的开线程也不一定能带来性能上的，线池休眠也要占用一定的内存空间，所以要合理地选择线程池的大小。
-
 # Executor 的生命周期
 创建 `Executor` 很容易，但JVM只有在所有（非守护）线程全部终止后才会退出，因此，如果无法正确关闭 `Executor`，JVM 将无法结束。
 

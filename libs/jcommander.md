@@ -409,6 +409,27 @@ private Map<String, String> params = new HashMap<>();
 ```
 通过 `assignment` 属性可以指定不同的分隔符，而不必须是 `=`。
 
+## 15. Help parameter
+
+可以采用一个参数显式帮助或用法信息，此时需要使用 `help` 属性：
+
+```java
+@Parameter(names = "--help", help = true)
+private boolean help;
+```
+
+如果没有这个 boolean 参数，没有指定必需参数时 JCommander 会发出错误消息。而添加该参数后，JCommander 对必需参数的缺失不报错。使用范式：
+
+```java
+@Parameter(names = "--help", help = true, description = "Print help information")
+private boolean help;
+
+commander.parse(args);
+if (runner.help) {
+    commander.usage();
+}
+```
+
 ## 更复杂的语法
 
 很多工具如 *git* 或 *svn* 都有一整套命令，并语法各自不同：
