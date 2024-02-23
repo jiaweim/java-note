@@ -27,6 +27,8 @@ module java.module {
 
     requires org.slf4j;
     requires org.jsoup;
+    requires ch.qos.logback.classic;
+    requires ch.qos.logback.core;
 
     opens mjw.jackson.objectmapper;
     opens mjw.jackson.xml;
