@@ -592,7 +592,9 @@ public SomeClass read (Kryo kryo, Input input, Class<? extends SomeClass> type) 
 
 #### Nested serializers
 
-Serializers 通常不应该直接使用其它 serializers，而应该使用 Kryo 的读写方法。从而允许 Kryo 使用编排序列化、引用和 null 对象等特性。有时，serializer 知道对嵌套对象使用哪个 serializer。此时，它应该使用接受 serializer 的 Kryo 的 read 和 write 方法。
+Serializers 通常不应该直接使用其它 serializers，而应该使用 Kryo 的读写方法。从而允许 Kryo 使用编排序列化、引用和 null 对象等特性。
+
+如果 serializer 知道对嵌套对象使用哪个 serializer。此时应该使用接受 serializer 参数的 Kryo 的 read 和 write 方法。
 
 如果对象可能为 null：
 

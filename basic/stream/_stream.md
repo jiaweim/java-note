@@ -1,6 +1,6 @@
 # Stream
 
-- [Stream 概述](stream_basic.md)
+- [Stream 基础](stream_basic.md)
 - [创建 Stream](create_stream.md)
 - [Stream 操作](stream_ops.md)
 - [Optional](optional.md)

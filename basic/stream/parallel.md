@@ -12,7 +12,7 @@
 
 ## 简介
 
-Stream 使得批量操作并行化更容易。首先，需要一个并行 `Stream`，`Collection.parallelStream()` 可以从任何集合类型获得并行流：
+`Stream` 使得批量操作并行化更容易。首先，需要一个并行 `Stream`，`Collection.parallelStream()` 可以从任何集合类型获得并行流：
 
 ```java
 Stream<String> parallelWords = words.parallelStream();
@@ -39,7 +39,7 @@ words.parallelStream().forEach(s -> {
 System.out.println(Arrays.toString(shortWords));
 ```
 
-传递给 `forEach` 的函数会在多个线程同时运行，且都会更新共享数组 `shortWords`。这是典型的数据争用。多次运行该代码，可能每次结果都不同。
+传递给 `forEach` 的函数会在多个线程同时运行，且都会更新共享数组 `shortWords`。这是典型的数据争用，多次运行该代码，可能每次结果都不同。
 
 我们需要确保传递给并行流的操作都是线程安全的。最好的方法是不使用 mutable 状态。对上例，可以将字符串按长度分组，然后计数：
 
