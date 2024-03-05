@@ -29,9 +29,9 @@
   - 线程池空闲时，释放线程，最低保留的线程数目，core
 - 拒绝任务策略：如果线程池和队列均已满，需要有相应的策略拒绝任务；
 - 线程工厂：用来创建线程；
-- QueueSize：用来存放提交的 `Runnable` 或 `Callable` 任务。
+- `QueueSize`：用来存放提交的 `Runnable` 或 `Callable` 任务。
 
 线程池的基本结构如下所示：
 
-![thread pool](images/threadpool.png)
+<img src="images/threadpool.png" alt="thread pool" style="zoom: 30%;" />
 

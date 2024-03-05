@@ -1,28 +1,40 @@
 # ThreadPoolExecutor
 
+- [ThreadPoolExecutor](#threadpoolexecutor)
+  - [简介](#简介)
+  - [workQueue](#workqueue)
+  - [threadFactory](#threadfactory)
+  - [handler](#handler)
+  - [核心方法](#核心方法)
+  - [执行流程](#执行流程)
+  - [回收核心线程？](#回收核心线程)
+
+@author Jiawei Mao
+***
+
 ## 简介
 
 `ThreadPoolExecutor` 类是线程池的具体实现类，该类提供了4个构造函数，其它三个构造函数在下面的构造的基础上提供了部分默认值：
 
 ```java
 public ThreadPoolExecutor(int corePoolSize,
-                            int maximumPoolSize,
-                            long keepAliveTime,
-                            TimeUnit unit,
-                            BlockingQueue<Runnable> workQueue,
-                            ThreadFactory threadFactory,
-                            RejectedExecutionHandler handler) {
-                                // ...
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+   // ...
 }
 ```
 
 | 参数 | 说明  |
 | -- | --- |
-| `corePoolSize`    | 线程池大小。在创建线程池后，默认情况下线程池中没有线程，等待任取到来才创建线程执行任务，当线程池中的线程达到 `corePoolSize` 后，将后续任务放在缓存队列中等待执行；如果调用了 `prestartAllCoreThreads()` 或 `prestartCoreThread()`方法，则在任务到来之前就预创建线程 |
-| `maximumPoolSize` | 线程池允许的最大线程数                                                                                                                                                                                                                                                                                                                                                                        |
-| `keepAliveTime`   | 线程没有任务执行时最大保持多长时间才终止。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize` 时，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。如果调用了 `allowCoreThreadTimeOut(boolean value)` 方法，在线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
-| `unit`            | `keepAliveTime` 的时间单位                                                                                                                                                                                                                                                                                                                                                                    |
-| `workQueue`       | 当前线程数超过 `corePoolSize` 时，新的任务会处于等待状态，并保存在该阻塞队列中                                                                                                                                                                                                                                                                                                                |
+| `corePoolSize` | 线程池大小。在创建线程池后，线程池中默认没有线程，等有任务来才创建线程执行任务，当线程池中的线程数达到 `corePoolSize`，后续任务放在缓存队列中等待执行；如果调用了 `prestartAllCoreThreads()` 或 `prestartCoreThread()`方法，则在任务到来之前就预创建线程 |
+| `maximumPoolSize` | 线程池允许的最大线程数 |
+| `keepAliveTime`   | 线程没有任务执行时最长保持多久才终止。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize` 时，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。如果调用了 `allowCoreThreadTimeOut(boolean value)` 方法，在线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
+| `unit`  | `keepAliveTime` 的时间单位 |
+| `workQueue`  | 当前线程数超过 `corePoolSize` 时，新的任务会处于等待状态，并保存在该阻塞队列中                                                                                                                                                                                                                                                                                                                |
 | `threadFactory`   | 线程工长，用于创建线程                                                                                                                                                                                                                                                                                                                                                                        |
 | `handler`         | 拒绝处理任务时采取的策略                                                                                                                                                                                                                                                                                                                                                                      |
 
@@ -109,5 +121,5 @@ handle 有以下几种取值：
 
 ## 回收核心线程？
 
-你可能会想到将 `corePoolSize` 的数量设置为0，从而线程池的所有线程都是“临时”的，只有 `keepAliveTime` 存活时间，你的思路也许时正确的，但你有没有想过一个很严重的后果，`corePoolSize=0` 时，任务需要填满阻塞队列才会创建线程来执行任务，阻塞队列有设置长度还好，如果队列长度无限大呢，你就等着OOM异常吧，所以用这种设置行为并不是我们所需要的。
+你可能会想到将 `corePoolSize` 的数量设置为 0，从而线程池的所有线程都是“临时”的，只有 `keepAliveTime` 存活时间，你的思路也许是正确的，但你有没有想过一个很严重的后果，`corePoolSize=0` 时，任务需要填满阻塞队列才会创建线程来执行任务，阻塞队列有设置长度还好，如果队列长度无限大呢，你就等着 OOM 吧，所以用这种设置行为并不是我们所需要的。
 

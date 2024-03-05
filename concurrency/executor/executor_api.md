@@ -6,7 +6,7 @@
 
 线程池的核心API如下所示：
 
-![|500](images/2024-02-07-17-21-14.png)
+<img src="images/2024-02-07-17-21-14.png" alt="|500" style="zoom:50%;" />
 
 说明：
 
@@ -128,8 +128,6 @@ public static ExecutorService newCachedThreadPool() {
 - 线程池的规模不存在任何限制。
 
 该线程池适合于包含许多短执行周期任务的情况，每个任务都尽可能在空闲的线程上执行；如果所有线程都在忙，则为新的任务创建新的线程；线程空闲的时间超过一段时间就会被终止。
-
-
 
 ### newFixedThreadPool
 

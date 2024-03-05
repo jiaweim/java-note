@@ -1,7 +1,27 @@
 # Executor 的生命周期
+
+- [Executor 的生命周期](#executor-的生命周期)
+  - [简介](#简介)
+  - [线程池状态](#线程池状态)
+- [线程池使用方法](#线程池使用方法)
+  - [创建线程池](#创建线程池)
+  - [提交任务](#提交任务)
+  - [关闭线程池](#关闭线程池)
+- [延迟任务与周期任务](#延迟任务与周期任务)
+- [Callable \& Future](#callable--future)
+  - [Callable 实例](#callable-实例)
+- [线程池配置](#线程池配置)
+
+2024-02-08, 15:47
+@author Jiawei Mao
+***
+
+## 简介
+
 创建 `Executor` 很容易，但JVM只有在所有（非守护）线程全部终止后才会退出，因此，如果无法正确关闭 `Executor`，JVM 将无法结束。
 
 为了解决执行服务的生命周期问题， `ExecutorService` 接口扩展 `Executor`，添加了一些用于生命周期管理的方法。如下：
+
 ```java
 public interface ExecutorService extends Executor {
     void shutdown();
@@ -16,6 +36,7 @@ public interface ExecutorService extends Executor {
 ```
 
 ## 线程池状态
+
 `ThreadPoolExecutor` 中定义了几个 final 字段用于定义线程池的状态：
 ```java
 private static final int RUNNING    = -1 << COUNT_BITS;
