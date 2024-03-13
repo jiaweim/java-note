@@ -33,5 +33,5 @@
 
 线程池的基本结构如下所示：
 
-<img src="images/threadpool.png" alt="thread pool" style="zoom: 30%;" />
+<img src="images/threadpool.png" alt="thread pool" style="zoom: 20%;" />
 

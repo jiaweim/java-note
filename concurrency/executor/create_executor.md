@@ -172,6 +172,29 @@ public class Main {
 - `getTaskCount()`：计划执行的任务总数。由于任务和线程的状态在计算过程中动态变化，所以返回的是近似值；
 - `getCompletedTaskCount()`：已完成任务数。
 
-`ThreadPoolExecutor` 以及其它的 `Executor` 实现，都必须显式结束它们。如果 executor 没有任务要执行，它会继续等待新任务，而不会自动结束。Java 应用只有在所有非守护线程执行完毕后才会结束，因此，如果不终止 executor，Java 程序不会结束。
+`ThreadPoolExecutor` 以及其它的 `Executor` 实现，都必须显式结束。如果 executor 没有任务要执行，它会继续等待新任务，而不会自动结束。Java 应用只有在所有非守护线程执行完毕后才会结束，因此，如果不终止 executor，Java 程序不会结束。
 
-调用 `ThreadPoolExecutor.shutdown()` 关闭 executor。当 executor 完成所有任务，调用 `shutdown()` 后，
+调用 `ThreadPoolExecutor.shutdown()` 关闭 executor。当 executor 完成所有任务，调用 `shutdown()` 后，再次发送任务到 executor，executor 会拒绝并抛出 `RejectedExecutionException`，或者你单独实现了一个拒绝策略（如上所示）。实现拒绝策略，需要实现 `RejectedExecutionHandler` 接口，该接口只有一个方法 `rejectedExecution()`，包含两个参数：
+
+- `Runnable` 对象，即被拒绝的任务；
+- `Executor` 对象，即 executor 的引用。
+
+对每个被 executor 拒绝的任务，都会调用该方法。通过 `ThreadPoolExecutor.setRejectedExecutionHandler()` 设置拒绝策略。
+
+部分输出：
+
+```
+Server: A new task has arrived
+Server: Pool Size: 32
+Server: Active Count: 32
+Server: Task Count: 100
+Server: Completed Tasks: 3
+Main: Shutting down the Executor.
+Main: Sending another Task.
+Server: A new task has arrived
+RejectedTaskController: The task mjw.java.concurrency.executor.Task@5679c6c6 has been rejected
+RejectedTaskController: java.util.concurrent.ThreadPoolExecutor@27ddd392[Shutting down, pool size = 32, active threads = 32, queued tasks = 65, completed tasks = 3]
+RejectedTaskController: Terminating: true
+RejectedTaksController: Terminated: false
+```
+

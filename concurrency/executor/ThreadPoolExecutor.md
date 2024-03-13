@@ -85,21 +85,21 @@ handle 有以下几种取值：
 
 ## 核心方法
 
-| 方法                                            | 说明                                                                                                                                               |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `execute()`                                     | 向线程池提交任务                                                                                                                                   |
-| `submit()`                                      | 先线程池提交任务，和 `execute()` 不同的时，它可以返回执行结果                                                                                      |
-| `getPoolSize()`                                 | 获得线程池大小                                                                                                                                     |
-| `getActiveCount()`                              | 线程池中正在执行任务线程的数量                                                                                                                         |
-| `getCompletedTaskCount()`                       | 获得执行器完成的任务数量                                                                                                                           |
-| `getLargestPoolSize()`                          | 返回曾经同时位于线程池中的最大线程数                                                                                                               |
-| `shutdownNow()`                                 | 立即关闭执行器。执行器不再执行那些正在等待执行的任务，该方法返回等待执行的任务列表。调用时，正在执行的任务将继续执行，但该方法并不等待这些任务完成 |
-| `isTerminated()`                                | 如果调用了 `shutdown()` 或 `shutdownNow()`，并且执行器完成了关闭，该方法返回 true                                                      |
-| `isShutdown()`                                  | 如果调用了 shutdown()，该方法返回 true                                                                                                             |
-| `awaitTermination(long timeout, TimeUnit unit)` | 这个方法阻塞所调用的线程，直到执行器完成任务或者达到所指定的 timeout 值                                                                            |
-| `getTaskCount()`                                | 返回发送给执行器任务的数目                                                                                                                         |
-| `prestartAllCoreThreads()`                      | 创建线程池后调用该方法，可以预先创建 `corePoolSize` 数目的线程                                                                                     |
-| `prestartCoreThread`                            | 预先创建线程，不过只创建一条线程                                                                                                                   |
+| 方法                                            | 说明                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------ |
+| `execute()`                                     | 向线程池提交任务                                             |
+| `submit()`                                      | 先线程池提交任务，和 `execute()` 不同的时，它可以返回执行结果 |
+| `getPoolSize()`                                 | 获得线程池大小                                               |
+| `getActiveCount()`                              | 线程池中正在执行任务线程的数量                               |
+| `getCompletedTaskCount()`                       | 获得执行器完成的任务数量                                     |
+| `getLargestPoolSize()`                          | 返回曾经同时位于线程池中的最大线程数                         |
+| `shutdownNow()`                                 | 立即关闭 executor。不再执行挂起的任务，返回挂起任务的列表。调用时，正在执行的任务继续执行，但该方法并不等待这些任务完成，直接返回。 |
+| `isTerminated()`                                | 调用 `shutdown()` 或 `shutdownNow()`，并且 executor 完成了关闭，该方法返回 true |
+| `isShutdown()`                                  | 如果调用了 `shutdown()`，返回 true                           |
+| `awaitTermination(long timeout, TimeUnit unit)` | 该方法阻塞所调用的线程，直到 executor 完成任务或者时间达到指定的 timeout 值 |
+| `getTaskCount()`                                | 返回发送给执行器任务的数目                                   |
+| `prestartAllCoreThreads()`                      | 创建线程池后调用该方法，可以预先创建 `corePoolSize` 数目的线程 |
+| `prestartCoreThread`                            | 预先创建线程，不过只创建一条线程                             |
 
 ## 执行流程
 通过 `execute()` 方法提交任务，线程池通过如下流程安排新的任务：

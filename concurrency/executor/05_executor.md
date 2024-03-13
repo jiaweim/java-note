@@ -8,8 +8,6 @@
   - [提交任务](#提交任务)
   - [关闭线程池](#关闭线程池)
 - [延迟任务与周期任务](#延迟任务与周期任务)
-- [Callable \& Future](#callable--future)
-  - [Callable 实例](#callable-实例)
 - [线程池配置](#线程池配置)
 
 2024-02-08, 15:47
@@ -92,8 +90,6 @@ int cpuNums = Runtime.getRuntime().availableProcessors();  //获取当前�
 ExecutorService executorService =Executors.newFixedThreadPool(cpuNums * POOL_SIZE); //ExecutorService通常根据系统资源情况灵活定义线程池大小  
 ```
 
-
-
 ## 提交任务
 线程池通过 `execute()` 提交任务，提交任务后的执行流程：
 - 如果线程池当前线程数量小于  ``
@@ -122,110 +118,6 @@ while(true){  
 `Timer` 在执行所有定时任务时只创建一个线程。如果某个任务的执行时间过长，那么将破坏其他 `TimerTask` 的定时准确性。
 
 在 Java 5.0 之后已经很少使用 `Timer` 了，如果要构建自己的调度服务，可以使用 `DelayQueue`，它实现了 `BlockingQueue`，并为 `ScheduledThreadPoolExecutor` 提供调度服务。
-
-# Callable & Future
-Executor 框架的优势之一是可以运行并发任务并返回结果。Java API 通过如下两个接口实现这个功能：
-- `Callable`, 该接口声明了 `call()` 方法用于包括实现任务的逻辑操作，具有返回值。
-- `Future`, 该接口声明了一些方法用于获取由 Callable 产生的结果，并管理它们的状态。
-  - 控制任务的状态：可以取消任务和检查任务是否已经完成。可使用 `isDone()` 方法检查任务是否已经完成。
-  - 通过 `get()` 方法获取返回的结果，如果 `get()` 方法在等待结果时线程中断了，抛出 `InterruptedException`。如果 call() 抛出异常，get() 随之抛出 ExecutionException。
-
-提交 `Callable` 任务：
-```java
-ExecutorService executor = Executors.newFixedThreadPool();
-Callable<V> task = ...;
-Future<V> result = executor.submit(task);
-```
-提交任务返回 `Future` 实例，因为其结果会在任务执行完之后才有，顾名思义，未来才出现。该接口源码如下：
-```java
-public interface Future<V> {
-
-    boolean cancel(boolean mayInterruptIfRunning);
-
-    boolean isCancelled();
-
-    boolean isDone();
-
-    V get() throws InterruptedException, ExecutionException;
-
-    V get(long timeout, TimeUnit unit)
-        throws InterruptedException, ExecutionException, TimeoutException;
-}
-```
-
-`Future`的`get()` 方法会阻塞直到任务执行完，或者达到设置的时间点。
-- 如果顺利执行完成，`get()` 方法返回结果;
-- 如果出错调用 `get()` 方法抛出 `ExecutionException`;
-- 如果超时，则抛出 `TimeoutException`。
-
-`cancel` 方法尝试取消任务的执行，如果任务没在运行，在调用无任何效果。如果设置 `mayInterruptIfRunning` 为 `true`，则打断线程执行。
-
-
-
-## Callable 实例
-下面，我们创建一个实现 `Callable` 接口的`FactorialCalculator`类，即 `FactorialCalculator` 实现 `call()` 方法，通过该方法获得返回值。
-```java
-public class FactorialCalculator implements Callable<Integer> {
-
-    private int number;
-
-    public FactorialCalculator(int number) {
-        this.number = number;
-    }
-
-    @Override
-    public Integer call() throws Exception {
-        int result = 1;
-        if (number == 0 || number == 1) {
-            return 1;
-        } else {
-            for (int i = 2; i <= number; i++) {
-                result *= i;
-                TimeUnit.MILLISECONDS.sleep(20);
-            }
-        }
-        System.out.println("Result for number - " + number + " -> " + result);
-        return result;
-    }
-}
-```
-
-测试该类：
-```java
-public class CallableEx {
-    public static void main(String[] args) {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        List<Future<Integer>> resultList = new ArrayList<>();
-
-        Random random = new Random();
-
-        for (int i = 0; i < 4; i++) {
-            int number = random.nextInt(10);
-            FactorialCalculator calculator = new FactorialCalculator(number);
-            Future<Integer> result = executorService.submit(calculator);
-            resultList.add(result);
-        }
-
-        for (Future<Integer> future : resultList) {
-            try {
-                System.out.println("Future result is - " + " - " + future.get() + "; And Task done is " + future.isDone());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        //shut down the executor service now
-        executorService.shutdown();
-    }
-}
-```
-
-通过 `submit()` 方法将 `Callable` 对象传递给 executor 执行，返回 `Future` 对象，通过 `Future` 对象我们可以：
-- 查看任务的状态，可以取消任务，也可以通过 `isDone()` 方法检查任务是否完成；
-- 获得执行的结果，通过 `get()` 方法获得结果，该方法会等待 `Callable` 的 `call()` 方法执行结束。
-
-在 `get()` 方法等待结果时如果线程被中断，抛出 `InterruptedException` 异常，如果 `call()` 方法抛出异常，则 `get()` 方法抛出 `ExecutionException` 异常。
-
-`Future` 接口还提供了重载的 `get(long timeout, TimeUnit unit)`方法。该方法如果在指定时间内没有执行完，抛出 `TimeoutException`。
 
 # 线程池配置
 

@@ -119,10 +119,16 @@ Stream<String> flatResult = words.stream().flatMap(w ->
 Java 16 引入了 `mapMulti` 方法：
 
 ```java
-<R> Stream<R> mapMulti(BiConsumer<T, Consumer<R>> mapper)
+default <R> Stream<R> mapMulti(BiConsumer<? super T,? super Consumer<R>> mapper)
 ```
 
-`BiConsumer` 接受 `Stream` 元素 `T`，将其转换为类型 `R`，然后调用 `mapper` 的 `Consumer::accept` 方法收集元素。例如：
+**中间操作**，返回一个新的流：
+
+- 原流的元素转换为 0 或多个新的元素；
+- mapper 负责转换元素，`BiConsumer` 接受 `Stream` 元素 `T`，将其转换为类型 `R`；
+- 调用 `Consumer::accept` 方法收集元素。
+
+例如：
 
 ```java
 Stream.of("Twix", "Snickers", "Mars")
@@ -144,7 +150,11 @@ mars
 
 `mapper` 是一个实现 `Consumer` 接口的缓冲区。每次调用 `Consumer::accept` 都会收集一个元素。
 
-与 `flatMap` 相比，`mapMulti` 不需要创建嵌套 `Stream`，性能相对更好。
+!!! note
+    此方法功能类似 `flatMap`，都是将流的元素进行一对多转换。不过在以下情况，`mapMulti` 优于 `flatMap`：
+
+    - 当每个元素映射到少量元素。`flatMap` 需要创建嵌套 `Stream`，`mapMulti` 不需要，性能相对更好；
+    - `mapMulti` 使用命令式方法生成新元素，语法相对更容易。
 
 **示例：** 选择偶数，转换为 double
 
@@ -162,7 +172,7 @@ List<Double> evenDoubles = integers.stream()
 
 在 `BiConsumer<T, Consumer<R>>` `mapper` 实现中首先选择偶数，然后通过 `(double) integer * (1 + percentage)` 转换为 `double` 类型，最后调用 `consumer.accept` 收集元素。
 
-这是一个 1 对 1 或 0 对 0 的转换，取决于元素是奇数还是偶数。
+这是一个 1 对 1 或 1 对 0 的转换，取决于元素是奇数还是偶数。
 
 上例中，`if` 语句扮演了 `Stream::filter` 的角色，而将 integer 转换为 double 功能类似 `Stream::map`。实现相同功能：
 
@@ -178,9 +188,6 @@ List<Double> evenDoubles = integers.stream()
 `mapMulti` 实现相对更直接，不需要调用太多中间操作。另外，`mapMulti` 在元素转换方面更自由。
 
 对基本类型，有对应的 `mapMultiToDouble`, `mapMultiToInt`, `mapMultiToLong` 函数。
-
-!!! info
-    当 `Stream` 的元素 `map` 出少量元素，使用 `flatMap` 需要为每个元素创建 `Stream`，开销相对较大，此时推荐使用 `mapMulti`。
 
 ### peek
 
