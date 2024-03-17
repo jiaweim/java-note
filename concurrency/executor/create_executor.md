@@ -133,7 +133,6 @@ public class Server {
 
 ```java
 public class Main {
-
     public static void main(String[] args) {
         Server server = new Server();
         System.out.printf("Main: Starting.\n");

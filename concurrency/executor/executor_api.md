@@ -1,10 +1,12 @@
 # 线程池 API
 
+2024-03-15
 @author Jiawei Mao
 ***
+
 ## 简介
 
-线程池的核心API如下所示：
+线程池的核心 API 都在 `java.util.concurrent` 包中，类图如下所示：
 
 <img src="images/2024-02-07-17-21-14.png" alt="|500" style="zoom:50%;" />
 
@@ -16,6 +18,17 @@
 - `ThreadPoolExecutor` 为线程池的具体实现类；
 - `ScheduledExecutorService` 接口扩展了 `ExecutorService` 接口，添加了周期执行功能；
 - `ScheduledThreadPoolExecutor` 是 `ScheduledExecutorService` 的具体实现类；
+- 另外还有工厂类 `Executors`，提供创建线程池的工厂方法。
+
+## 方法说明
+
+<img src="images/image-20240315172749029.png" alt="image-20240315172749029" style="zoom:50%;" />
+
+`schedule` 方法有 3 类：
+
+- schedule：在指定时间，运行任务一次；
+- scheduleAtFixedRate：固定频率运行任务，即任务开始的时间间隔不变；如果周期太短，任务还没执行到，下一个周期就开始了，此时会等待上一个任务结束，然后立即开始下一个任务；
+- scheduleWithFixedDelay：上一次结束和下一次开始中间的 delay 保持不变
 
 ## Executor
 
@@ -100,10 +113,11 @@ class SerialExecutor implements Executor {
 
 | 方法  | 功能   |
 | ---- | ------ |
-| `newFixedThreadPool` | 创建一个定长线程池，每提交一个任务创建一个线程，当到达线程最大数量时，线程池的规模将不再变化 |
+| `newFixedThreadPool` | 创建一个固定大小线程池，每提交一个任务创建一个线程，当到达线程最大数量时，线程池的规模将不再变化 |
 | `newCachedThreadPool` | 创建一个可缓存的线程池，当前线程池的规模超出了处理需求，将回收空的线程；当需求增加时，会增加线程数量；线程池规模无限制                    |
-| `newSingleThreadPoolExecutor` | 创建一个单线程的 `Executor`，创建单个工作线程执行任务，如果这个线程异常结束，会创建另一个线程来替代。能确保任务按照在队列中的顺序串行执行 |
+| `newSingleThreadPoolExecutor` | 创建只包含一个线程的线程池，如果这个线程异常结束，会创建另一个线程来替代。能确保任务按照在队列中的顺序串行执行 |
 | `newScheduledThreadPool`      | 创建一个固定长度的线程池，以延迟或者定时的方式来执行，类似 `Timer`                                                                        |
+| `newSingleThreadScheduledExecutor` | 创建一个 `ScheduledExecutorSenrice`，线程池大小为 1 |
 
 不推荐使用上面的方法创建线程池，因为上面的静态方法只是简单的对 `ThreadPoolExecutor` 的构造函数进行封装，使用的参数策略过于简单。
 
