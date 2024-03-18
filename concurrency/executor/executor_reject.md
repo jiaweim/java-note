@@ -1,5 +1,8 @@
 # 拒绝任务
 
+2024-03-18
+@author Jiawei Mao
+
 ## 简介
 
 `ThreadPoolExecutor` 构造函数的最后一个参数指定拒绝策略。
@@ -22,4 +25,54 @@ public interface RejectedExecutionHandler {
 ```
 
 `r` 是请求执行的任务，`executor` 为当前线程池。
+
+## 示例
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+public class RejectThreadPoolDemo {
+
+    static class MyTask implements Runnable {
+
+        @Override
+        public void run() {
+            System.out.println(System.currentTimeMillis() + ":Thread ID:"
+                    + Thread.currentThread().getId());
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        MyTask task = new MyTask();
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                5, 5, //  5 个常驻线程，最大线程数量 5，类似固定线程池
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10), // 等待队列 10
+                Executors.defaultThreadFactory(),
+                // 拒绝策略，比 DiscardPolicy 多一点点输出
+                (r, executor1) -> System.out.println(r.toString() + " is discard"));
+        // MyTask 执行需要 100 毫秒，因此会有大量 MyTask 被丢弃
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            executor.submit(task);
+            Thread.sleep(10);
+        }
+    }
+}
+```
+
+```
+1710728543908:Thread ID:28
+1710728543924:Thread ID:29
+1710728543939:Thread ID:30
+1710728543955:Thread ID:31
+java.util.concurrent.FutureTask@136432db[Not completed, task = java.util.concurrent.Executors$RunnableAdapter@2e5c649[Wrapped task = mjw.java.concurrency.executor.RejectThreadPoolDemo$MyTask@383534aa]] is discard
+```
 

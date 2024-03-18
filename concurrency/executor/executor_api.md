@@ -151,3 +151,6 @@ public static ExecutorService newCachedThreadPool() {
 
 该线程池适合于计算量大的任务，或者限制任务消耗的资源。
 
+### newScheduledThreadPool
+
+`newScheduledThreadPool` 创建一个固定长度的线程池，而且以延迟或定时的方式来执行。

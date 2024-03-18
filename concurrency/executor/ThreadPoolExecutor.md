@@ -139,6 +139,14 @@ public static ExecutorService newCachedThreadPool() {
 一般使用 `LinkedBlockingQueue`，大小设置为有边界，避免内存溢出。即使用 `newFixedThreadPool`。
 
 ## threadFactory
+`ThreadFactory` 是一个简单的接口：
+
+```java
+public interface ThreadFactory {
+    Thread newThread(Runnable r);
+}
+```
+
 用于创建线程的工厂类，`Executors`里默认的 `threadFactory` 里线程的默认命名规则为 "pool-num-thread-num".
 
 ## handler

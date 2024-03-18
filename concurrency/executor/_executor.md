@@ -10,3 +10,5 @@
 - [延迟执行：ScheduledExecutorService](executor_delay.md)
 - [周期执行：scheduleAtFixedRate](executor_periodically.md)
 - [取消任务](executor_cancel.md)
+- [拒绝任务](executor_reject.md)
+- [控制任务](executor_control.md)

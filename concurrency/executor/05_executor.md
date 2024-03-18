@@ -33,6 +33,8 @@ public interface ExecutorService extends Executor {
     // 其它用于任务提交的便利方法
 ```
 
+`ExecutorService` 的生命周期有三种状态：运行、关闭和已终止。
+
 ## 线程池状态
 
 `ThreadPoolExecutor` 中定义了几个 final 字段用于定义线程池的状态：
@@ -67,10 +69,10 @@ private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 - `shutdownNow()` 执行粗暴的关闭过程；
 - 当线程池处于 `SHUTDOWN` 或 `STOP` 状态，并且所有工作线程已经销毁，任务缓存队列已经清空或执行结束后，线程池被设置为 `TERMINATED` 状态。
 - 在 `ExecutorService` 关闭后提交的任务将由 "Rejected Execution Handler" 处理，它会抛弃任务，或者使得 `execute` 方法抛出一个 `RejectedExecutionException`。
-- 等所有任务都完成了，`ExecutorService` 转入终止状态。可以使用 `awaitTermination` 来等待 `ExecuteService` 到达终止状态，或者通过调用 `isTerminated` 查询ExecutorService 是否已终止。通常在调用 `awaitTermination`后立即调用 `shutdown`，从而产生同步关闭 `ExecutorService` 的效果。
+- 等所有任务都完成了，`ExecutorService` 转入终止状态。可以使用 `awaitTermination` 来等待 `ExecuteService` 到达终止状态，或者通过调用 `isTerminated` 查询 `ExecutorService` 是否已终止。通常在调用 `awaitTermination`后立即调用 `shutdown`，从而产生同步关闭 `ExecutorService` 的效果。
 
 
-# 线程池使用方法
+## 线程池使用方法
 
 
 1. 定义线程类
@@ -78,7 +80,7 @@ private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 class Handler implements Runnable{  }
 ```
 
-## 创建线程池
+### 创建线程池
 
 ```java
 ExecutorService executorService = Executors.newCachedThreadPool();  
@@ -90,7 +92,7 @@ int cpuNums = Runtime.getRuntime().availableProcessors();  //获取当前�
 ExecutorService executorService =Executors.newFixedThreadPool(cpuNums * POOL_SIZE); //ExecutorService通常根据系统资源情况灵活定义线程池大小  
 ```
 
-## 提交任务
+### 提交任务
 线程池通过 `execute()` 提交任务，提交任务后的执行流程：
 - 如果线程池当前线程数量小于  ``
 
@@ -106,23 +108,23 @@ while(true){  
 ```
 `execute(Runnable对象)`方法其实就是对 `Runnable` 对象调用 `start()` 方法（当然还有一些其他后台动作，比如队列，优先级，IDLE timeout，active激活等）
 
-## 关闭线程池
+### 关闭线程池
 `ThreadPoolExecutor` 提供了两个关闭线程池的方法，分别是 `shutdown()` 和 `shutdownNow()`，其中：
 - `shutdown()` 调用后不再接受新的任务，等队列中的所有任务完成后终止；
 - `shutdownNow()` 调用后不再接受新任务，并尝试中断正在制定的任务，且清空任务队列。
 
 
-# 延迟任务与周期任务
+## 延迟任务与周期任务
 `Timer` 类负责管理延迟任务（如在 100ms 后执行任务）和周期任务（如每 10ms 执行一次该任务）。然而，`Timer` 存在一些缺陷，`Timer` 支持基于绝对时间的调度机制，因此任务的执行对系统时钟变化很敏感，而 `ScheduledThreadPoolExecutor` 只支持基于相对时间的调度，因此应该考虑使用 `ScheduledThreadPoolExecutor` 来代替它。
 
 `Timer` 在执行所有定时任务时只创建一个线程。如果某个任务的执行时间过长，那么将破坏其他 `TimerTask` 的定时准确性。
 
 在 Java 5.0 之后已经很少使用 `Timer` 了，如果要构建自己的调度服务，可以使用 `DelayQueue`，它实现了 `BlockingQueue`，并为 `ScheduledThreadPoolExecutor` 提供调度服务。
 
-# 线程池配置
+## 线程池配置
 
 一般需要根据任务的类型来配置线程池大小。
 
 对CPU 密集型任务，就需要尽量压榨CPU，参考值可以设置为 NCPU+1，通常能实现最优的利用率。即使当计算密集型的线程偶尔因为某种原因暂停，额外的线程也能确保CPU的时钟周期不会被浪费。
 
-如果是IO密集型任务，由于线程并不会一直执行，因此线程池的规模应该更大。参考值为 2*NCPU
+如果是IO密集型任务，由于线程并不会一直执行，因此线程池的规模应该更大。参考值为 2*NCPU。
