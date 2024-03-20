@@ -32,7 +32,7 @@
 
 ## Executor
 
-`Executor` 接口的声明非常简单，如下所示：
+`Executor` 接口的声明非常简单：
 
 ```java
 public interface Executor {
@@ -40,13 +40,15 @@ public interface Executor {
 }
 ```
 
-`execute(Runnable)` 用来执行提交的任务。通常使用 `Executor` 来代替显式创建线程。例如，显式创建线程：
+`execute(Runnable)` 用来执行提交的任务。通常使用 `Executor` 来代替显式创建线程。例如，
+
+- 显式创建线程
 
 ```java
 new Thread(new RunnableTask()).start() 
 ```
 
-`Executor` 方式：
+- `Executor` 方式：
 
 ```java
 Executor executor = anExecutor();
@@ -54,7 +56,7 @@ executor.execute(new RunnableTask1());
 executor.execute(new RunnableTask2());
 ```
 
-但是，`Executor` 接口并不没有要求必须异步执行任务。例如，executor 可以执行在调用者线程中立即执行提交的任务：
+但是，`Executor` 接口没有要求必须异步执行任务。例如，executor 可以执行在调用者线程中立即执行提交的任务：
 
 ```java
 class DirectExecutor implements Executor {
@@ -147,10 +149,17 @@ public static ExecutorService newCachedThreadPool() {
 
 `newFixedThreadPool()` 创建一个固定长度的线程池，每提交一个任务就创建一个线程，直到达到线程池的最大数量，这时线程池的规模不再变化。
 
-如果没有空闲线程，新添加的任务会放在队列中，直到有空余线程。
+如果没有空闲线程，新添加的任务会放在 work-queue 中，直到有空余线程。
 
 该线程池适合于计算量大的任务，或者限制任务消耗的资源。
 
+### newSingleThreadPoolExecutor
+
+`newSingleThreadPoolExecutor` 是一个单线程的 `Executor`。它创建单个 work-thread 执行任务，如果这个线程异常结束，会创建另一个线程补回来。
+
+`newSingleThreadPoolExecutor` 能确保任务在 work-queue 中串行执行，如 FIFO，LIFO 或优先级队列。
+
 ### newScheduledThreadPool
 
-`newScheduledThreadPool` 创建一个固定长度的线程池，而且以延迟或定时的方式来执行。
+`newScheduledThreadPool` 创建一个固定长度的线程池，而且以**延迟或定时**的方式来执行。
+

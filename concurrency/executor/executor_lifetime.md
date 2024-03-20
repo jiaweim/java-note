@@ -18,26 +18,54 @@
 
 创建 `Executor` 很容易，但JVM只有在所有（非守护）线程全部终止后才会退出，因此，如果无法正确关闭 `Executor`，JVM 将无法结束。
 
-为了解决执行服务的生命周期问题， `ExecutorService` 接口扩展 `Executor`，添加了一些用于生命周期管理的方法。如下：
+由于 `Executor` 以异步的方式执行任务，因此在任何时刻，之前提交任务的状态不是立即可见。有些任务可能已经完成，有些可能正在运行，而其它的任务可能在 work-queue 中等待执行。
+
+为了解决 `Executor` 的生命周期问题， `ExecutorService` 接口扩展 `Executor`，添加了一些用于生命周期管理的方法。如下：
 
 ```java
 public interface ExecutorService extends Executor {
+
     void shutdown();
     List<Runnable> shutdownNow();
     boolean isShutdown();
+
     boolean isTerminated();
+
     boolean awaitTermination(long timeout, TimeUnit unit)
         throws InterruptedException;
+
+    <T> Future<T> submit(Callable<T> task);
     <T> Future<T> submit(Runnable task, T result);
     Future<?> submit(Runnable task);
-    // 其它用于任务提交的便利方法
+
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+        throws InterruptedException;
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+                                  long timeout, TimeUnit unit)
+        throws InterruptedException;
+
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+        throws InterruptedException, ExecutionException;
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks,
+                    long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException;
+}
 ```
 
-`ExecutorService` 的生命周期有三种状态：运行、关闭和已终止。
+`ExecutorService` 的生命周期有三种状态：running, shutting-down 和 terminated。
+
+- `ExecutorService` 初始化后处于 running 状态
+- `shutdown` 执行平缓关闭：不再接受新 task，但是等待已经提交的 tasks 完成
+- `shudownNow` 执行粗暴关闭：取消运行中的 task，不再启动 work-queue 中尚未开始执行的 task
+
+`ExecutorService` 关闭后提交的 task 由 `RejectedExecutionHandler` 处理，它会抛弃任务，或者让 `execute` 方法抛出一个 `RejectedExecutionExeception`。
+
+等所有 task 完成后，`ExecutorService` 进入 terminated 状态。可以调用 `awaitTermination` 等待 `ExecutorService` 进入 terminated 状态，或者通过调用 `isTerminated` 轮询 `ExecutorService` 是否已经 terminated。通常调用 `awaitTermination` 后会立即调用 `shutdown`，从而产生同步关闭 `ExecutorService` 的效果。
 
 ## 线程池状态
 
 `ThreadPoolExecutor` 中定义了几个 final 字段用于定义线程池的状态：
+
 ```java
 private static final int RUNNING    = -1 << COUNT_BITS;
 private static final int SHUTDOWN   =  0 << COUNT_BITS;
@@ -49,20 +77,21 @@ private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
 private static final int COUNT_BITS = Integer.SIZE - 3;
 private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 ```
-用使用 `AtomicInteger` 类型字段 `ctl` 记录当前状态。`Integer` 有32位，其中高3位表示线程池状态，低29位表示线程池中的任务数目。
+`AtomicInteger` 类型字段 `ctl` 用于记录当前状态。`Integer` 有32位，其中高3位表示线程池状态，低29位表示线程池中的任务数目。
+
 - `COUNT_BITS` 表示 `ctl` 变量中有效线程数量的位数，这里是 29；
 - `CAPACITY` 表示最大有效线程数，这里是 $2^{29}-1=536870911$，五亿多，完全够用；
 
-所以，这里用一个字段表示了状态和线程数目两个信息，主要是方面这两个信息的同时获取。
+所以，这里用一个字段表示了状态和线程数目两个信息，主要是方便这两个信息的同时获取。
 
 线程池有五种状态：
 |状态|说明|
 |---|---|
-|RUNNING|线程池初始化后的默认状态，表示接收新任务，并且处理任务队列中的任务|
-|SHUTDOWN|调用 `shutdown()` 后进入该状态，该状态下不接收新任务，但继续处理任务队列中已有的任务，包括那些还未开始执行的任务|
-|STOP|调用 `shutdownNow()` 后进入该状态，该状态下线程池不接收新任务，并尝试终止所有正在执行的任务，并不再启动队列中尚未执行的任务|
-|TIDYING|所有任务完成，`workerCount` 为 0 时进入该状态|
-|TERMINATED|`terminated()`执行后进入该状态|
+|`RUNNING`|线程池初始化后的默认状态，表示接收新任务，并且处理任务队列中的任务|
+|`SHUTDOWN`|调用 `shutdown()` 后进入该状态，该状态下不接收新任务，但继续处理任务队列中已有的任务，包括那些还未开始执行的任务|
+|`STOP`|调用 `shutdownNow()` 后进入该状态，该状态下线程池不接收新任务，并尝试终止所有正在执行的任务，并不再启动队列中尚未执行的任务|
+|`TIDYING`|所有任务完成，`workerCount` 为 0 时进入该状态|
+|`TERMINATED`|`terminated()`执行后进入该状态|
 
 说明：
 - `shutdown()` 执行平缓的关闭过程；
@@ -115,9 +144,9 @@ while(true){  
 
 
 ## 延迟任务与周期任务
-`Timer` 类负责管理延迟任务（如在 100ms 后执行任务）和周期任务（如每 10ms 执行一次该任务）。然而，`Timer` 存在一些缺陷，`Timer` 支持基于绝对时间的调度机制，因此任务的执行对系统时钟变化很敏感，而 `ScheduledThreadPoolExecutor` 只支持基于相对时间的调度，因此应该考虑使用 `ScheduledThreadPoolExecutor` 来代替它。
+`Timer` 类负责管理延迟任务（如在 100ms 后执行任务）和周期任务（如每 10ms 执行一次该任务）。然而，`Timer` 存在一些缺陷，`Timer` 支持基于绝对时间的调度机制，因此任务的执行对系统时钟变化很敏感，而 `ScheduledThreadPoolExecutor` 支持基于相对时间的调度，因此应该考虑使用 `ScheduledThreadPoolExecutor` 来代替它。
 
-`Timer` 在执行所有定时任务时只创建一个线程。如果某个任务的执行时间过长，那么将破坏其他 `TimerTask` 的定时准确性。
+`Timer` 在执行所有定时任务时只创建一个线程。如果某个任务执行时间过长，那么将破坏其他 `TimerTask` 的定时准确性。
 
 在 Java 5.0 之后已经很少使用 `Timer` 了，如果要构建自己的调度服务，可以使用 `DelayQueue`，它实现了 `BlockingQueue`，并为 `ScheduledThreadPoolExecutor` 提供调度服务。
 

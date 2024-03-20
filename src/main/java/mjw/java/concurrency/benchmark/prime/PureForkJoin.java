@@ -3,7 +3,10 @@ package mjw.java.concurrency.benchmark.prime;
 import mjw.java.concurrency.benchmark.Utils;
 
 import java.math.BigInteger;
+import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class PureForkJoin extends RecursiveTask<Boolean> {
 
