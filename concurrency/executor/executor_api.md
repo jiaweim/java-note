@@ -24,6 +24,27 @@
 
 <img src="images/image-20240315172749029.png" alt="image-20240315172749029" style="zoom:50%;" />
 
+| 方法                             | 说明                                                         |
+| -------------------------------- | ------------------------------------------------------------ |
+| `void execute(Runnable command)` | 提交任务，只支持 `Runnable` 类型，遇到异常直接抛出           |
+| `List<Future> invokeAll()`       |                                                              |
+| `Future submit()`                | 提交任务，支持 `Runnable` 和 `Callable` 类型，余下与 `execute` 一样 |
+
+`submit` 源码：只是用 `RunnableFuture` 将 `Runnable` 进行包装，然后调用 `execute` 提交任务
+
+```java
+public Future<?> submit(Runnable task) {
+    if (task == null) throw new NullPointerException();
+    RunnableFuture<Void> ftask = newTaskFor(task, null);
+    execute(ftask);
+    return ftask;
+}
+```
+
+
+
+
+
 `schedule` 方法有 3 类：
 
 - schedule：在指定时间，运行任务一次；

@@ -179,7 +179,7 @@ Path path = Paths.get(System.getProperty("user.home"), "downloads", "game.exe");
 |`getParent()`|当前路径的上级目录|
 |`getRoot()`|当前路径的根目录|
 
-实例，绝对路径：
+示例，绝对路径：
 
 ```java
 Path path = Paths.get("C:\\home\\joe\\foo");
@@ -193,7 +193,30 @@ assertEquals(path.getParent().toString(), "C:\\home\\joe");
 assertEquals(path.getRoot().toString(), "C:\\");
 ```
 
-实例，相对路径：
+```java
+Path path = Path.of("D:\\data_friend\\liujing\\20220516_Fetuin_500ng_UVPD_1.raw");
+System.out.println(path);
+System.out.println(path.getFileName());
+System.out.println(path.getNameCount());
+System.out.println(path.getName(0));
+System.out.println(path.getName(2));
+System.out.println(path.subpath(1, 2));
+System.out.println(path.getParent());
+System.out.println(path.getRoot());
+```
+
+```
+D:\data_friend\liujing\20220516_Fetuin_500ng_UVPD_1.raw
+20220516_Fetuin_500ng_UVPD_1.raw
+3
+data_friend
+20220516_Fetuin_500ng_UVPD_1.raw
+liujing
+D:\data_friend\liujing
+D:\
+```
+
+示例，相对路径：
 
 ```java
 Path path = Paths.get("sally/bar");
@@ -313,3 +336,19 @@ assertTrue(path.endsWith(end));
 ```
 
 另外，`Path` 类还支持 `Iterable`接口，`Comparable` 接口，可以迭代路径的元素，也可以对比 `Path` 对象。
+
+### resolveSibling
+
+```java
+Path resolveSibling(Path other)
+```
+
+根据当前 `Path` 的 parent-path 解析给定 `Path`。当需要用替换文件名时非常有用。
+
+例如，假设 `/` 为路径分隔符，"`dir1/dir2/foo`" 为当前路径，那么以  `Path` "`bar`" 为参数调用 `resolveSibling` 得到 `Path` "`dir1/dir2/bar`"。
+
+解析：当前路径的父路径为 "`dir1/dir2/`"，连接 "`bar`" 就得到 "`dir1/dir2/bar`"。
+
+- 如果当前 `Path` 没有 parent，或者 `other` 是绝对路径，则直接返回 `other`；
+- 如果 `other` 是空的，则返回当前 `Path` 的 parent，如果当前 `Path` 的 parent 也是空的，则返回空路径。
+

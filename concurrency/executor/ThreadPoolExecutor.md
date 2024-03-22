@@ -55,7 +55,7 @@ public static ExecutorService newCachedThreadPool() {
 | -- | --- |
 | `corePoolSize` | 线程池大小。在创建线程池后，线程池中默认没有线程，等任务来才创建线程执行任务，当线程池中的线程数达到 `corePoolSize`，后续任务放在缓存队列中等待执行；如果调用了 `prestartAllCoreThreads()` 或 `prestartCoreThread()`方法，则在任务到来之前就预创建线程 |
 | `maximumPoolSize` | 线程池允许的最大线程数 |
-| `keepAliveTime`   | 线程没有任务执行时，过多久终止空闲线程。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize` 时，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。如果调用了 `allowCoreThreadTimeOut(boolean value)` 方法，在线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
+| `keepAliveTime`   | 线程没有任务执行时，过多久终止空闲线程。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize`，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。如果调用了 `allowCoreThreadTimeOut(boolean value)` 方法，在线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
 | `unit`  | `keepAliveTime` 的时间单位 |
 | `workQueue`  | 当前线程数超过 `corePoolSize` 时，新的任务会处于等待状态，并保存在该阻塞队列中  |
 | `threadFactory`   | 线程工厂，用于创建线程 |
@@ -184,7 +184,7 @@ handle 有以下几种取值：
 ## 执行流程
 通过 `execute()` 方法提交任务，线程池通过如下流程安排新的任务：
 
-![](images/2019-09-25-13-44-15.png)
+<img src="images/2019-09-25-13-44-15.png" style="zoom:80%;" />
 
 1. 刚创建的线程池，里面没有线程，不过可以通过 `prestartCoreThread()` 或 `prestartAllCoreThreads()` 预先创建线程
 2. 当调用 `execute()` 方法添加一个新任务时，线程池会作如下判断：

@@ -1,15 +1,5 @@
 # Executor 的生命周期
 
-- [Executor 的生命周期](#executor-的生命周期)
-  - [简介](#简介)
-  - [线程池状态](#线程池状态)
-- [线程池使用方法](#线程池使用方法)
-  - [创建线程池](#创建线程池)
-  - [提交任务](#提交任务)
-  - [关闭线程池](#关闭线程池)
-- [延迟任务与周期任务](#延迟任务与周期任务)
-- [线程池配置](#线程池配置)
-
 2024-02-08, 15:47
 @author Jiawei Mao
 ***
@@ -89,13 +79,13 @@ private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 |---|---|
 |`RUNNING`|线程池初始化后的默认状态，表示接收新任务，并且处理任务队列中的任务|
 |`SHUTDOWN`|调用 `shutdown()` 后进入该状态，该状态下不接收新任务，但继续处理任务队列中已有的任务，包括那些还未开始执行的任务|
-|`STOP`|调用 `shutdownNow()` 后进入该状态，该状态下线程池不接收新任务，并尝试终止所有正在执行的任务，并不再启动队列中尚未执行的任务|
+|`STOP`|调用 `shutdownNow()` 后进入该状态，该状态下线程池不接收新任务，并将正在执行的线程状态设置为 interrupted，不再启动队列中尚未执行的任务|
 |`TIDYING`|所有任务完成，`workerCount` 为 0 时进入该状态|
-|`TERMINATED`|`terminated()`执行后进入该状态|
+|`TERMINATED`|`terminated()`执行完毕后的状态|
 
 说明：
-- `shutdown()` 执行平缓的关闭过程；
-- `shutdownNow()` 执行粗暴的关闭过程；
+- `shutdown()` 执行平缓的关闭过程，线程池从 `RUNNING` 转换为 `SHUTDOWN` 状态；
+- `shutdownNow()` 执行粗暴的关闭过程，
 - 当线程池处于 `SHUTDOWN` 或 `STOP` 状态，并且所有工作线程已经销毁，任务缓存队列已经清空或执行结束后，线程池被设置为 `TERMINATED` 状态。
 - 在 `ExecutorService` 关闭后提交的任务将由 "Rejected Execution Handler" 处理，它会抛弃任务，或者使得 `execute` 方法抛出一个 `RejectedExecutionException`。
 - 等所有任务都完成了，`ExecutorService` 转入终止状态。可以使用 `awaitTermination` 来等待 `ExecuteService` 到达终止状态，或者通过调用 `isTerminated` 查询 `ExecutorService` 是否已终止。通常在调用 `awaitTermination`后立即调用 `shutdown`，从而产生同步关闭 `ExecutorService` 的效果。

@@ -3,6 +3,7 @@
 - [简介](executor_intro.md)
 - [线程池 API](executor_api.md)
 - [ThreadPoolExecutor](ThreadPoolExecutor.md)
+- [生命周期](executor_lifetime.md)
 - [创建线程池](create_executor.md)
 - [任务返回值：Callable & Future](executor_return.md)
 - [运行多个任务，只要一个结果：invokeAny](executor_first.md)
@@ -12,4 +13,3 @@
 - [取消任务](executor_cancel.md)
 - [拒绝任务](executor_reject.md)
 - [控制任务](executor_control.md)
-

@@ -2,7 +2,6 @@
 
 2024-03-15
 @author Jiawei Mao
-
 ## 简介
 
 如何取消发送到 executor 的任务：通过 `Future.cancel()` 方法取消任务。
@@ -55,23 +54,7 @@ public class Main5 {
 ```
 Main: Executing the Task
 Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
-Task: Test
+...
 Task: Test
 Main: Canceling the Task
 Main: Canceled: true
@@ -88,3 +71,4 @@ Main: The executor has finished
   - `false`，表示既然已经在运行，那就等你运行完吧
 
 对已经 `cancel` 的 `Future` 对象，调用 `get()` 抛出 `CancellationException`。
+

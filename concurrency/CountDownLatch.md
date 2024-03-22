@@ -1,9 +1,7 @@
 # CountDownLatch
 
-- [CountDownLatch](#countdownlatch)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [功能](#%e5%8a%9f%e8%83%bd)
-  - [实例](#%e5%ae%9e%e4%be%8b)
+2024-03-21
+@author Jiawei Mao
 
 ## 简介
 
@@ -13,7 +11,10 @@
 
 计数是一次性的，即数值到0后无法重置，如果需要重置数值，可以考虑使用 `CyclicBarrier`。
 
-在并行处理中，可以使用和线程数目相同的数值实例化 `CountDownLatch`。然后在每个线程完成后调用 `countdown()`，这样其它依赖线程调用 `await()` 方法会阻塞，直到数值归零，即所有任务线程完成。
+在并行处理中，可以使用和线程数目相同的数值实例化 `CountDownLatch`，然后：
+
+- `countdown()`：降低需要等待的线程数，在每个线程完成后调用；
+- `await()`：使调用该方法的线程挂起，直到 counter 到 0，即所有任务线程完成。
 
 ## 功能
 
