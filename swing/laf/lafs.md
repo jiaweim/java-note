@@ -82,3 +82,5 @@ WebLaf 是一个开源的 Swing lnf 库。
 需要 Java 9+。
 
 原来比较流行的 substance 现在是 Radiance 的一部分。
+
+https://blog.csdn.net/j379832526/article/details/112994461

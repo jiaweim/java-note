@@ -7,6 +7,8 @@
     - [创建 JMenu](#创建-jmenu)
     - [创建 JMenuItem](#创建-jmenuitem)
 
+2024-03-29
+@author Jiawei Mao
 
 ## 简介
 
@@ -22,7 +24,7 @@
 
 ## 菜单类层次结构
 
-![](images/2023-12-25-15-58-34.png)
+<img src="images/2023-12-25-15-58-34.png" style="zoom:40%;" />
 
 如图所示，menu-item 就是简单的按钮。当激活菜单，menu-item 自动弹出一个弹出式菜单。
 
@@ -34,7 +36,7 @@
 2. 再创建 `JMenu`
 3. 最后创建 `JMenuItem`
 
-- 创建 `JMenuBar`
+### 创建 `JMenuBar`
 
 `JMenuBar` 只有一个构造函数：
 
@@ -42,7 +44,7 @@
 JMenuBar()
 ```
 
-### 创建 JMenu
+### 创建 `JMenu`
 
 ```java
 JMenu()
@@ -51,7 +53,11 @@ JMenu(String s)
 JMenu(String s, boolean b)
 ```
 
-`s` 指定菜单的名称，`b` 表示是否为下拉式菜单。
+说明：
+
+- `javax.swing.Action` 提供创建 `JMenu` 的属性；
+- `s` 指定菜单的名称；
+- `b` 表示是否为下拉式菜单。
 
 **示例：** 创建 `JMenu`
 
@@ -95,8 +101,6 @@ public class JMenuDemo extends JFrame {
 ![](images/2023-12-25-16-49-23.png)
 
 ### 创建 JMenuItem
-
-
 
 基本操作：
 

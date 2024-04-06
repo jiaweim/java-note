@@ -495,7 +495,7 @@ Jython 2.7.0 (default:9987c746f838, Apr 29 2015, 02:25:11)
 
 https://www.injdk.cn/
 
-[清华 AdoptOpenJDK 镜像](https://mirrors.tuna.tsinghua.edu.cn/AdoptOpenJDK/)
+[清华 AdoptOpenJDK 镜像](https://mirrors.tuna.tsinghua.edu.cn/Adoptium/)
 
 华为镜像
 https://repo.huaweicloud.com/java/jdk/

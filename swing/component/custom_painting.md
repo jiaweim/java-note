@@ -1,33 +1,22 @@
 #  自定义绘制
 
-- [自定义绘制](#自定义绘制)
-  - [简介](#简介)
-  - [示例](#示例)
-    - [第一步](#第一步)
-    - [第二步](#第二步)
-    - [第三步](#第三步)
-    - [改进设计](#改进设计)
-  - [绘制机制](#绘制机制)
-  - [总结](#总结)
-  - [常见绘制问题](#常见绘制问题)
-  - [参考](#参考)
-
-2023-12-25, 08:36
+2023-12-25
+@author Jiawei Mao
 ****
 
 ## 简介
 
 大部分程序不需要自己写绘制代码，Swing 标准组件可以满足大部分需求。如果确实需要控制 `Graphics` 的绘制方法，可以阅读以下内容。
 
-下面通过一个按照鼠标事件绘制形状的简单 GUI 程序的示例来解释实现自定义绘制。
+下面通过一个按照鼠标事件绘制形状的简单 GUI 程序来解释如何实现自定义绘制。
 
-Swing 的自定义绘制与 AWT 类似，但由于我们不建议完全使用 AWT 编写程序，因此在这不专门讨论绘制机制。
+Swing 的自定义绘制与 AWT 类似，但不建议完全使用 AWT 编写程序。
 
 ## 示例
 
 ### 第一步
 
-所有 GUI 都需要一个主窗口，在 Swing 中为 `javax.swing.JFrame`。因此，第一步是创建该类。需要注意，GUI 创建代码应该放在 Event Diapatch Thread (EDT) 中，以防死锁，如下：
+所有 GUI 都需要一个主窗口，在 Swing 中为 `javax.swing.JFrame`。因此，第一步是创建 `JFrame`。需要注意，GUI 创建代码应该放在 Event Dispatch Thread (EDT) 中，以防死锁，如下：
 
 ```java
 import javax.swing.SwingUtilities;
@@ -50,13 +39,13 @@ public class SwingPaintDemo1 {
 }
 ```
 
-上面代码的作用：
+代码说明：
 
-- 创建窗口 `JFrame`
-- 设置标题
-- `SwingUtilities` 帮助类在 EDT 线程上创建 GUI
-- 默认单击 close 按钮，`JFrame` 不会退出程序，需要通过 `setDefaultCloseOperation` 实现该行为
-- 显式将窗口尺寸设置为 250x250，不过向 `JFrame` 添加组件后，就不需要了
+- 创建窗口 `JFrame`；
+- 设置标题；
+- `SwingUtilities` 帮助类在 EDT 线程上创建 GUI；
+- 默认单击 close 按钮，`JFrame` 不会退出程序，需要通过 `setDefaultCloseOperation` 实现该行为；
+- 显式将窗口尺寸设置为 250x250，不过向 `JFrame` 添加组件后，就不需要了。
 
 ### 第二步
 
@@ -92,7 +81,7 @@ class MyPanel extends JPanel {
     public MyPanel() {
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
-
+	
     public Dimension getPreferredSize() {
         return new Dimension(250, 250);
     }
@@ -110,8 +99,8 @@ class MyPanel extends JPanel {
 
 说明：定义了一个 `JPanel` 的子类，`MyPanel`，里面包含绘制的主要代码。
 
-- `MyPanel` 在构造函数中为其添加了黑色边框，这种细微的差别很难看到，可以先注释掉构造函数的代码，运行后和原来的 GUI 对比
-- 另外，`MyPanel` 覆盖了 `getPreferredSize` 方法，以设置 panel 的默认尺寸。这样在 `SwingPaintDemo` 中就不需要再设置尺寸，添加控件后调用 `pack` 即可
+- `MyPanel` 在构造函数中添加了黑色边框，这种细微的差别很难看到，可以先注释掉构造函数的代码，运行后和原来的 GUI 对比；
+- `MyPanel` 覆盖 `getPreferredSize()` 以设置 panel 的 pref 尺寸。这样在 `SwingPaintDemo` 中就不需要再设置尺寸，添加控件后调用 `pack` 即可；
 - 所有的自定义绘制代码都在 `paintComponent` 方法中。
   - 该方法在 `javax.swing.JComponent` 方法中，在子类中覆盖该方法以自定义绘制行为。
   - `java.awt.Graphics` 参数包含许多绘制 2D 图形的方法，不过大多数情况，实际参数为 `java.awt.Graphics2D` (`Graphics` 的子类)对象，该类提供了更多 2D 图形渲染功能。

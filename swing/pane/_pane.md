@@ -4,7 +4,7 @@
 
 | 容器           | 说明                   |
 | -------------- | ---------------------- |
-| JPanel         | 常规容器               |
+| [JPanel](./JPanel.md)   | 常规容器               |
 | JScrollPane    | 支持滚动条             |
 | JSplitPane     | 分隔成两部分           |
 | JTabbedPane    | 选项卡                 |

@@ -39,3 +39,4 @@
 - https://zetcode.com/javaswing/
 - https://docs.oracle.com/javase/tutorial/uiswing/components/spinner.html
 - [Java Swing 框架、库和软件](https://github.com/parubok/awesome-swing)
+- https://github.com/aterai/java-swing-tips

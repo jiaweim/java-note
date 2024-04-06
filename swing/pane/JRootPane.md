@@ -1,12 +1,7 @@
 # JRootPane
 
-- [JRootPane](#jrootpane)
-  - [简介](#简介)
-  - [Glass Pane](#glass-pane)
-  - [Layered Pane](#layered-pane)
-  - [参考](#参考)
-
-2023-12-28, 16:46
+2024-03-31
+@author Jiawei Mao
 ***
 
 ## 简介
@@ -17,15 +12,18 @@
 
 <img src="images/ui-rootPane.gif" width="360" />
 
-content-pane 和可选的菜单栏不再赘述。root-pane 还添加了 layered-pane 和 glass-pane。即 root-pane 分为 4 部分：
+`JRootPane` 包含两部分：
+
+- `JLayeredPane`
+- glass-pane (`Component`)
 
 **glass-pane**
 
-glass-pane 默认隐藏。如果使 glass-pane 可见，它就像一块玻璃覆盖在 root-pane 其它部分上。它完全透明，除非你实现 glass-pane 的 `paintComponent` 方法。通常用于拦截 root-pane 的输入事件。
+glass-pane 在最前面，可以是任意 `Component`，通常不可见，即默认隐藏。glass-pane 确保类似 tooltip 组件出现在其它 Swing 组件前面。如果使 glass-pane 可见，它就像一块玻璃覆盖在 `JLayeredPane` 上面。它完全透明，除非实现 glass-pane 的 `paintComponent` 方法。通常用于拦截 root-pane 的输入事件。
 
 **layered-pane**
 
-layered-pane 包含菜单栏和 content-pane，支持组件的 Z-order 排列。
+glass-pane 下面是 `JLayeredPane`。`JLayeredPane` 的顶部为可选的菜单栏 `JMenuBar`，和 content-pane (`Container`)。可视化组件通常放在 content-pane 中。
 
 **content-pane**
 
@@ -34,6 +32,96 @@ root-pane 的可见组件的容器，不包括菜单栏。
 **menu-bar**
 
 root-pane 的菜单。如果一个容器由菜单栏，通过使用容器的 `setJMenuBar` 将菜单栏放在适当的位置。
+
+!!! note
+    `JLayeredPane` 只是一个 Swing 容器，它可以包含任何组件，并具有特殊的分层特点。`JRootPane` 中使用的默认 `JLayeredPane` 仅包含一个可选的 `JMenuBar` 和一个 `Container`。content-pane 有自己的 layout，默认为 `BorderLayout`。
+
+## 创建 JRootPane
+
+尽管 `JRootPane` 提供了一个无参构造函数，但通常不用自己创建 `JRootPane`，而是由实现 `RootPaneContainer` 接口的类创建 `JRootPane`。然后通过 `RootPaneContainer.getRootPane()` 获得 root-pane。
+
+<img src="./images/image-20240331210138640.png" alt="image-20240331210138640" style="zoom:50%;" />
+
+## JRootPane 属性
+
+如下表所示，`JRootPane` 有 11 个属性。当为顶级容器获取或设置这些属性时，大多情况容器只是将请求传递给它的 `JRootPane`。
+
+| 属性                    | 类型              | 权限             |
+| ----------------------- | ----------------- | ---------------- |
+| `accessibleContext`       | `AccessibleContext` | Read-only        |
+| `contentPane`             | `Container`         | Read-write       |
+| `defaultButton`           | `JButton`           | Read-write bound |
+| `glassPane`               | `Component`         | Read-write       |
+| `jMenuBar`                | `JMenuBar`          | Read-write       |
+| `layeredPane`             | `JLayeredPane`      | Read-write       |
+| `optimizedDrawingEnabled` | `boolean`           | Read-only        |
+| `UI`                      | `RootPaneUI`        | Read-write       |
+| `UIClassID`               | `String`            | Read-only        |
+| `validateRoot`            | `boolean`           | Read-only        |
+| `windowDecorationStyle`   | `int`               | Read-write bound |
+
+`JRootPane` 的 `glassPane` 必须透明。因为 glass-pane 占据了 `JLayeredPane` 表层的整个区域，如果 glass-pane 不透明，那么下面的 menu-bar 和 content-pane 都看不见。而且，由于 glass-pane 和 content-pane bounds 相同，`optimizedDrawingEnabled` 根据 glass-pane 的可见性返回值。
+
+`windowDecorationStyle` 属性描述包含 `JRootPane` 的窗口的装饰（边框、标题、关闭窗口按钮），它可以设置为以下 `JRootPane` 常量：
+
+- COLOR_CHOOSER_DIALOG
+- ERROR_DIALOG
+- FILE_CHOOSER_DIALOG
+- FRAME
+- INFORMATION_DIALOG
+- NONE
+- PLAIN_DIALOG
+- QUESTION_DIALOG
+- WARNING_DIALOG
+
+`windowDecorationStyle` 属性设置效果取决于当前 Laf。该设置只是一个 hint。
+
+`windowDecorationStyle` 默认为 `NONE`。如果不是 `NONE`，且 `JDialog` 或 `JFrame` 的 `setUndecorated(false)` 被调用，当前 Laf 的 `getSupportsWindowDecorations()` 返回 `true`，则有当前 Laf，而非窗口管理器提供窗口装饰。
+
+对 Metal Laf，`getSupportsWindowDecorations()` 返回 `true`，其它系统提供的 laf 返回 `false`。下面是 Metal Laf 提供的 Frame 窗口的装饰：
+
+```java
+import javax.swing.*;
+import java.awt.*;
+
+public class AdornSample {
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            JFrame frame = new JFrame("Adornment Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setUndecorated(true);
+            frame.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+            frame.setSize(300, 100);
+            frame.setVisible(true);
+        });
+    }
+}
+```
+
+<img src="./images/image-20240331214705533.png" alt="image-20240331214705533" style="zoom:80%;" />
+
+## 自定义 JRootPane Laf
+
+`JRootPane` 包含 12 个 `UIResource` 相关属性。这些设置大多与配置窗口装饰样式时的默认 border 有关。
+
+|Property String|Object Type|
+|---|---|
+|RootPane.actionMap|ActionMap|
+|RootPane.ancestorInputMap|InputMap|
+|RootPane.colorChooserDialogBorder|Border|
+|RootPane.defaultButtonWindowKeyBindings|Object[ ]|
+|RootPane.errorDialogBorder|Border|
+|RootPane.fileChooserDialogBorder|Border|
+|RootPane.frameBorder| Border|
+|RootPane.informationDialogBorder| Border|
+|RootPane.plainDialogBorder |Border|
+|RootPane.questionDialogBorder |Border|
+|RootPane.warningDialogBorder |Border|
+|RootPaneUI |String|
+
+## RootPaneContainer 接口
+
+RootPaneContainer 接口定义
 
 ## Glass Pane
 
