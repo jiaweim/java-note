@@ -22,6 +22,8 @@
 
 ## 简介
 
+为提供效率并降低复杂性，所有 Swing 组件都设计成非线程安全的。即所有对 Swing 组件的访问都需要从单个线程（事件分派线程）完成。
+
 Swing 程序涉及如下线程：
 
 - 初始线程（initial thread），执行初始应用代码的线程
@@ -64,7 +66,7 @@ SwingUtilities.invokeLater(new Runnable() {
 
 Swing 事件处理代码在专门的事件派发线程（Event Dispatch Thread, EDT）上 运行。大多数调用 Swing 方法的代码也在 EDT 运行。这是因为大多数 Swing 对象方法不是线程安全的，从多个线程调用会有线程干扰或内存不一致的风险。对所有 Swing 组件，除了明确标记为线程安全的方法，其它组件方法必须在 EDT 调用。
 
-> 不遵守这条规则的程序，可能大多数情况下运行正常，但有可能出现无法重现不可预测的错误。
+> 不遵守这条规则的程序，可能大多数情况下运行正常，但有可能出现无法重现、不可预测的错误。
 
 可以将 EDT 上运行的代码看作一系列的短任务。大多数任务是调用事件处理方法，如 `ActionListener.actionPerformed`。其它任务可以由应用代码通过 `invokeLater` 或 `invokeAndWait` 调度。EDT 上的任务必须**快速完成**，否则导致界面无响应。
 
@@ -72,11 +74,11 @@ Swing 的线程模式规则：EDT负责执行任何修改组件的方法。Swing
 
 `javax.swing.SwingUtilities` 类提供了三个处理 EDT 的方法：
 
-- `invokeLater` 用于在 EDT 中发布一个新任务，并让它排队等待；
+- `invokeLater()` 用于在 EDT 中发布一个新任务，并让它排队等待，用于不需要任务执行返回值、不关心完成的确切时间的情况；
 - `isEventDispatchThread()`，判断当前线程是否为 EDT 线程；
 - `invokeAndWait()`类似于 `invokeLater()`。
 
-`invokeAndWait` 方法使用较少，它和 `invokeLater` 一样，可以发布新任务到 EDT，区别在于 `invokeAndWait` 会阻塞当前线程，直到 EDT 完成发布的任务。
+`invokeAndWait` 方法使用较少，它和 `invokeLater` 一样，可以发布新任务到 EDT，区别在于 `invokeAndWait` 会阻塞当前线程，直到 EDT 完成发布的任务。`invokeAndWait` 可以抛出 `InterruptedException` 或 `InvocationTargetException`。
 
 假设有一个检测读取文件是否超时的程序。该程序在一个单独的线程读取文件，并在 10 秒后询问用户是继续还是取消操作。要实现这个特性，通常需要初始化一个锁来停止读文件线程，然后在 EDT 中显示一个对话框。
 
@@ -158,11 +160,11 @@ public class ButtonSample{
 
 ### 在 EDT 外可调用方法
 
-除了上面提到的三个工具方法：`invokeLater`、`invokeAndWait` 和 `isDispatchThread`。每个 Swing 组件提供了三个可以在任何线程调用的方法：
+除了上面提到的三个工具方法：`invokeLater`、`invokeAndWait` 和 `isDispatchThread`。每个 Swing 组件提供了三个可以在 EDT 外面调用的方法：
 
-- `revalidate` 强制一个组件布置它的子组件；
-- `repaint` 单纯的刷新显示;
-- `revalidate`。
+- `revalidate()` 强制一个组件布置它的子组件；
+- `repaint()` 刷新显示；
+- `revalidate()`。
 
 三个方法都是在 EDT 上执行，不管在哪个线程调用它们。
 

@@ -1,10 +1,5 @@
 # Swing 组件支持的 Listener
 
-- [Swing 组件支持的 Listener](#swing-组件支持的-listener)
-  - [简介](#简介)
-  - [所有 Swing 组件支持的 listener](#所有-swing-组件支持的-listener)
-  - [Swing 组件支持的其它 Listener](#swing-组件支持的其它-listener)
-
 2023-12-28, 13:14⭐
 ***
 

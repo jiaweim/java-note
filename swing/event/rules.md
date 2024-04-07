@@ -55,7 +55,7 @@ Object getSource()
 事件可以分为两类：低级事件和语义事件：
 
 - **低级事件**指窗口系统事件或低级输入，如鼠标和键盘操作事件
-- 其它都是语义事件，如单击 button 触发 action-event，按 Enter 导致 text-field 触发 action-event
+- 其它都是**语义事件**，如单击 button 触发 action-event，按 Enter 导致 text-field 触发 action-event
 
 语义事件可能由用户输入触发，也可能由模型触发。例如，table-model 从数据库接收到新数据时，触发 table-model-event。
 

@@ -1,11 +1,6 @@
 # ActionListener
 
-- [ActionListener](#actionlistener)
-  - [简介](#简介)
-  - [ActionListener API](#actionlistener-api)
-
 2023-12-28, 14:31⭐
-
 ***
 
 ## 简介
