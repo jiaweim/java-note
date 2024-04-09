@@ -1,6 +1,7 @@
 # 基于委托的事件处理
 
 2024-04-07⭐⭐
+@author Jiawei Mao
 ***
 
 ## 简介
@@ -87,7 +88,319 @@ public class YourClass implements ActionListener {
 
 ## PropertyChangeListener 作为 Observer
 
-除了基本的事件委托机制，JavaBeans 框架
+除了基本的事件委托机制，JavaBeans 框架引入了另一种 Observer 设计模式，即 property-change-listener。
+
+`PropertyChangeListener` 通用实现了 Observer 设计模式。每个 Observer 监视主体属性的变化，当属性发生变化时，Observer 会收到通知。相关类：
+
+- `java.beans.PropertyChangeEvent extends EventObject`
+- `java.beans.PropertyChangeListener extends EventListener`
+- `java.beans.PropertyChangeSupport`
+
+注册的 `PropertyChangeListener` 由 `PropertyChangeSupport` 管理。当监听的属性值发生变化，`PropertyChangeSupport` 通知所有注册的 listeners 属性的原始值和新值。
+
+**示例：** 演示如何使用 `PropertyChangeListener`
+
+创建两个按钮，当选择任意按钮，所选按钮的背景更改为一个随机颜色：
+
+- 第二个按钮监听第一个按钮的属性变化，当第一个按钮背景发生变化，第二个按钮随之变化；
+- 第一个按钮没有监听第二个按钮的属性，因此选择第二个按钮，其背景颜色发生变化，第一个按钮不会随之变化。
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Random;
+
+public class BoundSample {
+
+    public static void main(String[] args) {
+        Runnable runner = new Runnable() {
+            @Override
+            public void run() {
+                JFrame frame = new JFrame("Button Sample");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                final JButton button1 = new JButton("Select Me");
+                final JButton button2 = new JButton("No Select Me");
+                final Random random = new Random();
+
+                ActionListener actionListener = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JButton button = (JButton) e.getSource();
+                        int red = random.nextInt(255);
+                        int green = random.nextInt(255);
+                        int blue = random.nextInt(255);
+                        button.setBackground(new Color(red, green, blue));
+                    }
+                };
+
+                PropertyChangeListener propertyChangeListener =
+                        new PropertyChangeListener() {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent evt) {
+                                String propertyName = evt.getPropertyName();
+                                if ("background".equals(propertyName)) {
+                                    button2.setBackground((Color) evt.getNewValue());
+                                }
+                            }
+                        };
+                button1.addActionListener(actionListener);
+                button1.addPropertyChangeListener(propertyChangeListener);
+                button2.addActionListener(actionListener);
+
+                frame.add(button1, BorderLayout.NORTH);
+                frame.add(button2, BorderLayout.SOUTH);
+                frame.setSize(300, 100);
+                frame.setVisible(true);
+
+            }
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
+
+<img src="./images/image-20240408091518455.png" alt="image-20240408091518455" style="zoom:60%;" />
+
+虽然这个示例的 `PropertyChangeListener` 只修改了一个按钮的颜色，但也可以在里面修改上百个按钮的颜色，`PropertyChangeListener` 会自动将属性修改传递到所有 Observer。如果没有 `PropertyChangeListener`，该功能实现起来会很复杂。
+
+Swing 库还支持 `ChangeEvent`/`ChangeListener` 来表示状态变化。虽然它与 `PropertyChangeEvent`/`PropertyChangeListener` 功能类似，但是 `ChangeEvent` 不包含属性值信息，可以将其看作轻量级的 `PropertyChangeListener`。当不止一个属性值发生变化，可以使用 `ChangeEvent`，因为此时不需要打包这些属性值信息。
+
+!!! tip
+    Swing 组件使用 `SwingPropertyChangeSupport` 类管理和通知 `PropertyChangeListener`，而不是 `PropertyChangeSupport`。Swing 版本的 `SwingPropertyChangeSupport` 不是线程安全的，但是更快，消耗内存更小。由于只在 EDT 线程使用，因此缺乏线程安全性也无所谓。
+
+## 管理 Listeners
+
+如果需要创建自己的组件，并希望这些组件能够触发事件，就需要维护要通知的 listener 列表。
+
+对 AWT 事件（`java.awt.event`），可以使用 `AWTEventMulticaster`。在 Swing 出现之前，如果不是预定义的 AWT 事件类型，则必须自己管理对应的 listener 列表。Swing 引入的 `javax.swing.event.EventListenerList` 解决了该问题，不再需要手动管理 listener 列表，也不需要担心线程安全问题。获取 listener 的方式：
+
+- `Component` 的 `public EventListener[] getListeners(Class listenerType)`
+- 特定类型的方法，如 `JButton` 的 `getActionListeners()`
+
+### AWTEventMulticaster
+
+所有 AWT 组件都使用 `AWTEventMulticaster` 类管理 listener 列表。该类实现了所有 AWT event-listeners，如下图所示：
+
+<img src="./images/image-20240408100437440.png" alt="image-20240408100437440" style="zoom:30%;" />
+
+每当调用组件的方法来添加或删除 listener 时，都会使用 `AWTEventMulticaster` 类提供支持。
+
+如果需要自定义组件并管理 AWT 事件的 listener，可以使用 `AWTEventMulticaster`。
+
+**示例：** 创建一个通用组件
+
+- 每当在组件内按下一个键，它都会生成一个 `ActionEvent`；
+- 组件使用 `KeyEvent` 的 `public static String getKeyText(int keyCode)` 将按键代码转换为相应的文本字符串，并将该字符串作为 `ActionEvent` 的操作命令传回去；
+- 因为组件要作为 `ActionListener` 的事件源，因此需要一对 add/remove 方法处理 listener 的注册问题，此时就要用到 `AWTEventMulticaster`。
+
+使用 `AWTEventMulticaster` 添加和删除 listener：
+
+```java
+private ActionListener actionListenerList = null;
+public void addActionListener(ActionListener actionListener) {
+    actionListenerList = AWTEventMulticaster.add(
+        actionListenerList, actionListener);
+}
+public void removeActionListener(ActionListener actionListener) {
+    actionListenerList = AWTEventMulticaster.remove(
+        actionListenerList, actionListener);
+}
+```
+
+余下部分就是处理内部事件。为了向 `ActionListener` 发送按键事件，需要注册一个内部的 `KeyListener`。另外，组件必须能够获得输入焦点，否则，所有按键事件将被转到其它组件。下面是组件的完整代码：
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class KeyTextComponent extends JComponent {
+
+    private ActionListener actionListenerList = null;
+
+    public KeyTextComponent() {
+        setBackground(Color.CYAN);
+        KeyListener internalKeyListener = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (actionListenerList != null) {
+                    int keyCode = e.getKeyCode();
+                    String keyText = KeyEvent.getKeyText(keyCode);
+                    ActionEvent actionEvent = new ActionEvent(
+                            this,
+                            ActionEvent.ACTION_PERFORMED,
+                            keyText);
+                    actionListenerList.actionPerformed(actionEvent);
+                }
+            }
+        };
+        MouseListener internalMouseListener = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();
+            }
+        };
+
+        addKeyListener(internalKeyListener);
+        addMouseListener(internalMouseListener);
+    }
+
+    public void addActionListener(ActionListener actionListener) {
+        actionListenerList = AWTEventMulticaster.add(actionListenerList, actionListener);
+    }
+
+    public void removeActionListener(ActionListener actionListener) {
+        actionListenerList = AWTEventMulticaster.remove(actionListenerList, actionListener);
+    }
+
+    public boolean isFocusable() {
+        return true;
+    }
+}
+```
+
+演示代码：
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class KeyTextTester {
+
+    public static void main(String[] args) {
+        Runnable runner = new Runnable() {
+            @Override
+            public void run() {
+                JFrame frame = new JFrame("Key Text Sample");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                KeyTextComponent keyTextComponent = new KeyTextComponent();
+                final JTextField textField = new JTextField();
+                ActionListener actionListener = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String keyText = e.getActionCommand();
+                        textField.setText(keyText);
+                    }
+                };
+                keyTextComponent.addActionListener(actionListener);
+
+                frame.add(keyTextComponent, BorderLayout.CENTER);
+                frame.add(textField, BorderLayout.SOUTH);
+                frame.setSize(300, 200);
+                frame.setVisible(true);
+            }
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
+
+<img src="./images/image-20240408104529243.png" alt="image-20240408104529243" style="zoom:80%;" />
+
+### EventListenerList
+
+虽然 `AWTEventMulticaster` 很容易使用，但是它不支持自定义 event-listener，也不支持 `javax.swing.event` 中的 swing event-listener。虽然你可以使用 `Vector` 或 `LinkedList` 存储，但需要考虑同步问题。
+
+为了简化该问题，Swing 库包含了一个特殊的 event-listener 支持类 `EventListenerList`。该类可以管理组件所有类型的 Event-listener。
+
+**示例：** 使用 `EventListenerList` 替代 `AWTEventMulticaster` 重写上面的示例。
+
+在这个特定示例，使用 `AWTEventMulticaster` 实际上更简单，但使用 `EventListenerList` 支持更多事件类型，可扩展性更好。
+
+`EventListenerList` 添加和删除 listener 的方法与 `AWTEventMulticaster` 类似。只是 `EventListenerList` 初始非 `null`。因为 `EventListenerList` 可以管理任何类型的 listener，所以在添加和删除 listener 时，必须提供 listener 类型：
+
+```java
+EventListenerList actionListenerList = new EventListenerList();
+public void addActionListener(ActionListener actionListener) {
+    actionListenerList.add(ActionListener.class, actionListener);
+}
+public void removeActionListener(ActionListener actionListener) {
+    actionListenerList.remove(ActionListener.class, actionListener);
+}
+```
+
+这样就只剩下处理通知 listeners 的问题。`EventListenerList` 不存在通知特定类型 listener 的通用方法，因此需要自己创建代码。即将：
+
+```java
+actionListenerList.actionPerformed(actionEvent) 
+```
+
+替换为：
+
+```java
+protected void fireActionPerformed(ActionEvent actionEvent) {
+    EventListener listenerList[] = actionListenerList.getListeners(ActionListener.class);
+    for (int i=0, n=listenerList.length; i<n; i++) {
+        ((ActionListener)listenerList[i]).actionPerformed(actionEvent);
+    }
+}
+```
+
+完整代码：
+
+```java
+import javax.swing.*;
+import javax.swing.event.EventListenerList;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.EventListener;
+
+public class KeyTextComponent2 extends JComponent {
+
+    private EventListenerList actionListenerList = new EventListenerList();
+
+    public KeyTextComponent2() {
+        setBackground(Color.CYAN);
+        KeyListener internalKeyListener = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int keyCode = e.getKeyCode();
+                String keyText = KeyEvent.getKeyText(keyCode);
+                ActionEvent actionEvent = new ActionEvent(
+                        this,
+                        ActionEvent.ACTION_PERFORMED,
+                        keyText
+                );
+                fireActionPerformed(actionEvent);
+            }
+        };
+        MouseListener internalMouseListener = new MouseAdapter() {
+            public void mousePressed(MouseEvent mouseEvent) {
+                requestFocusInWindow();
+            }
+        };
+
+        addKeyListener(internalKeyListener);
+        addMouseListener(internalMouseListener);
+    }
+
+    public void addActionListener(ActionListener actionListener) {
+        actionListenerList.add(ActionListener.class, actionListener);
+    }
+
+    public void removeActionListener(ActionListener actionListener) {
+        actionListenerList.remove(ActionListener.class, actionListener);
+    }
+
+    protected void fireActionPerformed(ActionEvent actionEvent) {
+        EventListener[] listenerList =
+                actionListenerList.getListeners(ActionListener.class);
+        for (EventListener eventListener : listenerList) {
+            ((ActionListener) eventListener).actionPerformed(actionEvent);
+        }
+    }
+
+    public boolean isFocusable() {
+        return true;
+    }
+}
+```
 
 ## 示例
 

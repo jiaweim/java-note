@@ -7,7 +7,6 @@
     - [判断是否在 EDT](#判断是否在-edt)
     - [添加任务到 EDT](#添加任务到-edt)
     - [在 EDT 外可调用方法](#在-edt-外可调用方法)
-    - [PropertyChangeListener](#propertychangelistener)
   - [工作线程](#工作线程)
     - [简单后台线程](#简单后台线程)
     - [获得执行结果](#获得执行结果)
@@ -169,12 +168,6 @@ public class ButtonSample{
 三个方法都是在 EDT 上执行，不管在哪个线程调用它们。
 
 `repaint` 方法在 Swing 中使用十分广泛，用来同步组件的属性和屏幕展示。例如，调用 `JButton.setForeground(Color)` 更改按钮的前景色，Swing 会存储新颜色，并调用 `repaint()` 显示新颜色。调用 `repaint()` 会触发 EDT 上其它几个方法的执行，包括 `paint()` 和 `paintComponent()`。
-
-### PropertyChangeListener
-
-除了基本的事件委托机制，JavaBeans 框架还引入了另一种 Observer 设计模式，即 `PropertyChangeListener`。
-
-每个 `Observer` 监听 `Subject` 的一个属性，当属性发生改变，通知 `Observer` 新的状态。
 
 ## 工作线程
 

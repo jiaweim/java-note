@@ -6,9 +6,7 @@
 
 maven-shade-plugin 用于将项目打包成一个 jar，包括可执行 jar。对命名重叠的依赖项，会进行 shade 操作（如重命名对应的包）。
 
-Shade 插件只有一个 `shade:shade` goal，和 package phase 绑定。
-
-基本配置：
+Shade 插件只有一个 `shade:shade` goal，和 package phase 绑定。基本配置：
 
 ```xml
 <plugin>
