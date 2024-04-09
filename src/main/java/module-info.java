@@ -8,6 +8,7 @@ module java.module {
     requires javafx.web;
     requires javafx.swing;
 
+
     requires com.esotericsoftware.kryo.kryo5;
     opens mjw.kryo;
 
@@ -30,6 +31,8 @@ module java.module {
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires java.logging;
+    requires org.kordamp.ikonli.swing;
+    requires org.kordamp.ikonli.fontawesome5;
 
     opens mjw.jackson.objectmapper;
     opens mjw.jackson.xml;
