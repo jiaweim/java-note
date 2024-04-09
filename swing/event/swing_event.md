@@ -1,5 +1,8 @@
 # Swing 特有事件
 
+2024-04-09
+@author Jiawei Mao
+***
 ## 简介
 
 Swing 在 AWT 基础上构建，改进了 AWT 的事件处理和焦点功能等特征。
@@ -8,12 +11,6 @@ Swing 在 AWT 基础上构建，改进了 AWT 的事件处理和焦点功能等�
 
 Swing 还添加了 `KeyStroke` 类，简化对按键事件的响应。甚至可以监听特定顺序的按键序列。keystroke-to-action 映射保存到 `InputMap` 和 `ActionMap` 中。当组件窗口持有焦点，`InputMap` 就是一个 `ComponentInputMap`。
 
-概念：
-
-- accelerator key：快捷键，即通过键盘的几个键组合触发一个动作
-- mnemonic key：助记符，通常是菜单、按钮、文本标签文本中带下划线的一个字符，用来提示用户可以通过按下 Alt+字符触发相应动作
-
-两个功能类似，不过 accelerator-key 只有菜单有，mnemonic-key 除了菜单，还能用于 JButton, JCheckBox, JRadioButton 等。
 
 ## Action 接口
 
@@ -204,14 +201,16 @@ public class ActionTester {
 
 `KeyStroke` 可以定义按键组合，如 Shift-Ctrl-P 或 F4.
 
-触发 keystroke 的方法有三种，JComponent 有 4 个常量提供帮助。
+触发 keystroke 的方法有三种，`JComponent` 有 4 个常量提供帮助。
+
+> 表 4. `KeyStroke` 注册条件
 
 |常量|说明|
 |---|---|
-|WHEN_FOCUSED|组件持有输入焦点时激活 keystroke|
-|WHEN_IN_FOCUSED_WINDOW |当组件所在的 Window 持有输入焦点时激活 keystroke|
-|WHEN_ANCESTOR_OF_FOCUSED_COMPONENT|在组件或组件所在容器中按下 keystroke 时激活|
-|UNDEFINED_CONDITION|未定义激活条件|
+|`WHEN_FOCUSED`|要求组件持有输入焦点|
+|`WHEN_IN_FOCUSED_WINDOW` |要求该组件或其所在的 Window 持有输入焦点|
+|`WHEN_ANCESTOR_OF_FOCUSED_COMPONENT`|要求组件或其包含的子组件持有输入焦点|
+|`UNDEFINED_CONDITION`|未定义激活条件|
 
 ### 创建 KeyStroke
 
@@ -226,7 +225,7 @@ public static KeyStroke getKeyStroke(int keyCode, int modifiers,
 public static KeyStroke getKeyStrokeForEvent(KeyEvent keyEvent)
 ```
 
-第一个版本，从 `char` 创建 `KeyStroke`，例如：
+1. 第一个版本，从 `char` 创建 `KeyStroke`，例如：
 
 ```java
 KeyStroke space = KeyStroke.getKeyStroke('Z');
@@ -235,3 +234,172 @@ KeyStroke space = KeyStroke.getKeyStroke('Z');
 !!! note
     这个方法不好区分大小写，不推荐使用。
 
+2. 第二个版本
+
+```java
+public static KeyStroke getKeyStroke(String representation)
+```
+
+这个版本比较有意思，通过字符串指定 keystroke，例如 "control F4"：
+
+- 修饰符包括 "shift", "control", "meta", "alt", "button1", "button2" 和 "button3"；
+- 可以指定多个修饰符；
+- 字符串余下部分为 `KeyEvent` 中的 `VK_*` 常量。
+
+例如，定义 Ctrl-Alt-7 的 keystroke 定义：
+
+```java
+KeyStroke controlAlt7 = KeyStroke.getKeyStroke("control alt 7");
+```
+
+3. 下面两个方法比较直接
+
+```java
+public static KeyStroke getKeyStroke(int keyCode, int modifiers)
+public static KeyStroke getKeyStroke(int keyCode, int modifiers,
+    boolean onKeyRelease)
+```
+
+可以通过 `InputEvent` 中的 `VK_*` 常量和修饰符创建 keystroke（0 表示无）。`onKeyRelease` 默认为 false。
+
+```java
+KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true);
+KeyStroke shiftF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.SHIFT_MASK);
+```
+
+4. 最后一个版本直接将 `KeyEvent` 映射到 `KeyStroke`
+
+```java
+public static KeyStroke getKeyStrokeForEvent(KeyEvent keyEvent)
+```
+
+该版本让用户可以用 keystroke 触发事件。
+
+```java
+KeyStroke fromKeyEvent = KeyStroke.getKeyStrokeForEvent(keyEvent);
+```
+
+### 注册 KeyStroke
+
+步骤：
+
+1. 创建 `KeyStroke`
+2. 创建 `Action`
+3. 通过 `InputMap`，将 `KeyStroke` 映射到 action-string
+4. 通过 `ActionMap`，将 action-string 映射到 `Action`
+
+注册过程，就是实现从 keystroke 到 `Action` 的映射。在按下或释放 keystroke 时触发 `Action`。
+
+按下或释放 keystroke 能够触发 Action，还需要考虑焦点持有情况（表 4）。`getInputMap(condition)` 获得组件的 `InputMap`，其参数指定焦点条件，默认为 `WHEN_FOCUSED`，即组件持有输入焦点时按下或释放 keystroke 出发 `Action`。
+
+`component.getInputMap()` 使用默认 `condition` 返回 `InputMap`，添加从 keystroke 到文本字符串的映射：
+
+```java
+component.getInputMap().put(keystroke, string)
+```
+
+其中 action-string 需要提前定义。
+
+然后使用 `ActionMap` 将 action-string 映射到 `Action`:
+
+```java
+component.getActionMap.put(string, action)
+```
+
+通过共享 `ActionMap` 实例可以在组件之间**共享操作**。
+
+**实例：** 创建 4 个按钮，每个按钮注册不同的 keystroke，并且设置不同的焦点激活条件。
+
+button-label 显示 keystroke 激活条件。`Action` 只是输出一条消息和激活按钮的标签。
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+
+public class KeyStrokeSample {
+    private static final String ACTION_KEY = "theAction";
+
+    public static void main(String[] args) {
+        Runnable runner = new Runnable() {
+            @Override
+            public void run() {
+                JFrame frame = new JFrame("KeyStroke Sample");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+                JButton buttonA = new JButton("<html><center>FOCUSED<br>control alt 7");
+                JButton buttonB = new JButton("<html><center>FOCUS/RELEASE<br>VK_ENTER");
+                JButton buttonC = new JButton("<html><center>ANCESTOR<br>VK_F4+SHIFT_MASK");
+                JButton buttonD = new JButton("<html><center>WINDOW<br>' '");
+
+                // 创建 Action，即按下快捷键触发的操作
+                Action actionListener = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JButton source = (JButton) e.getSource();
+                        System.out.println("Activated: " + source.getText());
+                    }
+                };
+
+                // 定义 KeyStroke: Ctrl-Alt-7
+                KeyStroke controlAlt7 = KeyStroke.getKeyStroke("control alt 7");
+                
+                // InputMap，将 KeyStroke 映射到 action-string
+                InputMap inputMap = buttonA.getInputMap(); // 默认 WHEN_FOCUSED
+                inputMap.put(controlAlt7, ACTION_KEY);
+
+                // ActionMap，将 action-string 映射到 Action
+                // 所有按钮共享这个 ActionMap
+                ActionMap actionMap = buttonA.getActionMap();
+                actionMap.put(ACTION_KEY, actionListener);
+                
+                // Enter，释放时触发
+                KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true);
+                inputMap = buttonB.getInputMap();// 默认 WHEN_FOCUSED
+                inputMap.put(enter, ACTION_KEY);
+                buttonB.setActionMap(actionMap);
+
+                // Shift-F4
+                KeyStroke shiftF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.SHIFT_MASK);
+                // 条件：该组件或其子组件持有焦点
+                inputMap = buttonC.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+                inputMap.put(shiftF4, ACTION_KEY);
+                buttonC.setActionMap(actionMap);
+
+                // 空格
+                KeyStroke space = KeyStroke.getKeyStroke(' ');
+                // 条件：该组件或其所在 Window 持有焦点
+                inputMap = buttonD.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+                inputMap.put(space, ACTION_KEY);
+                buttonD.setActionMap(actionMap);
+
+                frame.setLayout(new GridLayout(2, 2));
+                frame.add(buttonA);
+                frame.add(buttonB);
+                frame.add(buttonC);
+                frame.add(buttonD);
+
+                frame.setSize(400, 200);
+                frame.setVisible(true);
+            }
+        };
+        EventQueue.invokeLater(runner);
+    }
+}
+```
+
+<img src="./images/image-20240409203648231.png" alt="image-20240409203648231" style="zoom:50%;" />
+
+!!! tip
+    对 text-component，可以获得 `Keymap`，然后用 `addActionForKeyStroke(KeyStroke, Action)` 一步将 `KeyStroke` 映射到 `Action`。
+
+## 快捷键和助记符
+
+Swing 对几个内部功能也使用了 `KeyStroke`，其中就包括助记符和快捷键：
+
+- 快捷键（accelerator-key）：通过键盘的几个键组合触发一个动作，只用于菜单。
+- 助记符（mnemonic-key）：指菜单、按钮、文本标签等文本中带下划线的一个字符，用来提示用户可以通过按下 Alt+字符触发相应动作。
+
+两个功能类似，不过 accelerator-key 只有菜单有，mnemonic-key 除了菜单，还能用于 JButton, JCheckBox, JRadioButton 等。
