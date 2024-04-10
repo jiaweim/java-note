@@ -217,7 +217,7 @@ public boolean isDoubleBuffered()
 public void setDoubleBuffered(boolean o)
 ```
                           
-当 Swing 启用双缓冲机制，它会为每个分层结构（一般每个顶层窗口）提供一个屏幕外的缓冲区。虽然可以为每个组件单独设置该属性，但是启用了顶层容器的双缓冲，则其包含的所有轻量级组件都会被缓冲，`不管其doubleBufffered` 属性是否开启。
+当 Swing 启用双缓冲机制，它会为每个分层结构（一般每个顶层窗口）提供一个屏幕外的缓冲区。虽然可以为每个组件单独设置该属性，但是启用了顶层容器的双缓冲，则其包含的所有轻量级组件都会被缓冲，不管其`doubleBufffered` 属性是否开启。
 
 所有 Swing 组件默认启用双缓冲。但真正重要的是 `JRootPane`，启用其双缓冲使得顶层容器下的所有组件都开启双缓冲。大多时候，Swing 程序除了开启或关闭双缓冲，不需要处理任何双缓冲问题(为了更流程，建议开启)。Swing 内部会处理好一切。
 
@@ -309,16 +309,21 @@ public class MyPanel extends JPanel {
 
 ### Paint 过程
 
-Swing 处理"repaint"请求的方式和AWT稍有不同，虽然最终的结果一样 -- paint()被调用。Swing通过这种不同以支持 RepaintManager API(后面会讨论)，并且增强paint效率。在Swing中，painting可能有两种路径：
-(A) paint请求来自第一个重量级父类(通常为JFrame, JDialog, JWindow, JApplet)：
-	1. EDT调用该父类的paint()；
-	2. Container.paint()的默认实现递归调用其轻量级子类的paint()方法；
-当调用到第一个Swing组件，JComponent.paint()执行如下操作：
-	1. 如果组件的 doubleBuffered属性为true，且RepaintManager的double-buffering已启用，则将Graphics 对象转换为一个合适的offscreen graphics。
-	2. 调用paintComponent(如果启用doubled-buffered，则传入offscreen graphics);
-	3. 调用paintBorder(如果启用doubled-buffered，则传入offscreen graphics)；
-	4. 调用paintChildren()(如果启用doubled-buffered，则传入offscreen graphics)，该方法使用clip, opaque, optimizedDrawingEnabled属性决定哪个子类需要递归调用paint()。
-	5. 如果组件的doubleBuffered属性为true，并且组件的RepaintManager的double-buffering已启用，则用原始的on-screen Graphics对象将offscreen image复制到对应的组件。
+Swing 处理"repaint"请求的方式和AWT稍有不同，虽然最终的结果一样 -- `paint()`被调用。Swing通过这种不同以支持 `RepaintManager` API(后面会讨论)，并且增强 paint 效率。在 Swing 中，painting 可能有两种路径：
+
+(A) paint请求来自第一个重量级父类(通常为 `JFrame`, `JDialog`, `JWindow`, `JApplet`)：
+
+1. EDT调用该父类的 `paint()`；
+2. `Container.paint()` 的默认实现递归调用其轻量级子类的 `paint()` 方法；
+
+当调用到第一个Swing组件，`JComponent.paint()` 执行如下操作：
+
+1. 如果组件的 `doubleBuffered` 属性为 `true`，且 `RepaintManager` 的 double-buffering 已启用，则将 `Graphics` 对象转换为一个合适的 offscreen graphics。
+2. 调用 `paintComponent`(如果启用doubled-buffered，则传入offscreen graphics);
+3. 调用 `paintBorder` (如果启用doubled-buffered，则传入offscreen graphics)；
+4. 调用 `paintChildren()` (如果启用doubled-buffered，则传入offscreen graphics)，该方法使用clip, opaque, `optimizedDrawingEnabled` 属性决定哪个子类需要递归调用paint()。
+5. 如果组件的doubleBuffered属性为true，并且组件的RepaintManager的double-buffering已启用，则用原始的on-screen Graphics对象将offscreen image复制到对应的组件。
+
 NOTE：在递归调用paint()时(paintChildren()#4)步骤#1和#5省略，因为一个Swing窗口中所有的轻量级组件都共享一个double-buffering offscreen image。
 
 (B) paint 请求来自于javax.swing.JComponent的repaint()方法：
@@ -328,15 +333,18 @@ NOTE：在递归调用paint()时(paintChildren()#4)步骤#1和#5省略，因为�
 
 ### Swing 绘制指南
 
-Swing程序在编写 pain t代码时应该理解如下的意见：
+Swing程序在编写 paint 代码时应该理解如下的意见：
 
-1. 对 Swing 组件，`paint()` 因为system-triggered和app-triggered paint请求调用；Swing组件从来不调用update()；
-	• 通过repaint()调用paint()，不要直接调用paint()；
-	• 输出复杂的组件，应该调用带参数的repaint()，因减少渲染消耗；
+对 Swing 组件，`paint()` 分为 system-triggered 和app-triggered paint 请求调用；Swing组件从来不调用 `update()`；
+
+- 通过 `repaint()` 调用 `paint()`，不要直接调用paint()；
+- 输出复杂的组件，应该调用带参数的repaint()，因减少渲染消耗；
+
 Swing将paint()拆分为3个单独的方法：
 	• paintComponent()
 	• paintBorder()
 	• paintChildren()
+
 实现自定义paint代码的Swing扩展组件应该将其paint代码方法paintComponent()方法中(不是paint())。
 Swing 引入了两个额外属性以最大化paint效率：
 	• opaque：组件是否会paint其所有区域？

@@ -1,32 +1,25 @@
 # JComponent
 
-- [JComponent](#jcomponent)
-  - [简介](#简介)
-  - [JComponent 功能](#jcomponent-功能)
-  - [JComponent API](#jcomponent-api)
-    - [自定义组件外观](#自定义组件外观)
-    - [设置和获取组件状态](#设置和获取组件状态)
-    - [处理事件](#处理事件)
-    - [绘制组件](#绘制组件)
-    - [分层结构](#分层结构)
-    - [布置组件](#布置组件)
-    - [大小和位置](#大小和位置)
-    - [指定绝对大小和位置](#指定绝对大小和位置)
-  - [参考](#参考)
-
-2023-12-21, 23:40⭐
+2023-12-21⭐
+@author Jiawei Mao
 ****
-
 ## 简介
 
-除了顶层容器，所以以 "J" 开头的 Swing 组件都继承自`JComponent`。
+除了顶层容器，所有以 "J" 开头的 Swing 组件都继承自`JComponent`。
 
 `JComponent` 继承自 `Container`，`Container` 又继承 `Component`：
 
 - `Component` 类包含支持布局、绘制和事件等所有内容。
 - `Container` 支持向容器添加组件，并进行布局
 
-所有继承 `JComponent` 的组件都是基本组件类，需要放在中间容器展示。下面总结 `Component`, `Container` 和 `JComponent` 中常用方法。
+所有继承 `JComponent` 的组件都是基本组件类，需要放在中间容器展示。如下图所示：
+
+<img src="./images/image-20240410164334675.png" alt="image-20240410164334675" style="zoom:50%;" />
+
+下面总结 `Component`, `Container` 和 `JComponent` 中常用方法。
+
+!!! note
+    虽然 `JComponent` 继承自 `Container`，但是大多数 `JComponent` 子类并非容器。通过 `isContainer` 属性可以查看一个组件是否为容器。
 
 ## JComponent 功能
 
@@ -210,6 +203,26 @@ Component getComponentZOrder(component comp)
 ```
 
 ### 绘制组件
+
+Swing 组件和 AWT 一样使用 `paint()` 完成绘制，用 `repaint()` 更新渲染。但是完成的方式不同，JComponent 优化了绘制的许多方面，以提高性能和可扩展性。`RepaintManager` 可用于自定义绘制行为。
+
+为了提高性能和可扩展性，JComponent 将 `paint(Graphics g)` 渲染操作分为三步：
+
+- `paintComponent(g)`：绘制组件自身，如果需要自定义 Swing 组件的绘制，可以重写该方法，而不是 `paint()`；
+- paintBorder(g)：
+- paintChildren(g)
+
+其中 `Graphics` 参数从 `paint()` 方法传递而来。除非想完全替换所有渲染，否则在重写 `paintComponent(g)` 时都应该先调用 `super.paintComponent()`。
+
+```java
+public class MyComponent extends JPanel {
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Customize after calling super.paintComponent(g)
+    }
+    ...
+}
+```
 
 - 重绘组件的全部或部分区域。4 个 int 参数指定重绘区域 (x, y, width, height)
 
@@ -416,6 +429,3 @@ void setBounds(int, int, int, int)
 void setBounds(Rectangle)
 ```
 
-## 参考
-
-- https://docs.oracle.com/javase%2Ftutorial%2F/uiswing/components/jcomponent.html

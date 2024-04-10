@@ -1,14 +1,16 @@
 # Swing
 
+- [MVC 模式](./basic/mvc.md)
 - [Swing 程序结构](component/structure.md)
 - [JFrame](component/JFrame.md)
 - [JComponent](component/JComponent.md)
   - [JLabel](component/JLabel.md)
-  - [x] [Icon](./component/Icon.md)
+  - [Icon](./component/Icon.md)
   - [按钮](component/JButton.md)
   - [tool tip](component/tool-tip.md)
+  - [自定义绘制](./component/custom_painting.md)
 - [边框](component/border.md)
-- [x] [布局管理器](layout/_layout.md)
+- [布局管理器](layout/_layout.md)
   - [BorderLayout](layout/BorderLayout.md)
   - [FlowLayout](layout/FlowLayout.md)
   - [GridLayout](layout/GridLayout.md)

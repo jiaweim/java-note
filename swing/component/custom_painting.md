@@ -1,6 +1,6 @@
 #  自定义绘制
 
-2023-12-25
+2023-12-25⭐
 @author Jiawei Mao
 ****
 
@@ -142,7 +142,6 @@ class MyPanel extends JPanel {
     private int squareY = 50;
     private int squareW = 20;
     private int squareH = 20;
-
 
     public MyPanel() {
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -343,7 +342,7 @@ protected void paintBorder(Graphics g)
 protected void paintChildren(Graphics g)
 ```
 
-虽然 API 没有不让你重写 `paintBorder` 和 `paintChildren`，但一般说来，你真不需要这么做。因此，`paintComponent` 是唯一需要重写的方法。
+虽然 API 没有不让你重写 `paintBorder` 和 `paintChildren`，但一般不需要。因此，`paintComponent` 是唯一需要重写的方法。
 
 如前所述，大多数 Swing 标准组件的 Laf 由单独的 `ComponentUI` 实现。这意味着大多数或几乎所有的 Swing 标准组件的绘制流程如下：
 
@@ -365,6 +364,12 @@ public void paintComponent(Graphics g) {
 ```
 
 如果你已经理解上述所有演示代码，那么你已有足够的实践知识编写自定义绘制代码。
+
+为了进一步优化渲染，`JComponent` 提供了 3 个额外的渲染属性：`opaque`, `optimizedDrawingEnabled` 和 `doubleBuffered`：
+
+- `opaque`：定义组件是否透明。当组件透明，`JComponent` 的容器必须渲染组件背景。为提高性能，可以让 `JComponent` 保持不透明，让 `JComponent` 自己绘制背景；
+- `optimizedDrawingEnabled`：直接子组件是否可以重叠。如果不能重叠，`repaint` 时间会大大减少。默认除了 JDesktopPane, JLayeredPane 和 JViewport，其它 Swing 组件都启用了渲染优化；
+- `doubleBuffered`：是否开启双缓冲。
 
 ## 总结
 
