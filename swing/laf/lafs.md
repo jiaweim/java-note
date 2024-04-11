@@ -8,6 +8,13 @@
 
 FlatLaf 具有 Light, Dark, Intelli J 和 Durcula 主题，支持 HiDPI 设备，需 Java 8+。
 
+|Light Laf|Dark Laf|
+|---|---|
+|FlatLaf Light|FlatLaf Dark|
+|FlatLaf IntelliJ|FlatLaf Darcula|
+|FlatLaf macOS Light|FlatLaf macOS Dark|
+
+
 该设计很大程度上收到 Intellij IDEA 2019.2+ 的 Darcula 和 IntelliJ 主题的启发，并使用了几乎相同的颜色和图标。
 
 - FlatLaf Light
