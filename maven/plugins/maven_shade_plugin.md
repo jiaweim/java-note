@@ -44,7 +44,8 @@ Shade 插件只有一个 `shade:shade` goal，和 package phase 绑定。基本�
 ## Resource Transformaters
 如果没有重叠（如不同版本的相同包），将多个包合并为一个 JAR 很容易。否则，就需要以特定的方式将这些 JARs 合并，Resource transformers 就是干这事。
 
-org.apache.maven.plugins.shade.resource 中的 transformers:
+`org.apache.maven.plugins.shade.resource` 中的 transformers:
+
 |Transformer|功能|
 |---|----|
 |ApacheLicenseResourceTransformer|Prevents license duplication|
@@ -61,8 +62,8 @@ org.apache.maven.plugins.shade.resource 中的 transformers:
 |XmlAppendingTransformer|Adds XML content to an XML resource|
 
 ### ManifestResourceTransformer
-用于设置 MANIFEST 中的内容：
-- Main-Class 用于设置 app.main.class 属性
+ManifestResourceTransformer 可以提u韩 MANIFEST 中已有内容，也可以添加新内容。即用于设置 MANIFEST 内容：
+- Main-Class 用于设置 app.main.class 属性，即运行的 main 类
 - X-Compile-Source-JDK 用于设置 maven,compile.source 属性值
 - X-Compile-Target-JDK 用于设置maven.compile.target 属性值
 

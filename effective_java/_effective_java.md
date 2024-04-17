@@ -1,7 +1,7 @@
 # Effective Java
 
 
-
+- [3. 单例模式](./3_singleton.md)
 - [11. 重写 equals 时要重写 hashCode](./11_hashCode.md)
 
 https://www.bookstack.cn/read/effective-java-3rd-chinese/docs-README.md

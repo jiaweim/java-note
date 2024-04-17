@@ -1,13 +1,7 @@
 # JDialog
 
-- [JDialog](#jdialog)
-  - [简介](#简介)
-  - [创建 JDialog](#创建-jdialog)
-  - [JDialog 属性](#jdialog-属性)
-  - [JDialog 事件处理](#jdialog-事件处理)
-  - [参考](#参考)
-
-2024-01-02, 15:17⭐
+2024-01-02⭐
+@author Jiawei Mao
 ***
 
 ## 简介
@@ -26,7 +20,6 @@
 
 对话框支持**模态**。模态对话框显示时，阻止用户与其它窗口的交互。`JOptionPane` 创建的 `JDialog` 是模态的，要创建非模态对话框，需要直接使用 `JDialog`。
 
-
 ## 创建 JDialog
 
 `JDialog` 提供了多达 16 个构造函数：
@@ -42,7 +35,11 @@ public JDialog(Frame owner)
 ...
 ```
 
-不同构造函数提供不同形式的定制功能。
+不同构造函数提供不同形式的定制功能。参数说明：
+
+- `owner`，对话框所属容器；
+- `modal`，模态，是否为模态；
+- `title`，标题
 
 除了手动创建 `JDialog`，`JOptionPane` 提供了标准对话框实现。
 
@@ -69,6 +66,14 @@ public JDialog(Frame owner)
 - `layout` 属性
 
 在此处说明是因为 `JDialog` 覆盖了 `setLayout` 方法，将其调用转到对 `contentPane` 的 `setLayout` 方法的调用。
+
+### owner
+
+`owner` 可以是另一个 `JDialog`, `JFrame` 或 `JWidnow`。
+
+- 指定 `owner`，创建了父子关闭，当 `JDialog` 的 `owner` 被关闭，`JDialog` 也被关闭；
+- 当 owner 最小化或最大化，`JDialog` 也随之最小化或最大化；
+- `JDialog` 总是在其 `owner` 上方显示；
 
 ## JDialog 事件处理
 
@@ -144,10 +149,6 @@ public class EscapeDialog extends JDialog {
     }
 }
 ```
-
-
-
-
 
 ## 参考
 
