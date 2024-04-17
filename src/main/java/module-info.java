@@ -35,7 +35,9 @@ module java.module {
     requires org.kordamp.ikonli.swing;
     requires org.kordamp.ikonli.fontawesome5;
     requires com.miglayout.swing;
+    requires hipparchus.stat;
 
+    opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
     opens mjw.jackson.xml;
     opens mjw.jackson.annotation;
