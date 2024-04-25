@@ -1,5 +1,10 @@
 package mjw.hipparchus;
 
+import org.hipparchus.stat.correlation.PearsonsCorrelation;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class CorrelationTest {
 
     void data() {
@@ -14,5 +19,47 @@ public class CorrelationTest {
                 23.644, 27.768, 29.030, 27.999, 41.546, 42.525, 15.879, 33.462, 41.878, 30.641
         };
 
+    }
+
+    @Test
+    void Correlation() {
+        double[] xs = new double[]{
+                1.8, 1.3, 2.4, 1.5, 3.9, 2.1, 0.9, 1.4, 3, 4.6
+        };
+        double[] ys = new double[]{
+                604.4, 434.2, 544, 370.4, 742.3, 340.5, 232, 262.3, 441.9, 1157.7
+        };
+        double r = new PearsonsCorrelation().correlation(xs, ys);
+        assertEquals(r, 0.874, 0.001);
+        System.out.println(r);
+    }
+
+    public static void main(String[] args) {
+        double[] xs = new double[]{
+                1.8,
+                1.3,
+                2.4,
+                1.5,
+                3.9,
+                2.1,
+                0.9,
+                1.4,
+                3,
+                4.6
+        };
+        double[] ys = new double[]{
+                604.4,
+                434.2,
+                544,
+                370.4,
+                742.3,
+                340.5,
+                232,
+                262.3,
+                441.9,
+                1157.7
+        };
+        double r = new PearsonsCorrelation().correlation(xs, ys);
+        System.out.println(r);
     }
 }

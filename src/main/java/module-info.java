@@ -1,5 +1,5 @@
 module java.module {
-	requires java.desktop;
+    requires java.desktop;
 
     requires com.formdev.flatlaf;
 
@@ -8,7 +8,6 @@ module java.module {
     requires javafx.fxml;
     requires javafx.web;
     requires javafx.swing;
-
 
     requires com.esotericsoftware.kryo.kryo5;
     opens mjw.kryo;
@@ -22,11 +21,6 @@ module java.module {
     requires org.hamcrest;
     requires org.junit.jupiter.api;
 
-    requires com.fasterxml.jackson.core;
-    requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.dataformat.xml;
-
     requires org.slf4j;
     requires org.jsoup;
     requires ch.qos.logback.classic;
@@ -35,7 +29,14 @@ module java.module {
     requires org.kordamp.ikonli.swing;
     requires org.kordamp.ikonli.fontawesome5;
     requires com.miglayout.swing;
+
     requires hipparchus.stat;
+    requires hipparchus.core;
+
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.dataformat.xml;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;

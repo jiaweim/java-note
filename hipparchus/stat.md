@@ -380,4 +380,76 @@ $$
 
 - 在调用 `newSample`, `newX`, `newY` 或 `newCovariance` 方法时会验证数据，当输入数组维度不匹配，或没有足够的数据来估计模型时，抛出 `IllegalArgumentException`；
 - 回归模型默认包含截距。所以，上面的矩阵 X 包含一个初识为 1 的 row。提供给 `newX` 或 `newSample` 的 X 数据不应该包含这一列，数据加载方法会自动创建。要取消截距项，可以将 `noIntercept` 属性设置为 `true`；
-- 
+
+
+## 协方差和相关性
+
+`org.hipparchus.stat.correlation` 提供计算成对数组或矩阵 columns 之间的协方差和相关性：
+
+- `Covariance` 计算协方差；
+- `PearsonsCorrelation` 计算 Pearson 相关系数；
+- `SpearmansCorrelation` 计算 Spearman 秩相关；
+- `KendallsCorrelation` 计算 Kendall tao 秩相关。
+
+实现注意事项：
+
+- 无偏协方差的计算公式为 $cov(X,Y)=\sum(x_i-E(X))(y_i-E(Y))/(n-1)$，是否对协方差进行偏差校正由参数 `biasCorrected` 设置，默认为 `true`，若为 `false`，底数为 $n$；
+- `SpearmansCorrelation` 对输入数据应用 rank-transformation，在排序后的数据上计算 Pearson 相关系数。排序算法可配置，默认为 `NaturalRanking`；
+- `KendallsCorrelation` 计算两个量之间的关联性。tao 检验是基于 tao 系数的非参假设检验。
+
+**计算 2 个数组的协方差**
+
+- 计算 2 个 double 数组的协方差
+
+```java
+new Covariance().covariance(x, y)
+```
+
+- 没有校正的协方差
+
+```java
+covariance(x, y, false)
+```
+
+
+**协方差矩阵**
+
+计算矩阵 `data` 不同 columns 的协方差矩阵：
+
+```java
+new Covariance().computeCovarianceMatrix(data)
+```
+
+这里默认计算的无偏协方差，若需要去掉校正，可使用：
+
+```java
+computeCovarianceMatrix(data, false)
+```
+
+**2 个数组的 Pearson 相关系数**
+
+x 和 y 是两个 double 数组，计算相关系数：
+
+```java
+new PearsonsCorrelation().correlation(x, y)
+```
+
+**Pearson 相关矩阵**
+
+计算矩阵 data 不同 columns 之间的相关系数矩阵：
+
+```java
+new PearsonsCorrelation().computeCorrelationMatrix(data)
+```
+
+返回的相关系数矩阵的第 i,j 条是 `data` 的第 i 列和第 j 列之间的 Pearson 相关系数。
+
+**Pearson 相关显著性和标准差**
+
+计算与 Pearson 相关系数的标准差和显著性，首先要创建 `PearsonsCorrelation` 实例：
+
+```java
+PearsonsCorrelation correlation = new PearsonsCorrelation(data);
+```
+
+`data` 
