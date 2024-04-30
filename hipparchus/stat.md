@@ -453,3 +453,20 @@ PearsonsCorrelation correlation = new PearsonsCorrelation(data);
 ```
 
 `data` 
+
+## 假设检验
+
+`org.hipparchus.stat.inference` 包提供 t-检验、卡方检验、G-检验、单因素方差分析、Mann-Whitney U、Wilcoxon signed rank 和 Binomial 检验，因此对应的 p-Value 计算。
+
+对应的类分别为：`TTest`, `ChiSquareTest`, `GTest`, `OneWayAnova`, `MannWhitneyUTest`, `WilcoxonSignedRankTest`, `BinomialTest`, `KolmogorovSmirnovTest`。
+
+`InferenceTestUtils` 类提供创建 test 实例或计算检验统计量的静态方法。下面的示例都使用 `InferenceTestUtils` 执行检验。
+
+创建检验对象实例的方法有两种，例如
+
+- 静态方法：`InferenceTestUtils.getTTest()`
+- 构造函数：`new TTest()`
+
+**实现注意事项：**
+
+- 

@@ -1,5 +1,6 @@
 package mjw.hipparchus;
 
+import org.hipparchus.stat.descriptive.DescriptiveStatistics;
 import org.hipparchus.stat.descriptive.StatisticalSummary;
 import org.hipparchus.stat.descriptive.StreamingStatistics;
 import org.junit.jupiter.api.Test;
@@ -24,4 +25,21 @@ public class StatTest {
         double totalSampleSum = aggregatedStats.getSum();
         System.out.println(totalSampleSum);
     }
+
+    @Test
+    void testPercentile() {
+        double[] data = new double[]{
+                122, 126, 133, 140, 145, 145, 149, 150, 157,
+                162, 166, 175, 177, 177, 183, 188, 199, 212
+        };
+
+        DescriptiveStatistics statistics = new DescriptiveStatistics(data);
+        double v1 = statistics.getPercentile(20);
+        double v2 = statistics.getPercentile(25);
+        double v3 = statistics.getPercentile(50);
+        System.out.println(v1);
+        System.out.println(v2);
+        System.out.println(v3);
+    }
+
 }
