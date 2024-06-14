@@ -25,3 +25,22 @@
 ![template](images/2020-09-14-17-23-56.png)
 
 重启 Intellij IDEA 后解决。
+
+## 设置运行程序内存
+
+运行 java 类，参数：
+
+```java
+java [options] class [arguments]
+```
+
+运行 jar 包：
+
+```java
+java [options] -jar xxx.jar [arguments]
+```
+
+其中：
+
+- [options] 表示 JRE 的可选配置信息
+- [arguments] 表示程序自身的参数，会传到 main 函数的参数组里面
