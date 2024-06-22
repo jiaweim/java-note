@@ -470,3 +470,9 @@ PearsonsCorrelation correlation = new PearsonsCorrelation(data);
 **实现注意事项：**
 
 - 
+
+
+
+## 参考
+
+- https://hipparchus.org/hipparchus-stat/index.html

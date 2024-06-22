@@ -28,4 +28,10 @@ public class NormalDistributionTest {
     void zTest() {
 
     }
+
+    @Test
+    void prob() {
+        NormalDistribution distribution = new NormalDistribution();
+        System.out.println(distribution.probability(-2, 0));
+    }
 }

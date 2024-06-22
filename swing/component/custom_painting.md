@@ -424,4 +424,4 @@ Q：自定义绘制代码性能差。
 
 ## 参考
 
-- https://docs.oracle.com/javase%2Ftutorial%2F/uiswing/painting/index.html
+- https://docs.oracle.com/javase/tutorial/uiswing/painting/index.html
