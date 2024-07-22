@@ -124,15 +124,15 @@ xmlw.close();
 
 ## XMLInputFactory 属性
 
-|属性|说明|返回类型|默认值|
-|---|---|---|---|
-|isValidating|是否启用特定于实现的 DTD 验证|Boolean|False|
-|isNamespaceAware|是否启用命名空间处理，用于支持 XML 1.0|Boolean|True|
-|isCoalescing|是否合并相邻字符数据|Boolean|False|
-|isReplacingEntityReferences|是否将内部实体引用替换为实际文本|Boolean|True|
-|isSupportingExternalEntities|是否解析外部实体|Boolean|False|
-|supportDTD|指定使用的处理器是否支持 DTD|Boolean|True|
-|reporter|
+| 属性                           | 说明                      | 返回类型    | 默认值   |
+| ---------------------------- | ----------------------- | ------- | ----- |
+| isValidating                 | 是否启用特定于实现的 DTD 验证       | Boolean | False |
+| isNamespaceAware             | 是否启用命名空间处理，用于支持 XML 1.0 | Boolean | True  |
+| isCoalescing                 | 是否合并相邻字符数据              | Boolean | False |
+| isReplacingEntityReferences  | 是否将内部实体引用替换为实际文本        | Boolean | True  |
+| isSupportingExternalEntities | 是否解析外部实体                | Boolean | False |
+| supportDTD                   | 指定使用的处理器是否支持 DTD        | Boolean | True  |
+| reporter                     |                         |         |       |
 
 Specifies the implementation of javax.xml.stream.XMLReporter that should be used.Specifies the implementation of javax.xml.stream.XMLReporter that should be used.
 
