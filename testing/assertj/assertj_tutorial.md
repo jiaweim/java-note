@@ -156,3 +156,98 @@ Javadoc 提供了每个断言的解释和示例。
 | float/Float                       | `float[]`             | `float[][]`              |
 | double/Double                     | `double[]`            | `double[][]`             |
 
+### Assertion description
+
+在 assert 语句前面使用 `as(String description, Object… args)` 添加失败描述信息。
+
+例如：
+
+```java
+TolkienCharacter frodo = new TolkienCharacter("Frodo", 33, Race.HOBBIT);
+
+// failing assertion, remember to call as() before the assertion!
+assertThat(frodo.getAge()).as("check %s's age", frodo.getName())
+                          .isEqualTo(100);
+```
+
+失败描述信息在输出开头的 `[]` 内：
+
+```
+[check Frodo's age] expected:<100> but was:<33>
+```
+
+#### 打印或消耗描述
+
+AssertJ 可以输出每个断言的描述，设置方法：
+
+```java
+Assertions.setPrintAssertionsDescription(true);
+```
+
+## 断言
+
+###  double
+
+- **isNan**
+
+```java
+// assertions succeed
+assertThat(Double.NaN).isNaN();
+assertThat(0.0 / 0.0).isNaN();
+assertThat(0.0F * Float.POSITIVE_INFINITY).isNaN();
+
+// assertions fail
+assertThat(1.0).isNaN();
+assertThat(-1.0F).isNaN();
+```
+
+- **isNotNaN**
+
+```java
+// assertions succeed
+assertThat(1.0).isNotNaN();
+assertThat(-1.0F).isNotNaN();
+
+// assertions fail
+assertThat(Double. NaN).isNotNaN();
+assertThat(0.0 / 0.0).isNotNaN();
+assertThat(0.0F * Float. POSITIVE_INFINITY).isNotNaN();
+```
+
+- **isZero**
+
+```java
+```
+
+### Collection
+
+- **hasSize**
+
+```java
+// assertions will pass
+assertThat(new String[] { "a", "b" }).hasSize(2);
+assertThat(Arrays. asList(1, 2, 3)).hasSize(3);
+
+// assertions will fail
+assertThat(new ArrayList()).hasSize(1);
+assertThat(new int[] { 1, 2, 3 }).hasSize(2);
+```
+
+- **containsExactly**
+
+```java
+// an Iterable is used in the example but it would also work with an array
+Iterable<Ring> elvesRings = newArrayList(vilya, nenya, narya);
+
+// assertion will pass
+assertThat(elvesRings).containsExactly(vilya, nenya, narya);
+
+// assertion will fail as actual and expected order differ
+assertThat(elvesRings).containsExactly(nenya, vilya, narya);
+```
+
+
+
+## 参考
+
+- https://assertj.github.io/doc/
