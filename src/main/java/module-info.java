@@ -39,6 +39,8 @@ module java.module {
     requires com.fasterxml.jackson.dataformat.xml;
     requires org.codehaus.stax2;
     requires univocity.parsers;
+    requires org.jgrapht.core;
+    requires org.jgrapht.io;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
