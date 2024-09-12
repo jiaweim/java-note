@@ -2,7 +2,7 @@
 
 ## 1. equals 和 hashCode
 
-vertex 和 edge 类型限制：
+默认 graph 实现使用 vertex 和 edge 作为 keys，因为 vertex 和 edge 要求：
 
 - 对 `equals` 和 `hashCode`，必须遵守 `java.lang.Object` 中的定义；
 - 如果重写 `equals` 和 `hashCode`，必须同时重写；
@@ -107,13 +107,19 @@ class SoftwarePackageVersion {
 
 ## 6. 匿名 edge
 
-最简单的 edge 除了表示连接性，没有额外信息。通常可以使用 JGraphT 提供的 `DefaultEdge` 来实现。不过需要注意：JGraphT 通过侵入式技术优化基于 `DefaultEdge` 的 graph，连接性信息直接保存在 edge 中，而不是 graph。
+最简单的 edge 除了表示连接性，没有额外信息。通常可以使用 JGraphT 提供的 `DefaultEdge` 来实现。
+
+> [!NOTE]
+>
+> JGraphT 通过侵入式技术优化基于 `DefaultEdge` 的 graph，连接性信息直接保存在 edge 中，而不是 graph 中。
 
 因此，如果需要将相同的 edge 添加到两个不同的 graphs，那么这两个 graphs 必须具有相同的 vertex 连接性，否则就会出错。
 
 ## 7. Weighted edge
 
-`DefaultWeightedEdge` 提供了加权 edge 的默认实现。
+`DefaultWeightedEdge` 提供了加权 edge 的默认实现。其限制和 `DefaultEdge`，相同实例用在不同 graph 中会出问题。
+
+
 
 ## 8. Edges as Key Values
 

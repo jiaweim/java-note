@@ -76,7 +76,7 @@ edge 类型也可以自由选择。如果不需要关联任何特定应用信息
 
 ## 7. Graph Traversal
 
-创建 graph 后，可以使用深度优先、宽度有限或拓扑等顺序遍历。JGraphT 在 `org.jgrapht.traverse` 包中提供了相关功能。功能接口为 `GraphIterator`。
+创建 graph 后，可以使用深度优先、宽度优先或拓扑等顺序遍历。JGraphT 在 `org.jgrapht.traverse` 包中提供了相关功能。功能接口为 `GraphIterator`。
 
 graph-iterator 根据要求的顺序迭代 vertices，随着迭代的进行，可以通过注册一个 [TraversalListener](https://jgrapht.org/javadoc/org.jgrapht.core/org/jgrapht/event/TraversalListener.html) 来获得额外信息，如如何遍历特定 edge。
 
@@ -198,7 +198,9 @@ null
 
 ## 13. Graph Adapters
 
+### 大型 graph adapter
 
+对大型 graph，默认的 JGraphT 表示可能占用太多内存，此时可以使用 [WebGraph](https://jgrapht.org/guide/WebGraphAdapters) 或 [succinct graphs](https://jgrapht.org/guide/Sux4JImplementations) 的 adapters。
 
 ## 示例
 

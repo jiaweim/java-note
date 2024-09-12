@@ -14,7 +14,7 @@ Swing 的自定义绘制与 AWT 类似，但不建议完全使用 AWT 编写程�
 
 ## 示例
 
-### 第一步
+### 1. 创建主窗口
 
 所有 GUI 都需要一个主窗口，在 Swing 中为 `javax.swing.JFrame`。因此，第一步是创建 `JFrame`。需要注意，GUI 创建代码应该放在 Event Dispatch Thread (EDT) 中，以防死锁，如下：
 
@@ -31,7 +31,7 @@ public class SwingPaintDemo1 {
     private static void createAndShowGUI() {
         System.out.println("Created GUI on EDT? " +
                 SwingUtilities.isEventDispatchThread());
-        JFrame f = new JFrame("Swing Paint Demo");
+        JFrame f = new JFrame("Swing Paint Demo"); // 创建窗口，并设置标题
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setSize(250, 250);
         f.setVisible(true);
@@ -41,13 +41,11 @@ public class SwingPaintDemo1 {
 
 代码说明：
 
-- 创建窗口 `JFrame`；
-- 设置标题；
 - `SwingUtilities` 帮助类在 EDT 线程上创建 GUI；
 - 默认单击 close 按钮，`JFrame` 不会退出程序，需要通过 `setDefaultCloseOperation` 实现该行为；
 - 显式将窗口尺寸设置为 250x250，不过向 `JFrame` 添加组件后，就不需要了。
 
-### 第二步
+### 2. 添加绘制代码
 
 下面，添加自定义绘制代码。
 
@@ -100,7 +98,7 @@ class MyPanel extends JPanel {
 说明：定义了一个 `JPanel` 的子类，`MyPanel`，里面包含绘制的主要代码。
 
 - `MyPanel` 在构造函数中添加了黑色边框，这种细微的差别很难看到，可以先注释掉构造函数的代码，运行后和原来的 GUI 对比；
-- `MyPanel` 覆盖 `getPreferredSize()` 以设置 panel 的 pref 尺寸。这样在 `SwingPaintDemo` 中就不需要再设置尺寸，添加控件后调用 `pack` 即可；
+- `MyPanel` 覆盖 `getPreferredSize()` 以设置 panel 的 prefSize。这样在 `SwingPaintDemo` 中就不需要再设置尺寸，添加控件后调用 `pack` 即可；
 - 所有的自定义绘制代码都在 `paintComponent` 方法中。
   - 该方法在 `javax.swing.JComponent` 方法中，在子类中覆盖该方法以自定义绘制行为。
   - `java.awt.Graphics` 参数包含许多绘制 2D 图形的方法，不过大多数情况，实际参数为 `java.awt.Graphics2D` (`Graphics` 的子类)对象，该类提供了更多 2D 图形渲染功能。
@@ -109,7 +107,7 @@ class MyPanel extends JPanel {
 
 当将其他的窗口覆盖 Java GUI，然后移开。在两种情况下，绘制系统发现组件被 damaged，paintCompnent方法被调用。
 
-### 第三步
+### 3. 事件处理
 
 最后，添加事件处理代码：添加鼠标事件，在点击或拖动鼠标时重绘组件。为了保证程序的有效性，我们会记录鼠标的坐标，只 repaint 改变的区域。这是推荐的高效实现方法。
 
@@ -202,7 +200,7 @@ class MyPanel extends JPanel {
 2. 当有多个方块在屏幕上，最小化然后恢复窗口会导致程序完全重绘组件，其它的方块全部消失，只有当前的还在
 3. 注释掉两个 `repaint` 方法，然后在 `paintComponent` 末尾添加 `repaint` 调用，程序又恢复正常了，但是没有原来高效，因为每次都会完全绘制整个组件。
 
-### 改进设计
+### 4. 改进设计
 
 为了方便演示，上面的绘制代码都放在 `MyPanel` 类中。但是，如果你的应用需要跟踪多个方块实例，可以将绘制的代码放到一个单独的类中，这样每个方块都可以当做一个单独的对象。该技术在2D 游戏中使用十分广泛，被称为 "sprite animation"。
 

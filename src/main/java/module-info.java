@@ -41,6 +41,9 @@ module java.module {
     requires univocity.parsers;
     requires org.jgrapht.core;
     requires org.jgrapht.io;
+    requires org.jgrapht.ext;
+    requires de.siegmar.fastcsv;
+    requires ch.randelshofer.fastdoubleparser;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -50,6 +53,8 @@ module java.module {
     opens mjw.java.time;
     opens mjw.gson;
 
+    opens mjw.jgrapht;
+    opens mjw.guava;
     opens mjw.hamcrest.matcher;
     opens mjw.javafx.layout;
     opens mjw.javafx.canvas;

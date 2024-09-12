@@ -1,27 +1,5 @@
 # AWT 和 Swing 的渲染机制
 
-- [AWT 和 Swing 的渲染机制](#awt-和-swing-的渲染机制)
-  - [简介](#简介)
-  - [Swing Paint 系统的演化](#swing-paint-系统的演化)
-  - [AWT 的绘制](#awt-的绘制)
-    - [系统触发 vs. 应用触发](#系统触发-vs-应用触发)
-    - [paint 方法](#paint-方法)
-    - [paint() vs. update()](#paint-vs-update)
-    - [轻量级组件](#轻量级组件)
-      - [如何渲染轻量级组件](#如何渲染轻量级组件)
-      - [轻量级和系统触发](#轻量级和系统触发)
-      - [轻量级组件和透明度](#轻量级组件和透明度)
-    - [智能 painting](#智能-painting)
-    - [AWT 绘制指南](#awt-绘制指南)
-  - [Swing 的绘制](#swing-的绘制)
-    - [双缓冲](#双缓冲)
-    - [更多绘制属性](#更多绘制属性)
-    - [paint 方法](#paint-方法-1)
-      - [Painting and the UI Delegate](#painting-and-the-ui-delegate)
-    - [Paint 过程](#paint-过程)
-    - [Swing 绘制指南](#swing-绘制指南)
-  - [参考](#参考)
-
 
 ## 简介
 
@@ -216,7 +194,7 @@ Swing 的一个重要特性是支持双缓冲。Swing 为 `javax.swing.JComponen
 public boolean isDoubleBuffered()
 public void setDoubleBuffered(boolean o)
 ```
-                          
+
 当 Swing 启用双缓冲机制，它会为每个分层结构（一般每个顶层窗口）提供一个屏幕外的缓冲区。虽然可以为每个组件单独设置该属性，但是启用了顶层容器的双缓冲，则其包含的所有轻量级组件都会被缓冲，不管其`doubleBufffered` 属性是否开启。
 
 所有 Swing 组件默认启用双缓冲。但真正重要的是 `JRootPane`，启用其双缓冲使得顶层容器下的所有组件都开启双缓冲。大多时候，Swing 程序除了开启或关闭双缓冲，不需要处理任何双缓冲问题(为了更流程，建议开启)。Swing 内部会处理好一切。
@@ -236,7 +214,7 @@ public void setDoubleBuffered(boolean o)
 public boolean isOpaque()     
 public void setOpaque(boolean o)     
 ```
-                   
+
 设置为：
 
 - true: 组件绘制其矩形边界内的所有区域
@@ -261,7 +239,7 @@ public void setOpaque(boolean o)
 ```java
 public boolean isOptimizedDrawingEnabled()
 ```
-	
+
 含义：
 
 - true: 该组件的所有直接子组件没有重叠。
@@ -304,7 +282,7 @@ public class MyPanel extends JPanel {
     }     
 } 
 ```
-            
+
 如果因为某些原因扩展组件不希望 UI delegate 绘制，例如，完全替代组件的外观，则会省略 `super.paintComponent()` 调用，不过，如果 `opaque` 属性为 true，则需要自定义填充背景，如同 `Opaque` 属性讨论那一节所说.
 
 ### Paint 过程
@@ -355,8 +333,6 @@ Swing 引入了两个额外属性以最大化paint效率：
 Swing 通过JComponent 的doubleBuffered属性以支持double-buffering，所有Swing组件该属性默认为true，将Swing容器的该属性为true，或导致其所有子类族类该属性都为true，不管这些子类该属性是何值。
 强烈建议保持Swing组件的double-buffering属性为true。
 对复杂的组件，应该充分利用clip rectangle以缩小需要paitn的区域。
-
-
 
 ## 参考
 
