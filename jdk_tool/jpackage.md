@@ -59,7 +59,7 @@ jpackage [options]
 
 - `--name` or `-n` *name*
 
-设置 application 或 package 名称（用户见到的名称）。
+设置 app 或 pkg 名称（用户见到的名称）。
 
 - `--dest` or `-d` *destination*
 
@@ -125,9 +125,9 @@ jpackage [options]
 
 - `--input` or `-i` *directory*
 
-包含要打包文件的输入目录路径。（绝对路径，或相对当前目录的相对路径）
+指定包含要打包文件的目录。（绝对路径，或相对当前目录的相对路径）
 
-输入目录中的所有文件都将打包到 application-image。
+输入目录中的所有文件都将打包到 app-image。
 
 - `--app-content` *additional-content*[,*additional-content*...]
 

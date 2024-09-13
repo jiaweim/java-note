@@ -12,3 +12,8 @@
 
 JRI 与 Python 虚拟环境类似，其中仅包含所需的特定依赖项。
 
+
+
+## 参考
+
+- https://docs.oracle.com/en/java/javase/21/docs/specs/man/index.html

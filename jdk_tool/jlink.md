@@ -5,9 +5,12 @@
 ***
 ## 简介
 
-jlink 将 modules 及依赖性打包为 runtime-image。
+jlink 将 modules 及依赖项打包为 runtime-image。runtime-image 类似 JDK，但只包含你所需的 modules，以及这些 modules 的依赖项。镜像分两种：
 
-语法：
+- runtime-image: JDK 的子集
+- app-image: 包含项目 modules
+
+jlink 命令：
 
 ```
 jlink [options] --module-path modulepath --add-modules module [, module...]
@@ -285,6 +288,42 @@ list of elements each using one the following forms:
 
 ## jlink 示例
 
+### 创建 runtime-image
+
+创建 runtime-image 需要两部分信息：
+
+- `--add-modules` - 添加到 image 的模块
+- `--output` - image 的输出目录
+
+jlink 根据 `--add-modules` 指定的模块开始解析模块，但有几个特点：
+
+- 默认不包含 services
+- 不解析 optional-dependencies，需要手动添加
+- 不支持 automatic-modules
+
+最简单的 runtime-image 只包含 java.base 模块：
+
+```shell
+# create the image
+$ jlink
+    --add-modules java.base
+    --output jdk-base
+# use the image's java launcher to list all contained modules
+$ jdk-base/bin/java --list-modules
+> java.base
+```
+
+### 创建 app-image
+
+jlink 并不区分 JDK 模块和其它模块，因此，可以创建包含整个 app 和支撑该 app 的 JDK 模块的镜像。创建 app-image 需要：
+
+- 用 `--module-path` 指定 app-module 所在目录
+- 用 `--add-modules` 指定 main-module 和其它模块（如包含 services 的模块）
+
+需要注意的时，jlink 不支持 automatic-module。
+
+
+
 ### 示例演示
 
 - 创建 runtime-image
@@ -306,7 +345,7 @@ list of elements each using one the following forms:
 
 不同系统生成的 runtime-image 不同。例如，在 Windows，`bin/` 目录包含 `java.exe`，该文件只能在 Windows 运行。
 
-- 使用 `java --list-modules` 命令 java runtime 包含的模块
+- 使用 `java --list-modules` 查看 java runtime 包含的模块
 
 查看上面生成的 `my-runtime` image 包含的模块
 
