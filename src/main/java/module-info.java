@@ -44,6 +44,7 @@ module java.module {
     requires org.jgrapht.ext;
     requires de.siegmar.fastcsv;
     requires ch.randelshofer.fastdoubleparser;
+    requires dflib;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -55,6 +56,7 @@ module java.module {
 
     opens mjw.jgrapht;
     opens mjw.guava;
+    opens mjw.dflib;
     opens mjw.hamcrest.matcher;
     opens mjw.javafx.layout;
     opens mjw.javafx.canvas;

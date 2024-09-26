@@ -57,6 +57,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.dflib</groupId>
+            <artifactId>dflib</artifactId>
+            <version>1.0.0-M23</version>
+        </dependency>
+        <dependency>
             <groupId>ch.randelshofer</groupId>
             <artifactId>fastdoubleparser</artifactId>
             <version>1.0.0</version>
