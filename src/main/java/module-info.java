@@ -45,6 +45,8 @@ module java.module {
     requires de.siegmar.fastcsv;
     requires ch.randelshofer.fastdoubleparser;
     requires dflib;
+    requires dflib.csv;
+    requires dflib.junit5;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
