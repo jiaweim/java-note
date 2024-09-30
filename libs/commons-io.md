@@ -1,40 +1,25 @@
 # Apache Commons IO
 
-- [Apache Commons IO](#apache-commons-io)
-  - [1. 最佳实践](#1-最佳实践)
-    - [1.1. java.io.File](#11-javaiofile)
-    - [1.2. Buffer Streams](#12-buffer-streams)
-  - [2. Utility](#2-utility)
-    - [2.1. IOUtils](#21-ioutils)
-    - [2.2. FileUtils](#22-fileutils)
-    - [2.3. FilenameUtils](#23-filenameutils)
-    - [2.4. FileSystemUtils](#24-filesystemutils)
-  - [3. Endian](#3-endian)
-  - [4. Line Iterator](#4-line-iterator)
-  - [5. File Filters](#5-file-filters)
-  - [6. File Comparators](#6-file-comparators)
-  - [7. Stream](#7-stream)
-  - [8. 参考](#8-参考)
-
-2023-08-08, 15:49
+2024-09-30
+update: 根据最新版 commons-io 2.17.0 进行更新
+2023-08-08
 add: 完善内容
-2022-11-30, 10:31
+2022-11-30 ⭐
+@author Jiawei Mao
+
 ****
 ## 1. 最佳实践
 
-### 1.1. java.io.File
+### java.io.File
 
-我们经常需要处理文件和文件名，可能出错的地方有很多：
+我们经常需要处理文件和文件名，可能出错的地方有很多，例如：
 
 - 在 Unix 中可以工作，在 Windows 中不能（反之亦然）
 - 文件名因为双分隔符或缺少路径分隔符而无效
-- 等等
 
-`java.io.File` 可以很好地处理上述许多情况，因此建议使用 `java.io.File` 作为文件名，而不是 String，以避免平台依赖问题。
+`java.io.File` 可以很好地处理上述许多情况，因此建议使用 `java.io.File` 作为文件名，而不是 `String`，以避免平台依赖问题。
 
-commons-io 提供了 `FilenameUtils`，用于处理许多文件名问题，不过仍然建议尽可能使用 `java.io.File` 对象。
-
-例如：
+commons-io 1.1 引入了 `FilenameUtils`，用于处理许多文件名问题，不过仍然建议尽可能使用 `java.io.File` 对象。例如：
 
 ```java
  public static String getExtension(String filename) {
@@ -49,7 +34,7 @@ commons-io 提供了 `FilenameUtils`，用于处理许多文件名问题，不�
 
 看上去没问题，对不对？如果有人传递了完整路径，例如，"C:\Temp\documentation.new\README" 是一个完全合法的路径，上面定义的方法返回 "new\README"，显然不对。
 
-使用 java.io.File 作为文件名，而不是 String。java.io.File 的功能经过了很好的测试。在 FileUtils 类中可以找到其它有关 java.io.File 的实用函数。
+因此强烈建议使用 `java.io.File` 作为文件名，而不是 `String`。`java.io.File` 的功能经过了很好的测试。在 `FileUtils` 类中可以找到其它有关 `java.io.File` 的实用函数。
 
 不要用：
 
@@ -67,11 +52,11 @@ File tmpfile = new File(tmpdir, "test.tmp");
 InputStream in = new java.io.FileInputStream(tmpfile);
 ```
 
-### 1.2. Buffer Streams
+### Buffer Streams
 
-IO 性能很大程度上取决于缓冲策略。通常，读取 512 或 1024 bytes 的数据包非常快，因为这些大小与文件系统或文件系统缓存的大小非常匹配。
+**IO 性能**很大程度上取决于**缓冲策略**。通常，读取 512 或 1024 bytes 的数据包非常快，因为这与文件系统或文件系统缓存大小非常匹配。
 
-在读写流时确保正确地缓冲了流，特别是处理文件时。使用 `BufferedInputStream` 封装 `FileInputStream` 即可：
+在读写 stream 时要求确保正确地缓冲 stream，特别是处理文件时。使用 `BufferedInputStream` 封装 `FileInputStream` 即可：
 
 ```java
  InputStream in = new java.io.FileInputStream(myfile);
@@ -84,21 +69,21 @@ IO 性能很大程度上取决于缓冲策略。通常，读取 512 或 1024 byt
  }
 ```
 
-```ad-attention
-不要缓冲已经缓冲的流，一些组件（如 XML 解析器）可能已经缓冲，再次缓冲只会降低代码速度。
-```
+> [!NOTE]
+>
+> 不要缓冲已经缓冲的流，有些组件（如 XML 解析器）可能已经缓冲，再次缓冲只会降低代码速度。
 
-如果使用 commons-io 的 `CopyUtils` 或 `IOUtils`，不需要额外缓冲，方法内已经内嵌的缓冲。
+如果使用 commons-io 的 `CopyUtils` 或 `IOUtils`，不需要额外缓冲，方法内已经内嵌缓冲。
 
-另外，使用 `ByteArrayOutputStream` 写入内存不需要缓冲。
+另外，使用 `ByteArrayOutputStream` **写入内存不需要缓冲**。
 
 ## 2. Utility
 
-### 2.1. IOUtils
+### IOUtils
 
 `IOUtils` 包含读、写和复制功能，适用于 `InputStream`, `OutputStream`, `Reader` 和 `Writer`。
 
-**示例：** 从 URL 读取字节并 print 的任务
+**示例：** 从 URL 读取 bytes 并 print 的任务
 
 ```java
  InputStream in = new URL( "https://commons.apache.org" ).openStream();
@@ -106,8 +91,8 @@ IO 性能很大程度上取决于缓冲策略。通常，读取 512 或 1024 byt
    InputStreamReader inR = new InputStreamReader( in );
    BufferedReader buf = new BufferedReader( inR );
    String line;
-   while ( ( line = buf.readLine() ) != null ) {
-     System.out.println( line );
+   while (( line = buf.readLine() ) != null) {
+     System.out.println(line);
    }
  } finally {
    in.close();
@@ -125,13 +110,13 @@ IO 性能很大程度上取决于缓冲策略。通常，读取 512 或 1024 byt
  }
 ```
 
-在某些应用领域中，这样的 IO 操作很常见，使用该类可以节省大量时间。
+在某些应用领域中，此类 IO 操作很常见，使用该类可以节省大量时间。
 
-这个方法灵活快速，但是缺点也很明显，如果读取 1GB 文件，会导致创建一个 1GB 的 `String`，占内存。
+这个方法灵活快速，但是缺点也很明显，如果读取 1GB 文件，会导致创建一个 1GB 的 `String`，**占内存**。
 
-### 2.2. FileUtils
+### FileUtils
 
-`FileUtils` 包含处理 `File` 的方法。包括读、写、复制和比较。
+`FileUtils` 包含处理 `File` 对象的方法。包括读、写、复制和比较。
 
 **示例：** 逐行读取文件
 
@@ -140,9 +125,9 @@ File file = new File("/commons/io/project.properties");
 List lines = FileUtils.readLines(file, "UTF-8");
 ```
 
-### 2.3. FilenameUtils
+### FilenameUtils
 
-FilenameUtils 类提供不使用 File 对象的情况下处理文件名。该类在 Unix 和 Windows 中保持一致。
+`FilenameUtils` 类提供处理文件名的方法。该类在 Unix 和 Windows 中保持一致。
 
 **示例：** 规范文件名，删除多余的 `..` 号
 
@@ -152,28 +137,35 @@ String normalized = FilenameUtils.normalize(filename);
 // result is "C:/commons/lang/project.xml"
 ```
 
-### 2.4. FileSystemUtils
+### FileSystemUtils
 
-FileSystemUtils 提供 JDK 不支持的文件系统相关功能。目前只有一个获取驱动空闲空间的方法。
+`FileSystemUtils` 提供 JDK 不支持的**文件系统**相关功能。目前只有一个获取驱动空闲空间的方法。
 
 ```java
 long freeSpace = FileSystemUtils.freeSpace("C:/");
 ```
 
-```ad-warning
-java.nio.file.FileStore 提供相同功能，该类处于 Deprecated 状态。
+> [!WARNING]
+>
+> 从 commons-io 2.6 开始不推荐使用，`java.nio.file.FileStore` 提供了相同功能。
+
+```java
+Files.getFileStore(Paths.get("/home")).getUsableSpace()
 ```
 
 ## 3. Endian
 
-不同计算机的架构采用不同的字节排序约定。在所谓的 "Little Endian" 架构（如 intel），lower-order 字节在内存中存储在较低地址，后续字节存储在较高内存地址。对 "Big Endian" 架构（如 Motorola），则相反。
+不同计算机的架构采用不同的字节顺序约定：
+
+- 在 "Little Endian" 架构中（如 intel），lower-order 字节在内存中存储在较低地址，后续字节存储在较高内存地址。
+- 对 "Big Endian" 架构（如 Motorola），则相反。
 
 在 commons-io 包中有两个相关类：
 
-- EndianUtils 类包含一些静态方法，用于转换 Java 基本类型和 Stream 的 Endian
-- SwappedDataInputStream 类实现 DataInput 接口，可以从 non-native Endian 文件读取数据
+- `EndianUtils` 类包含一些静态方法，用于转换 Java 基本类型和 Stream 的 Endian
+- `SwappedDataInputStream` 类实现 `DataInput` 接口，可以从 non-native Endian 文件读取数据
 
-http://www.cs.umass.edu/~verts/cs32/endian.html
+参考：http://www.cs.umass.edu/~verts/cs32/endian.html
 
 ## 4. Line Iterator
 

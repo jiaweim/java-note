@@ -229,7 +229,325 @@ DataFrame df = DataFrame
 String[] labels = df.getColumnsIndex().toArray();
 ```
 
-## 查看 DataFrame 属性
+## Series 操作
+
+### Series 类型
+
+![image-20240930135610042](./images/image-20240930135610042.png)
+
+`Series` 的实现包括通用实现 `ObjectSeries` 和针对基础类型的优化实现 `LongSeries`, `IntSeries`, `DoubleSeries` 和 `BooleanSeries`。
+
+针对这些实现，又有不同的实现类型：
+
+- `SingleValueSeries`: 只包含一个重复值的 `Series`
+- `ArraySeries`: 采用数组实现的 `Series`
+- `ArrayRangeSeries`: 采用数组的一个 slice 定义的 `Series`
+- `RangeSeries`: 采用另一个 `Series` 的 slice 定义的 `Series`
+- `IndexedSeries`: 使用 `IntSeries` 作为索引在另一个 `Series` 定义的 `Series`
+
+另外还有几个特殊的 `Series`:
+
+- `EmptySeries`: 不包含任何值的 `Series`
+- `RowMappedSeries`: 将 `DataFrame` 的 row 根据映射函数生成的值创建 `Series`
+- `ColumnMappedSeries`: 将 `Series` 的值根据映射函数生成新的 `Series`
+- `ByRowSeries`: 
+- `OffsetSeries`: 
+
+### series shift
+
+```java
+default Series<T> shift(int offset)
+default Series<T> shift(int offset, T filler)
+```
+
+移位操作。`offset` 为正数表示所有值向右移动，负数表示向左移动。移位操作产生的空位用 `filler` 填充，`filler` 默认为 `null`。
+
+- 默认用 `null` 填充
+
+```java
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void defaultNull(SeriesType type) {
+    Series<String> s = type.createSeries("a", "b", "c", "d").shift(2);
+    new SeriesAsserts(s).expectData(null, null, "a", "b");
+}
+```
+
+- 自定义填充值 "X"
+
+```java
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void positive(SeriesType type) {
+    Series<String> s = type.createSeries("a", "b", "c", "d").shift(2, "X");
+    new SeriesAsserts(s).expectData("X", "X", "a", "b");
+}
+```
+
+- 向左移位
+
+```java
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void negative(SeriesType type) {
+    Series<String> s = type.createSeries("a", "b", "c", "d").shift(-2, "X");
+    new SeriesAsserts(s).expectData("c", "d", "X", "X");
+}
+```
+
+- 0 表示不移位
+
+```java
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void zero(SeriesType type) {
+    Series<String> s = type.createSeries("a", "b", "c", "d").shift(0, "X");
+    new SeriesAsserts(s).expectData("a", "b", "c", "d");
+}
+```
+
+### diff
+
+```java
+Series<T> diff(Series<? extends T> other);
+```
+
+返回一个当前 `Series` 有而另一个 `Series` 没有的值构成的 `Series`。即差集。
+
+**BooleanSeries**
+
+```java
+@Test
+public void withEmpty() {
+    BooleanSeries s = new BooleanArraySeries(true, false);
+    assertSame(s, s.diff(Series.of()));
+}
+
+@Test
+public void withSelf() {
+    BooleanSeries s = new BooleanArraySeries(true, false);
+    new SeriesAsserts(s.diff(s)).expectData();
+}
+
+@Test
+public void diff() {
+    BooleanSeries s1 = new BooleanArraySeries(true, false);
+    Series<Boolean> s2 = Series.of(false, false);
+
+    Series<Boolean> c = s1.diff(s2);
+    new SeriesAsserts(c).expectData(true);
+}
+
+@Test
+public void diffPrimitive() {
+    BooleanSeries s1 = new BooleanArraySeries(true, false);
+    BooleanSeries s2 = new BooleanArraySeries(false, false);
+
+    Series<Boolean> c = s1.diff(s2);
+    new SeriesAsserts(c).expectData(true);
+}
+```
+
+
+
+**DoubleSeries**
+
+```java
+@Test
+public void withEmpty() {
+    DoubleSeries s = new DoubleArraySeries(1, 2);
+    assertSame(s, s.diff(Series.of()));
+}
+
+@Test
+public void withSelf() {
+    DoubleSeries s = new DoubleArraySeries(1, 2);
+    new SeriesAsserts(s.diff(s)).expectData();
+}
+
+@Test
+public void diff() {
+    DoubleSeries s1 = new DoubleArraySeries(5, 6, 7);
+    Series<Double> s2 = Series.of(6., null, 8.);
+    new SeriesAsserts(s1.diff(s2)).expectData(5., 7.);
+}
+
+@Test
+public void diffPrimitive() {
+    DoubleSeries s1 = new DoubleArraySeries(5, 6, 7);
+    DoubleSeries s2 = new DoubleArraySeries(6, 8);
+    new SeriesAsserts(s1.diff(s2)).expectData(5., 7.);
+}
+```
+
+
+
+### series unique
+
+返回包含 unique 值的 `Series`。
+
+**BooleanSeries**
+
+```java
+@Test
+public void test() {
+    BooleanSeries s1 = Series.ofBool(true, false, true, false, true).unique();
+    new BoolSeriesAsserts(s1).expectData(true, false);
+}
+
+@Test
+public void trueOnly() {
+    BooleanSeries s1 = Series.ofBool(true, true, true).unique();
+    new BoolSeriesAsserts(s1).expectData(true);
+}
+
+@Test
+public void falseOnly() {
+    BooleanSeries s1 = Series.ofBool(false, false, false).unique();
+    new BoolSeriesAsserts(s1).expectData(false);
+}
+
+@Test
+public void small() {
+    BooleanSeries s1 = Series.ofBool(false, true).unique();
+    new BoolSeriesAsserts(s1).expectData(false, true);
+}
+```
+
+**DoubleSeries**
+
+```java
+@Test
+public void test() {
+    DoubleSeries s1 = Series.ofDouble(0., -1.1, -1.1, 0., 1.1, 375.05, Double.MAX_VALUE, 5.1, Double.MAX_VALUE).unique();
+    new DoubleSeriesAsserts(s1).expectData(0., -1.1, 1.1, 375.05, Double.MAX_VALUE, 5.1);
+}
+
+@Test
+public void alreadyUnique() {
+    DoubleSeries s1 = Series.ofDouble(0., -1.1, 1.1, 375.05, Double.MAX_VALUE, 5.1).unique();
+    new DoubleSeriesAsserts(s1).expectData(0., -1.1, 1.1, 375.05, Double.MAX_VALUE, 5.1);
+}
+
+@Test
+public void small() {
+    DoubleSeries s1 = Series.ofDouble(-1.1).unique();
+    new DoubleSeriesAsserts(s1).expectData(-1.1);
+}
+```
+
+**IntSeries**
+
+```java
+@Test
+public void test() {
+    IntSeries s1 = Series.ofInt(0, -1, -1, 0, 1, 375, Integer.MAX_VALUE, 5, Integer.MAX_VALUE).unique();
+    new IntSeriesAsserts(s1).expectData(0, -1, 1, 375, Integer.MAX_VALUE, 5);
+}
+
+@Test
+public void alreadyUnique() {
+    IntSeries s1 = Series.ofInt(0, -1, 1, 375, Integer.MAX_VALUE, 5).unique();
+    new IntSeriesAsserts(s1).expectData(0, -1, 1, 375, Integer.MAX_VALUE, 5);
+}
+
+@Test
+public void small() {
+    IntSeries s1 = Series.ofInt(-1).unique();
+    new IntSeriesAsserts(s1).expectData(-1);
+}
+```
+
+**Series**
+
+```java
+Object o1 = new Object();
+Object o2 = "__";
+Object o3 = new Integer(9);
+Object o4 = new Integer(9);
+
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void test(SeriesType type) {
+    Series<Object> s1 = type.createSeries(o4, o1, o2, o3, o1).unique();
+    new SeriesAsserts(s1).expectData(o4, o1, o2);
+}
+
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void alreadyUnique(SeriesType type) {
+    Series<Object> s1 = type.createSeries(o4, o1, o2).unique();
+    new SeriesAsserts(s1).expectData(o4, o1, o2);
+}
+
+@ParameterizedTest
+@EnumSource(SeriesType.class)
+public void small(SeriesType type) {
+    Series<Object> s1 = type.createSeries(o4).unique();
+    new SeriesAsserts(s1).expectData(o4);
+}
+```
+
+**LongSeries**
+
+```java
+@Test
+public void test() {
+    LongSeries s1 = Series.ofLong(0, -1, -1, 0, 1, 375, Long.MAX_VALUE, 5, Long.MAX_VALUE).unique();
+    new LongSeriesAsserts(s1).expectData(0, -1, 1, 375, Long.MAX_VALUE, 5);
+}
+
+@Test
+public void alreadyUnique() {
+    LongSeries s1 = Series.ofLong(0, -1, 1, 375, Integer.MAX_VALUE, 5).unique();
+    new LongSeriesAsserts(s1).expectData(0, -1, 1, 375, Integer.MAX_VALUE, 5);
+}
+
+@Test
+public void small() {
+    LongSeries s1 = Series.ofLong(-1).unique();
+    new LongSeriesAsserts(s1).expectData(-1);
+}
+```
+
+### BooleanSeries
+
+#### concatBool
+
+```java
+BooleanSeries concatBool(BooleanSeries... other)
+```
+
+将多个 `BooleanSeries` 串联为一个。
+
+```java
+@Test
+public void none() {
+    BooleanSeries s = new BooleanArraySeries(true, false);
+    assertSame(s, s.concatBool());
+}
+
+@Test
+public void self() {
+    BooleanSeries s = new BooleanArraySeries(true, false);
+    BooleanSeries c = s.concatBool(s);
+    new BoolSeriesAsserts(c).expectData(true, false, true, false);
+}
+
+@Test
+public void test() {
+    BooleanSeries s1 = new BooleanArraySeries(true, false);
+    BooleanSeries s2 = new BooleanArraySeries(false, false);
+    BooleanSeries s3 = new BooleanArraySeries(true, true);
+
+    BooleanSeries c = s1.concatBool(s2, s3);
+    new BoolSeriesAsserts(c).expectData(true, false, false, false, true, true);
+}
+```
+
+
+
+## DataFrame 属性
 
 - row 数
 
@@ -301,7 +619,91 @@ c.. c.. c..
 
 ## Expressions
 
-DFLib 内置了一个表达式语言（实现为 Java DSL），可用来在 `DataFrame` 和 `Series` 上执行 column-centric 操作，如数据转换、聚合和过滤。`Exp` 是 expression 接口，expression 以 `DataFrame` 或 `Series` 为参数，生成指定类型的 `Series`。
+DFLib 内置了一个表达式语言（实现为 Java DSL），可用来在 `DataFrame` 和 `Series` 上执行 column-centric 操作，如数据转换、聚合和过滤。
+
+> [!NOTE]
+>
+> 所有 exp 都返回 Series 类型。
+
+`Exp` 是 exp 接口，exp 以 `DataFrame` 或 `Series` 为参数，生成指定类型的 `Series`。
+
+非聚合 exp 生成与原数据结构大小相同的 `Series`；聚合 exp 生成更少元素的 `Series` (通常只有一个元素)。
+
+`Exp` 接口包含创建各种类型表达式的 factory 方法。按照惯例，应用于 col 的表达式以 `$` 开头。
+
+```java
+public interface Exp<T> {
+    /**
+     * 返回结果类型。DBLib 表达式引擎使用该类型优化计算。
+     *
+     * Java 泛型的限制使得 DFLib 有时无法明确类型，导致表达式返回 Object。
+     * 已知类型能够优化计算过程。
+     */
+    Class<T> getType();
+
+    /**
+     * 返回表达式的 DFLib 查询语言格式
+     */
+    String toQL();
+
+    /**
+     * 返回表达式的 DFLib 查询语言格式，col-names 根据提供的 DataFrame 获得
+     */
+    String toQL(DataFrame df);
+
+    /**
+     * 以 DataFrame 为参数计算表达式的值，返回一个 Series
+     */
+    Series<T> eval(DataFrame df);
+
+    /**
+     * 以 Series 为参数计算表达式的值，返回一个 Series
+     */
+    Series<T> eval(Series<?> s);
+}
+```
+
+### static 方法
+
+下表对 `Exp` 提供的方法做一个简单总结。
+
+| Exp                                                          | 功能                                            |
+| ------------------------------------------------------------ | ----------------------------------------------- |
+| `Exp<T> $val(V value, Class<T> type)`                        | 返回包含重复值的 `Series`                       |
+| `<T> Exp<T> $val(T value)`                                   | 同上，只是使用泛型推断类型                      |
+| `DateExp $dateVal(LocalDate value)`                          | 同 `$val`，`LocalDate` 类型                     |
+| `TimeExp $timeVal(LocalTime value)`                          | 同 `$val`，`LocalTime` 类型                     |
+| `DateTimeExp $dateTimeVal(LocalDateTime value)`              | 同 `$val`，`LocalDateTime` 类型                 |
+| `Exp<T> $col(String name)`                                   | 返回名为 `name` 的 col                          |
+| `Exp<T> $col(int position)`                                  | 同上，用 position 选择 col                      |
+| `Exp<T> $col(int position, Class<T> type)`                   | 以 index 选择 col，同时指定 col 类型            |
+| `StrExp $str(String name)`                                   | 以 name 选择 col，col 类型指定为 str            |
+| `StrExp $str(int position)`                                  | 以 index 选择 col，col 类型指定为 str           |
+| `NumExp<Integer> $int(String name)`                          | 以 name 选择 col，col 类型指定为 int            |
+| `NumExp<Integer> $int(int position)`                         | 以 index 选择 col，col 类型指定为 int           |
+| `NumExp<Long> $long(String name)`                            | 以 name 选择 col，col 类型指定为 long           |
+| `NumExp<Long> $long(int position)`                           | 以 index 选择 col，col 类型指定为 long          |
+| `NumExp<Double> $double(String name)`                        | 以 name 选择 col，col 类型指定为 double         |
+| `NumExp<Double> $double(int position)`                       | 以 index 选择 col，col 类型指定为 double        |
+| `DecimalExp $decimal(String name)`                           | 以 name 选择 col，col 类型指定为 BigDecimal     |
+| `DecimalExp $decimal(int position)`                          | 以 index 选择 col，col 类型指定为 BigDecimal    |
+| `Condition $bool(String name)`                               | 以 name 选择 col，col 类型指定为 bool           |
+| `Condition $bool(int position)`                              | 以 index 选择 col，col 类型指定为 bool          |
+| `DateExp $date(String name)`                                 | 以 name 选择 col，col 类型指定为 LocalDate      |
+| `DateExp $date(int position)`                                | 以 index 选择 col，col 类型指定为 LocalDate     |
+| `TimeExp $time(String name)`                                 | 以 name 选择 col，col 类型指定为 LocalTime      |
+| `TimeExp $time(int position)`                                | 以 index 选择 col，col 类型指定为 LocalTime     |
+| `DateTimeExp $dateTime(String name)`                         | 以 name 选择 col，col 类型指定为 LocalDateTime  |
+| `DateTimeExp $dateTime(int position)`                        | 以 index 选择 col，col 类型指定为 LocalDateTime |
+| `Condition or(Condition... conditions)`                      |                                                 |
+| `Condition and(Condition... conditions)`                     |                                                 |
+| `Condition not(Condition condition)`                         |                                                 |
+| `Exp<T> ifExp(Condition condition, Exp<T> ifTrue, Exp<T> ifFalse)` |                                                 |
+| `Exp<T> ifNull(Exp<T> exp, Exp<T> ifNullExp)`                | 计算 exp，`null` 值通过调用 `ifNullExp` 替换    |
+| `Exp<T> ifNull(Exp<T> exp, T ifNull)`                        | 计算 exp，`null` 值用 `ifNull` 替换             |
+|                                                              |                                                 |
+
+### exp 基础
 
 首先静态导入 `Exp` 接口以使用其工厂方法：
 
@@ -309,7 +711,7 @@ DFLib 内置了一个表达式语言（实现为 Java DSL），可用来在 `Dat
 import static org.dflib.Exp.*;
 ```
 
-下面创建两个简单的 exps，返回所需类型的命名 col 和位置 col：
+下面创建两个简单的 exps，返回所需类型的 name-col 和 position-col：
 
 ```java
 StrExp lastExp = $str("last");
@@ -324,15 +726,17 @@ DataFrame df = DataFrame.foldByRow("first", "last", "salary").of(
         "Juliana", "Walewski", new BigDecimal("80000"),
         "Joan", "O'Hara", new BigDecimal("95000"));
 
-Series<String> last = lastExp.eval(df);
-Series<BigDecimal> salary = salaryExp.eval(df);
+Series<String> last = lastExp.eval(df); // 取 col-last，转换为 str 类型
+Series<BigDecimal> salary = salaryExp.eval(df); // 取 col-2，转换为 BigDecimal 类型
 ```
 
-同样的操作也可以使用其它 DFLib API 完成，但这个基本抽象可以描述各种操作。exp 很少单独使用，它们通常作为参数传递给其它方法。
+同样的操作也可以使用其它 DFLib API 完成，但这个基本抽象可以描述各种操作。
+
+exp 很少单独使用，它们通常作为参数传递给其它方法。
 
 > [!NOTE]
 >
-> DFLib exp 处理 `Series` 而非单个值，因此其性能较好。Exp 是操作数据的首选方式，而不是直接的 API，包含自定义 lambda。
+> DFLib exp 处理 `Series` 而非单个值，因此其性能较好。Exp 是操作数据的**首选方式**，而不是直接 API 或 lambda。
 
 ### col exp
 
@@ -466,19 +870,38 @@ Sorter s = $str("last").asc();
 
 操作 `DataFrame` 数据，一般从选择 cols 或 rows 开始，所得子集用 `ColumnSet` 或 `RowSet` 对象表示。下面从 col 开始。
 
-### 选择 col
+### 选择一个 col
 
-可以按条件、名称、位置以及隐式选择 col。
+```java
+Series<T> getColumn(int pos);
+Series<T> getColumn(String name);
+```
 
-#### by condition
+选择指定 name 或 index 的 col。
 
-用 `predicate` lambda 指定条件：
+### 选择多个 cols
+
+可以按条件、名称、位置以及隐式选择 cols，返回 `ColumnSet` 类型。
+
+```java
+ColumnSet cols();
+ColumnSet cols(Index columnsIndex);
+ColumnSet cols(int... columns);
+ColumnSet cols(Predicate<String> condition);
+ColumnSet cols(String... columns);
+
+ColumnSet colsExcept(int... columns);
+ColumnSet colsExcept(Predicate<String> condition);
+ColumnSet colsExcept(String... columns);
+```
+
+- `cols(Predicate<String> condition)` 根据条件选择 cols
 
 ```java
 DataFrame df1 = df.cols(c -> !"middle".equals(c)).select();
 ```
 
-这种形式的 `cols(...)` 不允许对 col 重新排序。生成的 col 的顺序与原始 `DataFrame` 的相对顺序保持一致：
+这种形式的 `cols(...)` 不允许对 col 重新排序。生成的 col 的顺序与原 `DataFrame` 的相对顺序保持一致：
 
 ```
 first   last
@@ -487,9 +910,9 @@ Jerry   Cosin
 Joan    O'Hara
 ```
 
-#### by name
+- `cols(String... columns)` 根据 col-names 选择
 
-使用 col-name 从 `DataFrame` 选择两个 cols：
+这种选择方方式得到的 col 顺序与参数一致，即支持设置 col 顺序。
 
 ```java
 DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
@@ -514,15 +937,13 @@ O'Hara   Joan
 DataFrame df1 = df.colsExcept("middle").select();
 ```
 
-#### by position
-
-按位置选择 col (0-based)。
+- `cols(int... columns)` 根据 col 位置选择
 
 ```java
 DataFrame df1 = df.cols(1, 0).select();
 ```
 
-#### 隐式
+- `cols()` 选择所有 cols
 
 如果在构建 `COlumnSet` 时不提供参数，则返回的 `DataFrame` 与原来的 `DataFrame` 相同。
 
@@ -1197,7 +1618,29 @@ O'Hara 222-555-5555
 >
 > 拆分的 col 可以包含 scalar, array 或 iterables。
 
-### unique row
+### unique
+
+```java
+DataFrame unique();
+DataFrame unique(String... uniqueKeyColumns);
+DataFrame unique(int... uniqueKeyColumns);
+```
+
+以指定 cols 为 hash 得到的 unique 数据。
+
+
+
+
+
+### selectUnique
+
+```java
+DataFrame selectUnique();
+DataFrame selectUnique(String... uniqueKeyColumns);
+DataFrame selectUnique(int... uniqueKeyColumns);
+```
+
+
 
 可以根据所有 cols 或部分 cols 来选择 unique rows。
 
@@ -1872,7 +2315,159 @@ Juliana    null
 
 ## group 和 aggregate
 
-根据 col 值进行分组。例如，下面是一份工资报表：
+```java
+GroupBy group(Hasher by);
+GroupBy group(int... columns);
+GroupBy group(String... columns)
+```
+
+`group` 选择指定 cols 生成 hash 值，将 hash 值相同的 rows 分为一组。例如：
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "z",
+        0, "a",
+        1, "x");
+
+GroupBy gb = df.group(Hasher.of("a"));
+assertNotNull(gb);
+
+// 按 col-a 分组，0,1,2 三个值对应三组
+assertEquals(3, gb.size());
+assertEquals(new HashSet<>(asList(0, 1, 2)), new HashSet<>(gb.getGroupKeys()));
+
+new DataFrameAsserts(gb.getGroup(0), "a", "b")
+        .expectHeight(1)
+        .expectRow(0, 0, "a");
+
+new DataFrameAsserts(gb.getGroup(1), "a", "b")
+        .expectHeight(3)
+        .expectRow(0, 1, "x")
+        .expectRow(1, 1, "z")
+        .expectRow(2, 1, "x");
+
+new DataFrameAsserts(gb.getGroup(2), "a", "b")
+        .expectHeight(1)
+        .expectRow(0, 2, "y");
+```
+
+### null group
+
+作为 hash 的 col，其 `null` 值被忽略。例如：
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "z",
+        null, "a",
+        1, "x");
+
+GroupBy gb = df.group(Hasher.of("a"));
+assertNotNull(gb);
+
+// col-a 有 1,2,null 三种值，忽略 null
+assertEquals(2, gb.size());
+assertEquals(new HashSet<>(asList(1, 2)), new HashSet<>(gb.getGroupKeys()));
+
+// getGroup 的参数为 key,而不是 index
+new DataFrameAsserts(gb.getGroup(1), "a", "b")
+        .expectHeight(3)
+        .expectRow(0, 1, "x")
+        .expectRow(1, 1, "z")
+        .expectRow(2, 1, "x");
+
+new DataFrameAsserts(gb.getGroup(2), "a", "b")
+        .expectHeight(1)
+        .expectRow(0, 2, "y");
+```
+
+### aggregate
+
+```java
+public DataFrame agg(Exp<?>... aggregators);
+```
+
+`agg` 接受可变数目的 `Exp`，每个 `Exp` 生成一个 col。
+
+- 分组常和聚合操作同时使用。例如：
+
+```java
+DataFrame df1 = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "z",
+        0, "a",
+        1, "x");
+
+// 采用 col-a 分组
+DataFrame df = df1.group("a").agg(
+        $long("a").sum(), // 对每个 group，col-a 加和
+        $str(1).vConcat(";")); // col-a 连接起来
+
+new DataFrameAsserts(df, "sum(a)", "b")
+        .expectHeight(3)
+        .expectRow(0, 3L, "x;z;x")
+        .expectRow(1, 2L, "y")
+        .expectRow(2, 0L, "a");
+```
+
+- 也可以对一个 col 应用多种计算，生成多个 cols
+
+```java
+DataFrame df1 = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "y",
+        0, "a",
+        1, "x");
+
+DataFrame df = df1
+        .group("b")
+        .agg(
+   			// 采用 col-b 分组，因此一个 group 中 col-b 值都相同，取第一个
+                $col("b").first(), 
+                $long("a").sum(), // col-a group 加和
+                $double("a").median()); // col-a group 中位数
+
+new DataFrameAsserts(df, "b", "sum(a)", "median(a)")
+        .expectHeight(3)
+        .expectRow(0, "x", 2L, 1.)
+        .expectRow(1, "y", 3L, 1.5)
+        .expectRow(2, "a", 0L, 0.);
+```
+
+- 设置 col-name
+
+```java
+DataFrame df1 = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "y",
+        0, "a",
+        1, "x");
+
+DataFrame df = df1.group("b").agg(
+        $col("b").first().as("first"),
+        $col("b").last().as("last"),
+        $long("a").sum().as("a_sum"),
+        $double("a").median().as("a_median")
+);
+
+new DataFrameAsserts(df, "first", "last", "a_sum", "a_median")
+        .expectHeight(3)
+        .expectRow(0, "x", "x", 2L, 1.)
+        .expectRow(1, "y", "y", 3L, 1.5)
+        .expectRow(2, "a", "a", 0L, 0.);
+```
+
+
+
+
+
+例如，下面是一份工资报表：
 
 ```
 name             amount date
@@ -1893,7 +2488,7 @@ Joan O'Hara        9300 2024-03-15
 GroupBy groupBy = df.group("date"); 
 ```
 
-这里采用 `date` 这一个 col 分组，也可以采用多个 cols。
+这里只采用 `date` 这一个 col 进行分组，也可以采用多个 cols。
 
 `GroupBy` 对象包含许多操作分组数据的方法。例如对值进行聚合，每个 group 得到一个值。例如：
 
@@ -1988,9 +2583,9 @@ Joan O'Hara   9300 2024-02-15
 Joan O'Hara   9300 2024-03-15
 ```
 
-## Window 操作
+## window
 
-window 操作与 group 类似，不过它通常保留原始 DataFrame，并可能添加根据指定 row 的 window 计算出来的额外 col。下面使用如下 `DataFrame` 来显示 window 操作：
+window 操作与 group 类似，不过它通常保留原始 `DataFrame`，并根据指定 row 的 window 计算值添加额外 col。下面使用如下 `DataFrame` 来显示 window 操作：
 
 ```
 name             amount date
@@ -2030,6 +2625,118 @@ Joan O'Hara        9500 2024-02-15       9500
 ```
 
 上例中 `partitioned` 类似 `GroupBy`。另外也可以使用 `range(..)` 定义 window，该方法可以定义相对每个 row 的窗口大小。
+
+### shift
+
+```java
+public <T> Series<T> shift(String column, int offset)
+public <T> Series<T> shift(String column, int offset, T filler)
+public <T> Series<T> shift(int column, int offset)
+public <T> Series<T> shift(int column, int offset, T filler)
+```
+
+### rowNumber
+
+
+
+### select
+
+```java
+public DataFrame select(Exp<?>... aggregators)
+```
+
+生成与原 `DataFrame` 等高的 `DataFrame`，包含所提供聚合表达式参数生成的 cols。对每个 row 调用一次 aggregators，并传入与 partition, sorting 和 ranges 设置对应的 range。
+
+- 应用于整个 range 的聚合表达式
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "z",
+        0, "a",
+        1, "x");
+
+// 这里聚合表达式计算 col-a 的加和，对每个 row 都是如此
+// 所以生成的 sum(a) 每个值都是 col-a 的加和
+DataFrame r = df.over().select($int("a").sum());
+new DataFrameAsserts(r, "sum(a)")
+        .expectHeight(5)
+        .expectRow(0, 5)
+        .expectRow(1, 5)
+        .expectRow(2, 5)
+        .expectRow(3, 5)
+        .expectRow(4, 5);
+```
+
+- 计算多个聚合值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y",
+        1, "z",
+        0, "a",
+        1, "x");
+
+DataFrame r = df.over()
+        .cols("a", "b")
+        .select(
+                $int("a").sum(),
+                $col("b").first()
+        );
+
+new DataFrameAsserts(r, "a", "b")
+        .expectHeight(5)
+        .expectRow(0, 5, "x")
+        .expectRow(1, 5, "x")
+        .expectRow(2, 5, "x")
+        .expectRow(3, 5, "x")
+        .expectRow(4, 5, "x");
+```
+
+
+
+### partitioned
+
+```java
+public Window partitioned(Hasher partitioner)
+public Window partitioned(int... columns)
+public Window partitioned(String... columns)
+```
+
+`partitioned()` 用于指定计算 hash 值的 cols。
+
+例如：
+
+```jade
+@Test
+public void partitioned() {
+    DataFrame df = DataFrame.foldByRow("a", "b").of(
+            1, "x",
+            2, "y",
+            1, "z",
+            0, "a",
+            2, "y",
+            1, "x");
+
+    Series<String> sa = df.over().partitioned("a").shift("b", 1);
+    new SeriesAsserts(sa).expectData(null, null, "x", null, "y", "z");
+
+    Series<String> sb = df.over().partitioned("b").shift("b", -1);
+    new SeriesAsserts(sb).expectData("x", "y", null, null, null, null);
+}
+```
+
+
+
+
+
+
+
+
+
+
 
 ## pivot
 

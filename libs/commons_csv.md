@@ -5,8 +5,9 @@
 PS：commons-csv GUIDE 写得不好。
 2024-01-16⭐
 @author Jiawei Mao
+
 ***
-## 简介
+## 1. 简介
 
 ### Maven 依赖
 
@@ -44,7 +45,7 @@ for (CSVRecord record : CSVFormat.DEFAULT.parse(in)) {
 }
 ```
 
-## CSVFormat
+## 2. CSVFormat
 
 `CSVFormat` 类提供了常用的 CSV 格式，采用如下信息定义 CSV 格式：
 
@@ -106,8 +107,8 @@ Excel 文件格式（用逗号作为分隔符）。不过 Excel 实际使用的�
 
 ```java
 CSVFormat fmt = CSVFormat.EXCEL.withDelimiter(';');
-```  
-  
+```
+
 EXCEL 的 `CSVFormat.Builder` 设置：
 
 ```java
@@ -153,7 +154,7 @@ setQuote('"')
 setRecordSeparator("\r\n")
 setIgnoreSurroundingSpaces(true)
 ```
-## 使用 CSVFormat
+## 3. 使用 CSVFormat
 
 例如：
 
@@ -167,7 +168,7 @@ CSVParser parser = CSVFormat.EXCEL.parse(reader);
 CSVParser parser = CSVParser.parse(file, StandardCharsets.US_ASCII, CSVFormat.EXCEL);
 ```
 
-## 定义 CSVFormat
+## 4. 定义 CSVFormat
 
 使用 `CSVFormat.Builder` 类定义 `CSVFormat`。例如，以 `CSVFormat.EXCEL` 为起点开始定义 CSV 格式：
 
@@ -235,7 +236,7 @@ CSVFormat.EXCEL.withNullString("N/A").withIgnoreSurroundingSpaces(true);
 
 总结，如果 CSV 文件自带标题，这个字段的用处不大。
 
-## 读 CSV（CSVParser）
+## 5. 读 CSV（CSVParser）
 
 ```java
 public final class CSVParser
@@ -303,7 +304,7 @@ List<CSVRecord> list = parser.getRecords();
 1. 解析到内存从解析器的当前位置开始。如果已经解析部分记录，那么解析过的记录不会保存到 list。
 2. 更消耗内存。
 
-## 写 CSV（CSVPrinter）
+## 6. 写 CSV（CSVPrinter）
 
 使用 `CSVPrinter` 输出 CSV 格式：
 
@@ -336,7 +337,7 @@ try (CSVPrinter printer = new CSVPrinter(new FileWriter("csv.txt"), CSVFormat.EX
  2,mary,Mary,Meyer,1985-03-29
 ```
 
-## 标题
+## 7. 标题
 
 Apache Commons CSV 支持通过索引和标题访问数据。
 

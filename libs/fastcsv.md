@@ -1,5 +1,9 @@
 # FastCSV
 
+2024-09-30 ⭐
+@author Jiawei Mao
+***
+
 ## 简介
 
 FastCSV 是一个高性能的 CSV IO 工具。
@@ -42,7 +46,7 @@ try (CsvReader<CsvRecord> csv = CsvReader.builder().ofCsvRecord(file)) {
 }
 ```
 
-读取带 header 的 CSV 文件：
+- 读取带 header 的 CSV 文件：
 
 ```java
 Path file = Paths.get("input.csv");

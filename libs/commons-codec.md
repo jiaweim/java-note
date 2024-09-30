@@ -1,5 +1,11 @@
 # Apache Commons Codec
 
+2024-09-30
+@author Jiawei Mao
+***
+
+## 简介
+
 Apache Commons Codec 提供常用编码器和解码器的实现，包括 Base64、Hex、Phonetic 和 URLs 等。
 
 ## Binary Encoders
@@ -42,3 +48,20 @@ URL-safe 参数应用于编码操作。解码自动处理两种模式。
    .get()
 ```
 
+## Digest Encoders
+
+> [!WARNING]
+>
+> 下面有些函数不适合加密，或者加密不安全。
+
+| Encoders | 说明 |
+| -------- | ---- |
+| Blake3   |      |
+|          |      |
+|          |      |
+
+
+
+## 参考
+
+- https://commons.apache.org/proper/commons-codec/
