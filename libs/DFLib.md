@@ -116,30 +116,41 @@ static <T> Series<T> ofIterable(Iterable<T> data);
 static <T> Series<T> ofVal(T value, int size);
 ```
 
-#### 从数组创建 Series
-
-使用 static 方法 `Series.of` 创建：
+#### of
 
 ```java
-Series<String> s = Series.of("a", "bcd", "ef", "g");
-System.out.println(Printers.tabular.toString(s));
+static <T> Series<T> of(T... data);
 ```
 
-```
-a  
-bcd
-ef 
-g  
-4 elements
-```
-
-primitive 类型有专门的工厂方法：
+以数组为参数创建 `Series`。
 
 ```java
-IntSeries is = Series.ofInt(0, 1, -300, Integer.MAX_VALUE);
+new SeriesAsserts(Series.of()).expectData();
+new SeriesAsserts(Series.of("a")).expectData("a");
+new SeriesAsserts(Series.of("a", "b")).expectData("a", "b");
 ```
 
-#### 使用 byElement 创建
+#### ofIterable
+
+```java
+static <T> Series<T> ofIterable(Iterable<T> data);
+```
+
+以 `Iterable` 为参数创建 `Series`。
+
+```java
+Iterable<String> it = () -> asList("a", "c", "b").iterator();
+new SeriesAsserts(Series.ofIterable(it)).expectData("a", "c", "b");
+```
+
+- `List` 实现 `Iterable` 接口，可以直接作为参数
+
+```java
+new SeriesAsserts(Series.ofIterable(asList("a", "c", "b")))
+    			.expectData("a", "c", "b");
+```
+
+#### byElement
 
 对长度不可预测的序列，使用 `Series.byElement()`。例如，从 `InputStream` 逐行读取字符串：
 
@@ -154,62 +165,109 @@ while (scanner.hasNext()) {
 Series<String> s = appender.toSeries();
 ```
 
-`Series.byElement(Extractor.<String>$col()).appender();` 创建收集数据的 appender。对 primitive 数据可以使用 `Extractor.$int(...)`, `Extractor.$long(..)` 等。
+`Series.byElement(Extractor.<String>$col()).appender()` 创建收集数据的 `SeriesByElementBuilder`。对 primitive 数据可以使用 `Extractor.$int(...)`, `Extractor.$long(..)` 等。
 
 `appender.append()` 逐个收集数据。
 
-### series shift
+- 创建 `String` 类型 `Series`
+
+```java
+Series<String> s = Series
+        .byElement(Extractor.<String>$col())
+        .appender()
+        .append(List.of("a", "c", "e"))
+        .toSeries();
+
+new SeriesAsserts(s).expectData("a", "c", "e");
+```
+
+- 可以指定 capacity，合适的 capacity 值可以减少重新创建数组的次数
+
+```java
+Series<String> s = Series
+        .byElement(Extractor.<String>$col())
+        .capacity(1)
+        .appender()
+        .append("a")
+        .append("b")
+        .append("c")
+        .append(List.of("d", "e"))
+        .toSeries();
+
+new SeriesAsserts(s).expectData("a", "b", "c", "d", "e");
+```
+
+- 类型转换
+
+```java
+Series<Integer> s = Series
+        .byElement(Extractor.$int((String str) -> Integer.parseInt(str)))
+        .appender()
+        .append(List.of("1", "55", "6"))
+        .toSeries();
+
+assertTrue(s instanceof IntSeries);
+new SeriesAsserts(s).expectData(1, 55, 6);
+```
+
+
+
+### shift
 
 ```java
 default Series<T> shift(int offset)
 default Series<T> shift(int offset, T filler)
 ```
 
-移位操作。`offset` 为正数表示所有值向右移动，负数表示向左移动。移位操作产生的空位用 `filler` 填充，`filler` 默认为 `null`。
+移位操作。`offset` 为正数表示所有值向右移动，负数表示向左移动。
+
+移位操作产生的空位用 `filler` 填充，`filler` 默认为 `null`。
 
 - 默认用 `null` 填充
 
 ```java
-@ParameterizedTest
-@EnumSource(SeriesType.class)
-public void defaultNull(SeriesType type) {
-    Series<String> s = type.createSeries("a", "b", "c", "d").shift(2);
-    new SeriesAsserts(s).expectData(null, null, "a", "b");
-}
+Series<String> s = type.createSeries("a", "b", "c", "d").shift(2);
+new SeriesAsserts(s).expectData(null, null, "a", "b");
 ```
 
 - 自定义填充值 "X"
 
 ```java
-@ParameterizedTest
-@EnumSource(SeriesType.class)
-public void positive(SeriesType type) {
-    Series<String> s = type.createSeries("a", "b", "c", "d").shift(2, "X");
-    new SeriesAsserts(s).expectData("X", "X", "a", "b");
-}
+Series<String> s = type.createSeries("a", "b", "c", "d").shift(2, "X");
+new SeriesAsserts(s).expectData("X", "X", "a", "b");
 ```
 
-- 向左移位
+- 负数表示向左移位
 
 ```java
-@ParameterizedTest
-@EnumSource(SeriesType.class)
-public void negative(SeriesType type) {
-    Series<String> s = type.createSeries("a", "b", "c", "d").shift(-2, "X");
-    new SeriesAsserts(s).expectData("c", "d", "X", "X");
-}
+Series<String> s = type.createSeries("a", "b", "c", "d").shift(-2, "X");
+new SeriesAsserts(s).expectData("c", "d", "X", "X");
 ```
 
 - 0 表示不移位
 
 ```java
-@ParameterizedTest
-@EnumSource(SeriesType.class)
-public void zero(SeriesType type) {
-    Series<String> s = type.createSeries("a", "b", "c", "d").shift(0, "X");
-    new SeriesAsserts(s).expectData("a", "b", "c", "d");
-}
+Series<String> s = type.createSeries("a", "b", "c", "d").shift(0, "X");
+new SeriesAsserts(s).expectData("a", "b", "c", "d");
 ```
+
+### first
+
+```java
+default T first();
+```
+
+返回 `Series` 的第一个值，空 `Series` 返回 null.
+
+```java
+String f1 = type.createSeries("a", "b", "cd", "e", "fg").first();
+assertEquals("a", f1);
+
+Object f2 = type.createSeries().first();
+assertNull(f2);
+```
+
+
 
 ### head 和 tail
 
@@ -222,6 +280,82 @@ Series<T> tail(int len);
 
 - 如果 `Series` 长度小于 `len`，则返回整个 `Series`
 - 如果 `len` 为负数，则跳过前 `|len|` 个元素，返回余下元素
+
+#### head
+
+- 返回前 2 个元素
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").head(2);
+new SeriesAsserts(s).expectData("a", "b");
+```
+
+- 返回 0 个元素
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").head(0);
+new SeriesAsserts(s).expectData();
+```
+
+- 超出返回，返回原 series
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").head(4);
+new SeriesAsserts(s).expectData("a", "b", "c");
+```
+
+- 负数表示跳过
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").head(-2);
+new SeriesAsserts(s).expectData("c");
+```
+
+- 负数超过范围，也返回原 series
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").head(-4);
+new SeriesAsserts(s).expectData("a", "b", "c");
+```
+
+#### tail
+
+- 最后 2 个元素
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").tail(2);
+new SeriesAsserts(s).expectData("b", "c");
+```
+
+- 最后 0 个
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").tail(0);
+new SeriesAsserts(s).expectData();
+```
+
+- 超出返回，返回原 series
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").tail(4);
+new SeriesAsserts(s).expectData("a", "b", "c");
+```
+
+- 负数表示跳过，跳过后 2 个
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").tail(-2);
+new SeriesAsserts(s).expectData("a");
+```
+
+- 负数超过范围，也返回原 series
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").tail(-4);
+new SeriesAsserts(s).expectData("a", "b", "c");
+```
+
+
 
 #### BooleanSeries
 
@@ -277,6 +411,40 @@ BooleanSeries s = Series.ofBool(true, false, true).tail(-2);
 new BooleanSeriesAsserts(s).expectData(true);
 ```
 
+### iterator
+
+```java
+default Iterator<T> iterator();
+```
+
+基于索引定义的迭代器。
+
+- 迭代所有元素
+
+```java
+Iterator<String> it = type.createSeries("a", "b", "c", "d", "e").iterator();
+
+List<String> vals = new ArrayList<>();
+while (it.hasNext()) {
+    String n = it.next();
+    vals.add(n);
+}
+
+assertEquals(asList("a", "b", "c", "d", "e"), vals);
+```
+
+- 该迭代器只允许访问元素，不允许修改
+
+```java
+Iterator<String> it = type.createSeries("a", "b").iterator();
+
+while (it.hasNext()) {
+    it.next();
+    assertThrows(UnsupportedOperationException.class, () -> it.remove(),
+            "Allowed to remove from immutable iterator");
+}
+```
+
 ### eq 和 ne
 
 ```java
@@ -287,6 +455,51 @@ BooleanSeries ne(Series<?> s);
 逐元素比较两个**等长** `Series`，返回 `BooleanSeries`。
 
 非等长 `Series` 的比较抛出 `IllegalArgumentException`。
+
+- 比较 `String` 类型 series
+
+```java
+Series<String> s1 = Series.of("a", "b", "n", "c");
+Series<String> s2 = Series.of("a", "b", "n", "c");
+
+BooleanSeries cond = s1.eq(s2);
+new BooleanSeriesAsserts(cond).expectData(true, true, true, true);
+```
+
+```java
+Series<String> s1 = Series.of("a", "b", "n", "c");
+Series<String> s2 = Series.of("a ", "b", "N", "c");
+
+BooleanSeries cond = s1.eq(s2);
+new BooleanSeriesAsserts(cond).expectData(false, true, false, true);
+```
+
+- 长度不一致，抛出错误
+
+```java
+Series<String> s1 = Series.of("a", "b", "n", "c");
+Series<String> s2 = Series.of("a", "b", "n");
+
+assertThrows(IllegalArgumentException.class, () -> s1.eq(s2));
+```
+
+- 不等
+
+```java
+Series<String> s1 = Series.of("a", "b", "n", "c");
+Series<String> s2 = Series.of("a", "b", "n", "c");
+
+BooleanSeries cond = s1.ne(s2);
+new BooleanSeriesAsserts(cond).expectData(false, false, false, false);
+```
+
+```java
+Series<String> s1 = Series.of("a", "b", "n", "c");
+Series<String> s2 = Series.of("a ", "b", "N", "c");
+
+BooleanSeries cond = s1.ne(s2);
+new BooleanSeriesAsserts(cond).expectData(true, false, true, false);
+```
 
 #### BooleanSeries
 
@@ -330,6 +543,59 @@ Series<Boolean> s2 = Series.of(true, true, true);
 new SeriesAsserts(s1.ne(s2)).expectData(false, true, false);
 ```
 
+### position
+
+```java
+int position(T value);
+```
+
+返回 `value` 第一次出现位置的 index，不存在则返回 -1.
+
+由于大多 `Series` 没有构建索引，所以该方法较慢，时间复杂度为 $O(N)$。
+
+示例：
+
+```java
+assertEquals(-1, type.createSeries(3, 4, 2).position(null));
+assertEquals(1, type.createSeries(3, 4, 2).position(4));
+assertEquals(-1, type.createSeries(3, 4, 2).position(5));
+```
+
+### contains
+
+```java
+default boolean contains(T value) {
+    return position(value) >= 0;
+}
+```
+
+在 `position()` 的基础上定义的方法，查看 series 是否包含指定值。$O(N)$ 操作，速度慢。
+
+示例：
+
+```java
+assertFalse(type.createSeries(3, 4, 2).contains(null));
+assertTrue(type.createSeries(3, 4, 2).contains(4));
+assertFalse(type.createSeries(3, 4, 2).contains(5));
+```
+
+### locate
+
+```java
+default BooleanSeries locate(Predicate<T> predicate);
+```
+
+查看 series 元素与 `Predicate` 的匹配情况。
+
+例如：
+
+```java
+BooleanSeries evens = type.createSeries(3, 4, 2).locate(i -> i % 2 == 0);
+new BooleanSeriesAsserts(evens).expectData(false, true, true);
+```
+
+
+
 ### intersect
 
 ```java
@@ -341,6 +607,32 @@ Series<T> intersect(Series<? extends T> other);
 > [!WARNING]
 >
 > 这个交集，不执行去重操作。换言之，返回的 `Series` 可以包含重复元素，只要是交集所含元素。
+
+- 交集包括 null
+
+```java
+Series<String> s1 = type.createSeries("a", null, "b");
+Series<String> s2 = type.createSeries("b", "c", null);
+
+Series<String> c = s1.intersect(s2);
+new SeriesAsserts(c).expectData(null, "b");
+```
+
+- 与空集的交集为空集
+
+```java
+Series<String> s = type.createSeries("a", "b");
+new SeriesAsserts(s.intersect(Series.of())).expectData();
+```
+
+- 与自身的交集
+
+```java
+Series<String> s = type.createSeries("a", "b");
+new SeriesAsserts(s.intersect(s)).expectData("a", "b");
+```
+
+
 
 #### BooleanSeries
 
@@ -386,6 +678,33 @@ Series<T> diff(Series<? extends T> other);
 ```
 
 返回一个当前 `Series` 包含而另一个 `Series` 不包含的值构成的 `Series`，即求差集。
+
+- `String` 类型 series 的差集
+
+```java
+Series<String> s1 = type.createSeries("a", null, "b");
+Series<String> s2 = type.createSeries("b", "c", null);
+
+Series<String> c = s1.diff(s2);
+new SeriesAsserts(c).expectData("a");
+```
+
+- 与空集的差集为自身
+
+```java
+Series<String> s = type.createSeries("a", "b");
+assertSame(s, s.diff(Series.of()));
+```
+
+- 与自身的差集为空集
+
+```java
+Series<String> s = type.createSeries("a", "b");
+Series<String> c = s.diff(s);
+new SeriesAsserts(c).expectData();
+```
+
+
 
 #### BooleanSeries
 
@@ -453,6 +772,40 @@ public void diffPrimitive() {
 }
 ```
 
+### expand
+
+```java
+default Series<?> expand(Object... values);
+```
+
+在 `Series` 后面添加更多值。
+
+#### IntSeries
+
+- `expand` 支持不同类型值
+
+```java
+Series<?> s = Series.ofInt(3, 28).expand("abc");
+```
+
+```
+3  
+28 
+abc
+```
+
+- `expandInt` 只能添加 int 值
+
+```java
+IntSeries s = Series.ofInt(3, 28).expandInt(5);
+```
+
+```
+ 3
+28
+ 5
+```
+
 ### replace
 
 - 替换指定位置元素，`positions` 和 `with` 必须等长
@@ -477,6 +830,82 @@ Series<T> replace(Map<T, T> oldToNewValues);
 
 ```java
 Series<T> replaceExcept(BooleanSeries condition, T with);
+```
+
+#### Series-String
+
+- 使用 `BooleanSeries` 指定替换位置
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replace(cond, "X");
+new SeriesAsserts(s1).expectData("X", "X", "n", "c");
+```
+
+- 用 null 替换
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replace(cond, null);
+new SeriesAsserts(s1).expectData(null, null, "n", "c");
+```
+
+- 当 `BooleanSeries` 比 series 短，则替换对齐的部分
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replace(cond, "X");
+new SeriesAsserts(s1).expectData("X", "X", "n", "c");
+```
+
+- 使用 `Map` 定义映射关系
+
+```java
+Map<String, String> replacement = new HashMap<>();
+replacement.put("a", "A");
+replacement.put("n", null);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replace(replacement);
+new SeriesAsserts(s1).expectData("A", "b", null, "c");
+```
+
+- `replaceExcept` 替换 `BooleanSeries` 值为 false 的元素
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replaceExcept(cond, "X");
+new SeriesAsserts(s1).expectData("a", "b", "X", "X");
+```
+
+- `replaceExcept` 用 null 替换
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replaceExcept(cond, null);
+new SeriesAsserts(s1).expectData("a", "b", null, null);
+```
+
+- `BooleanSeries` 长度大于 series，忽略多余的 boolean 值
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false, false, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replaceExcept(cond, "X");
+new SeriesAsserts(s1).expectData("a", "b", "X", "X");
+```
+
+- `BooleanSeries` 长度小于 series，在 `replaceExcept` 余下值默认为 false，因此也会被替换
+
+```java
+BooleanSeries cond = Series.ofBool(true, true, false);
+
+Series<String> s1 = Series.of("a", "b", "n", "c").replaceExcept(cond, "X");
+new SeriesAsserts(s1).expectData("a", "b", "X", "X");
 ```
 
 #### BooleanSeries
@@ -630,6 +1059,46 @@ Series<T> select(Predicate<T> p);
 Series<T> select(BooleanSeries positions);
 ```
 
+#### Series-int
+
+- 选择指定位置元素
+
+```java
+Series<Integer> s = type.createSeries(3, 4, 2).select(2, 1);
+new SeriesAsserts(s).expectData(2, 4);
+```
+
+- 不提供索引，返回空
+
+```java
+Series<Integer> s = type.createSeries(3, 4, 2).select();
+new SeriesAsserts(s).expectData();
+```
+
+- index 超出 series 范围，抛出异常
+
+```java
+Series<Integer> s = type.createSeries(3, 4, 2).select(0, 3);
+assertThrows(ArrayIndexOutOfBoundsException.class, () -> s.materialize());
+```
+
+- 负数索引返回 null
+
+```java
+Series<Integer> s = type.createSeries(3, 4, 2).select(2, 1, -1);
+new SeriesAsserts(s).expectData(2, 4, null);
+```
+
+- 使用 `BooleanSeries` 选择
+
+```java
+BooleanSeries condition = Series.ofBool(false, true, true);
+Series<Integer> s = type.createSeries(3, 4, 2).select(condition);
+new SeriesAsserts(s).expectData(4, 2);
+```
+
+
+
 #### BooleanSeries
 
 - 选择指定位置元素
@@ -672,11 +1141,216 @@ new SeriesAsserts(s).expectData(false, true);
 assertInstanceOf(BooleanSeries.class, s);
 ```
 
+### eval
+
+```java
+default <V> Series<V> eval(Exp<V> exp) {
+    return exp.eval(this);
+}
+```
+
+执行指定 exp 并返回结果。
+
+例如：
+
+```java
+Series<String> s = type.createSeries("x", "b", "c", "a")
+        .eval(concat(Exp.$col(""), ", ", $col("")));
+new SeriesAsserts(s).expectData("x, x", "b, b", "c, c", "a, a");
+```
+
+### map
+
+```java
+default <V> Series<V> map(ValueMapper<T, V> mapper);
+DataFrame map(Index resultColumns, ValueToRowMapper<T> mapper);
+default <V> Series<V> map(ValueMapper<T, V> mapper);
+default BooleanSeries mapAsBool(BoolValueMapper<? super T> converter);
+default DoubleSeries mapAsDouble(DoubleValueMapper<? super T> converter);
+default IntSeries mapAsInt(IntValueMapper<? super T> converter);
+default LongSeries mapAsLong(LongValueMapper<? super T> converter);
+```
+
+将当前 series 根据指定函数映射为另一个 series 或 `DataFrame`
+
+- 将 series 转换为另一个等长 series。
+
+```java
+Series<String> s = type.createSeries("a", "b", "c").map(String::toUpperCase);
+new SeriesAsserts(s).expectData("A", "B", "C");
+```
+
+- 使用 `map(Index resultColumns, ValueToRowMapper<T> mapper)` 定义多个映射条件
+
+```java
+DataFrame df = type.createSeries("a", "b", "c")
+        .map(Index.of("upper", "is_c"), (v, r) -> r
+                .set(0, v.toUpperCase())
+                .set(1, v.equals("c")));
+```
+
+```
+upper  is_c
+----- -----
+A     false
+B     false
+C      true
+```
+
+### group
+
+分组功能。
+
+- 根据 series 的值进行分组
+
+```java
+SeriesGroupBy<T> group();
+```
+
+- 使用指定函数计算 group-key
+
+```java
+SeriesGroupBy<T> group(ValueMapper<T, ?> by);
+```
+
+- 按值分组
+
+```java
+SeriesGroupBy<Integer> g = type.createSeries(1, 5, 5, 8, 5).group();
+new SeriesGroupByAsserts(g)
+        .expectGroups(1, 5, 8)
+        .expectGroupData(1, 1)
+        .expectGroupData(5, 5, 5, 5)
+        .expectGroupData(8, 8);
+```
+
+- 分组时自动跳过 null 值
+
+```java
+SeriesGroupBy<Integer> g = type.createSeries(8, null, 5, 8, 5, null).group();
+new SeriesGroupByAsserts(g)
+        .expectGroups(8, 5)
+        .expectGroupData(5, 5, 5)
+        .expectGroupData(8, 8, 8);
+```
+
+- 自定义 group-key
+
+```java
+SeriesGroupBy<Integer> g = type.createSeries(1, 16, 5, 8, 7)
+        .group((Integer i) -> i % 2);
+new SeriesGroupByAsserts(g)
+        .expectGroups(0, 1)
+        .expectGroupData(0, 16, 8)
+        .expectGroupData(1, 1, 5, 7);
+```
+
+### SeriesGroupBy
+
+`group` 分组生成 `SeriesGroupBy` 对象。
+
+- 使用 `toSeries()` 将 `SeriesGroupBy` 转换为 `Series`
+
+这里按长度分组，然后将每个分组的元素依次串起来。
+
+```java
+SeriesGroupBy<String> gb = Series.of("a", "b", "cd", "e", "fg")
+        .group((String s) -> s.length());
+
+new SeriesAsserts(gb.toSeries()).expectData("a", "b", "e", "cd", "fg");
+```
+
+- 使用 `agg` 将每个分组的元素进行聚合
+
+这里使用 `_` 将每个分组里的字符串串联得到新的元素。
+
+```java
+Series<String> aggregated = Series.of("a", "b", "cd", "e", "fg")
+        .group((String s) -> s.length())
+        .agg($col("").vConcat("_"));
+
+new SeriesAsserts(aggregated).expectData("a_b_e", "cd_fg");
+```
+
+- 使用 `aggMultiple` 通过多个聚合表达式对每个分组生成多个聚合值，生成 `DataFrame`
+
+```java
+DataFrame aggregated = Series.of("a", "b", "cd", "e", "fg")
+        .group((String s) -> s.length())
+        .aggMultiple(
+                $col("first").first(),
+                $col("pipe").vConcat("|"),
+                $col("underscore").vConcat("_"));
+```
+
+```
+first pipe  underscore
+----- ----- ----------
+a     a|b|e a_b_e     
+cd    cd|fg cd_fg 
+```
+
+- 也可以聚合后重命名
+
+```java
+DataFrame aggregated = Series.of("a", "b", "cd", "e", "fg")
+        .group((String s) -> s.length())
+        .aggMultiple(
+                $col("").first().as("f"),
+                $col("").vConcat("|").as("c1"),
+                $col("").vConcat("_").as("c2"));
+```
+
+```
+f  c1    c2   
+-- ----- -----
+a  a|b|e a_b_e
+cd cd|fg cd_fg
+```
+
+
+
+### sortIndex
+
+```java
+default IntSeries sortIndex(Comparator<? super T> comparator);
+```
+
+根据 `comparator` 进行排序，返回的 `IntSeries` 是满足顺序的元素在 series 中的位置。
+
+当需要使用当前 series 对另一个 series 进行排序时，该方法很有用。
+
+示例：
+
+```java
+IntSeries s = type.createSeries("x", "b", "c", "a")
+        .sortIndex(Comparator.naturalOrder());
+new IntSeriesAsserts(s).expectData(3, 1, 2, 0);
+```
+
+
+
 ### sort
 
 ```java
 Series<T> sort(Sorter... sorters);
 Series<T> sort(Comparator<? super T> comparator);
+```
+
+排序。
+
+- 基于 `Comparator` 的排序
+
+```java
+Series<String> s = type.createSeries("x", "b", "c", "a").sort(Comparator.naturalOrder());
+new SeriesAsserts(s).expectData("a", "b", "c", "x");
+```
+
+- 基于 `Sorter` 的排序
+
+```java
+Series<String> s = type.createSeries("x", "b", "c", "a").sort(Exp.$col(0).desc());
+new SeriesAsserts(s).expectData("x", "c", "b", "a");
 ```
 
 #### BooleanSeries
@@ -699,6 +1373,240 @@ BooleanSeries s = Series.ofBool(true, false, true, false)
 new BooleanSeriesAsserts(s).expectData(true, true, false, false);
 ```
 
+### concat-series
+
+```java
+Series<T> concat(Series<? extends T>... other);
+```
+
+将两个 `Series` 串联起来。
+
+- 和空 series 串联，返回自身
+
+```java
+Series<String> s = type.createSeries("a", "b");
+assertSame(s, s.concat());
+```
+
+- 和自身串联
+
+```java
+Series<String> s = type.createSeries("a", "b");
+Series<String> c = s.concat(s);
+new SeriesAsserts(c).expectData("a", "b", "a", "b");
+```
+
+- 多个 `Series` 串联
+
+```java
+Series<String> s1 = type.createSeries("m", "n");
+Series<String> s2 = type.createSeries("a", "b");
+Series<String> s3 = type.createSeries("d", "c");
+
+Series<String> c = s1.concat(s2, s3);
+new SeriesAsserts(c).expectData("m", "n", "a", "b", "d", "c");
+```
+
+
+
+### agg
+
+```java
+default <R> Series<R> agg(Exp<R> aggregator);
+```
+
+将指定 agg exp 操作应用于 `Series`，返回包含单个值的 `Series`。
+
+- 平均值
+
+```java
+Series<Double> s = Series.of(1.4, 5.3, -9.4);
+assertEquals(-0.9, Exp.$double("").avg().eval(s).get(0).doubleValue(), 0.0000001);
+```
+
+- 串联
+
+```java
+String aggregated = type.createSeries("a", "b", "cd", "e", "fg")
+        .agg(Exp.$col("").vConcat("_"))
+        .get(0);
+assertEquals("a_b_cd_e_fg", aggregated);
+```
+
+```java
+Series<String> s = Series.of("a", "b", "z", "c");
+assertEquals("abzc", Exp.$col("").vConcat("").eval(s).get(0));
+assertEquals("[a|b|z|c]", Exp.$col("").vConcat("|", "[", "]").eval(s).get(0));
+```
+
+- first
+
+```java
+Series<String> s = Series.of("a", "b", "z", "c");
+assertEquals("a", Exp.$col("").first().eval(s).get(0));
+```
+
+- 所有值收集到一个 list
+
+```java
+Series<String> s = Series.of("a", "b", "z", "c");
+assertEquals(asList("a", "b", "z", "c"), Exp.$col("").list().eval(s).get(0));
+```
+
+- 所有值收集到一个 set
+
+```java
+Series<String> s = Series.of("a", "b", "z", "c");
+assertEquals(new HashSet<>(asList("a", "b", "z", "c")),
+        Exp.$col("").set().eval(s).get(0));
+```
+
+- max
+
+```java
+Series<Integer> s = Series.of(4, 5, -9);
+assertEquals(5, Exp.$int("").max().eval(s).get(0));
+
+Series<Integer> s = Series.of(4, 5, -9);
+assertEquals(5, Exp.$int("").max().eval(s).get(0).intValue());
+
+Series<Double> s = Series.of(1.4, 5.3, -9.4);
+assertEquals(5.3, Exp.$double("").max().eval(s).get(0).doubleValue(), 0.0000001);
+
+Series<Long> s = Series.of(4L, 5L, -9L);
+assertEquals(5L, Exp.$long("").max().eval(s).get(0).longValue());
+```
+
+- min
+
+```java
+Series<Integer> s = Series.of(4, 5, -9);
+assertEquals(-9, Exp.$int("").min().eval(s).get(0));
+```
+
+- median
+
+```java
+Series<Double> s = Series.of(1.4, 5.3, -9.4);
+assertEquals(1.4, Exp.$double("").median().eval(s).get(0).doubleValue(), 0.0000001);
+```
+
+- sum
+
+```java
+Series<Double> s = Series.of(1.4, 5.3, -9.4);
+assertEquals(-2.7, Exp.$double("").sum().eval(s).get(0).doubleValue(), 0.0000001);
+
+Series<BigDecimal> s = Series.of(
+        new BigDecimal("1.4").setScale(2, RoundingMode.HALF_UP),
+        new BigDecimal("5.3").setScale(4, RoundingMode.HALF_UP),
+        new BigDecimal("-9.4").setScale(2, RoundingMode.HALF_UP));
+
+assertEquals(BigDecimal.valueOf(-2.7000).setScale(4, RoundingMode.HALF_UP),
+        Exp.$decimal("").sum().eval(s).get(0));
+```
+
+- 
+
+
+
+
+
+#### concat-separator
+
+```java
+default String concat(String separator) {
+    return agg(Exp.$col("").vConcat(separator)).get(0);
+}
+
+default String concat(String separator, String prefix, String suffix) {
+    return agg(Exp.$col("").vConcat(separator, prefix, suffix)).get(0);
+}
+```
+
+以指定字符串将 `Series` 的值串联起来，返回 `String`。
+
+- 用 `_` 串联字符串
+
+```java
+String concat = type.createSeries("a", "b", "cd", "e", "fg").concat("_");
+assertEquals("a_b_cd_e_fg", concat);
+```
+
+- 用 `_` 串联字符串，并指定串联后的前缀和后缀
+
+```java
+String concat = type.createSeries("a", "b", "cd", "e", "fg").concat("_", "[", "]");
+assertEquals("[a_b_cd_e_fg]", concat);
+```
+
+#### aggMultiple
+
+```java
+default DataFrame aggMultiple(Exp<?>... aggregators);
+```
+
+使用多个 agg 表达式，生成多个聚合值，以单行 `DataFrame` 返回结果。
+
+由于 `Series` 只有一个 col，所以所有 `$col(0)` 都指向该 series。
+
+- col-"first" 为 series 的第一个值；
+- col-"concat" 用 `|` 串联 series 的值；
+- 第二个 col-"concat" 由于名称重复，自动加 `_` 后缀；
+- 最后一个 col-"count" 值为 `count()`。
+
+```java
+DataFrame aggregated = type.createSeries("a", "b", "cd", "e", "fg")
+        .aggMultiple(
+                $col(0).first().as("first"),
+                $col(0).vConcat("|").as("concat"),
+                $col(0).vConcat("_", "[", "]").as("concat"),
+                count().as("count"));
+```
+
+```
+first concat      concat_       count
+----- ----------- ------------- -----
+a     a|b|cd|e|fg [a_b_cd_e_fg]     5
+1 row x 4 columns
+```
+
+### valueCounts
+
+```java
+DataFrame valueCounts();
+```
+
+返回一个 2 列的 `DataFrame`，列出不同值的个数。不包含 `null` 值的个数。
+
+- 没有 null 值
+
+```java
+DataFrame counts = type.createSeries("a", "b", "a", "a", "c").valueCounts();
+```
+
+```
+value count
+----- -----
+a         3
+b         1
+c         1
+```
+
+- 有 null 值
+
+```java
+DataFrame counts = type.createSeries("a", "b", "a", "a", null, "c").valueCounts();
+```
+
+```
+value count
+----- -----
+a         3
+b         1
+c         1
+```
+
 
 
 ### unique
@@ -710,6 +1618,8 @@ Series<T> unique();
 返回包含 unique 值的 `Series`。
 
 返回值的顺序与其在 `Series` 中首次出现的顺序一致。
+
+
 
 #### BooleanSeries
 
@@ -741,9 +1651,7 @@ BooleanSeries s1 = Series.ofBool(false, true).unique();
 new BoolSeriesAsserts(s1).expectData(false, true);
 ```
 
-
-
-**DoubleSeries**
+#### DoubleSeries
 
 ```java
 @Test
@@ -765,7 +1673,7 @@ public void small() {
 }
 ```
 
-**IntSeries**
+#### IntSeries
 
 ```java
 @Test
@@ -787,7 +1695,7 @@ public void small() {
 }
 ```
 
-**Series**
+#### Series-obj
 
 ```java
 Object o1 = new Object();
@@ -817,7 +1725,7 @@ public void small(SeriesType type) {
 }
 ```
 
-**LongSeries**
+#### LongSeries
 
 ```java
 @Test
@@ -838,6 +1746,253 @@ public void small() {
     new LongSeriesAsserts(s1).expectData(-1);
 }
 ```
+
+### fillNulls
+
+```java
+Series<T> fillNulls(T value);
+Series<T> fillNullsFromSeries(Series<? extends T> values);
+Series<T> fillNullsBackwards();
+Series<T> fillNullsForward();
+```
+
+- 用 -1 替换 null 值
+
+```java
+Series<Integer> s = type.createSeries(1, null, 5, 8, null).fillNulls(-1);
+new SeriesAsserts(s).expectData(1, -1, 5, 8, -1);
+```
+
+- 用高 index non-null 值替换 null
+
+```java
+Series<Integer> s = type.createSeries(null, 1, null, 5, 8, null)
+        .fillNullsBackwards();
+new SeriesAsserts(s).expectData(1, 1, 5, 5, 8, null);
+```
+
+- 用低 index non-null 值替换 null
+
+```java
+Series<Integer> s = type.createSeries(null, 1, null, 5, 8, null)
+        .fillNullsForward();
+new SeriesAsserts(s).expectData(null, 1, 1, 5, 8, 8);
+```
+
+### 转换为集合类型
+
+#### toArray
+
+```java
+default T[] toArray(T[] a);
+```
+
+生成 `Series` 的数组副本。深度复制，修改 `Series` 不应许该数组。
+
+- 生成数组
+
+```java
+String[] a = type.createSeries("a", "b", "c", "d", "e").toArray(new String[0]);
+assertArrayEquals(new Object[]{"a", "b", "c", "d", "e"}, a);
+```
+
+- 修改数组不影响 `Series` 的值
+
+```java
+Series<String> s = type.createSeries("a", "b");
+String[] a = s.toArray(new String[0]);
+a[0] = "c";
+
+new SeriesAsserts(s).expectData("a", "b");
+```
+
+#### toList
+
+```java
+default List<T> toList()
+```
+
+生成 `Series` 的 `List` 副本。深度复制，生成的 `List` 为 mutable，修改互不干扰。
+
+- 生成 `List`
+
+```java
+List<String> l = type.createSeries("a", "b", "c", "d", "e").toList();
+assertEquals(asList("a", "b", "c", "d", "e"), l);
+```
+
+- 修改 `List` 不影响 `Series`
+
+```java
+Series<String> s = type.createSeries("a", "b");
+List<String> l = s.toList();
+l.set(0, "c");
+
+assertEquals(asList("c", "b"), l);
+new SeriesAsserts(s).expectData("a", "b");
+```
+
+#### toSet
+
+```java
+default Set<T> toSet();
+```
+
+生成 mutable `Set` 副本。
+
+- 生成 `Set`
+
+```java
+Set<String> set = type.createSeries("a", "b", "a", "d", "b").toSet();
+assertEquals(new HashSet<>(asList("a", "b", "d")), set);
+```
+
+- 修改互不干扰
+
+```java
+Series<String> s = type.createSeries("a", "b");
+Set<String> set = s.toSet();
+set.remove("b");
+
+assertEquals(new HashSet<>(asList("a")), set);
+new SeriesAsserts(s).expectData("a", "b");
+```
+
+### sample
+
+```java
+Series<T> sample(int size);
+Series<T> sample(int size, Random random);
+```
+
+从 series 随机抽样。
+
+```java
+Series<String> sample = type.createSeries("a", "b", "c", "d", "e", "f", "g")
+        .sample(4, new Random(5));
+new SeriesAsserts(sample).expectData("d", "b", "a", "g");
+```
+
+### 类型
+
+#### 类型转换
+
+```java
+<S> Series<S> castAs(Class<S> type);
+
+default BooleanSeries castAsBool();
+default DoubleSeries castAsDouble();
+default IntSeries castAsInt();
+default LongSeries castAsLong();
+
+default <S> Series<S> unsafeCastAs(Class<S> type);
+```
+
+- `castAs` 将 `Series` 转换为兼容的类型，不兼容类型抛出 `ClassCastException`
+
+```java
+Series<?> s = type.createSeries("s1", "s2");
+assertDoesNotThrow(() -> s.castAs(String.class)); // 转换为 String 类型
+assertThrows(ClassCastException.class, () -> s.castAs(Integer.class));
+```
+
+- `Integer` 和 `Number` 为继承关系，可以安全转换，但 `Integer` 和 `Long` 为兄弟类型，转换报错
+
+```java
+Series<?> s = type.createSeries(1, 2);
+assertDoesNotThrow(() -> s.castAs(Integer.class));
+assertDoesNotThrow(() -> s.castAs(Number.class));
+assertThrows(ClassCastException.class, () -> s.castAs(Long.class));
+```
+
+#### inferredType
+
+```java
+Class<?> getInferredType();
+```
+
+返回最接近的 `Series` 类型。
+
+如果所有值为 `null`，返回 `Object.class`。首次调用该方法好很慢， 因为该方法需要扫描 series 的所有值。
+
+- 空 series 返回 `Object.class`
+
+```java
+Series<?> s = type.createSeries();
+assertSame(Object.class, s.getInferredType());
+```
+
+- 全部为 null 也返回 `Object.class`
+
+```java
+Series<?> s = type.createSeries(null, null);
+assertSame(Object.class, s.getInferredType());
+```
+
+- null 和 `Integer` 同时存在，返回 `Integer`
+
+```java
+Series<?> s = type.createSeries(null, 5);
+assertSame(Integer.class, s.getInferredType());
+```
+
+- `String` 类型
+
+```java
+Series<String> s = type.createSeries("a", "b");
+assertSame(String.class, s.getInferredType());
+```
+
+- 父子类型同时存在，返回父类型
+
+```java
+Series<Object> s = type.createSeries(
+        new java.sql.Date(System.currentTimeMillis()),
+        new java.util.Date(System.currentTimeMillis()));
+assertSame(java.util.Date.class, s.getInferredType());
+```
+
+- 两个子类型，返回公共父类型
+
+```java
+Series<Object> s = type.createSeries(Long.valueOf(5), Integer.valueOf(6));
+assertSame(Number.class, s.getInferredType());
+```
+
+- 没有公共父类型，返回 `Object.class`
+
+```java
+Series<Object> s = type.createSeries(Long.valueOf(5), "YYY");
+assertSame(Object.class, s.getInferredType());
+```
+
+
+
+### IntSeries
+
+#### add
+
+```java
+default IntSeries add(IntSeries s);
+```
+
+用于两个等长 `IntSeries` 的加法运算。例如：
+
+```java
+IntSeries s0 = Series.ofInt(1, 2, 3, 4, 5, 6);
+IntSeries s = Series.ofInt(3, 28, 15, -4, 3, 11).add(s0);
+```
+
+```
+ 4
+30
+18
+ 0
+ 8
+17
+```
+
+
 
 ### BooleanSeries
 
@@ -1034,11 +2189,11 @@ static DataFrame empty(String... columnNames);
 static DataFrame empty(Index columnsIndex);
 ```
 
+#### byArrayRow
 
+逐行添加数据，每个 row 对应一个数组。
 
-
-
-#### 逐行添加数据
+- 示例
 
 ```java
 DataFrame df = DataFrame
@@ -1059,9 +2214,153 @@ Joan    32
 3 rows x 2 columns
 ```
 
-#### 从对象 list 创建
+- 示例 2，指定 extractor
 
-从对象 list 中提取对象属性来创建 column
+```java
+List<Object[]> data = List.of(new Object[]{"L1", -1}, new Object[]{"L2", -2});
+
+DataFrame df = DataFrame
+        .byArrayRow(
+                Extractor.$col(a -> a[0]),
+                Extractor.$int(a -> (Integer) a[1])
+        )
+        .columnNames("o", "i")
+        .appender()
+        .append("a", 1)
+        .append("b", 2)
+        .append(data)
+        .toDataFrame();
+```
+
+```
+o   i
+-- --
+a   1
+b   2
+L1 -1
+L2 -2
+4 rows x 2 columns
+```
+
+- 隐式 extractor
+
+```java
+List<Object[]> data = List.of(new Object[]{"L1", -1}, new Object[]{"L2", -2});
+
+DataFrame df = DataFrame
+        .byArrayRow("o", "i")
+        .appender()
+        .append("a", 1)
+        .append("b", 2)
+        .append(data)
+        .toDataFrame();
+```
+
+```
+o   i
+-- --
+a   1
+b   2
+L1 -1
+L2 -2
+4 rows x 2 columns
+```
+
+- 随机抽样
+
+```java
+Random rnd = new Random(1L);
+
+List<Object[]> data = List.of(new Object[]{"L1", -1}, new Object[]{"L2", -2});
+
+DataFrame df = DataFrame
+        .byArrayRow(
+                Extractor.$col(a -> a[0]),
+                Extractor.$int(a -> (Integer) a[1])
+        )
+        .columnNames("o", "i")
+        .sampleRows(2, rnd)
+        .appender()
+        .append("a", 1)
+        .append("b", 2)
+        .append(data)
+        .toDataFrame();
+```
+
+```
+o   i
+-- --
+b   2
+L2 -2
+2 rows x 2 columns
+```
+
+- 选择 rows 后再随机抽样
+
+```java
+Random rnd = new Random(1L);
+
+DataFrame df = DataFrame
+        .byArrayRow(
+                Extractor.$col(a -> a[0]),
+                Extractor.$int(a -> (Integer) a[1])
+        )
+        .columnNames("o", "i")
+        .selectRows(r -> r.get("o").toString().startsWith("a"))
+        .sampleRows(2, rnd)
+        .appender()
+        .append("a", 1)
+        .append("b", 2)
+        .append("ab", 3)
+        .append("c", 4)
+        .append("ac", 5)
+        .append("ad", 6)
+        .toDataFrame();
+```
+
+```
+o  i
+-- -
+ab 3
+ad 6
+2 rows x 2 columns
+```
+
+- ofIterable
+
+```java
+List<Object[]> data = List.of(new Object[]{"L1", -1}, new Object[]{"L2", -2});
+
+DataFrame df = DataFrame
+        .byArrayRow(
+                Extractor.$col(a -> a[0]),
+                Extractor.$int(a -> (Integer) a[1])
+        )
+        .columnNames("o", "i")
+        .ofIterable(data);
+```
+
+```
+o   i
+-- --
+L1 -1
+L2 -2
+2 rows x 2 columns
+```
+
+
+
+#### byRow
+
+```java
+static <T> DataFrameByRowBuilder<T, ?> byRow(Extractor<T, ?>... extractors) {
+    return new DataFrameByRowBuilder<>(extractors);
+}
+```
+
+从集合提取数据，按行填充。
+
+- 从对象 list 中提取对象属性来创建
 
 ```java
 record Person(String name, int age) {
@@ -1090,6 +2389,143 @@ Andrus  49
 Joan    32
 3 rows x 2 columns
 ```
+
+- 定义对象
+
+```java
+record From(String s, int i) {
+
+    public double getD() {
+        return i + 0.01;
+    }
+
+    public long getL() {
+        return i + 10_000_000_000L;
+    }
+
+    public boolean isB() {
+        return i % 2 == 0;
+    }
+}
+```
+
+- `ofIterable` 一次完成创建
+
+```java
+List<From> data = List.of(new From("L1", -1), new From("L2", -2));
+
+DataFrame df = DataFrame
+        .byRow(
+                Extractor.$col(From::s),
+                Extractor.$int(From::i)
+        )
+        .columnNames("o", "i")
+        .ofIterable(data);
+```
+
+```
+o   i
+-- --
+L1 -1
+L2 -2
+2 rows x 2 columns
+```
+
+- `appender()` 逐个添加
+
+```java
+List<From> data = List.of(new From("L1", -1), new From("L2", -2));
+
+DataFrame df = DataFrame
+        .byRow(
+                Extractor.$col(From::s),
+                Extractor.$int(From::i),
+                Extractor.$long(From::getL),
+                Extractor.$double(From::getD),
+                Extractor.$bool(From::isB)
+        )
+        .appender()
+        .append(new From("a", 1))
+        .append(new From("b", 2))
+        .append(new From("c", 3))
+        .append(data)
+        .toDataFrame();
+```
+
+```
+0   1           2     3     4
+-- -- ----------- ----- -----
+a   1 10000000001  1.01 false
+b   2 10000000002  2.01  true
+c   3 10000000003  3.01 false
+L1 -1  9999999999 -0.99 false
+L2 -2  9999999998 -1.99  true
+5 rows x 5 columns
+```
+
+- extractor 用常量
+
+```java
+List<From> data = List.of(new From("L1", -1), new From("L2", -2));
+
+DataFrame df = DataFrame
+        .byRow(
+                Extractor.$val("const"),
+                Extractor.$col(From::s)
+        )
+        .appender()
+        .append(new From("a", 1))
+        .append(new From("b", 2))
+        .append(new From("c", 3))
+        .append(data)
+        .toDataFrame();
+```
+
+```
+0     1 
+----- --
+const a 
+const b 
+const c 
+const L1
+const L2
+5 rows x 2 columns
+```
+
+- 不设置 extractor 会报错
+
+```java
+assertThrows(IllegalArgumentException.class, () -> DataFrame
+        .byRow()
+        .columnNames("a", "b")
+        .appender());
+```
+
+- `selectRows` 过滤数据
+
+```java
+DataFrame df = DataFrame
+        .byRow(
+                Extractor.$col(From::s),
+                Extractor.$int(From::i)
+        )
+        .selectRows(r -> r.get("0").toString().startsWith("a"))
+        .appender()
+        .append(new From("a", 1))
+        .append(new From("ab", 2))
+        .append(new From("ca", 3))
+        .toDataFrame();
+```
+
+```
+0  1
+-- -
+a  1
+ab 2
+2 rows x 2 columns
+```
+
+
 
 #### foldByRow
 
@@ -1278,7 +2714,7 @@ col1 col2
 5000 rows x 2 columns
 ```
 
-#### 从 Series 数组
+#### byColumn
 
 使用 `Series` 数组创建 `DataFrame`，每个 `Series` 代表一个 column：
 
@@ -1292,6 +2728,53 @@ DataFrame df = DataFrame
 ```
 
 这是最有效的方法，因为 `DataFrame` 内部就是采用的 `Series` 数组结构。
+
+- `of` 使用数组为参数
+
+```java
+DataFrame df = DataFrame
+        .byColumn("a", "b")
+        .of(Series.of("a", "b", "c"),
+                Series.ofInt(1, 2, 3));
+```
+
+```
+a b
+- -
+a 1
+b 2
+c 3
+3 rows x 2 columns
+```
+
+- `ofIterable` 使用 `Iterable` 为参数
+
+```java
+DataFrame df = DataFrame
+        .byColumn("a", "b")
+        .ofIterable(List.of(Series.of("a", "b", "c"),
+                Series.ofInt(1, 2, 3)));
+```
+
+```
+a b
+- -
+a 1
+b 2
+c 3
+3 rows x 2 columns
+```
+
+#### convertColumn
+
+```java
+<V, VR> DataFrame convertColumn(int pos, ValueMapper<V, VR> converter);
+<V, VR> DataFrame convertColumn(String columnLabel, ValueMapper<V, VR> converter);
+```
+
+创建 `DataFrame` 副本，其中一个 column 的值使用 `converter` 进行转换。
+
+- 
 
 ### name
 
@@ -1312,9 +2795,100 @@ new DataFrameAsserts(df, "a", "b").expectHeight(2);
 assertEquals("n2", df.getName());
 ```
 
+### addRow
+
+```java
+DataFrame addRow(Map<String, Object> row);
+```
+
+在 `DataFrame` 底部添加一行数据。`Map` 定义 col-name 到值的映射。
+
+缺失值用 null 填充，`Map` 中多余的 key 忽略。
+
+> [!WARNING]
+>
+> 该操作非常慢，如果需要添加许多 rows，可以使用 `vConcat` 方法。
+
+- 添加一次
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y");
+
+DataFrame df1 = df.addRow(Map.of("a", 3, "b", "z"));
+```
+
+```
+a b
+- -
+1 x
+2 y
+3 z
+```
+
+- 再添加一行
+
+```java
+DataFrame df2 = df1.addRow(Map.of("a", 55, "b", "A"));
+```
+
+```
+ a b
+-- -
+ 1 x
+ 2 y
+ 3 z
+55 A
+```
+
+- 缺失值用 null 填充，多余的忽略
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b").of(
+        1, "x",
+        2, "y");
+
+DataFrame df1 = df.addRow(Map.of("c", 3, "b", "z"));
+```
+
+```
+   a b
+---- -
+   1 x
+   2 y
+null z
+```
+
+- 类型改变
+
+```java
+DataFrame df = DataFrame.byColumn("a", "b").of(
+                Series.ofLong(5L, 6L),
+                Series.ofInt(1, 2))
+        .addRow(Map.of("a", 3L, "b", "str"));
+assertInstanceOf(LongSeries.class, df.getColumn("a").unsafeCastAs(Long.class));
+assertInstanceOf(ObjectSeries.class, df.getColumn("b"));
+```
+
+```
+a b  
+- ---
+5 1  
+6 2  
+3 str
+```
+
+
+
 ## ColumnSet
 
-`ColumnSet` 表示 col 集合。
+`ColumnSet` 表示 col 集合。有两种类型：
+
+- FixedColumnSet：提前定义好宽度
+- DeferredColumnSet：根据后面的表达式动态定义
+
+`ColumnSet` 以 `DataFrame` 为数据源，定义基于 column 的操作。
 
 ### 创建 ColumnSet
 
@@ -1644,7 +3218,23 @@ DataFrame compactDouble(double forNull);
 <V> DataFrame compactDouble(DoubleValueMapper<V> converter);
 ```
 
-将 `ColumnSet` 的 cols 类型转换为指定基础类型。
+将 `ColumnSet` 的 cols 类型转换为指定 primitives 类型。
+
+```java
+DataFrame df = DataFrame.foldByRow("year", "sales").of(
+        "2022", "2005365.01",
+        "2023", "4355098.75");
+
+DataFrame df1 = df
+        .cols("year").compactInt(0)
+        .cols("sales").compactDouble(0.);
+```
+
+`compact` 的参数指定要转换的值为 `null` 时的默认值。
+
+> [!TIP]
+>
+> `compactInt(..)`, `compactDouble(..)` 等方法不仅仅是语法糖，它们将 `DataFrame` 的 col 转换为 primitive `Series` 可以减少内存占用，且计算速度比基于对象的 `Series` 更快。
 
 #### compactBool
 
@@ -1768,7 +3358,1725 @@ DataFrame df = DataFrame.byColumn("a", "b", "c", "d").of(
 
 `compactInt` 和 `compactLong` 与 `compactDouble` 的用法基本一样。
 
+### merge
 
+`ColumnSet` 提供了许多合并操作。所有不以 `select...` 开头的 `ColumnSet` 方法都与源 `DataFrame` 执行合并。包括重命名和数据转换也可以作为合并来执行。
+
+合并规则：
+
+- 合并按 col-name 完成
+  - `DataFrame` 中与 `ColumnSet` 的名称匹配的 cols 被替换为 `ColumnSet` 版本；
+  - `DataFrame` 包含而 `ColumnSet` 不包含的 cols 保持不变；
+  - `DataFrame` 不包含而 `ColumnSet` 包含的 cols 添加到 `DataFrame` 右侧；
+- `ColumnSet` 中 cols 的顺序不影响被替换 cols 的顺序，添加的 cols 顺序与 `ColumnSet` 中一致
+- 所有转换操作都应用于原 `DataFrame` 的 cols
+
+```java
+DataFrame merge(Exp<?>... exps);
+DataFrame merge(Series<?>... columns);
+DataFrame merge(RowToValueMapper<?>... mappers);
+DataFrame merge(RowMapper mapper);
+```
+
+这 4 个函数都是执行合并 col 操作，只是提供 col 值的方式不同。例如：
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
+        "jerry", "cosin", "M",
+        "Joan", "O'Hara", null);
+
+Function<String, Exp<String>> cleanup = col -> $str(col).mapVal(
+        s -> s != null && !s.isEmpty()
+                ? Character.toUpperCase(s.charAt(0)) + s.substring(1)
+                : null); // 实现首字母大写
+
+DataFrame df1 = df
+        .cols("last", "first", "full") // 要选择或生成的 cols
+        .merge( // 不使用 select，而是用 merge 将 col 与原 DataFrame 合并
+                cleanup.apply("last"),
+                cleanup.apply("first"),
+                concat($str("first"), $val(" "), $str("last"))
+        );
+```
+
+```
+first last   middle full
+----- ------ ------ -----------
+Jerry Cosin  M      jerry cosin
+Joan  O'Hara null   Joan O'Hara
+```
+
+根据合并规则，`cols("last", "first", "full")` 定义的前两个 cols 在原 `DataFrame` 已经包含，因此替换为 cleanup 后的版本；"full" 是新添加的 col，添加到 `DataFrame` 右侧。
+
+添加 `ColumnSet` 的所有 cols，而不替换 `DataFrame` 中原有 cols，有两种实现方式：
+
+- 手动指定 `ColumnSet` 的 col-names，保证名称不冲突
+- 使用 `DataFrame.colsAppend(..)`，DFLib 会在每个新 col-name 添加 `_` 以确保不与已有 col-names 相同
+
+```java
+DataFrame df1 = df
+        .colsAppend("last", "first") // 添加 cols
+        .merge(
+                cleanup.apply("last"),
+                cleanup.apply("first")
+        );
+```
+
+```
+first last   middle last_  first_
+----- ------ ------ ------ ------
+jerry cosin  M      Cosin  Jerry
+Joan  O'Hara null   O'Hara Joan
+```
+
+#### merge-Exp
+
+```java
+DataFrame merge(Exp<?>... exps);
+```
+
+将 `exps` 生成的 cols 合并到当前 `DataFrame`。
+
+- 使用 col-name 定义 cols
+
+`$int(0).mul(100)` 选择 col-0 乘以 100 作为 col-b 的值；`$int(0).mul(10)` 选择 col-0 乘以 100 作为 col-c 的值。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c").merge($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- 重复 cols
+
+`cols("b", "b")` 选择 col-b 两次，因此生成两个 col-b，第二个自动添加 `_` 后缀；col-a 不变。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "b").merge($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+a   b b_
+- --- --
+1 100 10
+2 200 20
+```
+
+- 使用 col-index 选择 cols
+
+其中 2 超出 col-index 范围，因此新建 col-2。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 2).merge($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+a   b  2
+- --- --
+1 100 10
+2 200 20
+```
+
+- 使用 `colsAppend` 添加新 cols，不会修改原 cols
+
+当添加的 cols 与原 cols 有命名冲突，自动添加后缀 `_`。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .colsAppend("b", "c", "b").merge(
+                $int(0).mul(100),
+                $int(0).mul(10),
+                $str(1).mapVal(v -> "[" + v + "]"));
+```
+
+```
+a b  b_  c b__
+- - --- -- ---
+1 x 100 10 [x]
+2 y 200 20 [y]
+```
+
+- 不选择 cols，则根据后面的表达式推断 cols
+
+`as("b")` 指定生成的 `Series` 为 "b"，替换原来的 col-b；`$int(0).mul(10)` 没有指定名称，生成新的 col，其名称根据表达式自动生成。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols().merge($int(0).mul(100).as("b"), $int(0).mul(10));
+```
+
+```
+a   b a * 10
+- --- ------
+1 100     10
+2 200     20
+```
+
+- `colsExcept` 在合并 cols 排除指定 col
+
+`colsExcept("a")` 排除 col-a，对 col-b 和 col-c 执行合并操作。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a").merge($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- `colsExcept` 支持以 col-index 为参数
+
+`colsExcept(1)` 排除 col-1，对 col-0 为 col-2 执行合并操作。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1).merge($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+  a b  c
+--- - --
+100 x 10
+200 y 20
+```
+
+#### merge-RowMapper
+
+```java
+DataFrame merge(RowMapper mapper);
+```
+
+使用 `RowMapper` 定义生成数据的方式。
+
+- 使用 `colsAppend` 添加新的 cols
+
+"b" 与 col-b 重名，添加 `_` 后缀。`f.get(0, Integer.class)` 返回 col-0 的 Integer 值，`set(0, f.get(0, Integer.class) * 100)` 将该值设置为 col-b 的值。同理，`set(1,...)` 设置 col-c 的值。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .colsAppend("b", "c").merge((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+a b  b_  c
+- - --- --
+1 x 100 10
+2 y 200 20
+```
+
+- 使用 `cols` 修改或添加 cols
+
+这里修改 col-b，添加 col-c。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c").merge((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- 使用 col-index 选择 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 2).merge((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10)
+        );
+```
+
+```
+a   b  2
+- --- --
+1 100 10
+2 200 20
+```
+
+- 自动推断 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols().merge(
+                (f, t) -> {
+                    t.set("b", f.get(0, Integer.class) * 100);
+                    t.set("c", f.get(0, Integer.class) * 10);
+                }
+        );
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- `colsExcept` 排除指定 cols
+
+排除 col-a，对 col-b 和 col-c 进行合并。因此 `RowMapper` 的 0 和 1 对应的是 col-b 和 col-c。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a").merge((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- `colsExcept` 排除指定 cols，col-index 为参数
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1).merge((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+  a b  c
+--- - --
+100 x 10
+200 y 20
+```
+
+#### merge-RowToValueMapper
+
+```java
+DataFrame merge(RowToValueMapper<?>... mappers);
+```
+
+`RowToValueMapper` 定义 `RowProxy` 到值的映射。
+
+- 使用 `colsAppend` 添加 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .colsAppend("b", "c")
+        .merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+a b  b_  c
+- - --- --
+1 x 100 10
+2 y 200 20
+```
+
+- 使用 `cols(...)` 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c").merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- 使用 col-index 定义 cols
+
+这里 col-1 对应 col-b，因此会修改 col-b 的值。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 2).merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+a   b  2
+- --- --
+1 100 10
+2 200 20
+```
+
+- 动态定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols().merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+a b   2  3
+- - --- --
+1 x 100 10
+2 y 200 20
+```
+
+- 使用 `colsExcept` 排斥指定 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a").merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+a   b  c
+- --- --
+1 100 10
+2 200 20
+```
+
+- 使用 `colsExcept` 排除指定 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1).merge(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+  a b  c
+--- - --
+100 x 10
+200 y 20
+```
+
+### selects
+
+`select` 执行 col 转换操作。该操作分三步：
+
+1. 使用 `cols` 定义 `ColumnSet`
+2. 使用 `select` 对定义的 cols 执行操作
+3. 以 `DataFrame` 返回转换后的 cols
+
+其使用和 `merge` 类似，差别在于 `select` 返回的 `DataFrame` 只包含 `ColumnSet` 选择的 cols。 
+
+```java
+DataFrame select();
+DataFrame select(Exp<?>... exps);
+DataFrame select(RowToValueMapper<?>... mappers);
+DataFrame select(RowMapper mapper);
+```
+
+后面三种方法类似。
+
+例如：
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
+        "Jerry", "Cosin", "M",
+        "Joan", "O'Hara", null);
+
+Exp fmExp = concat(
+        $str("first"),
+        ifNull($str("middle").mapVal(s -> " " + s), ""));
+
+DataFrame df1 = df
+        .cols("first_middle", "last") // (1)
+        .select(fmExp, $str("last")); // (2)
+```
+
+```
+first_middle last
+------------ ------
+Jerry M      Cosin
+Joan         O'Hara
+```
+
+(1) 定义 `ColumnSet` 时，可以指定原 `DataFrame` 中不存在的 col，表示创建新的 col
+
+(2) 对 `ColumnSet` 的每个 col，都应该有一个对应的 exp 来生成该 col。上面第一个 exp 转换数据，第二个 exp 直接选择一个 col。
+
+使用 `RowMapper` 生成与上面一样的数据： 
+
+```java
+RowMapper mapper = (from, to) -> {
+    String middle = from.get("middle") != null
+            ? " " + from.get("middle")
+            : "";
+    to.set(0, from.get("first") + middle).set(1, from.get("last"));
+};
+
+DataFrame df1 = df
+        .cols("first_middle", "last")
+        .select(mapper);
+```
+
+另外还有一个 `RowToValueMapper`，其功能与上面差别不大。
+
+#### select
+
+```java
+DataFrame select();
+```
+
+返回 `cols` 定义的 `ColumnSet`，不做额外修改。
+
+- 使用 col-name 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols("a", "Y", "c")
+        .select();
+```
+
+```
+a Y    c
+- ---- -
+1 null a
+2 null b
+```
+
+- 使用 col-index 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols(0, 2, 4)
+        .select();
+```
+
+```
+a c 4   
+- - ----
+1 a null
+2 b null
+```
+
+- 自动推断 cols，默认选择所有 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols()
+        .select();
+```
+
+```
+a b c
+- - -
+1 x a
+2 y b
+```
+
+#### select-Exp
+
+- 使用 `colsAppend` 添加 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .colsAppend("b", "c")
+        .select($int(0).mul(100), $int(0).mul(10));
+```
+
+```
+ b_  c
+--- --
+100 10
+200 20
+```
+
+- 使用 `cols(...)` 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c").select($int(0).mul(100),
+                $int(0).mul(10));
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- 使用 `cols(..)` 定义重复 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "b")
+        .select($int(0).mul(100),
+                $int(0).mul(10));
+```
+
+```
+  b b_
+--- --
+100 10
+200 20
+```
+
+- 使用 col-index 选择 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 7).select($int(0).mul(100),
+                $int(0).mul(10));
+```
+
+```
+  b  7
+--- --
+100 10
+200 20
+```
+
+- 自动推断 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols().select($int(0).mul(100).as("b"),
+                $int(0).mul(10));
+```
+
+```
+  b a * 10
+--- ------
+100     10
+200     20
+```
+
+- `colsExcept` 排除 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a").select($int(0).mul(100),
+                $int(0).mul(10));
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- `colsExcept` 排除 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1)
+        .select($int(0).mul(100),
+                $int(0).mul(10));
+```
+
+```
+  a  c
+--- --
+100 10
+200 20
+```
+
+#### select-RowMapper
+
+- 使用 col-names 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c")
+        .select((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- 使用 col-index 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 2)
+        .select((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+  b  2
+--- --
+100 10
+200 20
+```
+
+- 自动推断 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols()
+        .select(
+                (f, t) -> {
+                    t.set("b", f.get(0, Integer.class) * 100);
+                    t.set("c", f.get(0, Integer.class) * 10);
+                }
+        );
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- `colsExcept` 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a")
+        .select((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- `colsExcept` 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1)
+        .select((f, t) -> t
+                .set(0, f.get(0, Integer.class) * 100)
+                .set(1, f.get(0, Integer.class) * 10));
+```
+
+```
+  a  c
+--- --
+100 10
+200 20
+```
+
+#### select-RowToValueMapper
+
+- 使用 col-name 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("b", "c")
+        .select(
+                r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- 使用 col-index 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols(1, 2)
+        .select(
+                r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+  b  2
+--- --
+100 10
+200 20
+```
+
+- 自动推断 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols()
+        .select(
+                r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10
+        );
+```
+
+```
+  0  1
+--- --
+100 10
+200 20
+```
+
+- `colsExcept` 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept("a")
+        .select(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+  b  c
+--- --
+100 10
+200 20
+```
+
+- `colsExcept` 以 col-index 定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "z", 2, "y", "a")
+        .colsExcept(1)
+        .select(r -> r.get(0, Integer.class) * 100,
+                r -> r.get(0, Integer.class) * 10);
+```
+
+```
+  a  c
+--- --
+100 10
+200 20
+```
+
+### selectAs
+
+`selectAs` 用于选择并重命名 col。
+
+```java
+DataFrame selectAs(UnaryOperator<String> renamer);
+DataFrame selectAs(String... newColumnNames);
+DataFrame selectAs(Map<String, String> oldToNewNames);
+```
+
+#### selectAs-array
+
+数组中 col-names 顺序要求与 `ColumnSet` 中 cols 的顺序一致。
+
+- 对所有 col 重命名
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols()
+        .selectAs("c", "d");
+```
+
+```
+c d
+- -
+1 x
+2 y
+```
+
+- 用 col-name 选择一部分 cols 重命名
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols("a", "c")
+        .selectAs("X", "Y");
+```
+
+```
+X Y
+- -
+1 a
+2 b
+```
+
+- 添加新的 cols
+
+`cols(..)` 定义的 cols 包含新的 col，在 `selectAs` 同时对其重命名。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols("a", "c", "new")
+        .selectAs("X", "Y", "NEW");
+```
+
+```
+X Y NEW 
+- - ----
+1 a null
+2 b null
+```
+
+#### selectAs-Map
+
+- 选择所有 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols()
+        .selectAs(Map.of("a", "c", "b", "d"));
+```
+
+```
+c d
+- -
+1 x
+2 y
+```
+
+- 使用 col-names 选择 col
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols("a", "c")
+        .selectAs(Map.of("a", "X", "c", "Y"));
+```
+
+```
+X Y
+- -
+1 a
+2 b
+```
+
+- 选择部分 cols，并添加新 col
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a", 2, "y", "b")
+        .cols("a", "c", "new")
+        .selectAs(Map.of("a", "X", "new", "NEW"));
+```
+
+```
+X c NEW 
+- - ----
+1 a null
+2 b null
+```
+
+#### selectAs-Operator
+
+```java
+DataFrame selectAs(UnaryOperator<String> renamer);
+```
+
+使用函数定义新的 col-names。
+
+- 对所有 col 重命名
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols()
+        .selectAs(c -> "[" + c + "]");
+```
+
+```
+[a] [b]
+--- ---
+  1 x  
+  2 y
+```
+
+- 使用 col-name 选择一部分 col 重命名
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a",
+                2, "y", "b")
+        .cols("a", "c")
+        .selectAs(c -> "[" + c + "]");
+```
+
+```
+[a] [c]
+--- ---
+  1 a  
+  2 b 
+```
+
+- 添加新的 col
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(1, "x", "a",
+                2, "y", "b")
+        .cols("a", "c", "new")
+        .selectAs(c -> "[" + c + "]");
+```
+
+```
+[a] [c] [new]
+--- --- -----
+  1 a   null 
+  2 b   null 
+```
+
+- 使用函数引用，将所有 col-names 转换为大写
+
+```java
+DataFrame df1 = df
+        .cols("last", "first")
+        .selectAs(String::toUpperCase);
+```
+
+```
+LAST   FIRST
+------ -----
+Cosin  Jerry
+O'Hara Joan
+```
+
+### expand
+
+```java
+DataFrame expand(Exp<? extends Iterable<?>> splitExp);
+```
+
+`expand` 和 `expandArray` 的功能相似，都是将 `splitExp` 生成的 cols 合并到现有 `DataFrame`，差别在于 `expand` 使用 `Iterable` 对象生成 row，而 `expandArray` 使用数组生成 row。
+
+- 使用 list 定义 row 数据
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("c", "b").expand($val(List.of("one", "two")));
+```
+
+```
+a b   c  
+- --- ---
+1 two one
+2 two one
+```
+
+- 不同长度的 list
+
+当不同 row 对应的 list 长度不一致，根据 `ColumnSet` 定义，多余的拆掉，不足的填充 null。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c").expand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 2:
+                    return List.of("one", "two");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+a b   c   
+- --- ----
+1 one null
+2 one two 
+3 one two
+```
+
+- 某个 row 对应的 list 为 null，则该 row 所有值均为 null
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c").expand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+a b    c   
+- ---- ----
+1 one  null
+2 null null
+3 one  two 
+```
+
+- 采用 `cols()` 动态定义 `ColumnSet`，即根据后面的表达式确定要添加和修改的 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols().expand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 2:
+                    return List.of("one", "two");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+a b 2   3    4    
+- - --- ---- -----
+1 x one null null 
+2 y one two  null 
+3 z one two  three
+```
+
+### selectExpand
+
+```java
+DataFrame selectExpand(Exp<? extends Iterable<?>> splitExp);
+```
+
+功能与 `selectExpandArray` 类似。
+
+即先 `select`，然后进行 `expand` 操作。
+
+- `List` 提供数据
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("c", "b")
+        .selectExpand($val(List.of("one", "two")));
+```
+
+```
+c   b  
+--- ---
+one two
+one two
+```
+
+- `List` 提供数据，长度不一致
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c")
+        .selectExpand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 2:
+                    return List.of("one", "two");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+b   c   
+--- ----
+one null
+one two 
+one two 
+```
+
+- null 值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c")
+        .selectExpand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+b    c   
+---- ----
+one  null
+null null
+one  two 
+```
+
+- 动态大小
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols()
+        .selectExpand($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return List.of("one");
+                case 2:
+                    return List.of("one", "two");
+                case 3:
+                    return List.of("one", "two", "three");
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+0   1    2    
+--- ---- -----
+one null null 
+one two  null 
+one two  three
+```
+
+
+
+### expandArray
+
+```java
+DataFrame expandArray(Exp<? extends Object[]> splitExp);
+```
+
+将 `splitExp` 定义的 cols 与 `DataFrame` 合并。
+
+对定宽 `ColumnSet`，`splitExp` 数组的每个值对应一个 col：
+
+- 如果 `splitExp` 生成的值不足以填充 row，则末尾用 null 填充；
+- 如果 `splitExp` 生成的值超过 row 宽度，则忽略多出来的值。
+
+对动态 `ColumnSet`，生成 col 数等于 `splitExp` 生成的最长 row。
+
+- 合并 col-c，修改 col-b
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("c", "b").expandArray($val(new String[]{"one", "two"}));
+```
+
+```
+a b   c  
+- --- ---
+1 two one
+2 two one
+```
+
+`$val` 生成常量 `Series`。
+
+- 不同长度的数组
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c").expandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 2:
+                    return new String[]{"one", "two"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+a b   c   
+- --- ----
+1 one null
+2 one two 
+3 one two
+```
+
+col-a 保持不变，修改 col-b，添加 col-c。这里将 col-a 的值映射为不同长度的数组。其中 3 超出部分忽略，1 长度不够用 null 补齐。
+
+- null 数组
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c").expandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+`cols("b", "c")` 选择 col-b 和 col-c，表示创建 col-c，修改 col-b。
+
+col-a 的 2 对应 null，因此该 row 的 col-b 和 col-c 都是 null。
+
+```
+a b    c   
+- ---- ----
+1 one  null
+2 null null
+3 one  two 
+```
+
+- **动态大小**
+
+上面的示例都通过 `cols("b", "c")` 定义好了 `ColumnSet` 宽度，如果用 `cols()` 则动态生成 cols，`ColumnSet` 宽度取决于后面的表达式。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols().expandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 2:
+                    return new String[]{"one", "two"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+a b 2   3    4    
+- - --- ---- -----
+1 x one null null 
+2 y one two  null 
+3 z one two  three
+```
+
+这里，col-a 和 col-b 保持不变，数组最长为 3，因此添加 3 个新的 cols。新 cols 的 labels 默认为 col-index。
+
+### selectExpandArray
+
+```java
+DataFrame selectExpandArray(Exp<? extends Object[]> splitExp);
+```
+
+`select` 与 `expandArray` 的合并操作。
+
+- 常量
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y")
+        .cols("c", "b")
+        .selectExpandArray($val(new String[]{"one", "two"}));
+```
+
+```
+c   b  
+--- ---
+one two
+one two
+```
+
+`selectExpandArray` 选择 `cols("c", "b")` 定义的 `ColumnSet`，并对齐进行 `expandArray` 操作。
+
+- 变长
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c")
+        .selectExpandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 2:
+                    return new String[]{"one", "two"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+b   c   
+--- ----
+one null
+one two 
+one two 
+```
+
+- null 对应 row 的值全部为 null
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols("b", "c")
+        .selectExpandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+b    c   
+---- ----
+one  null
+null null
+one  two 
+```
+
+- 变长，自动定义 cols
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b")
+        .of(1, "x", 2, "y", 3, "z")
+        .cols()
+        .selectExpandArray($int("a").mapVal(i -> {
+            switch (i) {
+                case 1:
+                    return new String[]{"one"};
+                case 2:
+                    return new String[]{"one", "two"};
+                case 3:
+                    return new String[]{"one", "two", "three"};
+                default:
+                    return null;
+            }
+        }));
+```
+
+```
+0   1    2    
+--- ---- -----
+one null null 
+one two  null 
+one two  three
+```
+
+### fills
+
+```java
+DataFrame fill(Object... values);
+DataFrame fillNulls(Object value);
+DataFrame fillNullsBackwards();
+DataFrame fillNullsForward();
+DataFrame fillNullsFromSeries(Series<?> series);
+DataFrame fillNullsWithExp(Exp<?> replacementValuesExp);
+```
+
+- `fill` 参数 `values` 长度与 `ColumnSet` 宽度相同，对应 row 的每个值
+- `fillNulls` 使用常量替换 null 值
+- `fillNullsBackwards()` 使用相邻靠前的 non-null 值替换 `null` 值
+- `fillNullsForward()` 使用相邻靠后的 non-null 值替换 `null` 值
+- `fillNullsFromSeries` 使用另一个 `Series` 等 index 的元素替换 `null` 值
+- `fillNullsWithExp` 则使用表达式生成的值替换 `null` 值
+
+#### fill
+
+ `fill` 用指定数组的值替换 `ColumnSet` 原始值。
+
+- 替换所有 cols 的值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols().fill("B", "C", "*");
+```
+
+```
+a b c
+- - -
+B C *
+B C *
+B C *
+```
+
+- 替换部分 cols 的值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols("b", "c", "new").fill("B", "C", "*");
+```
+
+```
+   a b c new
+---- - - ---
+   1 B C *  
+null B C *  
+   3 B C * 
+```
+
+#### fillNulls
+
+`fillNulls` 用常量替换 null 值。
+
+- 使用 `cols()` 无目标 col，表示替换所有 null
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols().fillNulls("*");
+```
+
+```
+a b c
+- - -
+1 x *
+* * a
+3 * *
+```
+
+- 使用 `cols("b", "c", "new")` 指定要替换 null 的 cols
+
+替换 col-b 和 col-c 中的 null，并创建 col-new，新创建的 col-new 全都是 null 值，已经替换为 `*`。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols("b", "c", "new").fillNulls("*");
+```
+
+```
+   a b c new
+---- - - ---
+   1 x * *  
+null * a *  
+   3 * * *  
+```
+
+#### fillNullsBackwards
+
+`fillNullsBackwards()` 用相邻高 index 的 non-null 值替换 `null`
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols().fillNullsBackwards();
+```
+
+```
+a b    c   
+- ---- ----
+1 x    a   
+3 null a   
+3 null null
+```
+
+#### fillNullsForward
+
+`fillNullsForward()` 用相邻低 index 的  non-null 值替换 `null`。
+
+- 使用 `cols()` 替换所有 cols 的 null 值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols().fillNullsForward();
+```
+
+```
+a b c   
+- - ----
+1 x null
+1 x a   
+3 x a   
+```
+
+- 使用 `cols("b", "c", "new")` 替换指定 cols 的 null 值
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols("b", "c", "new").fillNullsForward();
+```
+
+```
+   a b c    new 
+---- - ---- ----
+   1 x null null
+null x a    null
+   3 x a    null
+```
+
+#### fillNullsFromSeries
+
+`fillNullsFromSeries` 使用另一个 `Series` 等 index 元素替换 `null`。
+
+- 替换所有 cols 的 null 值
+
+```java
+Series<String> filler = Series.of("row1", "row2", "row3");
+
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols().fillNullsFromSeries(filler);
+```
+
+```
+a    b    c   
+---- ---- ----
+1    x    row1
+row2 row2 a   
+3    row3 row3
+```
+
+- 替换指定 cols 的 null 值
+
+```java
+Series<String> filler = Series.of("row1", "row2", "row3");
+
+DataFrame df = DataFrame.foldByRow("a", "b", "c").of(
+                1, "x", null,
+                null, null, "a",
+                3, null, null
+        )
+        .cols("b", "c", "new").fillNullsFromSeries(filler);
+```
+
+```
+   a b    c    new 
+---- ---- ---- ----
+   1 x    row1 row1
+null row2 a    row2
+   3 row3 row3 row3
+```
+
+> [!NOTE]
+>
+> filler `Series` 不需要与 `DataFrame` 一样高，值从 0 开始对齐。
+
+#### fillNullsWithExp
+
+使用 exp 生成的值替换 null 值。
+
+```java
+DataFrame df = DataFrame.foldByRow("c1", "c2").of(
+                "a1", "a2",
+                null, null,
+                "b1", "b2");
+
+DataFrame clean = df.cols("c1", "c2")
+        .fillNullsWithExp(rowNum()); 
+```
+
+`Exp.rowNum()` 生成一个包含行号的 `Series`，因此 `null` 值被替换为所在 row 的行号。
+
+```
+c1 c2
+-- --
+a1 a2
+2  2
+b1 b2
+```
 
 ### agg
 
@@ -2303,7 +5611,29 @@ b
 2
 ```
 
+### colsSample
 
+```java
+default ColumnSet colsSample(int size);
+default ColumnSet colsSample(int size, Random random);
+```
+
+随机抽取 col。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c", "d").of(
+                1, "x", "m", "z",
+                2, "y", "x", "E")
+        // using fixed seed to get reproducible result
+        .colsSample(2, new Random(11)).select();
+```
+
+```
+b a
+- -
+x 1
+y 2
+```
 
 
 
@@ -2372,7 +5702,7 @@ DFLib 内置了一个表达式语言（实现为 Java DSL），可用来在 `Dat
 - 非聚合 exp 生成与原数据结构大小相同的 `Series`；
 - 聚合 exp 生成更少元素的 `Series` (通常只有一个元素)。
 
-`Exp` 接口包含创建各种类型表达式的 factory 方法。按照惯例，应用于 col 的表达式以 `$` 开头。
+`Exp` 接口包含创建各种类型表达式的 factory 方法。按照惯例，应用于 col 的表达式以 `$` 开头。以下是 `Exp` 接口的核心内容：
 
 ```java
 public interface Exp<T> {
@@ -2383,16 +5713,6 @@ public interface Exp<T> {
      * 已知类型能够优化计算过程。
      */
     Class<T> getType();
-
-    /**
-     * 返回表达式的 DFLib 查询语言格式
-     */
-    String toQL();
-
-    /**
-     * 返回表达式的 DFLib 查询语言格式，col-names 根据提供的 DataFrame 获得
-     */
-    String toQL(DataFrame df);
 
     /**
      * 以 DataFrame 为参数计算表达式的值，返回一个 Series
@@ -2489,11 +5809,17 @@ col-exp 用于选择 col。上面示例中的 `$str(...)` 和 `$decimal(...)` ex
 >
 > 对 `Series` 使用 col-exp 直接返回该 `Series`，忽略隐含的 col-name 或 col-index。
 
-`Exp` 接口中的 col-exp 工厂方法很容易找，它们都以 `$` 开始：
+`Exp` 接口中的 col-exp 工厂方法很容易找，它们都以 `$` 开始。
+
+- 返回一个命名 column，对 `Series` 返回自身
 
 ```java
-$col("col"); // 检索 col，不要求类型
+$col("col");
+```
 
+- 返回指定类型的命名 column
+
+```java
 $decimal("col"); // 检索数值类型 col
 $double("col");
 $int("col");
@@ -2507,7 +5833,11 @@ $bool("col"); // 检索 boolean 或 String 类型 col
 $str("col");
 ```
 
-为了避免开销，col-exp 不执行类型转换（`$bool` 除外）。因此，应该根据数据类型选择正确的方法，以避免 `ClassCastExceptions`，或者使用通用的 `$col(...)` exp。如果确实需要转换类型，可以使用 `castAs` 显式方法：
+> [!WARNING]
+>
+> 为了避免开销，col-exp 不执行类型转换（`$bool` 除外）。因此，应该根据数据类型选择正确的方法，以避免 `ClassCastExceptions`，或者使用通用的 `$col(...)` exp。
+
+如果确实需要转换类型，可以使用 `castAs` 显式方法：
 
 ```java
 $str("salary").castAsDecimal();
@@ -2622,103 +5952,6 @@ Series<T> getColumn(String name);
 
 选择指定 name 或 index 的 col。
 
-### col 重命名
-
-选择 col 后，可以使用 `selectAs(...)` 为其重命名。
-
-重命名所选的所有 cols:
-
-```java
-DataFrame df1 = df
-        .cols("last", "first")
-        .selectAs("last_name", "first_name"); 
-		// 传入新的 col-names，顺序与 ColumnSet 中 column 顺序一致
-```
-
-```
-last_name first_name
---------- ----------
-Cosin     Jerry
-Walewski  Juliana
-```
-
-也可以只对 cols 的部分 cols 重命名：
-
-```java
-DataFrame df1 = df
-        .cols("last", "first")
-        .selectAs(Map.of("last", "LAST_NAME"));
-```
-
-```
-LAST_NAME first
---------- -------
-Cosin     Jerry
-O'Hara    Joan
-```
-
-使用函数重命名，依次应用于所有 col：
-
-```java
-DataFrame df1 = df
-        .cols("last", "first")
-        .selectAs(String::toUpperCase);
-```
-
-```
-LAST   FIRST
------- -----
-Cosin  Jerry
-O'Hara Joan
-```
-
-### col 转换
-
-使用 exp 生成 cols：
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
-        "Jerry", "Cosin", "M",
-        "Joan", "O'Hara", null);
-
-Exp fmExp = concat(
-        $str("first"),
-        ifNull($str("middle").mapVal(s -> " " + s), ""));
-
-DataFrame df1 = df
-        .cols("first_middle", "last") // (1)
-        .select(fmExp, $str("last")); // (2)
-System.out.println(Printers.tabular.toString(df1));
-```
-
-(1) 定义 `ColumnSet` 时，可以指定原 `DataFrame` 中不存在的 col，表示创建新的 col
-
-(2) 对 `ColumnSet` 的每个 col，都应该有一个对应的 exp 来生成该 col。上面第一个 exp 转换数据，第二个 exp 直接选择一个 col。
-
-```
-first_middle last
------------- ------
-Jerry M      Cosin
-Joan         O'Hara
-```
-
-使用 `RowMapper` 逐行生成与上面一样的数据： 
-
-```java
-RowMapper mapper = (from, to) -> {
-    String middle = from.get("middle") != null
-            ? " " + from.get("middle")
-            : "";
-    to.set(0, from.get("first") + middle).set(1, from.get("last"));
-};
-
-DataFrame df1 = df
-        .cols("first_middle", "last")
-        .select(mapper);
-```
-
-另外还有一个 `RowToValueMapper`，其功能与上面差别不大。
-
 ### split col
 
 拆分 col 并生成新的 col。
@@ -2767,163 +6000,6 @@ DataFrame df = DataFrame.foldByRow("name", "phones").of(
 DataFrame df1 = df
         .cols("primary_phone", "secondary_phone")
         .selectExpandArray($str("phones").split(','));
-```
-
-### 合并 cols
-
-`ColumnSet` 提供了许多合并操作。所有不以 `select...` 开头的 `ColumnSet` 方法都与源 `DataFrame` 执行合并。上面介绍的重命名和数据转换也可以作为合并来执行。
-
-例如，清理数据集并添加新的 col：
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
-        "jerry", "cosin", "M",
-        "Joan", "O'Hara", null);
-
-Function<String, Exp<String>> cleanup = col -> $str(col).mapVal(
-        s -> s != null && !s.isEmpty()
-                ? Character.toUpperCase(s.charAt(0)) + s.substring(1)
-                : null); // 实现首字母大写
-
-DataFrame df1 = df
-        .cols("last", "first", "full") // 要选择或生成的 cols
-        .merge( // 不使用 select，而是用 merge 将 col 与原 DataFrame 合并
-                cleanup.apply("last"),
-                cleanup.apply("first"),
-                concat($str("first"), $val(" "), $str("last"))
-        );
-```
-
-下面查看结果。`ColumnSet` 的前面两个 cols "last" 和 "first" 已经在 `DataFrame` 中，它们被替换为 cleanup 后的版本；"full" 是新的 col，添加到 `DataFrame` 的右侧，得到：
-
-```
-first last   middle full
------ ------ ------ -----------
-Jerry Cosin  M      jerry cosin
-Joan  O'Hara null   Joan O'Hara
-```
-
-合并规则：
-
-- 合并按 **name** 完成
-  - `DataFrame` 中与 `ColumnSet` 的名称匹配的 cols 被替换为 `ColumnSet` 的版本；
-  - `DataFrame` 包含而 `ColumnSet` 不包含的 cols 保持不变；
-  - `DataFrame` 不包含而 `ColumnSet` 包含的 cols 添加到 `DataFrame` 右侧；
-- `ColumnSet` 中 cols 的顺序不影响被替换 cols 的顺序，添加的 cols 顺序与 `ColumnSet` 中一致
-- 所有转换操作都应用于原始 `DataFrame` 的 cols，所以生成的 "full" col 中有一个小写名称。
-
-如果希望添加 `ColumnSet` 的所有 cols，而不替换 `DataFrame` 中原有 cols？为此可以手动指定 `ColumnSet` 的 col-names，或者使用 `DataFrame.colsAppend(..)`，DFLib 会在每个新 col-name 添加 `_` 以确保不与已有 col-names 相同：
-
-```java
-DataFrame df1 = df
-        .colsAppend("last", "first") // 添加 cols
-        .merge(
-                cleanup.apply("last"),
-                cleanup.apply("first")
-        );
-```
-
-```
-first last   middle last_  first_
------ ------ ------ ------ ------
-jerry cosin  M      Cosin  Jerry
-Joan  O'Hara null   O'Hara Joan
-```
-
-### Compact col
-
-将 col 类型转换为 primitive 类型。col 中的值可以为 numbers, booleans 或 string:
-
-```java
-DataFrame df = DataFrame.foldByRow("year", "sales").of(
-        "2022", "2005365.01",
-        "2023", "4355098.75");
-
-DataFrame df1 = df
-        .cols("year").compactInt(0)
-        .cols("sales").compactDouble(0.);
-```
-
-`compact` 的参数指定要转换的值为 `null` 时的默认值。
-
-`compactInt(..)`, `compactDouble(..)` 等方法不仅仅是语法糖，它们将 `DataFrame` 的 col 转换为 primitive `Series` 可以减少内存占用，且计算速度比基于对象的 `Series` 更快。
-
-### Fill Null
-
-使用常量替换 `null` 值：
-
-```java
-DataFrame df = DataFrame.foldByRow("c1", "c2").of(
-        "a1", "a2",
-        null, null,
-        "b1", "b2");
-
-DataFrame clean = df.cols("c1", "c2").fillNulls("X");
-```
-
-```
-c1 c2
--- --
-a1 a2
-X  X
-b1 b2
-```
-
-使用与 `null` 值相邻的值填充：
-
-```java
-DataFrame clean = df
-        .cols("c1").fillNullsBackwards() // 使用 null 值前面的 non-null 值替换 null 值
-        .cols("c2").fillNullsForward();  // 使用 null 值后面的 non-null 值替换 null 值
-```
-
-```
-c1 c2
--- --
-a1 a2
-b1 a2
-b1 b2
-```
-
-也可以从另外 `Series` 提取值来替换 `null` 值：
-
-```java
-Series<String> mask = Series.of("A", "B", "C", "D");
-DataFrame clean = df.cols("c1", "c2").fillNullsFromSeries(mask);
-```
-
-```
-c1 c2
--- --
-a1 a2
-B  B
-b1 b2
-```
-
-> [!NOTE]
->
-> mask `Series` 不需要与 `DataFrame` 一样高，值从 0 开始对齐。
-
-最后，还可以使用 `Exp` 为 `null` 赋值：
-
-```java
-DataFrame df = DataFrame.foldByRow("c1", "c2").of(
-                "a1", "a2",
-                null, null,
-                "b1", "b2");
-
-DataFrame clean = df.cols("c1", "c2")
-        .fillNullsWithExp(rowNum()); 
-```
-
-`Exp.rowNum()` 生成一个包含行号的 `Series`，因此 `null` 值被替换为所在 row 的行号。
-
-```
-c1 c2
--- --
-a1 a2
-2  2
-b1 b2
 ```
 
 ### drop col

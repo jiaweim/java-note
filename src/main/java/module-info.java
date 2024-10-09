@@ -47,6 +47,8 @@ module java.module {
     requires dflib;
     requires dflib.csv;
     requires dflib.junit5;
+    requires org.junit.jupiter.params;
+    requires java.sql;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;

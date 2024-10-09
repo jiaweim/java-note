@@ -1,9 +1,15 @@
 package mjw.dflib;
 
 import org.dflib.BooleanSeries;
+import org.dflib.Exp;
 import org.dflib.Series;
 import org.dflib.junit5.BooleanSeriesAsserts;
+import org.dflib.junit5.SeriesAsserts;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import java.util.Comparator;
 
 import static org.dflib.Exp.$bool;
 
@@ -29,5 +35,19 @@ public class SeriesSortTest {
                 .sort($bool(0).desc());
 
         new BooleanSeriesAsserts(s).expectData(true, true, false, false);
+    }
+
+    @ParameterizedTest
+    @EnumSource(SeriesType.class)
+    public void comparator(SeriesType type) {
+        Series<String> s = type.createSeries("x", "b", "c", "a").sort(Comparator.naturalOrder());
+        new SeriesAsserts(s).expectData("a", "b", "c", "x");
+    }
+
+    @ParameterizedTest
+    @EnumSource(SeriesType.class)
+    public void sorter(SeriesType type) {
+        Series<String> s = type.createSeries("x", "b", "c", "a").sort(Exp.$col(0).desc());
+        new SeriesAsserts(s).expectData("x", "c", "b", "a");
     }
 }
