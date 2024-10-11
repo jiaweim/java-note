@@ -2,111 +2,177 @@ package mjw.dflib;
 
 import org.dflib.DataFrame;
 import org.dflib.Printers;
-import org.dflib.ValueMapper;
 import org.dflib.junit5.DataFrameAsserts;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  *
  *
  * @author Jiawei Mao
  * @version 0.1.0
- * @since 09 Oct 2024, 7:38 PM
+ * @since 10 Oct 2024, 3:38 PM
  */
 public class DataFrameFoldByRowTest {
 
     @Test
-    public void convertColumn() {
-        DataFrame df = DataFrame
-                .foldByRow("a", "b")
-                .of(1, "x", 2, "y")
-                .convertColumn("a", v -> ((int) v) * 10);
+    public void array() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .of(1, 2);
+        new DataFrameAsserts(df, "a", "b")
+                .expectHeight(1)
+                .expectRow(0, 1, 2);
+    }
 
+    @Test
+    public void array_Partial() {
+
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .of(1, 2, 3);
+
+        new DataFrameAsserts(df, "a", "b")
+                .expectHeight(2)
+                .expectRow(0, 1, 2)
+                .expectRow(1, 3, null);
+    }
+
+    @Test
+    public void stream() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(Stream.of("a", 1, "b", 2, "c", 3));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, "a", 1)
+                .expectRow(1, "b", 2)
+                .expectRow(2, "c", 3);
+    }
+
+    @Test
+    public void stream_Partial() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(Stream.of("a", 1, "b", 2, "c"));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, "a", 1)
+                .expectRow(1, "b", 2)
+                .expectRow(2, "c", null);
+    }
+
+    @Test
+    public void iterable() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofIterable(List.of("a", 1, "b", 2, "c", 3));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, "a", 1)
+                .expectRow(1, "b", 2)
+                .expectRow(2, "c", 3);
+    }
+
+    @Test
+    public void iterable_Partial() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofIterable(List.of("a", 1, "b", 2, "c"));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, "a", 1)
+                .expectRow(1, "b", 2)
+                .expectRow(2, "c", null);
+    }
+
+    @Test
+    public void intStream() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999, IntStream.of(-1, 1, 0, 2, 5, 3));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, -1, 1)
+                .expectRow(1, 0, 2)
+                .expectRow(2, 5, 3)
+                .expectIntColumns(0, 1);
+    }
+
+    @Test
+    public void intStream_Partial() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999, IntStream.of(-1, 1, 0, 2, 5));
         System.out.println(Printers.tabular.toString(df));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectRow(0, -1, 1)
+                .expectRow(1, 0, 2)
+                .expectRow(2, 5, -9999)
+                .expectIntColumns(0, 1);
+
+    }
+
+    @Test
+    public void longStream() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999L, LongStream.of(-1, 1, 0, 2, 5, 3));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectLongColumns(0, 1)
+                .expectRow(0, -1L, 1L)
+                .expectRow(1, 0L, 2L)
+                .expectRow(2, 5L, 3L);
+    }
+
+    @Test
+    public void longStream_Partial() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999L, LongStream.of(-1, 1, 0, 2, 5));
+
+        new DataFrameAsserts(df, "a", "b").expectHeight(3)
+                .expectLongColumns(0, 1)
+                .expectRow(0, -1L, 1L)
+                .expectRow(1, 0L, 2L)
+                .expectRow(2, 5L, -9999L);
+
+    }
+
+    @Test
+    public void doubleStream() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999.9, DoubleStream.of(-1, 1.1, 0, 2, 5, 3));
+
         new DataFrameAsserts(df, "a", "b")
-                .expectHeight(2)
-                .expectRow(0, 10, "x")
-                .expectRow(1, 20, "y");
+                .expectHeight(3)
+                .expectDoubleColumns(0, 1)
+                .expectRow(0, -1., 1.1)
+                .expectRow(1, 0., 2.)
+                .expectRow(2, 5., 3.);
     }
 
     @Test
-    public void byPos() {
-        DataFrame df = DataFrame
-                .foldByRow("a", "b")
-                .of(1, "x", 2, "y")
-                .convertColumn(0, v -> ((int) v) * 10);
+    public void doubleStream_Partial() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(-9999.9, DoubleStream.of(-1, 1.1, 0, 2, 5));
 
         new DataFrameAsserts(df, "a", "b")
-                .expectHeight(2)
-                .expectRow(0, 10, "x")
-                .expectRow(1, 20, "y");
+                .expectHeight(3)
+                .expectDoubleColumns(0, 1)
+                .expectRow(0, -1., 1.1)
+                .expectRow(1, 0., 2.)
+                .expectRow(2, 5., -9999.9);
     }
 
     @Test
-    public void withNulls() {
-        DataFrame df = DataFrame
-                .foldByRow("a", "b")
-                .of(1, "x", 2, null)
-                .convertColumn(1, v -> v != null ? "not null" : "null");
+    public void doubleStream_Partial_DefaultPadding() {
+        DataFrame df = DataFrame.foldByRow("a", "b")
+                .ofStream(DoubleStream.of(-1, 1.1, 0, 2, 5));
 
         new DataFrameAsserts(df, "a", "b")
-                .expectHeight(2)
-                .expectRow(0, 1, "not null")
-                .expectRow(1, 2, "null");
-    }
-
-    @Test
-    public void valueMapperToDate() {
-        DataFrame df = DataFrame
-                .foldByRow("a")
-                .of(
-                        "2018-01-05",
-                        "2019-02-28",
-                        null)
-                .convertColumn("a", ValueMapper.stringToDate());
-
-        new DataFrameAsserts(df, "a")
                 .expectHeight(3)
-                .expectRow(0, LocalDate.of(2018, 1, 5))
-                .expectRow(1, LocalDate.of(2019, 2, 28))
-                .expectRow(2, (Object) null);
+                .expectDoubleColumns(0, 1)
+                .expectRow(0, -1., 1.1)
+                .expectRow(1, 0., 2.)
+                .expectRow(2, 5., 0.);
     }
 
-    @Test
-    public void valueMapperToDate_Formatter() {
-        DataFrame df = DataFrame
-                .foldByRow("a")
-                .of(
-                        "2018 01 05",
-                        "2019 02 28",
-                        null)
-                .convertColumn("a", ValueMapper.stringToDate(DateTimeFormatter.ofPattern("yyyy MM dd")));
-
-        new DataFrameAsserts(df, "a")
-                .expectHeight(3)
-                .expectRow(0, LocalDate.of(2018, 1, 5))
-                .expectRow(1, LocalDate.of(2019, 2, 28))
-                .expectRow(2, (Object) null);
-    }
-
-    @Test
-    public void valueMapperToDateTime() {
-        DataFrame df = DataFrame
-                .foldByRow("a")
-                .of(
-                        "2018-01-05T00:01:15",
-                        "2019-02-28T13:11:12",
-                        null)
-                .convertColumn("a", ValueMapper.stringToDateTime());
-
-        new DataFrameAsserts(df, "a")
-                .expectHeight(3)
-                .expectRow(0, LocalDateTime.of(2018, 1, 5, 0, 1, 15))
-                .expectRow(1, LocalDateTime.of(2019, 2, 28, 13, 11, 12))
-                .expectRow(2, (Object) null);
-    }
 }

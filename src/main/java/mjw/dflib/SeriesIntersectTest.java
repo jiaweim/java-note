@@ -1,12 +1,16 @@
 package mjw.dflib;
 
 import org.dflib.BooleanSeries;
+import org.dflib.DoubleSeries;
 import org.dflib.Series;
 import org.dflib.junit5.SeriesAsserts;
 import org.dflib.series.BooleanArraySeries;
+import org.dflib.series.DoubleArraySeries;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  *
@@ -69,5 +73,31 @@ public class SeriesIntersectTest {
     public void withSelf(SeriesType type) {
         Series<String> s = type.createSeries("a", "b");
         new SeriesAsserts(s.intersect(s)).expectData("a", "b");
+    }
+
+    @Test
+    public void withEmpty() {
+        DoubleSeries s = new DoubleArraySeries(1, 2);
+        new SeriesAsserts(s.intersect(Series.of())).expectData();
+    }
+
+    @Test
+    public void withSelf() {
+        DoubleSeries s = new DoubleArraySeries(1, 2);
+        new SeriesAsserts(s.intersect(s)).expectData(1., 2.);
+    }
+
+    @Test
+    public void intersect() {
+        DoubleSeries s1 = new DoubleArraySeries(5, 6, 7);
+        Series<Double> s2 = Series.of(6., null, 8.);
+        new SeriesAsserts(s1.intersect(s2)).expectData(6.);
+    }
+
+    @Test
+    public void diffPrimitive() {
+        DoubleSeries s1 = new DoubleArraySeries(5, 6, 7);
+        DoubleSeries s2 = new DoubleArraySeries(6, 8);
+        new SeriesAsserts(s1.intersect(s2)).expectData(6.);
     }
 }
