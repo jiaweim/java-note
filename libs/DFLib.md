@@ -1,7 +1,8 @@
 # DBLib
 
-2024-09-29 ⭐
-2024-09-27
+2024-10-12 添加大量示例 ⭐
+2024-09-29 
+2024-09-27 ⭐
 @author Jiawei Mao
 
 ***
@@ -11,7 +12,7 @@ DFLib (DataFrame Library) 是一个轻量级的 `DataFrame` 的纯 Java 实现�
 
 在 Python (`pandas`) 和 R 等语言中都有 `DataFrame` 实现，DFLib 项目的目标是提供 `DataFrame` 的纯 Java 实现。它是一个简单的库，且核心库没有依赖项。
 
-## 添加包
+添加包：
 
 ```xml
 <dependency>
@@ -4235,46 +4236,26 @@ assertThrows(IllegalArgumentException.class, () -> df1.ne(df2));
 
 ### rows
 
-- 返回包含所有 rows 的 `RowSet`
+参考 [创建 RowSet](#创建-rowset)。
 
 ```java
 RowSet rows();
-```
 
-
-
-
-
-```java
 RowSet rows(BooleanSeries condition);
 RowSet rows(Condition rowCondition);
 RowSet rows(RowPredicate condition)
-```
 
-
-
-```java
 RowSet rows(int... positions);
 RowSet rows(IntSeries positions);
-```
 
-
-
-```java
 RowSet rowsExcept(Condition condition);
 RowSet rowsExcept(RowPredicate condition);
 
 RowSet rowsExcept(int... positions);
 RowSet rowsExcept(IntSeries positions);
-```
 
-```java
 RowSet rowsRange(int fromInclusive, int toExclusive);
-```
 
-
-
-```java
 RowSet rowsSample(int size);
 RowSet rowsSample(int size, Random random);
 ```
@@ -5214,7 +5195,28 @@ new DataFrameAsserts(gb.getGroup(2), "a", "b")
         .expectRow(0, 2, "y");
 ```
 
-- null key 被忽略
+- `GroupBy.head(..)` 和 `GroupBy.tail(..)` 返回每个 group 内开头或末尾的 rows
+
+返回排序后每个 group 的最高值
+
+```java
+DataFrame topSalary = df.group("date")
+        .sort($double("amount").desc()) // 排序
+        .head(1) // 选择每个 group 的 top-row
+        .select();
+```
+
+```
+name        amount date
+----------- ------ ----------
+Joan O'Hara   9300 2024-01-15
+Joan O'Hara   9300 2024-02-15
+Joan O'Hara   9300 2024-03-15
+```
+
+#### null-group
+
+作为 hash 的 col，其 null 值被忽略。例如
 
 ```java
 DataFrame df = DataFrame.foldByRow("a", "b").of(
@@ -5224,13 +5226,14 @@ DataFrame df = DataFrame.foldByRow("a", "b").of(
         null, "a",
         1, "x");
 
-GroupBy gb = df.group(Hasher.of("a")); // col-a  有 null,1,2 三个值
+GroupBy gb = df.group(Hasher.of("a")); 
 assertNotNull(gb);
 
+// col-a  有 null,1,2 三个值
 assertEquals(2, gb.size());
 assertEquals(new HashSet<>(asList(1, 2)), new HashSet<>(gb.getGroupKeys()));
 
-// group-0 对应 null 值
+// getGroup 的参数为 key，而不是 index
 new DataFrameAsserts(gb.getGroup(1), "a", "b")
         .expectHeight(3)
         .expectRow(0, 1, "x")
@@ -5242,8 +5245,6 @@ new DataFrameAsserts(gb.getGroup(2), "a", "b")
         .expectRow(0, 2, "y");
 ```
 
-
-
 #### agg
 
 对每个分组执行聚合操作。
@@ -5252,7 +5253,9 @@ new DataFrameAsserts(gb.getGroup(2), "a", "b")
 DataFrame agg(Exp<?>... aggregators);
 ```
 
-参数为可变数目的 `Exp`，每个 `Exp` 生成一个新的 col。分组和聚合操作常一起使用。
+参数为 `Exp` 数组，每个 `Exp` 生成一个新的 col。分组和聚合操作常一起使用。
+
+`first()`, `sum()`, `count()` 等都是聚合操作。聚合操作输出的 `Series` 只有一个值。因此，聚合生成的 `DataFrame` 的 row 数与 `GroupBy` 中的 group 数一样。
 
 - 空集合：分组后聚合
 
@@ -5272,7 +5275,7 @@ sum(a) b
 0 rows x 2 columns
 ```
 
-- 一个 col 对应一个聚集 exp
+- 一个 col 对应一个聚合 `Exp`
 
 ```java
 DataFrame df1 = DataFrame.foldByRow("a", "b").of(
@@ -5282,8 +5285,9 @@ DataFrame df1 = DataFrame.foldByRow("a", "b").of(
         0, "a",
         1, "x");
 
+// 采用 col-a 进行分组
 DataFrame df = df1.group("a").agg(
-        $long("a").sum(), // 一个 exp 对应一个 col
+        $long("a").sum(), // 对每个 group，计算 col-a 的加和
         $str(1).vConcat(";"));
 ```
 
@@ -5296,7 +5300,7 @@ sum(a) b
 3 rows x 2 columns
 ```
 
-- 一个 col 对应多个聚集 exp
+- 一个 col 对应多个聚合 `Exp`
 
 ```java
 DataFrame df1 = DataFrame.foldByRow("a", "b").of(
@@ -5307,11 +5311,11 @@ DataFrame df1 = DataFrame.foldByRow("a", "b").of(
         1, "x");
 
 DataFrame df = df1
-        .group("b")
+        .group("b") // 使用 col-b 进行分组
         .agg(
-                $col("b").first(),
-                $long("a").sum(),
-                $double("a").median());
+                $col("b").first(), // 对每个 group，col-b 的值相同，取第一个
+                $long("a").sum(), // 取 group 中 col-a 的加和
+                $double("a").median()); // 取 group 中 col-a 的中位数
 ```
 
 ```
@@ -5323,7 +5327,9 @@ a      0       0.0
 3 rows x 3 columns
 ```
 
-- 设置生成 col 的名称
+- 设置 col-label
+
+使用 `as` 设置 col-label。
 
 ```java
 DataFrame df1 = DataFrame.foldByRow("a", "b").of(
@@ -5751,8 +5757,6 @@ GroupBy sort(String column, boolean ascending);
 GroupBy sort(String[] columns, boolean[] ascending);
 ```
 
-
-
 -  不排序
 
 ```java
@@ -5978,8 +5982,6 @@ d
 5 rows x 1 column
 ```
 
-
-
 #### select-Exp
 
 ```java
@@ -5987,6 +5989,36 @@ DataFrame select(Exp<?>... exps);
 ```
 
 `select` 根据 `Exp` 生成 `DataFrame`，每个 `Exp `单独应用于每个 group。
+
+> 即执行 group-specific 转换，然后返回原 `DataFrame`。
+>
+> 得到的 `DataFrame` 与原 `DataFrame` rows 数相同，但熟悉可能不同。
+
+- 例如，分组后执行组内排序，然后返回原始 rows
+
+```java
+DataFrame ranked = df.group("date")
+        .sort($double("amount").desc()) // 对每个 group，按 amount 降序
+        .cols("date", "name", "rank")
+        .select( // 使用 select 而非聚合操作
+                $col("date"),
+                $col("name"),
+                rowNum() // 对每个 group 分别排序
+        );
+```
+
+```
+date       name             rank
+---------- ---------------- ----
+2024-01-15 Joan O'Hara         1
+2024-01-15 Juliana Walewski    2
+2024-01-15 Jerry Cosin         3
+2024-02-15 Joan O'Hara         1
+2024-02-15 Juliana Walewski    2
+2024-02-15 Jerry Cosin         3
+2024-03-15 Joan O'Hara         1
+2024-03-15 Jerry Cosin         2
+```
 
 - `rowNum()` 生成每个 group 的 row-number，`$col("b")` 则直接选择 col-b
 
@@ -6754,7 +6786,9 @@ Joan            true
 
 ### 创建 ColumnSet
 
-可以按条件、名称、位置以及隐式创建 `ColumnSet`。
+操作 `DataFrame` 数据，一般从选择 cols 或 rows 开始，所得子集用 `ColumnSet` 或 `RowSet` 对象表示。
+
+基于 column 的操作从定义 `ColumnSet` 开始。可以按条件、名称、位置以及隐式定义 `ColumnSet`。
 
 ```java
 ColumnSet cols();
@@ -7429,6 +7463,8 @@ DataFrame merge(RowMapper mapper);
 
 使用 `RowMapper` 定义生成数据的方式。
 
+`RowMapper` 定义一个 row 到另一个 row 的映射。
+
 - 使用 `colsAppend` 添加新的 cols
 
 "b" 与 col-b 重名，添加 `_` 后缀。`f.get(0, Integer.class)` 返回 col-0 的 Integer 值，`set(0, f.get(0, Integer.class) * 100)` 将该值设置为 col-b 的值。同理，`set(1,...)` 设置 col-c 的值。
@@ -7547,7 +7583,7 @@ DataFrame df = DataFrame.foldByRow("a", "b", "c")
 DataFrame merge(RowToValueMapper<?>... mappers);
 ```
 
-`RowToValueMapper` 定义 `RowProxy` 到值的映射。
+`RowToValueMapper` 定义 `RowProxy` 到值的映射。因此，一个值对应一个 `RowToValueMapper` 定义。
 
 - 使用 `colsAppend` 添加 cols
 
@@ -8366,9 +8402,11 @@ a b 2   3    4
 DataFrame selectExpand(Exp<? extends Iterable<?>> splitExp);
 ```
 
-功能与 `selectExpandArray` 类似。
+`selectExpand` 拆分 col 生成新的 cols，其功能与 `selectExpandArray` 类似。
 
 即先 `select`，然后进行 `expand` 操作。
+
+拆分出的 cols 数取决于 `cols` 定义。
 
 - `List` 提供数据
 
@@ -8442,6 +8480,8 @@ one  two
 
 - 动态大小
 
+使用 `cols()`，生成的 cols 数为最长 `List`的 size。
+
 ```java
 DataFrame df = DataFrame.foldByRow("a", "b")
         .of(1, "x", 2, "y", 3, "z")
@@ -8467,8 +8507,6 @@ one null null
 one two  null 
 one two  three
 ```
-
-
 
 ### expandArray
 
@@ -8590,6 +8628,18 @@ a b 2   3    4
 ```
 
 这里，col-a 和 col-b 保持不变，数组最长为 3，因此添加 3 个新的 cols。新 cols 的 labels 默认为 col-index。
+
+- 如果要拆分的 col 是 `String` 类型，而非数组类型，可以使用 `split(..)` 将字符串拆分为数组
+
+```java
+DataFrame df = DataFrame.foldByRow("name", "phones").of(
+        "Cosin", "111-555-5555,111-666-6666,111-777-7777",
+        "O'Hara", "222-555-5555");
+
+DataFrame df1 = df
+        .cols("primary_phone", "secondary_phone")
+        .selectExpandArray($str("phones").split(','));
+```
 
 ### selectExpandArray
 
@@ -9497,34 +9547,294 @@ x 1
 y 2
 ```
 
+### drop
 
+删除 col 的操作有两种实现方式：
+
+1. 定义 `ColumnSet` 选择要删除的 cols，调用 `drop()` 删除
+2. 定义 `ColumnSet` 选择要保留的 col，调用 `select()` 保留
+
+例如：
+
+```java
+DataFrame df1 = df.cols("middle").drop();
+
+DataFrame df1 = df.colsExcept("middle").select();
+```
+
+两种方法得到的结果相同：
+
+```
+first last
+----- ------
+Jerry Cosin
+Joan  O'Hara
+```
 
 ## RowSet
 
 ### 创建 RowSet
 
-使用 `DataFrame` 的 `rows` 系列方法创建 `RowSet`：
+基于 row 的操作，可以分三步完成：
+
+1. 定义 `RowSet`
+2. 执行操作
+3. 将结果合并到原 `DataFrame` (`merge`)，或作为独立的 `DataFrame` (`select`)
+
+所有 row 操作基本都是在 `RowSet` 对象上完成。创建 `RowSet` 的方式可以分为四类：
+
+1. by-condition：通过 `DataFrame.rows()` 实现
+2. by-index：通过 `DataFrame.rows()` 实现
+3. by-range：通过 `DataFrame.rowsRange()` 实现
+4. sample：通过 `DataFrame.rowsSample()` 实现
+
+- 选择所有 rows:
 
 ```java
 RowSet rows();
-RowSet rows(Condition rowCondition);
+```
+
+- 选择指定位置的 rows：
+
+```java
 RowSet rows(int... positions);
 RowSet rows(IntSeries positions);
+```
+
+- 选择满足条件的 rows
+
+```java
+RowSet rows(Condition rowCondition);
 RowSet rows(BooleanSeries condition);
 RowSet rows(RowPredicate condition);
+```
 
+- 选择指定范围的 rows
+
+```java
+RowSet rowsRange(int fromInclusive, int toExclusive);
+```
+
+- `rowsExcept` 选择不满足指定条件的 rows
+
+```java
 RowSet rowsExcept(int... positions);
 RowSet rowsExcept(IntSeries positions);
 RowSet rowsExcept(RowPredicate condition);
 RowSet rowsExcept(Condition condition);
+```
 
-RowSet rowsRange(int fromInclusive, int toExclusive);
+- 随机抽样
 
+```java
 RowSet rowsSample(int size);
 RowSet rowsSample(int size, Random random);
 ```
 
+#### rows
 
+`rows()` 选择 `DataFrame` 的所有 rows。
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rows()
+        .select();
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(3)
+        .expectRow(0, 1, "x", "a")
+        .expectRow(1, 2, "y", "b")
+        .expectRow(2, -1, "m", "n");
+```
+
+#### rows-condition
+
+```java
+RowSet rows(Condition rowCondition);
+RowSet rows(BooleanSeries condition);
+RowSet rows(RowPredicate condition);
+```
+
+选择满足指定条件的 rows，即过滤 rows。
+
+- `Condition` (boolean `Exp`) 选择匹配的 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
+        "Jerry", "Cosin", "M",
+        "Juliana", "Walewski", null,
+        "Joan", "O'Hara", "P");
+
+DataFrame df1 = df
+        .rows($str("last").startsWith("W").eval(df)) // 选择满足条件的 rows，保存为 RowSet 
+        .select();  // 将 RowSet 转换为 DataFrame
+```
+
+```
+first   last     middle
+------- -------- ------
+Juliana Walewski null
+```
+
+- 另一种形式的 condition 为 `RowPredicate`
+
+```java
+DataFrame df1 = df
+        .rows(r -> r.get("last", String.class).startsWith("W"))
+        .select();
+```
+
+- `cond` 可以是预先算好的 `BooleanSeries`
+
+一种常见的场景是在一个 `Series` 或 `DataFrame`/`RowSet` 调用 `locate()` 构建 `BooleanSeries` selector，然后使用它从另一个 `DataFrame`  选择 rows：
+
+```java
+// 创建 salaries Series，其大小与 DataFrame 的 rows 数目一样
+IntSeries salaries = Series.ofInt(100000, 50000, 45600); 
+// 创建可复用 selector
+BooleanSeries selector = salaries.locateInt(s -> s > 49999); 
+
+DataFrame df1 = df.rows(selector).select();
+```
+
+```
+first   last     middle
+------- -------- ------
+Jerry   Cosin    M
+Juliana Walewski null
+```
+
+#### rows-index
+
+```java
+RowSet rows(int... positions)
+RowSet rows(IntSeries positions)
+```
+
+选择指定位置的 rows。
+
+> [!TIP]
+>
+> 该方式可以不按顺序选择，还可以重复选择 rows。
+
+- 选择 index 0,2 两行
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rows(Series.ofInt(0, 2)).select();
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(2)
+        .expectRow(0, 1, "x", "a")
+        .expectRow(1, -1, "m", "n");
+```
+
+- 什么都不选
+
+```jade
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rows(Series.ofInt()).select();
+
+new DataFrameAsserts(df, "a", "b", "c").expectHeight(0);
+```
+
+- 重复选择 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rows(0, 2, 2, 0).select();
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(4)
+        .expectRow(0, 1, "x", "a")
+        .expectRow(1, -1, "m", "n")
+        .expectRow(2, -1, "m", "n")
+        .expectRow(3, 1, "x", "a");
+```
+
+- 使用 `IntSeries` 定义位置
+
+和 cond 一样，通常使用另一个 `Series` 或 `DataFrame`/`RowSet` 计算得到 `IntSeries`：
+
+```java
+IntSeries selector = salaries.indexInt(s -> s > 49999); // 创建包含位置的 selector
+
+DataFrame df1 = df.rows(selector).select();
+```
+
+```
+first   last     middle
+------- -------- ------
+Jerry   Cosin    M
+Juliana Walewski null
+```
+
+#### rowsRange
+
+```java
+RowSet rowsRange(int fromInclusive, int toExclusive);
+```
+
+
+- `rowsRange` 选择指定范围的 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rowsRange(1, 2).select(); // [startIdx, endIdx)
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(1)
+        .expectRow(0, 2, "y", "b");
+```
+
+- startIdx 和 endIdx 相同时，什么也不选
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rowsRange(1, 1).select();
+
+new DataFrameAsserts(df, "a", "b", "c").expectHeight(0);
+```
+
+- 选择所有 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a",
+                2, "y", "b",
+                -1, "m", "n")
+        .rowsRange(0, 3).select();
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(3)
+        .expectRow(0, 1, "x", "a")
+        .expectRow(1, 2, "y", "b")
+        .expectRow(2, -1, "m", "n");
+```
 
 ### drop
 
@@ -9533,6 +9843,42 @@ DataFrame drop();
 ```
 
 删除 `RowSet`，返回余下的 `DataFrame`。
+
+删除 row 的操作有两种方式：
+
+- 选择要删除的 rows，调用 `drop()`；
+- 选择需要的 rows，调用 `select()`
+
+如下所示：
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
+        "Jerry", "Cosin", "M",
+        "Juliana", "Walewski", null,
+        "Joan", "O'Hara", "P");
+
+DataFrame df1 = df.rows($col("middle").isNull()).drop();
+```
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
+        "Jerry", "Cosin", "M",
+        "Juliana", "Walewski", null,
+        "Joan", "O'Hara", "P");
+
+DataFrame df1 = df.rowsExcept($col("middle").isNull()).select();
+```
+
+两者得到相同结果：
+
+```
+first last   middle
+----- ------ ------
+Jerry Cosin  M
+Joan  O'Hara P
+```
+
+下面详细介绍第一种方式。
 
 - 删除所有 rows
 
@@ -9665,148 +10011,6 @@ new DataFrameAsserts(df, "a", "b", "c")
         .expectRow(0, 2, "y", "b");
 ```
 
-### expand
-
-```java
-DataFrame expand(String columnName);
-DataFrame expand(int columnPos);
-```
-
-将指定 col 的数组或 `Iterable` 对象展开，添加为新的 row。其它 col 填充与原 row 相同的值。
-
-- 全部展开
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, List.of("x1", "x2"), "a",
-                2, List.of("y1", "y2"), "b",
-                4, List.of("e1", "e2"), "k",
-                0, List.of("f1", "f2"), "g",
-                1, List.of("m1", "m2"), "n",
-                5, null, "x") // null 无法展开
-        .rows()
-        .expand("b"); // 将 col-b 展开
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(11)
-        .expectRow(0, 1, "x1", "a")
-        .expectRow(1, 1, "x2", "a")
-        .expectRow(2, 2, "y1", "b")
-        .expectRow(3, 2, "y2", "b")
-        .expectRow(4, 4, "e1", "k")
-        .expectRow(5, 4, "e2", "k")
-        .expectRow(6, 0, "f1", "g")
-        .expectRow(7, 0, "f2", "g")
-        .expectRow(8, 1, "m1", "n")
-        .expectRow(9, 1, "m2", "n")
-        .expectRow(10, 5, null, "x");
-```
-
-- 指定要展开的 rows
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, List.of("x1", "x2"), "a", // <--
-                2, List.of("y1", "y2"), "b",
-                4, List.of("e1", "e2"), "k",
-                0, List.of("f1", "f2"), "g", // <--
-                1, List.of("m1", "m2"), "n", // <--
-                5, null, "x") // <--
-        .rows(Series.ofInt(0, 3, 4, 5)).expand("b");
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(9)
-        .expectRow(0, 1, "x1", "a")
-        .expectRow(1, 1, "x2", "a")
-        .expectRow(2, 2, List.of("y1", "y2"), "b")
-        .expectRow(3, 4, List.of("e1", "e2"), "k")
-        .expectRow(4, 0, "f1", "g")
-        .expectRow(5, 0, "f2", "g")
-        .expectRow(6, 1, "m1", "n")
-        .expectRow(7, 1, "m2", "n")
-        .expectRow(8, 5, null, "x");
-```
-
-- 选择特定范围的 rows 展开 
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, List.of("x1", "x2"), "a",
-                2, List.of("y1", "y2"), "b",
-                4, List.of("e1", "e2"), "k", // <--
-                0, List.of("f1", "f2"), "g", // <--
-                1, List.of("m1", "m2"), "n", // <--
-                5, null, "x")
-        .rowsRange(2, 5).expand("b");
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(9)
-        .expectRow(0, 1, List.of("x1", "x2"), "a")
-        .expectRow(1, 2, List.of("y1", "y2"), "b")
-        .expectRow(2, 4, "e1", "k")
-        .expectRow(3, 4, "e2", "k")
-        .expectRow(4, 0, "f1", "g")
-        .expectRow(5, 0, "f2", "g")
-        .expectRow(6, 1, "m1", "n")
-        .expectRow(7, 1, "m2", "n")
-        .expectRow(8, 5, null, "x");
-```
-
-- 展开特定条件的 rows
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, List.of("x1", "x2"), "a", // <--
-                2, List.of("y1", "y2"), "b",
-                4, List.of("e1", "e2"), "k",
-                0, List.of("f1", "f2"), "g", // <--
-                1, List.of("m1", "m2"), "n", // <--
-                5, null, "x") // <--
-        .rows(Series.ofBool(true, false, false, true, true, true)).expand("b");
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(9)
-        .expectRow(0, 1, "x1", "a")
-        .expectRow(1, 1, "x2", "a")
-        .expectRow(2, 2, List.of("y1", "y2"), "b")
-        .expectRow(3, 4, List.of("e1", "e2"), "k")
-        .expectRow(4, 0, "f1", "g")
-        .expectRow(5, 0, "f2", "g")
-        .expectRow(6, 1, "m1", "n")
-        .expectRow(7, 1, "m2", "n")
-        .expectRow(8, 5, null, "x");
-```
-
-- 随机抽取一些 rows 展开
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, List.of("x1", "x2"), "a",
-                2, List.of("y1", "y2"), "b",
-                4, List.of("e1", "e2"), "k",
-                0, List.of("f1", "f2"), "g",
-                1, List.of("m1", "m2"), "n",
-                5, null, "x")
-        // using fixed seed to get reproducible result
-        .rowsSample(2, new Random(9)).expand("b");
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(8)
-        .expectRow(0, 1, "x1", "a")
-        .expectRow(1, 1, "x2", "a")
-        .expectRow(2, 2, List.of("y1", "y2"), "b")
-        .expectRow(3, 4, "e1", "k")
-        .expectRow(4, 4, "e2", "k")
-        .expectRow(5, 0, List.of("f1", "f2"), "g")
-        .expectRow(6, 1, List.of("m1", "m2"), "n")
-        .expectRow(7, 5, null, "x");
-}
-```
 
 ### index
 
@@ -10024,7 +10228,20 @@ DataFrame merge(RowMapper mapper);
 DataFrame merge(RowToValueMapper<?>... mappers);
 ```
 
-应用指定 `Exp` 后，将结果合并到原 `DataFrame`。
+使用 `Exp` 对 `RowSet` 进行转换，然后将 `RowSet` 与原 `DataFrame` 合并。
+
+row 合并规则：
+
+- 通过 row pos 合并
+  - `DataFrame` 中位置匹配的 rows 被替换为 `RowSet` 中转换后的 rows
+  - `DataFrame` 中与 `RowSet` 不匹配的 rows 不变
+  - `RowSet` 包含 `DataFrame` 不包含的 rows (如重复 row 和分割 row) 添加到底部
+- `RowSet` 中 row 的顺序不影响 `DataFrame` 中被替换的 row 的顺序
+  - 附加到底部的 rows 与 `RowSet` 中的顺序一致
+
+> [!NOTE]
+>
+> 和 col 一样，大多数 `RowSet.select(..)` 方法都有对应的 merge 方法，如 `map()`, `expand()`, `unique(..)` 等
 
 - 对所有 rows 进行操作
 
@@ -10156,9 +10373,13 @@ DataFrame select(RowToValueMapper<?>... mappers);
 
 `select()` 将 `RowSet` 转换为 `DataFrame`，`select(..)` 则根据条件转换后再返回 `DataFrame`。
 
+> [!TIP]
+>
+> `select` 和 `merge` 对选择的 `RowSet` 行转换操作，然后返回 `RowSet` 的数据（`select`），或者与原 `DataFrame` 合并后返回（`merge`）。
+
 **select(Exp<?>... exps)**
 
-对 `RowSet` 应用 Exp，并将其返回为 `DataFrame`。
+对 `RowSet` 应用 `Exp`，并将其返回为 `DataFrame`。添加几个 `Exp`，返回的 `DataFrame` 就有几个 cols。
 
 - 所有 rows
 
@@ -10270,6 +10491,150 @@ new DataFrameAsserts(df, "x", "y", "z")
         .expectRow(2, -1, "m", "n");
 ```
 
+
+### expand
+
+```java
+DataFrame expand(String columnName);
+DataFrame expand(int columnPos);
+```
+
+`expand` 用于拆分 row。即将数组类型或 `Iterable` 类型的 col 展开并**添加为新的 rows**。其它 col 填充与原 row 相同的值。
+
+- 全部展开
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, List.of("x1", "x2"), "a",
+                2, List.of("y1", "y2"), "b",
+                4, List.of("e1", "e2"), "k",
+                0, List.of("f1", "f2"), "g",
+                1, List.of("m1", "m2"), "n",
+                5, null, "x") // null 无法展开
+        .rows()
+        .expand("b"); // 将 col-b 展开
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(11)
+        .expectRow(0, 1, "x1", "a")
+        .expectRow(1, 1, "x2", "a")
+        .expectRow(2, 2, "y1", "b")
+        .expectRow(3, 2, "y2", "b")
+        .expectRow(4, 4, "e1", "k")
+        .expectRow(5, 4, "e2", "k")
+        .expectRow(6, 0, "f1", "g")
+        .expectRow(7, 0, "f2", "g")
+        .expectRow(8, 1, "m1", "n")
+        .expectRow(9, 1, "m2", "n")
+        .expectRow(10, 5, null, "x");
+```
+
+- 指定要展开的 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, List.of("x1", "x2"), "a", // <--
+                2, List.of("y1", "y2"), "b",
+                4, List.of("e1", "e2"), "k",
+                0, List.of("f1", "f2"), "g", // <--
+                1, List.of("m1", "m2"), "n", // <--
+                5, null, "x") // <--
+        .rows(Series.ofInt(0, 3, 4, 5)).expand("b");
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(9)
+        .expectRow(0, 1, "x1", "a")
+        .expectRow(1, 1, "x2", "a")
+        .expectRow(2, 2, List.of("y1", "y2"), "b")
+        .expectRow(3, 4, List.of("e1", "e2"), "k")
+        .expectRow(4, 0, "f1", "g")
+        .expectRow(5, 0, "f2", "g")
+        .expectRow(6, 1, "m1", "n")
+        .expectRow(7, 1, "m2", "n")
+        .expectRow(8, 5, null, "x");
+```
+
+- 选择特定范围的 rows 展开 
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, List.of("x1", "x2"), "a",
+                2, List.of("y1", "y2"), "b",
+                4, List.of("e1", "e2"), "k", // <--
+                0, List.of("f1", "f2"), "g", // <--
+                1, List.of("m1", "m2"), "n", // <--
+                5, null, "x")
+        .rowsRange(2, 5).expand("b");
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(9)
+        .expectRow(0, 1, List.of("x1", "x2"), "a")
+        .expectRow(1, 2, List.of("y1", "y2"), "b")
+        .expectRow(2, 4, "e1", "k")
+        .expectRow(3, 4, "e2", "k")
+        .expectRow(4, 0, "f1", "g")
+        .expectRow(5, 0, "f2", "g")
+        .expectRow(6, 1, "m1", "n")
+        .expectRow(7, 1, "m2", "n")
+        .expectRow(8, 5, null, "x");
+```
+
+- 展开满足条件的 rows
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, List.of("x1", "x2"), "a", // <--
+                2, List.of("y1", "y2"), "b",
+                4, List.of("e1", "e2"), "k",
+                0, List.of("f1", "f2"), "g", // <--
+                1, List.of("m1", "m2"), "n", // <--
+                5, null, "x") // <--
+        .rows(Series.ofBool(true, false, false, true, true, true)).expand("b");
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(9)
+        .expectRow(0, 1, "x1", "a")
+        .expectRow(1, 1, "x2", "a")
+        .expectRow(2, 2, List.of("y1", "y2"), "b")
+        .expectRow(3, 4, List.of("e1", "e2"), "k")
+        .expectRow(4, 0, "f1", "g")
+        .expectRow(5, 0, "f2", "g")
+        .expectRow(6, 1, "m1", "n")
+        .expectRow(7, 1, "m2", "n")
+        .expectRow(8, 5, null, "x");
+```
+
+- 随机抽取一些 rows 展开
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, List.of("x1", "x2"), "a",
+                2, List.of("y1", "y2"), "b",
+                4, List.of("e1", "e2"), "k",
+                0, List.of("f1", "f2"), "g",
+                1, List.of("m1", "m2"), "n",
+                5, null, "x")
+        // using fixed seed to get reproducible result
+        .rowsSample(2, new Random(9)).expand("b");
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(8)
+        .expectRow(0, 1, "x1", "a")
+        .expectRow(1, 1, "x2", "a")
+        .expectRow(2, 2, List.of("y1", "y2"), "b")
+        .expectRow(3, 4, "e1", "k")
+        .expectRow(4, 4, "e2", "k")
+        .expectRow(5, 0, List.of("f1", "f2"), "g")
+        .expectRow(6, 1, List.of("m1", "m2"), "n")
+        .expectRow(7, 5, null, "x");
+}
+```
+
 ### selectExpand
 
 ```java
@@ -10303,30 +10668,6 @@ new DataFrameAsserts(df, "a", "b", "c")
         .expectRow(6, 5, null, "x");
 ```
 
-### selectUnique
-
-```java
-DataFrame selectUnique();
-DataFrame selectUnique(String... uniqueKeyColumns);
-DataFrame selectUnique(int... uniqueKeyColumns);
-```
-
-对 `RowSet` 中指定 col 执行去重操作，保留去重后的结果。例如：
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a", // <--
-                2, "y", "b",
-                1, "e", "k",
-                1, "f", "g", // <--
-                1, "m", "n") // <--
-        .rows(0, 3, 4).selectUnique("a"); // RowSet 的 col-a 去重，只保留第一个
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(1)
-        .expectRow(0, 1, "x", "a");
-```
 
 ### sort
 
@@ -10364,10 +10705,11 @@ new DataFrameAsserts(df, "a", "b", "c")
 DataFrame unique();
 DataFrame unique(String... uniqueKeyColumns);
 DataFrame unique(int... uniqueKeyColumns);
-
 ```
 
 和 `selectUnique` 类似，不过该方法对 `RowSet` 去重后，将结果合并回原 `DataFrame`。
+
+根据所选 cols 的值计算 hashCode，以 hashCode 判断是否重复。
 
 示例：
 
@@ -10390,7 +10732,52 @@ new DataFrameAsserts(df, "a", "b", "c")
         .expectRow(3, 1, "m", "n");
 ```
 
+### selectUnique
 
+```java
+DataFrame selectUnique();
+DataFrame selectUnique(String... uniqueKeyColumns);
+DataFrame selectUnique(int... uniqueKeyColumns);
+```
+
+对 `RowSet` 中指定 col 执行去重操作，保留 `RowSet` 去重后的结果。
+
+- 使用所有 cols 的值来去重
+
+```java
+DataFrame df = DataFrame.foldByRow("first", "last").of(
+        "Jerry", "Cosin",
+        "Jerry", "Jones",
+        "Jerry", "Cosin",
+        "Joan", "O'Hara");
+
+DataFrame df1 = df.rows().selectUnique(); // 选择完全 unique 的 rows
+```
+
+```
+first last
+----- ------
+Jerry Cosin
+Jerry Jones
+Joan  O'Hara
+```
+
+- 使用一个 col 的值去重
+
+```java
+DataFrame df = DataFrame.foldByRow("a", "b", "c")
+        .of(
+                1, "x", "a", // <--
+                2, "y", "b",
+                1, "e", "k",
+                1, "f", "g", // <--
+                1, "m", "n") // <--
+        .rows(0, 3, 4).selectUnique("a"); // RowSet 的 col-a 去重，只保留第一个
+
+new DataFrameAsserts(df, "a", "b", "c")
+        .expectHeight(1)
+        .expectRow(0, 1, "x", "a");
+```
 
 ## RowColumnSet
 
@@ -10634,20 +11021,22 @@ c.. c.. c..
 >
 > 在 Jupyter Notebook 中，所有的 printer 都配置好。因此，如果 Jupyter cell 最后一行是 `DataFrame` 或 `Series`，它将打印一个 table。
 
-## Expressions
+## Expression
 
 DFLib 内置了一个表达式语言（实现为 Java DSL），可用来在 `DataFrame` 和 `Series` 上执行 column-centric 操作，如数据转换、聚合和过滤。
 
 > [!NOTE]
 >
-> 所有 exp 都返回 Series 类型。
+> 所有 exp 都返回 `Series` 类型。
 
 `Exp` 是 exp 接口，exp 以 `DataFrame` 或 `Series` 为参数，生成指定类型的 `Series`。
 
 - 非聚合 exp 生成与原数据结构大小相同的 `Series`；
 - 聚合 exp 生成更少元素的 `Series` (通常只有一个元素)。
 
-`Exp` 接口包含创建各种类型表达式的 factory 方法。按照惯例，应用于 col 的表达式以 `$` 开头。以下是 `Exp` 接口的核心内容：
+`Exp` 接口包含创建各种类型表达式的 factory 方法。
+
+按照惯例，**应用于 col 的表达式**以 `$` 开头。以下是 `Exp` 接口的核心内容：
 
 ```java
 public interface Exp<T> {
@@ -10719,7 +11108,7 @@ public interface Exp<T> {
 import static org.dflib.Exp.*;
 ```
 
-下面创建两个简单的 exps，返回所需类型的 name-col 和 position-col：
+下面创建两个简单的 exps，分别以 label 和 name 选择所需类型的 col：
 
 ```java
 StrExp lastExp = $str("last");
@@ -10734,7 +11123,7 @@ DataFrame df = DataFrame.foldByRow("first", "last", "salary").of(
         "Juliana", "Walewski", new BigDecimal("80000"),
         "Joan", "O'Hara", new BigDecimal("95000"));
 
-Series<String> last = lastExp.eval(df); // 取 col-last，转换为 str 类型
+Series<String> last = lastExp.eval(df); // 取 col-last，并转换为 str 类型
 Series<BigDecimal> salary = salaryExp.eval(df); // 取 col-2，转换为 BigDecimal 类型
 ```
 
@@ -10746,7 +11135,7 @@ exp 很少单独使用，它们通常作为参数传递给其它方法。
 >
 > DFLib exp 处理 `Series` 而非单个值，因此其性能较好。Exp 是操作数据的**首选方式**，而不是直接 API 或 lambda。
 
-### col exp
+### col-exp
 
 col-exp 用于选择 col。上面示例中的 `$str(...)` 和 `$decimal(...)` exps 为查找 col 的 exp，返回 `DataFrame` 指定名称或指定位置(0-based)的 col。
 
@@ -10765,16 +11154,18 @@ $col("col");
 - 返回指定类型的命名 column
 
 ```java
-$decimal("col"); // 检索数值类型 col
+// 数值类型
+$decimal("col");
 $double("col");
 $int("col");
 $long("col");
 
-$date("col"); // 检索 date/time 类型 col
+// date/time 类型
+$date("col");
 $dateTime("col");
 $time("col");
 
-$bool("col"); // 检索 boolean 或 String 类型 col
+$bool("col");
 $str("col");
 ```
 
@@ -10790,9 +11181,9 @@ $str("salary").castAsDecimal();
 
 `castAs` 会尽量转换为目标类型，当出现无法转换的情况会抛出异常。当默认转换无法实现时，可以通过 `Exp.mapValue(...)` 自定义转换。
 
-### constant exp
+### 常量-exp
 
-使用 `$val(..)` 生成具有相同重复值的 `Series`：
+`$val(..)` 生成具有相同重复值的 `Series`：
 
 ```java
 Series<String> hi = $val("hi!").eval(df);
@@ -10807,7 +11198,7 @@ hi!
 `$val(..)` 可用于为字符串连接创建分隔符：
 
 ```java
-Series<String> fn = concat( // Exp.concat(...) 的静态导入
+Series<String> fn = Exp.concat(
         $str("first"),
         $val(" "),  // 在 first 和 last 之间插入空格
         $str("last")).eval(df);
@@ -10852,8 +11243,6 @@ DataFrame df = DataFrame.foldByRow("c1", "c2").of(
         .cols("c3").agg(exp);
 ```
 
-### date exp
-
 ### complex exp
 
 通过 `Exp` 的方法可以将多个 exp 合并为复杂的 exp。例如：
@@ -10869,798 +11258,9 @@ Condition c = and(  // Exp.add() 的 static 导入
 
 ### condition
 
-### Sorter
+`Condition` 返回 `BooleanSeries` 的 `Exp`。
 
-`Sorter` 用于 DFLib 数据结构排序。`Sorter` 内部使用 exp 检索包含排序条件的值，并按指定顺序进行索引。
 
-使用 `asc()` 或 `desc()` 方法创建 `Sorter` 对象。
-
-```java
-// sort by last name in the ascending order
-Sorter s = $str("last").asc();
-```
-
-> [!NOTE]
->
-> 虽然 DFLib 支持以任何表达式类型创建 `Sorter`，在运行时，实际类型必须是 java primitive 后 `Comparable` 实例，否则抛出 `ClassCastException`。
-
-## col 操作
-
-操作 `DataFrame` 数据，一般从选择 cols 或 rows 开始，所得子集用 `ColumnSet` 或 `RowSet` 对象表示。下面从 col 开始。
-
-### 选择一个 col
-
-```java
-Series<T> getColumn(int pos);
-Series<T> getColumn(String name);
-```
-
-选择指定 name 或 index 的 col。
-
-### split col
-
-拆分 col 并生成新的 col。
-
-```java
-DataFrame df = DataFrame.foldByRow("name", "phones").of(
-        "Cosin", List.of("111-555-5555","111-666-6666","111-777-7777"),
-        "O'Hara", List.of("222-555-5555"));
-
-DataFrame df1 = df
-        .cols("primary_phone", "secondary_phone")
-        .selectExpand($col("phones"));
-```
-
-`selectExpand(..)` 的参数为包含 List 的 col。如果每个 List 包含 2 个以上数字，则忽略余下值，对缺失值使用 `null`。
-
-```
-primary_phone secondary_phone
-------------- ---------------
-111-555-5555  111-666-6666
-222-555-5555  null
-```
-
-如果不知道 phone 的确切个数，但希望在单独 col 中捕获它们，则不要指定任何显式名称。为了容纳最长的 phone 数组，DFLib 会动态生成尽可能多的 cols，并动态分配名称：
-
-```java
-DataFrame df1 = df
-        .cols() // 不指定任何名称，表示动态 spli cols
-        .selectExpand($col("phones"));
-```
-
-```
-0            1            2
------------- ------------ ------------
-111-555-5555 111-666-6666 111-777-7777
-222-555-5555 null         null
-```
-
-如果 phone numbers 是以逗号分隔的 String，而非 `List`，则可以使用 `split(..)` 将字符串拆分为数字数组，并使用 `selectExpandArray(..)` 生成 cols：
-
-```java
-DataFrame df = DataFrame.foldByRow("name", "phones").of(
-        "Cosin", "111-555-5555,111-666-6666,111-777-7777",
-        "O'Hara", "222-555-5555");
-
-DataFrame df1 = df
-        .cols("primary_phone", "secondary_phone")
-        .selectExpandArray($str("phones").split(','));
-```
-
-### drop col
-
-选择要删除的 cols，调用 `drop()` 删除；或者要保留的 cols，调用 `select()` 保留：
-
-```java
-DataFrame df1 = df.cols("middle").drop();
-```
-
-```java
-DataFrame df1 = df.colsExcept("middle").select();
-```
-
-两种方法得到的结果相同
-
-```
-first last
------ ------
-Jerry Cosin
-Joan  O'Hara
-```
-
-## row 操作
-
-和 col 操作一样，row 操作首先定义 `RowSet`，执行转换，然后合并到原 `DataFrame`，或作为独立的 `DataFrame`。
-
-所有 row 操作基本都是在 `RowSet` 对象上完成，`RowSet` 和 `ColumnSet` 有许多相似点，但两者在选择等操作上差别很大。
-
-### 选择 row
-
-row 的选择支持 by-condition, by-index, by-range。前两者都通过 `DataFrame.rows()` 方法实现，by-range 则通过 `rowsRange()` 实现。
-
-- 选择满足 `Condition` 的 rows
-
-```java
-RowSet rows(Condition rowCondition)
-RowSet rows(BooleanSeries condition)
-RowSet rows(RowPredicate condition)
-```
-
-- 选择指定位置以外的 rows
-
-```java
-RowSet rowsExcept(int... positions)
-RowSet rowsExcept(IntSeries positions)
-RowSet rowsExcept(RowPredicate condition)
-RowSet rowsExcept(Condition condition)
-```
-
-#### rows
-
-`rows()` 选择 `DataFrame` 的所有 rows。
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rows()
-        .select();
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(3)
-        .expectRow(0, 1, "x", "a")
-        .expectRow(1, 2, "y", "b")
-        .expectRow(2, -1, "m", "n");
-```
-
-#### by condition
-
-`Condition` (boolean `Exp`) 可以用来选择匹配的 rows：
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
-        "Jerry", "Cosin", "M",
-        "Juliana", "Walewski", null,
-        "Joan", "O'Hara", "P");
-
-DataFrame df1 = df
-        .rows($str("last").startsWith("W").eval(df)) // 选择满足条件的 rows，保存为 RowSet 
-        .select();  // 将 RowSet 转换为 DataFrame
-```
-
-```
-first   last     middle
-------- -------- ------
-Juliana Walewski null
-```
-
-另一种形式的 condition 为 `RowPredicate` 对象：
-
-```java
-DataFrame df1 = df
-        .rows(r -> r.get("last", String.class).startsWith("W"))
-        .select();
-```
-
-`cond` 可以是预先算好的 `BooleanSeries`。一种常见的场景是在一个 `Series` 或 `DataFrame`/`RowSet` 调用 `locate()` 构建 `BooleanSeries` selector，然后使用它从另一个 `DataFrame`  选择 rows：
-
-```java
-// 创建 salaries Series，其大小与 DataFrame 的 rows 数目一样
-IntSeries salaries = Series.ofInt(100000, 50000, 45600); 
-// 创建可复用 selector
-BooleanSeries selector = salaries.locateInt(s -> s > 49999); 
-
-DataFrame df1 = df.rows(selector).select();
-```
-
-```
-first   last     middle
-------- -------- ------
-Jerry   Cosin    M
-Juliana Walewski null
-```
-
-#### by position
-
-```java
-RowSet rows(int... positions)
-RowSet rows(IntSeries positions)
-```
-
-- 选择 index 0,2 两行
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rows(Series.ofInt(0, 2)).select();
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(2)
-        .expectRow(0, 1, "x", "a")
-        .expectRow(1, -1, "m", "n");
-```
-
-- 什么都不选
-
-```jade
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rows(Series.ofInt()).select();
-
-new DataFrameAsserts(df, "a", "b", "c").expectHeight(0);
-```
-
-- 重复选择 rows
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rows(0, 2, 2, 0).select();
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(4)
-        .expectRow(0, 1, "x", "a")
-        .expectRow(1, -1, "m", "n")
-        .expectRow(2, -1, "m", "n")
-        .expectRow(3, 1, "x", "a");
-```
-
-> [!NOTE]
->
-> 使用 index-array 可以设置顺序，且可以重复选择 rows。
-
-- 使用 `IntSeries` 定义位置
-
-和 cond 一样，通常使用另一个 `Series` 或 `DataFrame`/`RowSet` 计算得到 `IntSeries`：
-
-```java
-IntSeries selector = salaries.indexInt(s -> s > 49999); // 创建包含位置的 selector
-
-DataFrame df1 = df.rows(selector).select();
-```
-
-```
-first   last     middle
-------- -------- ------
-Jerry   Cosin    M
-Juliana Walewski null
-```
-
-#### rowsRange
-
-```java
-RowSet rowsRange(int fromInclusive, int toExclusive)
-```
-
-- `rowsRange` 选择指定范围的 rows
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rowsRange(1, 2).select(); // [startIdx, endIdx)
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(1)
-        .expectRow(0, 2, "y", "b");
-```
-
-- startIdx 和 endIdx 相同时，什么也不选
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rowsRange(1, 1).select();
-
-new DataFrameAsserts(df, "a", "b", "c").expectHeight(0);
-```
-
-- 选择所有 rows
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b", "c")
-        .of(
-                1, "x", "a",
-                2, "y", "b",
-                -1, "m", "n")
-        .rowsRange(0, 3).select();
-
-new DataFrameAsserts(df, "a", "b", "c")
-        .expectHeight(3)
-        .expectRow(0, 1, "x", "a")
-        .expectRow(1, 2, "y", "b")
-        .expectRow(2, -1, "m", "n");
-```
-
-### transform rows
-
-和 `ColumnSet` 一样，`RowSet` 定义了许多基于 column 和 row 的转换操作。每个转换都可以作为 select 或 merge 调用，返回 `RowSet` 包含的 rows 或包含原 `DataFrame` 的所有 rows。下面先介绍 select 操作，然后讨论 merge。
-
-使用 col exp 执行转换：
-
-```java
-DataFrame df = DataFrame.foldByRow("last", "age", "retires_soon").of(
-        "Cosin", 61, false,
-        "Walewski", 25, false,
-        "O'Hara", 59, false);
-
-DataFrame df1 = df
-        .rows($int("age").mapBoolVal(a -> 67 - a < 10))
-        .select(
-                $col("last"),
-                $col("age"),
-                $val(true)); 
-```
-
-选择满足条件的 rows，"retires_soon" 全部设置为 true：
-
-```
-last   age retires_soon
------- --- ------------
-Cosin   61         true
-O'Hara  59         true
-```
-
-> [!NOTE]
->
-> 需要为 `DataFrame` 的每个 col 指定一个 exp，即使只转换一个 col。
-
-使用 `RowMapper` 逐行转换：
-
-```java
-RowMapper mapper = (from, to) -> {
-    from.copy(to);
-    to.set("retires_soon", true);
-};
-
-DataFrame df1 = df
-        .rows($int("age").mapBoolVal(a -> 67 - a < 10))
-        .select(mapper);
-```
-
-也可以使用 `RowToValueMapper` 对每个 col 进行 row-by-row 转换。
-
-### merge rows
-
-使用 `merge(..)` 合并 `RowSet` 和 `DataFrame`。
-
-```java
-DataFrame df = DataFrame.foldByRow("last", "age", "retires_soon").of(
-        "Cosin", 61, false,
-        "Walewski", 25, false,
-        "O'Hara", 59, false);
-
-DataFrame df1 = df
-        .rows($int("age").mapBoolVal(a -> 67 - a < 10))
-        .merge(
-                $col("last"),
-                $col("age"),
-                $val(true));
-```
-
-```
-last     age retires_soon
--------- --- ------------
-Cosin     61         true
-Walewski  25        false
-O'Hara    59         true
-```
-
-合并 rows 与合并 cols 类似，只是 rows 没有 names，所以通过 pos 实现。
-
-row 合并规则：
-
-- 通过 row pos 合并
-  - DataFrame 中位置匹配的 rows 被替换为 `RowSet` 中转换后的 rows
-  - `DataFrame` 中与 `RowSet` 不匹配的 rows 不变
-  - `RowSet` 包含 `DataFrame` 不包含的 rows (如重复 row 和分割 row) 添加到底部
-- `RowSet` 中 row 的顺序不影响 `DataFrame` 中被替换的 row 的顺序
-  - 附加到底部的 rows 与 `RowSet` 中的顺序一致
-
-> [!NOTE]
->
-> 和 col 一样，大多数 `RowSet.select(..)` 方法都有对应的 merge 方法，如 `map()`, `expand()`, `unique(..)` 等
-
-### split row
-
-split row 与 split col 类似。该 API 接收单个 col，split 出来的值保存为新的 row：
-
-```java
-DataFrame df = DataFrame.foldByRow("name", "phones").of(
-        "Cosin", List.of(
-                "111-555-5555",
-                "111-666-6666",
-                "111-777-7777"),
-        "O'Hara", List.of("222-555-5555"));
-
-DataFrame df1 = df
-        .rows()
-        .selectExpand("phones");
-```
-
-```
-name   phones
------- ------------
-Cosin  111-555-5555
-Cosin  111-666-6666
-Cosin  111-777-7777
-O'Hara 222-555-5555
-```
-
-> [!NOTE]
->
-> 拆分的 col 可以包含 scalar, array 或 iterables。
-
-### unique
-
-```java
-DataFrame unique();
-DataFrame unique(String... uniqueKeyColumns);
-DataFrame unique(int... uniqueKeyColumns);
-```
-
-以指定 cols 为 hash 得到的 unique 数据。
-
-
-
-
-
-### selectUnique
-
-```java
-DataFrame selectUnique();
-DataFrame selectUnique(String... uniqueKeyColumns);
-DataFrame selectUnique(int... uniqueKeyColumns);
-```
-
-
-
-可以根据所有 cols 或部分 cols 来选择 unique rows。
-
-- 基于所有 cols 的 unique-row
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last").of(
-        "Jerry", "Cosin",
-        "Jerry", "Jones",
-        "Jerry", "Cosin",
-        "Joan", "O'Hara");
-
-DataFrame df1 = df.rows().selectUnique(); // 选择完全 unique 的 rows
-```
-
-```
-first last
------ ------
-Jerry Cosin
-Jerry Jones
-Joan  O'Hara
-```
-
-- 基于 "first" col 为 unique
-
-```java
-DataFrame df2 = df.rows().selectUnique("first"); 
-```
-
-```
-first last
------ ------
-Jerry Cosin
-Joan  O'Hara
-```
-
-### drop row
-
-选择要删除的 rows，然后调用 `drop()`；或者选择需要的 rows，然后调用 `select()`：
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
-        "Jerry", "Cosin", "M",
-        "Juliana", "Walewski", null,
-        "Joan", "O'Hara", "P");
-
-DataFrame df1 = df.rows($col("middle").isNull()).drop();
-```
-
-```java
-DataFrame df = DataFrame.foldByRow("first", "last", "middle").of(
-        "Jerry", "Cosin", "M",
-        "Juliana", "Walewski", null,
-        "Joan", "O'Hara", "P");
-
-DataFrame df1 = df.rowsExcept($col("middle").isNull()).select();
-```
-
-两者得到相同结果：
-
-```
-first last   middle
------ ------ ------
-Jerry Cosin  M
-Joan  O'Hara P
-```
-
-## group 和 aggregate
-
-```java
-GroupBy group(Hasher by);
-GroupBy group(int... columns);
-GroupBy group(String... columns)
-```
-
-`group` 选择指定 cols 生成 hash 值，将 hash 值相同的 rows 分为一组。例如：
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b").of(
-        1, "x",
-        2, "y",
-        1, "z",
-        0, "a",
-        1, "x");
-
-GroupBy gb = df.group(Hasher.of("a"));
-assertNotNull(gb);
-
-// 按 col-a 分组，0,1,2 三个值对应三组
-assertEquals(3, gb.size());
-assertEquals(new HashSet<>(asList(0, 1, 2)), new HashSet<>(gb.getGroupKeys()));
-
-new DataFrameAsserts(gb.getGroup(0), "a", "b")
-        .expectHeight(1)
-        .expectRow(0, 0, "a");
-
-new DataFrameAsserts(gb.getGroup(1), "a", "b")
-        .expectHeight(3)
-        .expectRow(0, 1, "x")
-        .expectRow(1, 1, "z")
-        .expectRow(2, 1, "x");
-
-new DataFrameAsserts(gb.getGroup(2), "a", "b")
-        .expectHeight(1)
-        .expectRow(0, 2, "y");
-```
-
-### null group
-
-作为 hash 的 col，其 `null` 值被忽略。例如：
-
-```java
-DataFrame df = DataFrame.foldByRow("a", "b").of(
-        1, "x",
-        2, "y",
-        1, "z",
-        null, "a",
-        1, "x");
-
-GroupBy gb = df.group(Hasher.of("a"));
-assertNotNull(gb);
-
-// col-a 有 1,2,null 三种值，忽略 null
-assertEquals(2, gb.size());
-assertEquals(new HashSet<>(asList(1, 2)), new HashSet<>(gb.getGroupKeys()));
-
-// getGroup 的参数为 key,而不是 index
-new DataFrameAsserts(gb.getGroup(1), "a", "b")
-        .expectHeight(3)
-        .expectRow(0, 1, "x")
-        .expectRow(1, 1, "z")
-        .expectRow(2, 1, "x");
-
-new DataFrameAsserts(gb.getGroup(2), "a", "b")
-        .expectHeight(1)
-        .expectRow(0, 2, "y");
-```
-
-### aggregate
-
-```java
-public DataFrame agg(Exp<?>... aggregators);
-```
-
-`agg` 接受可变数目的 `Exp`，每个 `Exp` 生成一个 col。
-
-- 分组常和聚合操作同时使用。例如：
-
-```java
-DataFrame df1 = DataFrame.foldByRow("a", "b").of(
-        1, "x",
-        2, "y",
-        1, "z",
-        0, "a",
-        1, "x");
-
-// 采用 col-a 分组
-DataFrame df = df1.group("a").agg(
-        $long("a").sum(), // 对每个 group，col-a 加和
-        $str(1).vConcat(";")); // col-a 连接起来
-
-new DataFrameAsserts(df, "sum(a)", "b")
-        .expectHeight(3)
-        .expectRow(0, 3L, "x;z;x")
-        .expectRow(1, 2L, "y")
-        .expectRow(2, 0L, "a");
-```
-
-- 也可以对一个 col 应用多种计算，生成多个 cols
-
-```java
-DataFrame df1 = DataFrame.foldByRow("a", "b").of(
-        1, "x",
-        2, "y",
-        1, "y",
-        0, "a",
-        1, "x");
-
-DataFrame df = df1
-        .group("b")
-        .agg(
-   			// 采用 col-b 分组，因此一个 group 中 col-b 值都相同，取第一个
-                $col("b").first(), 
-                $long("a").sum(), // col-a group 加和
-                $double("a").median()); // col-a group 中位数
-
-new DataFrameAsserts(df, "b", "sum(a)", "median(a)")
-        .expectHeight(3)
-        .expectRow(0, "x", 2L, 1.)
-        .expectRow(1, "y", 3L, 1.5)
-        .expectRow(2, "a", 0L, 0.);
-```
-
-- 设置 col-name
-
-```java
-DataFrame df1 = DataFrame.foldByRow("a", "b").of(
-        1, "x",
-        2, "y",
-        1, "y",
-        0, "a",
-        1, "x");
-
-DataFrame df = df1.group("b").agg(
-        $col("b").first().as("first"),
-        $col("b").last().as("last"),
-        $long("a").sum().as("a_sum"),
-        $double("a").median().as("a_median")
-);
-
-new DataFrameAsserts(df, "first", "last", "a_sum", "a_median")
-        .expectHeight(3)
-        .expectRow(0, "x", "x", 2L, 1.)
-        .expectRow(1, "y", "y", 3L, 1.5)
-        .expectRow(2, "a", "a", 0L, 0.);
-```
-
-例如，下面是一份工资报表：
-
-```
-name             amount date
----------------- ------ ----------
-Jerry Cosin        8000 2024-01-15
-Juliana Walewski   8500 2024-01-15
-Joan O'Hara        9300 2024-01-15
-Jerry Cosin        4000 2024-02-15
-Juliana Walewski   8500 2024-02-15
-Joan O'Hara        9300 2024-02-15
-Jerry Cosin        8000 2024-03-15
-Joan O'Hara        9300 2024-03-15
-```
-
-可以通过 date 来分组：
-
-```java
-GroupBy groupBy = df.group("date"); 
-```
-
-这里只采用 `date` 这一个 col 进行分组，也可以采用多个 cols。
-
-`GroupBy` 对象包含许多操作分组数据的方法。例如对值进行聚合，每个 group 得到一个值。例如：
-
-```java
-DataFrame agg = df
-        .group("date")
-        .agg(
-                $col("date").first(), // 按 date 分组，每个 group 中 date 相同，
-    								 // 因此可以取第一个进行聚合
-                $double("amount").sum(), // 计算每个 group 的工资加和
-                count() // 每个 group 的 rows 数目
-        );
-```
-
-```
-date       sum(amount) count
----------- ----------- -----
-2024-01-15     25800.0     3
-2024-02-15     21800.0     3
-2024-03-15     17300.0     2
-```
-
-`first(..)`, `sum(..)` 和 `count()` 都是聚合操作。与生成与输入 `Series` 相同大小 `Series` 的 exp 不同，聚合操作输出的 `Series` 只有一个值。因此，聚合生成的 `DataFrame` 的 row 数与 `GroupBy` 中的 group 数一样。
-
-对上例做一点改进，并提供描述性更好的 col-name：
-
-```java
-DataFrame agg = df
-        .group("date")
-        .cols("date", "total", "employees")
-        .agg(
-                $col("date").first(),
-                $double("amount").sum(),
-                count()
-        );
-```
-
-```
-date         total employees
----------- ------- ---------
-2024-01-15 25800.0         3
-2024-02-15 21800.0         3
-2024-03-15 17300.0         2
-```
-
-> [!NOTE]
->
-> `GroupBy.cols(..)` 和 `DataFrame.cols(..)` 类似，不过其 `select(..)` 和 `map(..)` 方法与 `ColumnSet` 相同。
-
-除了聚合 group，还可以采用 group-specific 转换，然后返回原始 rows。例如，可以进行组内排序：
-
-```java
-DataFrame ranked = df.group("date")
-        .sort($double("amount").desc()) // 对每个 group，按 amount 降序
-        .cols("date", "name", "rank")
-        .select( // 使用 select 而非聚合操作
-                $col("date"),
-                $col("name"),
-                rowNum() // 对每个 group 分别排序
-        );
-```
-
-```
-date       name             rank
----------- ---------------- ----
-2024-01-15 Joan O'Hara         1
-2024-01-15 Juliana Walewski    2
-2024-01-15 Jerry Cosin         3
-2024-02-15 Joan O'Hara         1
-2024-02-15 Juliana Walewski    2
-2024-02-15 Jerry Cosin         3
-2024-03-15 Joan O'Hara         1
-2024-03-15 Jerry Cosin         2
-```
-
-得到的 dataframe 与原 dataframe 的 rows 数相同，但是顺序不同。
-
-可以使用 `GroupBy.head(..)` 和 `tail(..)` 查找每个 group 内收入最高的员工。该操作不做聚合，只是在 group 内排序后选择 top 结果：
-
-```java
-DataFrame topSalary = df.group("date")
-        .sort($double("amount").desc()) // 排序
-        .head(1) // 选择每个 group 的 top-row
-        .select();
-```
-
-```
-name        amount date
------------ ------ ----------
-Joan O'Hara   9300 2024-01-15
-Joan O'Hara   9300 2024-02-15
-Joan O'Hara   9300 2024-03-15
-```
 
 ## window
 
@@ -11823,6 +11423,18 @@ public interface Sorter {
 ```
 
 
+`Sorter` 用于 DFLib 数据结构排序。`Sorter` 内部使用 exp 检索包含排序条件的值，并按指定顺序进行索引。
+
+使用 `asc()` 或 `desc()` 方法创建 `Sorter` 对象。
+
+```java
+// sort by last name in the ascending order
+Sorter s = $str("last").asc();
+```
+
+> [!NOTE]
+>
+> 虽然 DFLib 支持以任何表达式类型创建 `Sorter`，在运行时，实际类型必须是 java primitive 后 `Comparable` 实例，否则抛出 `ClassCastException`。
 
 ## 自定义函数
 
@@ -12000,7 +11612,7 @@ connector.tableSaver("person")
 
 ### SqlLoader / SqlSaver
 
-## CSV 文件
+## csv 文件
 
 >  2024年9月27日 ⭐⭐
 >
@@ -12017,9 +11629,9 @@ DFLib 支持读取 CSV，以及将 `DataFrame` 保存为 CSV。
 </dependency>
 ```
 
-`Csv` 类是所有 CSV 相关操作的入口。
+`Csv` 类是所有 csv 相关操作的入口。通过 `Csv` 类创建 `CsvLoader` 或 `CsvSaver`，然后用来读取或输出 csv 文件。
 
-### 读取 CSV
+### 读取 csv
 
 读取 CSV 最简单的 API：
 
@@ -12027,7 +11639,11 @@ DFLib 支持读取 CSV，以及将 `DataFrame` 保存为 CSV。
 DataFrame df = Csv.load("src/test/resources/f1.csv"); // 参数支持文件名，File, Reader
 ```
 
-这里，DFLib 假设 `f1.csv` 文件第一行为 col-names，所有 col 都是 String 类型，并读取所有 cols。
+这里，DFLib 默认：
+
+- `f1.csv` 文件第一行为 col-labels
+- 所有 col 都是 `String` 类型
+- 读取所有 rows 和 cols
 
 这些假设不一定满足要求，因此 DFLib 提供了设置功能，包括配置 col 类型，跳过 rows 和 cols，甚至对整个 CSV 进行采样。`Csv.loader()` 返回 `CsvLoader` 实例
 
@@ -12045,144 +11661,484 @@ DataFrame df = Csv.loader()
 >
 > 虽然可以直接加载原始数据，然后使用标准的 `DataFrame` 转换来得到所需类型，但是通过 loader 加载可以优化速度和内存。
 
-#### csv row filter
+#### col 类型设置
+
+建议提前设置 col 类型，这样性能更好。类型设置通用方法：
+
+```java
+CsvLoader col(int column, ValueMapper<String, ?> mapper);
+CsvLoader col(String column, ValueMapper<String, ?> mapper);
+```
+
+`ValueMapper` 中已经预定义了许多转换方式。由于默认为 `String` 类型，所以里面定义的都是 `StringTo...` 方法。
+
+示例 f1.csv 文件：
+
+```
+A,b,C
+1,2,3
+4,5,6
+```
+
+- 类型转换
+
+```java
+DataFrame df = new CsvLoader()
+        .col(0, ValueMapper.stringToInt()) // col-0 转换为 Int
+        .col(2, ValueMapper.stringToLong()) // col-2 转换 Long
+        .load(inPath("f1.csv"));
+new DataFrameAsserts(df, "A", "b", "C")
+        .expectHeight(2)
+        .expectRow(0, 1, "2", 3L)
+        .expectRow(1, 4, "5", 6L);
+```
+
+- 若针对特定 col 定义了多次转换方式，仅最后一次生效
+
+```java
+DataFrame df = new CsvLoader()
+        .col(0, ValueMapper.stringToInt())
+        .col("A", ValueMapper.stringToLong()) // 这次生效
+        .load(inPath("f1.csv"));
+new DataFrameAsserts(df, "A", "b", "C")
+        .expectHeight(2)
+        .expectRow(0, 1L, "2", "3")
+        .expectRow(1, 4L, "5", "6");
+```
+
+针对**数值类型**，有对应的便捷方式：
+
+```java
+CsvLoader numCol(int column, Class<? extends Number> type);
+CsvLoader numCol(String column, Class<? extends Number> type);
+```
+
+- 数值类型转换
+
+```java
+DataFrame df = new CsvLoader()
+        .numCol(0, Integer.class)
+        .numCol("b", Long.class)
+        .numCol("C", Double.class)
+        .load(inPath("f1.csv"));
+
+new DataFrameAsserts(df, "A", "b", "C")
+        .expectHeight(2)
+        .expectRow(0, 1, 2L, 3.)
+        .expectRow(1, 4, 5L, 6.);
+```
+
+- 数值类型支持 BigDecimal
+
+```java
+DataFrame df = new CsvLoader()
+        .numCol(0, Float.class)
+        .numCol("b", BigDecimal.class)
+        .numCol("C", BigInteger.class)
+        .load(inPath("f1.csv"));
+
+new DataFrameAsserts(df, "A", "b", "C")
+        .expectHeight(2)
+        .expectRow(0, 1.f, new BigDecimal(2), new BigInteger("3"))
+        .expectRow(1, 4.f, new BigDecimal(5), new BigInteger("6"));
+```
+
+针对**基础类型**，有大量快捷方法，以 int 类型为例：
+
+```java
+CsvLoader intCol(int column);
+CsvLoader intCol(int column, int forNull);
+CsvLoader intCol(String column);
+CsvLoader intCol(String column, int forNull);
+```
+
+对 `long`, `double`, `BigDecimal`, `boolean`, `LocalDate`, `LocalDateTime` 等有类似方法。
+
+> [!TIP]
+>
+> 可以串联多个表达式，设置多个 col 的类型。
+
+例如，下面是一个 csv 文件：
+
+```csv
+A,B
+1,7
+2,8
+3,9
+4,10
+5,11
+6,12
+```
+
+显然，两个 col 都是 int 类型，我们把 col-0 设置为 int 类型：
+
+```java
+DataFrame df = new CsvLoader()
+        .intCol(0) // col-0 设置为 integer 类型
+        .rows(RowPredicate.of(0, (Integer i) -> i % 2 == 0)) // 保留 col-0 为偶数的 rows
+        .load(new StringReader(csv()));
+
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(3)
+        .expectRow(0, 2, "8")
+        .expectRow(1, 4, "10")
+        .expectRow(2, 6, "12");
+```
+
+#### row filter
 
 对非常大的 CSV 文件，一边读一边过滤很有必要。通过为 `CsvLoader` 设置 `RowPredicate` 实现：
 
 ```java
-public CsvLoader rows(RowPredicate rowCondition)
+CsvLoader rows(RowPredicate rowCondition)
 ```
 
-`RowPredicate` 是一个简单的接口，根据所选 col 的值是否满足条件来过滤 rows。也可以通过 `and()`, `or()` 和 `negate()` 来组合多个 `RowPredicate`。
+`RowPredicate` 是一个简单的接口，只有一个方法：
+
+```java
+boolean test(RowProxy r);
+```
+
+其中 `RowProxy` 表示单个 row。根据所选 row 的值是否满足条件来过滤 rows。`RowPredicate` 提供了便捷的工厂方法：
+
+```java
+static <V> RowPredicate of(int pos, Predicate<V> columnPredicate) {
+    return r -> columnPredicate.test((V) r.get(pos));
+}
+
+static <V> RowPredicate of(String columnName, Predicate<V> columnPredicate) {
+    return r -> columnPredicate.test((V) r.get(columnName));
+}
+```
+
+通过判断指定 col 的值是否满足 `Predicate` 来生成过滤条件。
+
+还可以通过 `and()`, `or()` 和 `negate()` 来组合多个 `RowPredicate` 实现更复杂的条件。
 
 例如，定义如下 csv 数据：
 
 ```java
-private String csv() {
-    return "A,B" + System.lineSeparator()
-            + "1,7" + System.lineSeparator()
-            + "2,8" + System.lineSeparator()
-            + "3,9" + System.lineSeparator()
-            + "4,10" + System.lineSeparator()
-            + "5,11" + System.lineSeparator()
-            + "6,12" + System.lineSeparator();
-}
+A,B
+1,7
+2,8
+3,9
+4,10
+5,11
+6,12
 ```
 
-**使用 col-index 指定用于过滤的 col**
-
-将第一个 col 值转换为 int，根据值是否为偶数过滤 rows：
-
-- `RowPredicate.of()` 第一个参数为 col 索引
-- 第二个参数为 `Predicate<Integer>` 类型
+- 使用 col-index 指定用于过滤的 col
 
 ```java
-@Test
-public void pos() {
-    DataFrame df = new CsvLoader()
-            .intCol(0) // 将第一个 col 转换为 int 类型
-            .rows(RowPredicate.of(0, (Integer i) -> i % 2 == 0)) // 要求第一个 col 为偶数
-            .load(new StringReader(csv()));
+DataFrame df = new CsvLoader()
+        .intCol(0) // 将第一个 col 转换为 int 类型
+        .rows(RowPredicate.of(0, (Integer i) -> i % 2 == 0)) // 要求 col-0 为偶数
+        .load(new StringReader(csv()));
 
-    new DataFrameAsserts(df, "A", "B")
-            .expectHeight(3)
-            .expectRow(0, 2, "8")
-            .expectRow(1, 4, "10")
-            .expectRow(2, 6, "12");
-}
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(3)
+        .expectRow(0, 2, "8")
+        .expectRow(1, 4, "10")
+        .expectRow(2, 6, "12");
 ```
 
-**使用 col-name 指定用于过滤的 col**
-
-通过 col-name 指定 col，效果一样：
-
-- 此时 `RowPredicate.of()` 的第一个参数为 col-name
+- 使用 col-label 指定用于过滤的 col
 
 ```java
-@Test
-public void name() {
-    DataFrame df = new CsvLoader()
-            .intCol(0)
-            .rows(RowPredicate.of("A", (Integer i) -> i % 2 == 0))
-            .load(new StringReader(csv()));
+DataFrame df = new CsvLoader()
+        .intCol(0)
+        .rows(RowPredicate.of("A", (Integer i) -> i % 2 == 0))
+        .load(new StringReader(csv()));
 
-    new DataFrameAsserts(df, "A", "B")
-            .expectHeight(3)
-            .expectRow(0, 2, "8")
-            .expectRow(1, 4, "10")
-            .expectRow(2, 6, "12");
-}
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(3)
+        .expectRow(0, 2, "8")
+        .expectRow(1, 4, "10")
+        .expectRow(2, 6, "12");
 ```
 
-**指定多个 RowPredicate**
-
-通过 `rows()` 指定多个 `RowPredicate`，仅最后一个生效：
+- 通过 `rows` 指定多个 `RowPredicate`，仅最后一个生效
 
 ```java
-@Test
-public void multipleConditions_LastWins() {
-    DataFrame df = new CsvLoader()
-            .intCol(0)
-            .intCol(1)
-            .rows(RowPredicate.of("B", (Integer i) -> i % 2 == 0))
-            .rows(RowPredicate.of("B", (Integer i) -> i == 12))
+DataFrame df = new CsvLoader()
+        .intCol(0)
+        .intCol(1)
+        .rows(RowPredicate.of("B", (Integer i) -> i % 2 == 0))
+        .rows(RowPredicate.of("B", (Integer i) -> i == 12))
 
-            // 就下面这个有效
-            .rows(RowPredicate.of("B", (Integer i) -> i > 10))
-            .load(new StringReader(csv()));
+        // 就这个有效
+        .rows(RowPredicate.of("B", (Integer i) -> i > 10))
+        .load(new StringReader(csv()));
 
-    new DataFrameAsserts(df, "A", "B")
-            .expectHeight(2)
-            .expectRow(0, 5, 11)
-            .expectRow(1, 6, 12);
-}
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(2)
+        .expectRow(0, 5, 11)
+        .expectRow(1, 6, 12);
 ```
 
-**不能根据删除的 col 过滤**
+- 过滤后再随机抽样
 
 ```java
-@Test
-public void cantFilterOnExcludedColumns() {
-    CsvLoader loader = new CsvLoader()
-            .intCol("A")
-            .intCol("B")
-            // 因为 col "A" 不在结果中，所以使用 col "A" 的值进行过滤会报错
-            .rows(RowPredicate.of("A", (Integer i) -> i % 2 == 0))
-            .cols("B");
+DataFrame df = new CsvLoader()
+        .intCol(0) // 将 col-0 转换为 int
+        .rows(RowPredicate.of("A", (Integer i) -> i > 1)) // 只要 col-0 大于 1 的 rows
+        .rowsSample(2, new Random(9)) // 对保留下来的 rows 随机抽样
+        .load(new StringReader(csv()));
 
-    assertThrows(IllegalArgumentException.class, () -> loader.load(new StringReader(csv())));
-}
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(2)
+        .expectRow(0, 2, "8")
+        .expectRow(1, 5, "11");
 ```
 
-之所以会报错，是因为 DBLib 会先提取所选的 cols，然后进行过滤。在过滤时找不到 "A" col，因此报错。
-
-#### 设置要处理的 cols
+- 如果抽样数大于样本数，返回所有 rows
 
 ```java
-public CsvLoader cols(String... columns)
-public CsvLoader cols(int... columns)
+DataFrame df = new CsvLoader()
+        .intCol(0)
+        .rows(RowPredicate.of("A", (Integer i) -> i % 2 == 0))
+        .rowsSample(4, new Random(8))
+        .load(new StringReader(csv()));
+
+new DataFrameAsserts(df, "A", "B")
+        .expectHeight(3)
+        .expectRow(0, 2, "8")
+        .expectRow(1, 4, "10")
+        .expectRow(2, 6, "12");
 ```
 
-这两种方法均可以指定要处理的 cols，并以指定的顺序存储到 `DataFrame`。
+- 不能使用删除的 col 作为过滤条件
+
+```java
+CsvLoader loader = new CsvLoader()
+        .intCol("A")
+        .intCol("B")
+        // col-A 不在结果中，使用 col-A 过滤会报错
+        .rows(RowPredicate.of("A", (Integer i) -> i % 2 == 0))
+        .cols("B"); // 只保留 col-B
+
+assertThrows(IllegalArgumentException.class, 
+             	() -> loader.load(new StringReader(csv())));
+```
+
+之所以会报错，是因为 DBLib 会先提取所选的 cols，再进行过滤。在过滤时找不到 col-A，因此报错。
+
+- 调整返回 cols 的顺序
+
+```java
+DataFrame df = new CsvLoader()
+        .intCol("A")
+        .intCol("B")
+        .cols("B", "A")
+
+        // 这里的 col-1 是 col-A，而不是原 csv 的 col-B
+        .rows(RowPredicate.of(1, (Integer i) -> i == 4))
+        .load(new StringReader(csv()));
+
+new DataFrameAsserts(df, "B", "A")
+        .expectHeight(1)
+        .expectRow(0, 10, 4);
+```
+
+#### csv 格式
+
+`CsvLoader` 内部使用 commons-csv 实现 csv 解析。csv 格式也通过 commons-csv 的 `CSVFormat` 类来设置：
+
+```java
+CsvLoader format(CSVFormat format)
+```
+
+`CSVFormat` 的配置方法可以参考 [commons-csv](./commons_csv.md)。
+
+#### header
+
+```java
+CsvLoader header(String... columns);
+```
+
+显式设置 csv 文件的标题：
+
+- 如果不设置，将 csv 文件第一行作为 header
+- 设置后，将 csv 文件第一行作为数据
+
+标题按照从左到右的位置依次分配。
+
+标题 `columns` 的长度必须 <= csv 文件中 col 数。
+
+下面是 f1.csv 文件内容：
+
+```
+A,b,C
+1,2,3
+4,5,6
+```
+
+设置标题，第一行 "A,b,C" 也作为数据：
+
+```java
+DataFrame df = new CsvLoader().header("X", "Y", "Z").load(inPath("f1.csv"));
+new DataFrameAsserts(df, "X", "Y", "Z")
+        .expectHeight(3)
+        .expectRow(0, "A", "b", "C")
+        .expectRow(1, "1", "2", "3")
+        .expectRow(2, "4", "5", "6");
+```
+
+#### generateHeader
+
+```java
+CsvLoader generateHeader();
+```
+
+生成 "c0", "c1", "c2" 格式的标题，csv 文件第一行作为数据处理。依然以 f1.csv 文件为例：
+
+```java
+DataFrame df = new CsvLoader().generateHeader().load(inPath("f1.csv"));
+new DataFrameAsserts(df, "c0", "c1", "c2")
+        .expectHeight(3)
+        .expectRow(0, "A", "b", "C")
+        .expectRow(1, "1", "2", "3")
+        .expectRow(2, "4", "5", "6");
+```
+
+#### cols
+
+```java
+public CsvLoader cols(String... columns);
+public CsvLoader cols(int... columns);
+
+CsvLoader colsExcept(int... columns);
+CsvLoader colsExcept(String... columns);
+```
+
+只处理指定的 cols，且返回的 cols 顺序与指定顺序一致。
+
+以 f1.csv 文件为例：
+
+```
+A,b,C
+1,2,3
+4,5,6
+```
+
+- 只保留 col-b 和 col-A
+
+```java
+DataFrame df = new CsvLoader().cols("b", "A").load(inPath("f1.csv"));
+new DataFrameAsserts(df, "b", "A")
+        .expectHeight(2)
+        .expectRow(0, "2", "1")
+        .expectRow(1, "5", "4");
+```
+
+- 也可以先设置 header，然后使用新的 header 筛选 cols
+
+```java
+DataFrame df = new CsvLoader()
+    	.header("X", "Y", "Z")
+    	.cols("Y", "X")
+    	.load(inPath("f1.csv"));
+new DataFrameAsserts(df, "Y", "X")
+        .expectHeight(3)
+        .expectRow(0, "b", "A")
+        .expectRow(1, "2", "1")
+        .expectRow(2, "5", "4");
+```
+
+- 或者生成 "c0" 样式的 header，然后用该 header 筛选 cols
+
+```java
+DataFrame df = new CsvLoader()
+    	.generateHeader()
+    	.cols("c1", "c0")
+    	.load(inPath("f1.csv"));
+new DataFrameAsserts(df, "c1", "c0")
+        .expectHeight(3)
+        .expectRow(0, "b", "A")
+        .expectRow(1, "2", "1")
+        .expectRow(2, "5", "4");
+```
+
+#### limit
+
+```java
+CsvLoader limit(int len);
+```
+
+限制读取的最大 row 数。
+
+f1.csv 文件：
+
+```
+A,b,C
+1,2,3
+4,5,6
+```
+
+- 只读一行
+
+```java
+DataFrame df = new CsvLoader().limit(1).load(inPath("f1.csv"));
+new DataFrameAsserts(df, "A", "b", "C")
+        .expectHeight(1)
+        .expectRow(0, "1", "2", "3");
+```
+
+- 设置标题后，第一行也是数据
+
+```java
+DataFrame df = new CsvLoader()
+        .header("C0", "C1", "C2")
+        .limit(2)
+        .load(inPath("f1.csv"));
+
+new DataFrameAsserts(df, "C0", "C1", "C2")
+        .expectHeight(2)
+        .expectRow(0, "A", "b", "C")
+        .expectRow(1, "1", "2", "3");
+```
+
+#### offset
+
+```java
+CsvLoader offset(int len);
+```
+
+`offset` 和 `limit` 相反：
+
+- `limit` 限制只读前 `len` 行
+- `offset` 限制跳过前 `len` 行
 
 例如：
 
-```java
-@Test
-public void selectColumns_Condition() {
-    DataFrame df = new CsvLoader()
-            .intCol("A") // 设置 col 类型
-            .intCol("B") // 设置 col 类型
-            .cols("B", "A") // 选择 cols
-            // 此时 B 和 A 顺序调换，1 对应 col-A
-            .rows(RowPredicate.of(1, (Integer i) -> i == 4))
-            .load(new StringReader(csv()));
+- 跳过第一行
 
-    new DataFrameAsserts(df, "B", "A")
-            .expectHeight(1)
-            .expectRow(0, 10, 4);
-}
+```java
+DataFrame df = new CsvLoader()
+    	.offset(1)
+    	.load(inPath("f1.csv"));
+new DataFrameAsserts(df, "1", "2", "3")
+        .expectHeight(1)
+        .expectRow(0, "4", "5", "6");
 ```
+
+- 跳过第 1 行，且限制只读 1 行
+
+```java
+DataFrame df = new CsvLoader()
+        .generateHeader()
+        .offset(1)
+        .limit(1)
+        .load(inPath("f1.csv"));
+
+new DataFrameAsserts(df, "c0", "c1", "c2")
+        .expectHeight(1)
+        .expectRow(0, "1", "2", "3");
+```
+
+
+
+
 
 ### 写入 CSV
 
