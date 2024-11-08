@@ -49,6 +49,7 @@ module java.module {
     requires dflib.junit5;
     requires org.junit.jupiter.params;
     requires java.sql;
+    requires jcommander;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -57,6 +58,7 @@ module java.module {
     opens mjw.java.util;
     opens mjw.java.time;
     opens mjw.gson;
+    opens mjw.jcommander;
 
     opens mjw.jgrapht;
     opens mjw.guava;

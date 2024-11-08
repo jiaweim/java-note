@@ -51,20 +51,20 @@ for (CSVRecord record : CSVFormat.DEFAULT.parse(in)) {
 
 | 字段 | 说明 |
 | ---- | ---- |
-| delimiter | 分隔符，通常为 ";", "," 或 "\t" |
-| quoteCharacter | 引号字符，用于将特殊字符括起来 |
-| quoteMode | 加引号策略 |
-| commentMarker | 注释字符 |
-| escapeCharacter | 转义字符 |
-| ignoreSurroundingSpaces | 解析时是否忽略值周围的空格 |
-| allowMissingColumnNames | 解析标题时，是否允许丢失 column 名 |
-| ignoreEmptyLines | 解析时是否跳过空行 |
-| recordSeparator | record 分隔符，一般为换行符 |
+| `delimiter` | 字段分隔符，通常为 ";", "," 或 "\t" |
+| `quoteCharacter` | 引号字符，用于将特殊字符括起来 |
+| `quoteMode` | 加引号策略 |
+| `commentMarker` | 注释字符 |
+| `escapeCharacter` | 转义字符 |
+| `ignoreSurroundingSpaces` | 解析时是否忽略值周围的空格 |
+| `allowMissingColumnNames` | 解析标题时，是否允许丢失 column 名 |
+| `ignoreEmptyLines` | 解析时是否跳过空行 |
+| `recordSeparator` | record 分隔符，一般为换行符 |
 | nullString | 指定转换为 null 的字符串 |
-| headerComments | 标题注释数组 |
-| headers | 标题 |
-| skipHeaderRecord | 是否跳过标题行 |
-| ignoreHeaderCase | 解析时访问 header names 时忽略大小写 |
+| `headerComments` | 标题注释数组 |
+| `headers` | 标题 |
+| `skipHeaderRecord` | 是否跳过标题行 |
+| `ignoreHeaderCase` | 解析时访问 header names 时忽略大小写 |
 | trailingDelimiter | 是否添加 trailing 分隔符 |
 | trim | 输出时字符移出前后空格 |
 | autoFlush | 关闭时是否 flush |
@@ -240,8 +240,7 @@ CSVFormat.EXCEL.withNullString("N/A").withIgnoreSurroundingSpaces(true);
 
 ```java
 public final class CSVParser
-extends Object
-implements Iterable<CSVRecord>, Closeable
+	implements Iterable<CSVRecord>, Closeable
 ```
 
 解析 CSV 返回 `CSVParser` 对象，该类型实现了 `Iterable<CSVRecord>` 接口。

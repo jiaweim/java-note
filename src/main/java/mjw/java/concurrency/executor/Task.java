@@ -30,7 +30,7 @@ public class Task implements Runnable {
                 name, new Date());
 
         try {
-            // sleep 一段随机时间
+            // sleep 随机时间
             long duration = (long) (Math.random() * 10);
             System.out.printf("%s: Task %s: Doing a task during %d seconds\n",
                     Thread.currentThread().getName(),

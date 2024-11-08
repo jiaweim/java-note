@@ -4,7 +4,7 @@
 @author Jiawei Mao
 ***
 
-## 简介
+## 1. 简介
 
 FastCSV 是一个高性能的 CSV IO 工具。
 
@@ -12,13 +12,13 @@ FastCSV 是一个高性能的 CSV IO 工具。
 <dependency>
     <groupId>de.siegmar</groupId>
     <artifactId>fastcsv</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.1</version>
 </dependency>
 ```
 
-## 快速入门
+## 2. 快速入门
 
-### 输出 CSV
+### 2.1 输出 CSV
 
 `CsvWriter` 类用于输出 CSV 文件，该类采用 fluent-API 设计。例如：
 
@@ -31,7 +31,7 @@ try (CsvWriter csv = CsvWriter.builder().build(file)) {
 }
 ```
 
-### 读取 CSV
+### 2.2 读取 CSV
 
 FastCSV 提供了两个读取 CSV 记录的类：`CsvReader` 和 `IndexedCsvReader`。
 
@@ -74,7 +74,7 @@ try (IndexedCsvReader<CsvRecord> csv = IndexedCsvReader.builder().pageSize(10).o
 }
 ```
 
-## 基础教程
+## 3. 基础教程
 
 ### CsvReader 示例
 
@@ -175,7 +175,7 @@ CsvWriter.builder()
 
 
 
-## 架构和设计
+## 4. 架构和设计
 
 ### 设计目标
 
@@ -327,7 +327,7 @@ try (CsvWriter csv = builder.build(file)) {
 }
 ```
 
-## CSV 解释
+## 5. CSV 解释
 
 CSV 格式很简单，但是有很多细节需要考虑。
 
@@ -351,7 +351,7 @@ FastCSV 在读写 CSV 文件时指定任何编码，默认 UTF-8.
 
 #### Empty fields / null values
 
-CSV 格式本身不提供区分 empty 值和 null 值的方法。当需要区分时，这可能是一个问题。
+csv 格式本身不提供区分 empty 值和 null 值的方法。当需要区分时，这可能是一个问题。
 
 FastCSV 提供如下处理 null 值的选项：
 
@@ -599,7 +599,7 @@ BOM 二进制字节：
 - `CommentStrategies.READ`，
 - `CommentStrategies.SKIP`
 
-## 示例
+## 6. 示例
 
 ### 自定义 callback
 
@@ -898,6 +898,6 @@ field 1,"field 2 with a # character","field 3
 
 
 
-## 参考
+## 7. 参考
 
 - https://fastcsv.org/

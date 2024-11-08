@@ -5,93 +5,122 @@
 
 ## 简介
 
-JCommander 是一个用于解析命令行的小的Java框架。对参数字段进行注释：
+JCommander 是一个用于解析命令行的Java框架。首先注释参数字段：
 
 ```java
-private static class Args1
-{
+import com.beust.jcommander.Parameter;
+
+public class Args {
     @Parameter
     private List<String> parameters = new ArrayList<>();
 
     @Parameter(names = {"-log", "-verbose"}, description = "Level of verbosity")
-    private Integer verbose = -1;
+    private Integer verbose = 1;
 
     @Parameter(names = "-groups", description = "Comma-separated list of group names to be run")
     private String groups;
 
     @Parameter(names = "-debug", description = "Debug mode")
     private boolean debug = false;
-}
 
-@Test
-public void testArgs1()
-{
-    Args1 arg = new Args1();
-    String[] argv = {"-log", "2", "-groups", "unit"};
-    JCommander.newBuilder()
-            .addObject(arg)
-            .build()
-            .parse(argv);
-    assertEquals(arg.verbose.intValue(), 2);
-    assertEquals(arg.groups, "unit");
-    assertTrue(arg.parameters.isEmpty());
-    assertFalse(arg.debug);
+    private Integer setterParameter;
+
+    @Parameter(names = "-setterParameter", description = "A parameter annotation on a setter method")
+    public void setParameter(Integer value) {
+        this.setterParameter = value;
+    }
 }
 ```
 
-再来个例子：
+然后就可以使用 JCommander 解析命名：
+
 ```java
-private class Args2
-{
+Args args = new Args();
+String[] argv = { "-log", "2", "-groups", "unit" };
+JCommander.newBuilder()
+  .addObject(args)
+  .build()
+  .parse(argv);
+
+assertEquals(arg.verbose.intValue(), 2);
+assertEquals(arg.groups, "unit");
+assertTrue(arg.parameters.isEmpty());
+assertFalse(arg.debug);
+```
+
+再例如：
+
+```java
+class Main {
     @Parameter(names = {"--length", "-l"})
     int length;
     @Parameter(names = {"--pattern", "-p"})
     int pattern;
-}
 
-@Test
-public void testArgs2()
-{
-    String[] args = {"-l", "512", "--pattern", "2"};
-    Args2 param = new Args2();
-    JCommander.newBuilder().addObject(param)
-            .build().parse(args);
-    assertEquals(param.length, 512);
-    assertEquals(param.pattern, 2);
+    public static void main(String... argv) {
+        Main main = new Main();
+        JCommander.newBuilder()
+                .addObject(main)
+                .build()
+                .parse(argv);
+        main.run();
+    }
+
+    public void run() {
+        System.out.printf("%d %d", length, pattern);
+    }
 }
 ```
 
-## 2. 类型
+```sh
+$ java Main -l 512 --pattern 2
+512 2
+```
 
-JCommander 默认支持基本类型，对其它类型需要自定义转换器。
+## 2. 参数类型
 
-### 基本类型
+JCommander 默认支持基本类型，对其它类型需要自定义类型转换器。不过，JCommander 已经为许多常用的特殊类型提供了转换器，如 `char[]`, `File`, `Path`, `URI` 等。
 
-对 `Parameter` 注释的 boolean 类型，JCommander 将其解析为 arity=0 的选项，即后面不需要带参数：
+### 2.1 Boolean
+
+对 `boolean` 或 `Boolean` 类型参数，JCommander 将其解析为 arity=0 的选项，即后面不需要带参数值：
 ```java
 @Parameter(names = "-debug", description = "Debug mode")
 private boolean debug = false;
 ```
-当 JCommander 检测到 `-debug` 选项，自动将 `debug` 设置为 true。如果你想将 `debug` 默认设置为 true，则可以设置 arity=1，这样 `-debug` 后面可以带参数，此时 `-debug` 选项后面就必须指定参数：
+当 JCommander 检测到 `-debug` 选项，自动将 `debug` 设置为 true，`-debug` 后面不需要额外参数值。
+
+如果需要 `debug` 默认为 true，则可以设置 arity=1，这样 `-debug` 后面可以带参数，此时 `-debug` 选项后面就必须指定参数值：
+
 ```java
 @Parameter(names = "-debug", description = "Debug mode", arity = 1)
 private boolean debug = true;
 ```
 此时的调用方式为：
-```
+```sh
 program -debug true
 program -debug false
 ```
 
-对带 `Parameter` 注释的 `String`, `Integer`, `int`, `Long`, `long` 类型，JCommander 会解析对应参数，并常数转换为该类型：
+对 `String`, `Integer`, `int`, `Long`, `long` 类型，JCommander 会解析对应参数，并转换为对应类型：
 ```java
 @Parameter(names = "-log", description = "Level of verbosity")
 private Integer verbose = 1;
 ```
 
-### 2.2 List
+```sh
+java Main -log 3
+```
 
-对 `List` 类型的参数，JCommander 以该参数可以出现多次来解析，如：
+解析得到 `verbose` 为 3。如下命令则因类型不兼容报错：
+
+```sh
+$ java Main -log test
+```
+
+### 2.2 List 和 Set
+
+对 `List` 或 `Set` 类型参数，JCommander 默认这类参数可以出现多次。例如：
 
 ```java
 @Parameter(names = {"-host", "-hosts"}, description = "Host option can be used multiple times, and may be comma-separated")
@@ -99,19 +128,21 @@ private List<String> hosts = new ArrayList<>();
 ```
 
 可以按如下方式输入参数：
-```
+```sh
 $ java Main -host host1 -verbose -host host2
 ```
 
-也可以输入逗号分隔的值：
+或者输入逗号分隔的值：
 
 ```sh
 $ java Main -hosts host1,host2
 ```
 
-### Password
+解析完成后，`hosts` 字段包含 "host1" 和 "host2"。
 
-如果你的参数为密码，可以将其类型设置为 password，这样在输入命令时，JCommander 会让你手动输入参数：
+### 2.3 Password
+
+如果参数为密码，可以将其类型设置为 password，这样在输入命令时，JCommander 会让你手动输入参数：
 ```java
 public class ArgsPassword {
   @Parameter(names = "-password", description = "Connection password", password = true)
@@ -124,15 +155,26 @@ Value for -password (Connection password):
 ```
 你需要输入对应的值，JCommander 才能继续执行。
 
+### 2.4 Echo
+
+在 Java 6 中，默认无法看到在提示符处输入的密码（Java 5 以下则始终显示密码）。通过改变 `eachInput=true` 则可以显示密码（仅 `password=true` 该设置才有效）：
+
+```java
+public class ArgsPassword {
+	@Parameter(names = "-password", description = "Connection password", password = true, echoInput = true)
+	private String password;
+}
+```
+
 ## 3. 自定义类型
 
 将参数和自定义类型绑定，或者自定义参数分隔符（默认是逗号），JCommander 提供了两个接口 `IStringConverter` 和 `IParameterSplitter`。
 ### 3.1 单值
 
-对包含单个值的参数，可以使用 `@Parameter` 的 `converter=` 属性，或者实现 `IStringConverterFactory`。
-#### 3.1.1 通过注释
+对单值参数，可以使用 `@Parameter` 的 `converter=` 属性，或者实现 `IStringConverterFactory`。
+#### by annotation
 
-JCommander 默认只将命令解析为基本类型。如果需要更复杂的类型，可以实现如下接口：
+JCommander 默认只将命令解析为基本类型。对复杂类型，可以实现如下接口：
 
 ```java
 public interface IStringConverter<T> {
@@ -140,7 +182,7 @@ public interface IStringConverter<T> {
 }
 ```
 
-例如，将字符串转换为 `File`:
+例如，将字符串转换为 `File` 的 `IStringConverter` 实现:
 
 ```java
 public class FileConverter implements IStringConverter<File> {
@@ -157,9 +199,9 @@ public class FileConverter implements IStringConverter<File> {
 File file;
 ```
 
-```ad-tip
-JCommander 提供了少数常用的 converters，具体可参考 `IStringConverter` 的实现类。
-```
+> [!TIP]
+>
+> JCommander 提供了许多常用的 converters，具体可参考 `IStringConverter` 的实现类。
 
 如果转换器用于 `List` 字段，如：
 
@@ -168,15 +210,15 @@ JCommander 提供了少数常用的 converters，具体可参考 `IStringConvert
 List<File> files;
 ```
 
-可以如下方式输入命令：
+可以按如下方式输入命令：
 ```
 $ java App -files file1,file2,file3
 ```
 JCommander 会自动将 `file1,file2,file3` 分为三个字段存入 List.
 
-#### 3.1.2 factory
+#### by factory
 
-如果使用的自定义类型需要在很多地方使用，在每个参数注释的地方都指定转换器就很繁琐，此时可以使用 `IStringConverterFactory`：
+如果使用的自定义类型需要在很多地方使用，在每个参数注释的地方都指定转换器比较繁琐，此时可以使用 `IStringConverterFactory`：
 
 ```java
 public interface IStringConverterFactory {
@@ -184,7 +226,7 @@ public interface IStringConverterFactory {
 }
 ```
 
-例如，假定你要解析包含 host 和 port 的字符串：
+例如，解析包含 host 和 port 的字符串：
 ```
 $ java App -target example.com:8080
 ```
@@ -222,7 +264,7 @@ public class Factory implements IStringConverterFactory {
   }
 ```
 
-然后使用 `HostPort` 类型不再需要定义 `converter` 属性：
+然后就可以直接使用 `HostPort` 类型，不再需要 `converter` 属性：
 
 ```java
 public class ArgsConverterFactory {
@@ -236,7 +278,7 @@ public class ArgsConverterFactory {
 ArgsConverterFactory a = new ArgsConverterFactory();
 JCommander jc = JCommander.newBuilder()
     .addObject(a)
-    .addConverterFactory(new Factory())
+    .addConverterFactory(new Factory()) // 注册 factory
     .build()
     .parse("-hostport", "example.com:8080");
 
@@ -244,9 +286,103 @@ Assert.assertEquals(a.hostPort.host, "example.com");
 Assert.assertEquals(a.hostPort.port.intValue(), 8080);
 ```
 
-## 多个选项名称
+使用 `IStringConverterFactory` 的另一个优点是，该类可以来自依赖注入框架。
+
+### 3.2 List 值
+
+为 `@Parameter` 添加 `listConverter=` 属性，并设置自定义 `IStringConverter` 实现将字符串转换为 `List`。
+
+#### by annotation
+
+如果需要复杂类型 `List`，需要先实现类型转换接口 `IStringConverter`：
+
+```java
+public interface IStringConverter<T> {
+  T convert(String value);
+}
+```
+
+其中 `T` 为 `List`。
+
+例如，下面将字符串转换为 `List<File>`：
+
+```java
+public class FileListConverter implements IStringConverter<List<File>> {
+  @Override
+  public List<File> convert(String files) {
+    String [] paths = files.split(",");
+    List<File> fileList = new ArrayList<>();
+    for(String path : paths){
+        fileList.add(new File(path));
+    }
+    return fileList;
+  }
+}
+```
+
+然后在注释参数时声明该 `listConverter`：
+
+```java
+@Parameter(names = "-files", listConverter = FileListConverter.class)
+List<File> file;
+```
+
+接着就可以在调用程序时提供参数：
+
+```sh
+$ java App -files file1,file2,file3
+```
+
+参数 `file1,file2,file3` 提供给 `listConverter` 进行转换。
+
+JCommander 默认支持 `String` 类型。
+
+### 3.3 Splitting
+
+使用 `@Parameter` 的 `splitter=` 属性指定自定义 `IParameterSplitter` 实现。
+
+#### by annotation
+
+对 `List` 字段类型，JCommander 默认使用逗号拆分参数。
+
+可以实现如下接口自定义拆分方式：
+
+```java
+public interface IParameterSplitter {
+  List<String> split(String value);
+}
+```
+
+例如，用分号拆分字符串：
+
+```java
+public static class SemiColonSplitter implements IParameterSplitter {
+    public List<String> split(String value) {
+      return Arrays.asList(value.split(";"));
+    }
+}
+```
+
+然后在注释时加上 `converter` 和 `splitter` 属性即可：
+
+```java
+@Parameter(names = "-files", converter = FileConverter.class, splitter = SemiColonSplitter.class)
+List<File> files;
+```
+
+## 4. 参数验证
+
+参数验证有两种方式：
+
+- 单个参数水平
+- 全局
+
+### 4.1 单参数验证
+
+
 
 可以指定多个选项名称，如：
+
 ```java
 @Parameter(names = { "-d", "--outputDirectory" }, description = "Directory")
 private String outputDirectory;
