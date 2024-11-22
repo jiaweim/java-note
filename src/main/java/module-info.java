@@ -50,6 +50,7 @@ module java.module {
     requires org.junit.jupiter.params;
     requires java.sql;
     requires jcommander;
+    requires org.checkerframework.checker.qual;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;

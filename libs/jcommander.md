@@ -1,11 +1,41 @@
 # JCommander
 
+- [JCommander](#jcommander)
+  - [1. 简介](#1-简介)
+  - [2. 参数类型](#2-参数类型)
+    - [2.1 Boolean](#21-boolean)
+    - [2.2 List 和 Set](#22-list-和-set)
+    - [2.3 Password](#23-password)
+    - [2.4 Echo](#24-echo)
+  - [3. 自定义类型](#3-自定义类型)
+    - [3.1 单值](#31-单值)
+      - [by annotation](#by-annotation)
+      - [by factory](#by-factory)
+    - [3.2 List 值](#32-list-值)
+      - [by annotation](#by-annotation-1)
+    - [3.3 Splitting](#33-splitting)
+      - [by annotation](#by-annotation-2)
+  - [4. 参数验证](#4-参数验证)
+    - [4.1 单参数验证](#41-单参数验证)
+  - [5. Main parameter](#5-main-parameter)
+  - [参数分隔符](#参数分隔符)
+  - [18. Usage](#18-usage)
+  - [13. 必须参数和可选参数](#13-必须参数和可选参数)
+  - [14. 默认值](#14-默认值)
+  - [15. Help 参数](#15-help-参数)
+  - [16. 更复杂的语法](#16-更复杂的语法)
+  - [21.参数代理](#21参数代理)
+  - [22.动态参数](#22动态参数)
+  - [23.自定义 usage 格式](#23自定义-usage-格式)
+  - [参考](#参考)
+
 2021-03-13, 10:48
+@author Jiawei Mao
 ***
 
-## 简介
+## 1. 简介
 
-JCommander 是一个用于解析命令行的Java框架。首先注释参数字段：
+JCommander 是一个用于解析命令行的 Java 框架。首先注释参数字段：
 
 ```java
 import com.beust.jcommander.Parameter;
@@ -32,7 +62,7 @@ public class Args {
 }
 ```
 
-然后就可以使用 JCommander 解析命名：
+然后使用 JCommander 解析命名：
 
 ```java
 Args args = new Args();
@@ -193,7 +223,7 @@ public class FileConverter implements IStringConverter<File> {
 }
 ```
 
-然后在声明字段时指定对应的转换器即可：
+然后在声明字段时指定对应的转换器：
 ```java
 @Parameter(names = "-file", converter = FileConverter.class)
 File file;
@@ -388,14 +418,6 @@ List<File> files;
 private String outputDirectory;
 ```
 
-## 必须参数和可选参数
-
-如果有些参数是必须的，可以通过 `required` 属性指定，该属性默认为 `false`：
-```java
-@Parameter(names = "-host", required = true)
-private String host;
-```
-必须参数如果没指定，JCommander 会抛出异常告诉你缺哪些参数。
 
 ## 5. Main parameter
 
@@ -416,32 +438,6 @@ $ java Main -debug file1 file2
 
 `files` 接受参数 "file1" 和 "file2"。
 
-## Parameter delegates
-
-参数代理，可以将参数传递到另外的类进行解析：
-
-```java
-class Delegate {
-  @Parameter(names = "-port")
-  private int port;
-}
-
-class MainParams {
-  @Parameter(names = "-v")
-  private boolean verbose;
-
-  @ParametersDelegate
-  private Delegate delegate = new Delegate();
-}
-```
-解析方法和一个类一样：
-```
-MainParams p = new MainParams();
-JCommander.newBuilder().addObject(p).build()
-    .parse("-v", "-port", "1234");
-Assert.assertTrue(p.isVerbose);
-Assert.assertEquals(p.delegate.port, 1234);
-```
 
 
 ## 参数分隔符
@@ -497,15 +493,23 @@ class Parameters {
     private boolean b;
 ```
 
+## 13. 必须参数和可选参数
 
-## Default values
+如果有些参数是必须的，可以通过 `required` 属性指定，该属性默认为 `false`：
+```java
+@Parameter(names = "-host", required = true)
+private String host;
+```
+必须参数如果没指定，JCommander 会抛出异常告诉你缺哪些参数。
 
-设置默认值的最方便的方式是在声明时提供值：
+## 14. 默认值
+
+为参数设置默认值的最常用的方式是在声明时初始化字段：
 ```java
 private Integer logLevel = 3;
 ```
 
-对更为复杂的情况，你可能希望多个类使用相同的默认参数，或者在统一的地方指定默认值，如 `.properteis` 或 XML文件。此时可以使用 `IDefaultProvider`：
+对更复杂的情况，你可能希望多个类使用相同的默认参数，或者在统一的地方指定默认值，如 `.properteis` 或 XML 文件。此时可以使用 `IDefaultProvider`：
 ```java
 public interface IDefaultProvider {
   /**
@@ -517,7 +521,7 @@ public interface IDefaultProvider {
   String getDefaultValueFor(String optionName);
 }
 ```
-将实现该接口的类提供给 `JCommander` 对象，可以指定对什么选项返回什么默认值。需要注意的是，该方法返回值随后由 string converter 转换类型。
+将实现该接口的类提供给 `JCommander` 对象，可以指定对什么选项使用什么默认值。需要注意的是，该方法返回值随后由 `IStringConverter` 转换类型。
 
 例如，下面将除 "-debug" 以外的所有参数的默认值设置为 42：
 ```java
@@ -536,16 +540,11 @@ JCommander jc = JCommander.newBuilder()
     .build()
 ```
 
-## Dynamic parameters
+JCommander 对一些常见类型不需要实现 `IDefaultProvider`，因为 JCommander 提供了 `PropertyFileDefaultProvider` 和 `EnvironmentVariableDefaultProvider`，分别从属性文件（默认为 `jcommander.properties`）和环境变量（默认为 `JCOMMANDER_OPTS`）读取默认值。
 
-JCommander 允许指定编译时未知的参数，例如 "-Da=b -Dc=d"。这类参数通过 `@DynamicParameter` 指定，而且必须是 `Map<STring, String` 类型。动态参数可以在命令行中出现多次：
-```java
-@DynamicParameter(names = "-D", description = "Dynamic parameters go here")
-private Map<String, String> params = new HashMap<>();
-```
-通过 `assignment` 属性可以指定不同的分隔符，而不必须是 `=`。
 
-## 15. Help parameter
+
+## 15. Help 参数
 
 可以采用一个参数显式帮助或用法信息，此时需要使用 `help` 属性：
 
@@ -566,7 +565,7 @@ if (runner.help) {
 }
 ```
 
-## 更复杂的语法
+## 16. 更复杂的语法
 
 很多工具如 *git* 或 *svn* 都有一整套命令，并语法各自不同：
 ```
@@ -620,6 +619,75 @@ assertEquals(commit.author, "cbeust");
 assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
 ```
 
+## 21.参数代理
+
+在同一个项目中编写多个工具，其中大多数工具可以共享配置。虽然可以使用对象继承来避免代码重复，但继承限制了代码灵活性。此时可以考虑使用参数代理。
+
+当 JCommander 在对象中遇到 `@ParameterDelegate` 注释，可以将参数传递到另外的类进行解析：
+
+```java
+class Delegate {
+  @Parameter(names = "-port")
+  private int port;
+}
+
+class MainParams {
+  @Parameter(names = "-v")
+  private boolean verbose;
+
+  @ParametersDelegate
+  private Delegate delegate = new Delegate();
+}
+```
+只需要将 `MainParams` 类添加到 JCommander 解析：
+```java
+MainParams p = new MainParams();
+JCommander.newBuilder().addObject(p).build()
+    .parse("-v", "-port", "1234");
+Assert.assertTrue(p.isVerbose);
+Assert.assertEquals(p.delegate.port, 1234);
+```
+
+## 22.动态参数
+
+JCommander 允许指定编译时未知的参数，例如 `-Da=b -Dc=d`。这类参数通过 `@DynamicParameter` 指定，且必须是 `Map<STring, String` 类型。动态参数可以在命令行中出现多次：
+```java
+@DynamicParameter(names = "-D", description = "Dynamic parameters go here")
+private Map<String, String> params = new HashMap<>();
+```
+通过 `assignment` 属性可以指定不同的分隔符，不限于 `=`。
+
+## 23.自定义 usage 格式
+
+JCommander 支持自定义 `JCommander.usage()` 方法输出格式，即实现 `IUsageFormatter` 接口。
+
+例如，下面仅打印参数名称：
+
+```java
+class ParameterNamesUsageFormatter implements IUsageFormatter {
+    // Extend other required methods as seen in DefaultUsageFormatter
+
+    // This is the method which does the actual output formatting
+    public void usage(StringBuilder out, String indent) {
+        if (commander.getDescriptions() == null) {
+            commander.createDescriptions();
+        }
+
+        // Create a list of the parameters
+        List<ParameterDescription> params = Lists.newArrayList();
+        params.addAll(commander.getFields().values());
+
+        // Append all the parameter names
+        if (params.size() > 0) {
+            out.append("Options:\n");
+
+            for (ParameterDescription pd : params) {
+                out.append(pd.getNames()).append("\n");
+            }
+        }
+    }
+}
+```
 
 ## 参考
 

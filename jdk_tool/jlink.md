@@ -322,8 +322,6 @@ jlink 并不区分 JDK 模块和其它模块，因此，可以创建包含整个
 
 需要注意的时，jlink 不支持 automatic-module。
 
-
-
 ### 示例演示
 
 - 创建 runtime-image

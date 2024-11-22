@@ -1,21 +1,32 @@
-# 线程局部变量
+# 线程管理
 
-2023-06-15
-****
-## 1.1. 简介
+- [线程管理](#线程管理)
+  - [简介](#简介)
+  - [线程局部变量](#线程局部变量)
+    - [示例](#示例)
+    - [ThreadLocal 总结](#threadlocal-总结)
 
-并发程序的一个关键是共享数据。对扩展 Thread 类或实现 Runnable 接口的对象，在多线程中共享数据特别重要。
+2024-11-11
+@author Jiawei Mao
+***
 
-如果实现 Runnable 接口创建一个对象，然后使用同一个 Runnable 对象启动多个线程，那么所有线程将共享相同的 Runnable 属性。这意味着一个线程修改 Runnable 属性，其它线程都受影响。
-
-同一个 Runnable 的属性如何不在多个线程中共享，线程局部变量（thread-local variable）实现了该功能，且性能很好。
+## 简介
 
 
-## 1.2. 示例
 
-下面创建两个程序，一个演示共享变量的问题，一个通过 thread-local 变量结局该问题。
+## 线程局部变量
 
-- 共享变量 task，定义为 UnsafeTask
+并发程序的一个关键是共享数据。对扩展 `Thread` 类、实现 `Runnable` 接口的对象以及在多线程中共享的对象特别重要。
+
+如果创建一个实现 `Runnable` 接口的对象，然后在多个线程中使用该对象，那么所有线程将共享相同的 `Runnable` 属性。这意味着一个线程修改 `Runnable` 属性，其它线程都受影响。
+
+同一个 `Runnable` 的属性如何不在多个线程中共享，线程局部变量（thread-local variable）高性能地实现了该功能。
+
+### 示例
+
+下面创建两个程序，一个演示共享变量的问题，一个通过 thread-local 变量解决该问题。
+
+- 共享变量 task，定义为 `UnsafeTask`
 
 演示当不同线程共享数据时可能出现的问题
 
@@ -55,7 +66,7 @@ public class Main {
     
     // 创建 1 个 Runnable，10 个线程
     public static void main(String[] args) {
-        // 创建 task
+        // 创建 task，所有线程共享该 task
         UnsafeTask task = new UnsafeTask();
 
         for (int i = 0; i < 10; i++) {
@@ -94,11 +105,11 @@ Thread Finished: 34 : Thu Jun 15 09:06:38 CST 2023
 Thread Finished: 33 : Thu Jun 15 09:06:38 CST 2023
 ```
 
-如果 startDate 没有被其它线程修改，开始和结束输出的时间应该相同。然而，以线程 25 为例，其结束时 startDate 变了，和线程 28  的一样，说明其 startDate 被线程 28 修改了。线程实现一个线程安全版本。
+如果 `startDate` 没有被其它线程修改，开始和结束输出的时间应该相同。然而，以线程 25 为例，其结束时 `startDate` 变了，和线程 28  的一样，说明其 `startDate` 被线程 28 修改了。下面实现一个线程安全版本。
 
-- 定义 SafeTask
+- 定义 `SafeTask`
 
-除了将 Date 替换为 ThreadLocal，其它与 UnsafeTask 一样
+除了将 `Date` 替换为 `ThreadLocal`，其它与 `UnsafeTask` 一样
 
 ```java
 import java.util.Date;
@@ -118,7 +129,7 @@ public class SafeTask implements Runnable {
 
     @Override
     public void run() {
-        // Writes the start date
+        // 只是获取 startDate 的方式发生变化
         System.out.printf("Starting Thread: %s : %s\n",
                 Thread.currentThread().getId(), startDate.get());
         try {
@@ -133,9 +144,9 @@ public class SafeTask implements Runnable {
 }
 ```
 
-- SafeTask 的 main 实现
+- `SafeTask` 的 main 实现
 
-除了将 UnsafeTask 替换为 SafeTask，其它与 UnsafeTask 的 main 一样。
+除了将 `UnsafeTask` 替换为 `SafeTask`，其它与 `UnsafeTask` 的 main 一样。
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -183,7 +194,7 @@ Thread Finished: 32 : Thu Jun 15 09:15:32 CST 2023
 
 可以发现，现在每个线程从开始到结束 date 不变。
 
-## 1.3. 总结
+### ThreadLocal 总结
 
 `ThreadLocal` 为每个使用 thread-local 变量的线程都单独存储一个变量值：
 
@@ -192,7 +203,6 @@ Thread Finished: 32 : Thu Jun 15 09:15:32 CST 2023
 
 第一次调用 `get()` 时，由于 thread-local 还没设置值，它会调用 `initialValue()` 获得初始值。
 
-ThreadLocal 还提供了 remove() 方法，用于删除调用线程存储在其中的变量值。
+`ThreadLocal` 还提供了 `remove(`) 方法，用于删除调用线程存储在其中的变量值。
 
-#TODO
-另外，Java 还提供了 `InheritableThreadLocal` 类用于支持可继承的 thread-local 变量。例如，如果线程 A 有一个 thread-local 变量，然后线程 A 创建了线程 B..
+另外，Java 还提供了 `InheritableThreadLocal` 类用于支持可继承的 thread-local 变量。例如，如果线程 A 有一个 thread-local 变量，然后线程 A 创建了线程 B，那么线程 B 具有与线程 A 相同的线程局部变量。并且可以在线程 B 中重写 `childValue()` 方法，该方法用来初始化子线程中 thread-local 变量值。

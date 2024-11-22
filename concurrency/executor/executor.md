@@ -60,8 +60,8 @@
 
 但是，一味的开线程也不一定能带来性能上的，线池休眠也要占用一定的内存空间，所以要合理地选择线程池的大小。使用 executor，只需要实现 `Runnable` 或 `Callable` 对象，然后将它们发送给 executor。executor 负责执行任务，并使用必要的线程运行它们。说明：
 
-- `Executor` 是最基础的线程池接口；
-- `ExecutorService` 接口扩展 `Executor`，添加了 `submit()`, `shutdown()`等管理方法；
+- `Executor` 是最基础的线程池接口，只有一个 `execute()` 方法；
+- `ExecutorService` 接口扩展 `Executor`，添加了 `submit()`, `shutdown()`等管理方法，还可以使用返回的 `Future` 控制任务执行；
 - `AbstractExecutorService` 抽象类实现了 `ExecutorService` 接口中的大部分方法；
 - `ThreadPoolExecutor` 为线程池的具体实现类；
 - `ScheduledExecutorService` 接口扩展了 `ExecutorService` 接口，添加了周期执行功能；
@@ -568,15 +568,22 @@ public static ExecutorService newCachedThreadPool() {
 }
 ```
 
-`newCachedThreadPool` 创建的线程池不限制线程数量：
+`newCachedThreadPool` 创建的线程池不限制线程数量，即：
+
+- `corePoolSize` 为 0
+- `maximumPoolSize` 为 `Integer.MAX_VALUE`
+- `keepAliveTime` 为 60 秒
+
+该线程池的行为：
 
 - 当线程池的规模超过了处理需求时，回收空闲线程；
+
 - 当需求增加时，添加新的线程；
 - 线程池的规模不存在任何限制。
 
-该线程池适合于包含许多短执行周期任务的情况，每个任务都尽可能在空闲的线程上执行；如果所有线程都在忙，则为新的任务创建新的线程；线程空闲的时间超过一段时间就会被终止。
+该线程池适合执行许多短执行周期任务，每个任务都尽可能在空闲的线程上执行；如果所有线程都在忙，则为新的任务创建新的线程；线程空闲的时间超过一段时间就会被终止。
 
-其 `corePoolSize` 为 0，而 `maximumPoolSize` 为 `Integer.MAX_VALUE`，意味没有任务时，线程池内无线程；任务提交时，该线程池会使用空闲的线程执行任务，若无空闲线程，则将任务加入 `SynchronousQueue`，而 `SynchronousQueue` 是一种直接提交任务的队列，它会迫使线程池增加新的线程执行任务。当任务执行完毕，由于 `corePoolSize` 为 0，因此空闲线程会在指定时间内被回收。
+任务提交时，该线程池会使用空闲的线程执行任务，若无空闲线程，则将任务加入 `SynchronousQueue`，而 `SynchronousQueue` 是一种直接提交任务的队列，其大小始终为 0，它迫使线程池增加新的线程执行任务。当任务执行完毕，由于 `corePoolSize` 为 0，因此空闲线程会在 60 秒后被回收。
 
 对 `newCachedThreadPool`，如果同时提交大量任务，而任务的执行又不快，那么系统会开启等量的线程，这样可能会很快耗尽系统资源。
 
@@ -594,17 +601,26 @@ public static ExecutorService newFixedThreadPool(int nThreads) {
 }
 ```
 
-`newFixedThreadPool()` 创建一个固定长度的线程池，每提交一个任务就创建一个线程，直到达到线程池的最大数量，这时线程池的规模不再变化。
+`newFixedThreadPool()` 创建一个固定长度的线程池，即：
+
+- `corePoolSize` 和 `maximumPoolSize` 相等
+- `keepAliveTime` 为 0
+- 使用无界队列 `LinkedBlockingQueue` 存放无法立即执行的任务，当任务提交非常频繁时，该队列可能迅速膨胀，从而耗尽系统资源。
+
+每提交一个任务就创建一个线程，直到达到线程池的最大数量，这时线程池的规模不再变化。
 
 如果没有空闲线程，新添加的任务会放在 work-queue 中，直到有空余线程。
 
 该线程池适合于计算量大的任务，或者限制任务消耗的资源。
 
-对固定大小的线程池，不存在线程数量的动态变化，因此 `corePoolSize` 和 `maximumPoolSize` 相等。同时，它使用无界队列 `LinkedBlockingQueue` 存放无法立即执行的任务，当任务提交非常频繁时，该队列可能迅速膨胀，从而耗尽系统资源。
-
 #### newSingleThreadPoolExecutor
 
-`newSingleThreadPoolExecutor` 创建一个单线程 `Executor`，一次只能执行一个任务。它创建单个 work-thread 执行任务，如果这个线程异常结束，会创建另一个线程补回来。
+`newSingleThreadPoolExecutor` 创建一个单线程无界队列的 `Executor`，一次只能执行一个任务。
+
+- `corePoolSize` 和 `maximumPoolSize` 均为 1
+- `keepAliveTime` 为 0
+
+它创建单个 work-thread 执行任务，如果这个线程异常结束，会创建另一个线程补回来。
 
 `newSingleThreadPoolExecutor` 能确保任务在 work-queue 中串行执行，如 FIFO，LIFO 或优先级队列。
 
@@ -633,9 +649,9 @@ public ThreadPoolExecutor(int corePoolSize,
 
 | 参数 | 说明  |
 | -- | --- |
-| `corePoolSize` | 线程池大小。在创建线程池后，线程池中默认没有线程，等任务来才创建线程执行任务，当线程池中的线程数达到 `corePoolSize`，后续任务放在缓存队列中等待执行；如果调用了 `prestartAllCoreThreads()` 或 `prestartCoreThread()`方法，则在任务到来之前就预创建线程 |
-| `maximumPoolSize` | 线程池允许的最大线程数 |
-| `keepAliveTime`   | 线程没有任务执行时，过多久终止空闲线程。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize`，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。如果调用了 `allowCoreThreadTimeOut(boolean value)` 方法，在线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
+| `corePoolSize` | 核心线程数。在创建线程池后，线程池中默认没有线程，等任务来才创建线程执行任务，当线程池中的线程数达到 `corePoolSize`，如果有新任务进入，则允许线程池增长到 `maximumPoolSize`；如果调用了 `prestartAllCoreThreads()` 或 `prestartCoreThread()`方法，则在任务到来之前就预创建线程 |
+| `maximumPoolSize` | 线程池允许的最大线程数，当线程数达到 `maximumPoolSize`，后续任务放在缓存队列中，不再创建新线程 |
+| `keepAliveTime`   | 线程没有任务执行时，过多久终止空闲线程。默认情况下只有当线程池中的线程数目大于 `corePoolSize` 时 `keepAliveTime` 才起作用，即当线程池中的线程数大于 `corePoolSize`，线程空闲的时间达到 `keepAliveTime` 就被终止，直到线程池中的线程数不超过 `corePoolSize`。该规则默认仅应用于非核心线程，如果调用 `allowCoreThreadTimeOut(true)`，则该规则也应用于核心线程，即线程池中的线程数不大于 `corePoolSize` 时 `keepAliveTime` 也起作用 |
 | `unit`  | `keepAliveTime` 的时间单位 |
 | `workQueue`  | 当前线程数超过 `corePoolSize`，新的任务会处于等待状态，并保存在该阻塞队列中  |
 | `threadFactory`   | 线程工厂，用于创建线程 |
@@ -768,32 +784,6 @@ Future<V> result = executor.submit(task);
 ```
 
 提交任务返回 `Future` 实例，因为任务执行完才有结果，顾名思义，未来才出现。`Future` 表示一个任务的生命周期，并提供相应的方法来判断任务是否已经完成或取消，以及获取任务的结果、取消任务等。
-
-`Callable` 接口的源码：
-
-```java
-public interface Callable<V> {
-    V call() throws Exception;
-}
-```
-
-`Future` 接口源码如下：
-
-```java
-public interface Future<V> {
-
-    boolean cancel(boolean mayInterruptIfRunning);
-
-    boolean isCancelled();
-
-    boolean isDone();
-
-    V get() throws InterruptedException, ExecutionException;
-
-    V get(long timeout, TimeUnit unit)
-        throws InterruptedException, ExecutionException, TimeoutException;
-}
-```
 
 `Future` 的 `get()` 方法的行为取决于任务状态：
 
@@ -1300,13 +1290,13 @@ Task-9: 180
 
 ## 7. 延迟执行
 
-`ScheduledExecutorService` 接口及其实现 `ScheduledThreadPoolExecutor` 提供延迟和周期执行任务的功能。下面介绍如何创建 `ScheduledExecutorService` 并使用它延迟执行任务。
+`ScheduledExecutorService` 接口及其实现 `ScheduledThreadPoolExecutor` 提供延迟和周期执行任务的功能。下面介绍如何创建 `ScheduledExecutorService` 并使用它延迟执行任务。`schedule` 方法有 3 类：
 
-`schedule` 方法有 3 类：
-
-- `schedule`：在指定时间，运行任务一次；
+- `schedule`：在指定时间，运行任务一次，即延迟执行任务；
 - `scheduleAtFixedRate`：固定频率运行任务，即任务开始的时间间隔不变；如果周期太短，任务还没执行到，下一个周期就开始了，此时会等待上一个任务结束，然后立即开始下一个任务；
 - `scheduleWithFixedDelay`：上一次结束和下一次开始中间的 delay 保持不变。
+
+通常使用 `Executors.newScheduledThreadPool()` 创建 `ScheduledThreadPoolExecutor`，具有指定 `corePoolSize`, 不限制 `maximumPoolSize` 以及 `keepAliveTime` 为 0。
 
 ### 示例 6
 
@@ -1857,3 +1847,7 @@ null
 ============main end=============
 ```
 
+## 参考
+
+- https://www.baeldung.com/thread-pool-java-and-guava
+- 《Java 9 Concurrency Cookbook》, 2ed, Javier Fernandez Gonzalez, Packt Publishing

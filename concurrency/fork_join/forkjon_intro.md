@@ -8,9 +8,7 @@
 
 Java 5 引入了 `Executor` 和 `ExecutorService` 接口以及对应的实现类 `ThreadPoolExecutor`。`Executor` 将任务的创建和执行分离，只需要实现 `Runnable` 接口创建任务，由 `Executor` 创建、管理和终止线程。
 
-Java 7 提供了另一个 `ExecutorService` 实现，就是 fork/join 框架。
-
-fork/join 框架旨在解决可以使用分治法解决的问题。在一个问题中，你检查待解决问题的大小，如果它大于设定值，将将其拆分为更小的任务。如下图所示：
+Java 7 提供了另一个 `ExecutorService` 实现，就是 fork/join 框架。fork/join 框架旨在解决可以使用分治法解决的问题。在一个问题中，检查待解决问题的大小，如果它大于设定值，将将其拆分为更小的任务。如下图所示：
 
 <img src="images/fork-join-in-java.png" alt="Fork Join in Java" style="zoom:80%;" />
 
@@ -237,3 +235,7 @@ invokeAll(t1, t2);
 - `invokeAll(Collection<T> tasks)`：同上，其中泛型参数 `T` 必须是 `ForkJoinTask` 及其子类。
 
 虽然 `ForkJoinPool` 主要用于执行 `ForkJoinTask` 类型任务，但它 也可以直接执行 `Runnable` 和 `Callable` 对象。甚至可以使用 `ForkJoinTask` 的静态方法 `adapt()` 将 `Callable` 或 `Runnable` 对转换为 `ForkJoinTask`，简而言之。`ForkJoinPool` 也可以当作常规线程池使用。
+
+## 参考
+
+- https://www.baeldung.com/java-fork-join
