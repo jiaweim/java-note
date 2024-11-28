@@ -13,7 +13,7 @@
 
 ## GUI Designer 基础
 
-IntelliJ IDEA 中的 GUI Designer 能够使用 Swing 组件创建 GUI。该工具可以帮助加速最常见任务：创建要在顶级容器（如 `JFrame`）中使用的对话框和控件。
+IntelliJ IDEA 中的 GUI Designer 能够使用 Swing 组件创建 GUI。该工具可以快速创建对话框和控件集合，便于在顶级容器（如 `JFrame`）中使用。
 
 使用 GUI Designer 设计的是 pane，而不是 `JFrame`。
 
@@ -57,3 +57,4 @@ GUI Designer 的组件面板可以自定义，能够添加自定义的 UI 组件
 ## 参考
 
 - https://www.jetbrains.com/help/idea/gui-designer-basics.html
+- https://www.jetbrains.com/help/idea/design-gui-using-swing.html
