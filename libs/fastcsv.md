@@ -12,7 +12,7 @@ FastCSV 是一个高性能的 CSV IO 工具。
 <dependency>
     <groupId>de.siegmar</groupId>
     <artifactId>fastcsv</artifactId>
-    <version>3.3.1</version>
+    <version>3.4.0</version>
 </dependency>
 ```
 

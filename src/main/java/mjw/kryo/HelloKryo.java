@@ -13,8 +13,7 @@ import java.io.FileOutputStream;
  * @version 0.1.0
  * @since 31 Jan 2024, 5:13 PM
  */
-public class HelloKryo
-{
+public class HelloKryo {
     public static void main(String[] args) throws FileNotFoundException {
         Kryo kryo = new Kryo();
         kryo.register(SomeClass.class);
@@ -33,8 +32,7 @@ public class HelloKryo
         System.out.println(object2.value);
     }
 
-    public static class SomeClass
-    {
+    public static class SomeClass {
         String value;
     }
 }

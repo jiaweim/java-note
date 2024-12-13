@@ -1,10 +1,11 @@
 # kryo
 
+2024-12-12⭐
 @author Jiawei Mao
 ***
 ## 简介
 
-Kryo 是一个快速、高效的 Java 二进制 graph 序列化框架。其目标的实现快速、尺寸小、易于使用的 API。
+Kryo 是一个快速、高效的 Java 二进制对象 graph 序列化框架。其目标的实现快速、尺寸小、易于使用的 API。当需要将对象序列化，无论是序列化文件、数据库还是网络，该项目都很有用。
 
 Kryo 支持自动深度或浅复制。
 
@@ -23,7 +24,7 @@ application 中使用：
 <dependency>
    <groupId>com.esotericsoftware</groupId>
    <artifactId>kryo</artifactId>
-   <version>5.6.0</version>
+   <version>5.6.2</version>
 </dependency>
 ```
 
@@ -33,7 +34,7 @@ library 中使用：
 <dependency>
    <groupId>com.esotericsoftware.kryo</groupId>
    <artifactId>kryo5</artifactId>
-   <version>5.6.0</version>
+   <version>5.6.2</version>
 </dependency>
 ```
 
@@ -50,13 +51,13 @@ library 中使用：
 <dependency>
    <groupId>com.esotericsoftware</groupId>
    <artifactId>kryo</artifactId>
-   <version>5.6.1-SNAPSHOT</version>
+   <version>5.6.3-SNAPSHOT</version>
 </dependency>
 <!-- for usage in a library that should be published: -->
 <dependency>
    <groupId>com.esotericsoftware.kryo</groupId>
    <artifactId>kryo5</artifactId>
-   <version>5.6.1-SNAPSHOT</version>
+   <version>5.6.3-SNAPSHOT</version>
 </dependency>
 ```
 ## 快速入门
@@ -95,48 +96,50 @@ public class HelloKryo {
 }
 ```
 
-`Kryo` 类自动执行序列化。Output 和 Input 类处理缓冲字节和 flush 操作。
+`Kryo` 类自动执行序列化。`Output` 和 `Input` 类处理缓冲字节和 flush 操作。
 
 本文余下部分详细介绍 Kryo 的工作原理和高级用法。
 
 ## IO
 
-使用 `Input` 和 `Output` 类在 Kryo 中获取数据。这些类都不是线程安全的。
+使用 `Input` 和 `Output` 类在 Kryo 中读写数据。这些类都不是线程安全的。
 
 ### Output
 
-`Output` 类是一个 `OutputStream`，它将数据写入 byte-array buffer。可以获取并直接使用该 byte-array。如果给 `Output` 提供一个 `OutputStream`，则装满 buffer 后，`Output` 会将 buffer 中的字节 flush 到流中，否则 `Output` 会自动增加 buffer。`Output` 包含许多将基本类型和字符串写成字节的方法，提供类似 `DataOutputStream`, `BufferedOutputStream`, `FilterOutputStream` 和 `ByteArrayOutputStream` 的功能。
+`Output` 类是一个 `OutputStream`，它将数据写入 byte-array buffer。可以获取并直接使用该 byte-array。如果给 `Output` 提供一个 `OutputStream`，则装满 buffer 后，`Output` 会将 buffer 中的字节 flush 到流中；否则 `Output` 会自动增大 buffer。`Output` 包含许多将基本类型和字符串写入字节的方法，提供类似 `DataOutputStream`, `BufferedOutputStream`, `FilterOutputStream` 和 `ByteArrayOutputStream` 的功能。
 
-```ad-tip
-`Output` 和 `Input` 提供 `ByteArrayOutputStream` 的所有功能，所以基本没有理由让 `Output` flush 到 `ByteArrayOutputStream`。
-```
+> [!TIP]
+>
+> `Output` 和 `Input` 提供 `ByteArrayOutputStream` 的所有功能，所以不需要让 `Output` flush 到 `ByteArrayOutputStream`。
 
-在写入 `OutputStream` 时，`Output` 会对字节进行缓冲，因此在写完后必须调用 `flush` 或 `close`，以便将缓冲的字节完整写入 `OutputStream`。当然，如果没有给 `Output` 提供 `OutputStream`，就不需要调用 `flush` 或 `close`。
+`Output` 在写入 `OutputStream` 时会缓冲字节，因此在写完后必须调用 `flush` 或 `close`，以便将缓冲字节完整写入 `OutputStream`。当然，如果没有给 `Output` 提供 `OutputStream`，就不需要调用 `flush` 或 `close`。
 
-与许多流不同，`Output` 实例可以通过设置位置、设置新的字节数组或流来重用。
+与许多流不同，`Output` 可以通过设置 `position`、新的字节数组或流来重用。
 
-```ad-tip
-因为 `Output` 已经缓冲了，所以没必要让 `Output` flush 到 `BufferedOutputStream`。
-```
+> [!TIP]
+>
+> 因为 `Output` 已经缓冲了，所以不需要让 `Output` flush 到 `BufferedOutputStream`。
+
+`Output` 的零参构造函数创建一个未初始化的 `Output`。必须先调用 `Output.setBuffer` 才能使用 `Output`。
 
 ### Input
 
-`Input` 类是一个 `InputStream`，它从 byte-array buffer 读取数据：
+`Input` 类是一个 `InputStream`，从 byte-array buffer 读取数据：
 
-- 如果需要从 byte-array 读取数据，则可以直接设置该 buffer；
+- 如果从 byte-array 读取数据，可以直接设置该 buffer；
 - 如果从 `InputStream` 读取数据，则读完 buffer 中的数据后，使用 `InputStream` 填充 buffer
 
 `Input` 提供许多用于高效读取基本类型和字符串字节的方法。提供类似 `DataInputStream`, `BufferedInputStream`, `FilterInputStream` 和 `ByteArrayInputStream` 的方法。
 
-```ad-tip
-`Input` 提供了 `ByteArrayInputStream` 的所有功能，所以没有理由使用 `ByteArrayInputStream` 为 `Input` 提供数据。
-```
+> [!TIP]
+>
+> `Input` 提供了 `ByteArrayInputStream` 的所有功能，所以不需要使用 `ByteArrayInputStream` 为 `Input` 提供数据。
 
 如果调用 `Input.close`，`Input` 内的 `InputStream` 随之关闭（如果有）。如果不是从 `InputStream` 读取数据，则没有必要调用 `close`。
 
 与许多流不同，`Input` 实例可以重用，只需设置 position 和 limit，或设置新的 byte-array 或 `InputStream`。
 
-`Input` 的无参构造函数创建未初始化的 `Input`。在使用前必须调用 `setBuffer`。
+`Input` 的无参构造函数创建未初始化的 `Input`，在使用前必须调用 `setBuffer`。
 
 ### ByteBuffers
 
@@ -146,11 +149,15 @@ public class HelloKryo {
 
 `UnsafeOutput`, `UnsafeInput`, `UnsafeByteBufferOutput` 和 `UnsafeByteBufferInput` 类的工作方式与对应的 non-unsafe 类完全相同，只是它们在许多情况下使用 `sun.misc.Unsafe` 以提高性能。要使用这些类，`Util.unsafe` 必须为 `true`。
 
-使用 unsafe buffers 的主要缺点是，执行序列化的系统的字节序（endianness）和数字类型的表示会影响序列化数据。例如，在 x86 熵写入数据，在 SPARC 上读取数据，反序列化会失败。此外，使用 unsafe-buffer 写入数据，则必须同时使用 unsafe-buffer 读取数据。
+使用 unsafe buffers 的主要缺点是，执行序列化的系统的字节序（endianness）和数字类型的表示会影响序列化数据。例如，在 x86 写入数据，在 SPARC 上读取数据，反序列化会失败。此外，使用 unsafe-buffer 写入数据，必须同时使用 unsafe-buffer 读取数据。
 
 unsafe-buffer 的最大性能差异是在不使用变长编码的大型基本类型数组。unsafe-buffer 可以禁用变长编码，或者仅为特定字段禁用（使用 `FieldSerializer`）。
 
 ### Variable length encoding
+
+> [!TIP]
+>
+> 变长编码可以降低序列化文件大小，但降低了序列化性能。
 
 IO 类提供读写变长 int (varint) 和 long (varlong) 值的方法。该功能通过使用每个字节的第 8 位来指示后面是否有更多字节来实现，所以 `varint` 使用 1-5 bytes，`varlong` 使用 1-9 bytes。变长编码成本更高，但会使序列化的数据更小。
 
@@ -160,21 +167,21 @@ IO 类提供读写变长 int (varint) 和 long (varlong) 值的方法。该功�
 
 | 方法 | 说明 |
 | ---- | ---- |
-| writeInt(int) | Writes a 4 byte int. |
-| writeVarInt(int, boolean) | Writes a 1-5 byte int. |
-| writeInt(int, boolean) | Writes either a 4 or 1-5 byte int (the buffer decides). |
-| writeLong(long) | Writes an 8 byte long. |
-| writeVarLong(long, boolean) | Writes an 1-9 byte long. |
-| writeLong(long, boolean) | Writes either an 8 or 1-9 byte long (the buffer decides). |
+| `writeInt(int)` | Writes a 4 byte int. |
+| `writeVarInt(int, boolean)` | Writes a 1-5 byte int. |
+| `writeInt(int, boolean)` | Writes either a 4 or 1-5 byte int (the buffer decides). |
+| `writeLong(long)` | Writes an 8 byte long. |
+| `writeVarLong(long, boolean)` | Writes an 1-9 byte long. |
+| `writeLong(long, boolean)` | Writes either an 8 or 1-9 byte long (the buffer decides). |
 
 要禁用所有值的变长编码，需要重写 `writeVarInt`, `writeVarLong`, `readVarInt` 和 `readVarLong` 方法。
 ### Chunked encoding
 
-先写入数据长度，再写入数据，有利于后续读取。当数据长度未知，需要对所有数据进行缓冲，确定其长度，然后写入长度、写入数据。使用单个大的 buffer 较大内存，不是理想选择。
+先写入数据长度，再写入数据，有利于后续读取。当数据长度未知，需要对所有数据进行缓冲，确定其长度，然后写入长度、写入数据。这样需要使用单个大的 buffer，占用内存，不是理想选择。
 
-chunk 编码通过使用小的 buffer 解决该问题。当 buffer 满了，写入长度，再写入数据，对应一个 chunk（数据块）。然后清空 buffer，用底层数据（如 `InputStream`）填充，重复该过程，直到没有更多数据。长度为 0 的 chunk 表示结束。
+分块编码（chunked encoding）通过使用小 buffer 解决该问题。当 buffer 满了，写入长度，再写入数据，对应一个 chunk（数据块）。然后清空 buffer，用底层数据（如 `InputStream`）填充，重复该过程，直到没有更多数据。长度为 0 的 chunk 表示结束。
 
-Kryo 提供了使 chunk 编码易于使用的类。`OutputChunked` 用于写入 chunk 数据，它继承 `Output`，所以包含所有写入数据的便捷方法。当 `OutputChunked` 满了，它会将数据块 flush 到另一个 `OutputStream`。`endChunk` 方法用于标记 chunk 的结束。
+Kryo 提供了使分块编码易于使用的类。`OutputChunked` 用于写入数据块，它继承 `Output`，所以包含所有写入数据的便捷方法。当 `OutputChunked` 满了，它会将数据块 flush 到另一个 `OutputStream`。`endChunk` 方法用于标记一个数据块的结束。
 
 ```java
 OutputStream outputStream = new FileOutputStream("file.bin");
@@ -188,7 +195,7 @@ output.endChunk();
 output.close();
 ```
 
-用 `InputChunked` 读取 chunk 数据，它扩展自 `Input`，因此具有读取数据的所有便捷方法。在读取数据时，`InputChunked` 到达一组 chunks 末尾会有相应指示。`nextChunks` 方法推进到下一组 chunks，即使当前 chunks 的数据没有读完。
+用 `InputChunked` 读取数据块，它扩展自 `Input`，因此具有读取数据的所有便捷方法。在读取数据时，`InputChunked` 到达一组 chunks 末尾会有相应指示。`nextChunks` 方法推进到下一组 chunks，即使当前数据块没有读完。
 
 ```java
 InputStream outputStream = new FileInputStream("file.bin");
@@ -203,19 +210,19 @@ input.close();
 
 ### Buffer performance
 
-`Output` 和 `Input` 的性能通常良好。Unsafe buffers 的性能可能更好，特别是对基本类型数组，但是跨平台不兼容。`ByteBufferOutput` 和 `ByteBufferInput` 的性能稍差，但如果必须是 ByteBuffer 接收数据，其性能也可以接受。
+`Output` 和 `Input` 的性能通常良好。Unsafe buffers 的性能可能更好，特别是对基本类型数组，但是跨平台不兼容。`ByteBufferOutput` 和 `ByteBufferInput` 的性能稍差，但如果必须使用 `ByteBuffer` 接收数据，其性能也可以接受。
 
-![[images/Pasted image 20240201095658.png]]
+![](images/Pasted image 20240201095658.png)
 
-![[images/Pasted image 20240201095841.png]]
+![](images/Pasted image 20240201095841.png)
 
 **变长编码比定长慢**，数据越多越明显。
 
-![[images/Pasted image 20240201100133.png]]
+![](images/Pasted image 20240201100133.png)
 
-chunk 编码使用了中间缓冲区，因此对所有字节都添加了额外副本。单独使用没问题，但是在可重入序列化器重，序列化器必须为每个对象创建 OutputChunked 或 InputChunked。在序列化期间分配缓冲区和垃圾回收会对性能产生负面影响。
+分块编码使用了中间缓冲区，因此对所有字节都添加了一个额外副本。单独使用没问题，但是在可重入序列化器重，序列化器必须为每个对象创建 `OutputChunked` 或 `InputChunked`。在序列化期间分配缓冲区和垃圾回收会对性能产生负面影响。
 
-![[images/Pasted image 20240201100425.png]]
+![](images/Pasted image 20240201100425.png)
 
 ## 读写对象
 
@@ -248,9 +255,9 @@ kryo.writeObject(output, object);
 SomeClass object = kryo.readObject(input, SomeClass.class);
 ```
 
-所有这些方法首先找到要使用的序列化器，然后用序列化器序列化或反序列化对象。序列化器可以调用这些方法进行递归序列化。Kryo 会自动处理对同一对象的多次引用和循环引用。
+所有这些方法都需要首先找到要使用的**序列化器**，然后用序列化器序列化或反序列化对象。序列化器可以调用这些方法进行递归序列化。Kryo 会自动处理对同一对象的多次引用和循环引用。
 
-除了读写对象的方法外，Kryo 类还支持注册序列化器，有效读写类的识别符，为不接受 null 的序列化器处理 null 对象，并处理读写对象引用。使得序列化器能够专注于它们的序列化任务。
+除了读写对象的方法，Kryo 类还支持注册序列化器，高效读写类的识别符，为不接受 null 的序列化器处理 null 对象，并处理读写对象引用。使得序列化器能够专注于它们的序列化任务。
 ### Round trip
 
 在测试 Kryo api 时，将对象写入字节，然后将这些字节读回对象可能很有用。
@@ -274,7 +281,7 @@ SomeClass object2 = kryo.readObject(input, SomeClass.class);
 
 ### Deep and shallow copies
 
-Kryo 支持对象深拷贝和浅拷贝。这比序列化字节再序列化回对象更有效。
+Kryo 支持对象深拷贝和浅拷贝。这比序列化字节再反序列化回对象更高效。
 
 ```java
 Kryo kryo = new Kryo();
@@ -283,33 +290,33 @@ SomeClass copy1 = kryo.copy(object);
 SomeClass copy2 = kryo.copyShallow(object);
 ```
 
-使用的所有serializers 需要支持复制。Kryo 提供的所有 serializer 都支持复制。
+使用的所有 serializers 需要支持复制。Kryo 提供的所有 serializer 都支持复制。
 
 和序列化一样，在复制时，如果启用了引用，Kryo 会自动处理对同一对象的多个引用和循环引用问题。
 
 如果 Kryo 只是用来复制，则可以放心禁用注册。
 
-Kryo 的 `getOriginalToCopyMap` 可以在复制对象 graph 后使用，获得原对象到复制对象的映射。Kryo 的 `reset` 会自动清理该 map，所以只有当 `setAutoReset` 为 false 时才有用。
+复制对象图后，可以使用 Kryo 的 `getOriginalToCopyMap` 获得原对象到复制对象的映射。Kryo 的 `reset` 会自动清理该 map，所以只有当 `setAutoReset` 为 false 时才有用。
 
 ### References
 
-引用默认没有启用。因此，如果一个对象在 object-graph 中出现多次，它会被写入多次，并被反序列化多次，序列化为不同对象。禁用引用时，循环引用会导致序列化失败。使用 `setReferences` 启用或禁用引用序列化，使用 `setCopyReferences` 启用或禁用引用复制。
+引用默认没有启用。因此，如果一个对象在 object-graph 中出现多次，它会被写入多次，并被反序列化多次，被反序列化为不同对象。禁用引用时，循环引用会导致序列化失败。使用 `setReferences` 启用或禁用引用序列化，使用 `setCopyReferences` 启用或禁用引用复制。
 
 启用引用后，在每个对象加入 object-graph 之前，先写入一个 varint。当同一 object-graph 中再次出现该类，则只写入一个 varint。反序列化时，恢复对象引用，包括循环引用。使用的 serializers 必须在 `read` 中调用 Kryo `reference` 来支持引用。
 
-启用引用会影响性能，因为需要跟踪读取或写入的每个对象。
+启用引用会影响性能，因为需要跟踪每个读取或写入的对象。
 
-![[images/Pasted image 20240201104000.png]]
+![](images/Pasted image 20240201104000.png)
 
 #### ReferenceResolver
 
 `ReferenceResolver` 负责跟踪读写的对象，并提供一个 int ID。提供了多个实现：
 
-1. 如果未指定 `ReferenceResolver`，则默认为 `MapReferenceResolver`。它使用 Kryo 的 `IdentityObjectIntMap`（[一种 cuckoo hashmap](https://en.wikipedia.org/wiki/Cuckoo%5Fhashing)）跟踪写入的对象，对 put 不分配内存。这种映射的 get 非常快，不过对大量对象，put 可能有点慢。
-2. HashMapReferenceResolver 使用 HashMap 跟踪对象，给 put 分配内存。当对象很多，性能更好。
-3. ListReferenceResolver 使用 ArrayList 跟踪写入对象。对象较少的 object-graph，可能比 map 快（部分测试中快 15%）。不应在包含较多对象的 object-graph 中使用，因为它的查找时间和对象数目成线性关系。
+1. 默认为 `MapReferenceResolver`。它使用 Kryo 的 `IdentityObjectIntMap`（[一种 cuckoo hashmap](https://en.wikipedia.org/wiki/Cuckoo%5Fhashing)）跟踪写入的对象，对 put 不分配内存。这种映射的 get 非常快，不过对大量对象，put 可能有点慢。
+2. `HashMapReferenceResolver` 使用 `HashMap` 跟踪对象，给 `put` 分配内存。当对象很多，性能更好。
+3. `ListReferenceResolver` 使用 `ArrayList` 跟踪写入的对象。对象较少的 object-graph，可能比 map 快（部分测试中快 15%）。不应在包含较多对象的 object-graph 中使用，因为它的查找时间和对象数目成线性关系。
 
-可以重写 `ReferenceResolver` 的 useReferences(Class)。它返回一个 boolean 值来判断一个类是否支持引用。如果一个类不支持引用，则不将变量引用 varint ID 写入 object-graph。如果一个类不需要引用，而改类的对象在 object-graph 中出现多次，则禁用该类的引用可以减小序列化大小。所有基础类型的 wrappers 和 enums 默认禁用引用。对 String 和其他类，通常也返回 false，取决于被序列化的 object-graph。
+可以重写 `ReferenceResolver` 的 `useReferences(Class)`。它返回一个 boolean 值来指示一个类是否支持引用。如果一个类不支持引用，则不将变量引用 varint ID 写入 object-graph。如果一个类不需要引用，而改类的对象在 object-graph 中出现多次，则禁用该类的引用可以减小序列化大小。所有基础类型的 wrappers 和 enums 默认禁用引用。根据被序列化的 object-graph，对 `String` 和其他类通常也返回 false。
 
 ```java
 public boolean useReferences (Class type) {
@@ -319,21 +326,22 @@ public boolean useReferences (Class type) {
 
 #### Reference limits
 
-`ReferenceResolver` 确定单个 object-graph 中的最大引用数。Java 数组索引仅限于 `Integer.MAX_VALUE`，因此，当序列化超过 20 亿个对象时，使用基于数组的数据结构的 `ReferenceResolver` 会导致 `java.lang.NegativeArraySizeException`。Kryo 使用 int 类的 IDs，因此单个 object-graph 中的最大引用数被限制为 int 正数和负数的全部范围（~ 40 亿）。
+`ReferenceResolver` 确定单个 object-graph 中的最大引用数。Java 数组索引仅限于 `Integer.MAX_VALUE`，因此，当序列化超过 20 亿个对象时，使用基于数组数据结构的 `ReferenceResolver` 会导致 `java.lang.NegativeArraySizeException`。Kryo 使用 int 类的 IDs，因此单个 object-graph 中的最大引用数被限制为 int 正数和负数的全部范围（~ 40 亿）。
+
 ### Context
 
 Kryo `getContext` 返回一个用于存储用户数据的 map。Kryo 实例对所有 serializers 都可用，因此所有 serializers 都可以轻松访问该数据。
 
-Kryo `getGraphContext` 类似，不过在每个 object-graph 序列化或反序列化后被清除。这使得管理与当前 object-graph 相关的状态变得容易。例如，可以对第一次遇到的类可以写入 schema 数据。有关示例可参考 `CompatibleFieldSerializer`。
+Kryo `getGraphContext` 类似，不过在每个 object-graph 序列化或反序列化后被清除。这使得管理与当前 object-graph 相关的状态更容易。例如，可以在 object-graph 中第一次遇到某个类时写入 schema 数据。有关示例可参考 `CompatibleFieldSerializer`。
 ### Reset
 
 Kryo 默认在每个 object-graph 完整序列化后调用 reset。该 reset 操作会在 `ClassResolver` 中注销类名，在 `ReferenceResolver` 中注销之前序列化或反序列化对象的引用，并清除 graph-context。Kryo `setAutoReset(false)` 可用来禁用自动调用 reset，使得该状态可以跨越多个 object-graph。
 ## 序列化框架
 
-Kryo 是一个用于序列化的框架。框架本身不强制 schema，也不关心读写数据的内容或方式。Serializers 是可插入式的，决定读写的内容。Kryo 提供的许多 serializers 都是开箱即用，提供各种读写数据的方式。虽然 Kryo 提供的 serializers 可以读写大多数对象，但依然可以自定义 serializer 部分或完全替代 Kryo 内置的 serializers。
+Kryo 是一个用于序列化的框架。框架本身不强制 schema，也不关心读写数据的内容或方式。Serializers 是可插入式的，决定读写的内容。Kryo 提供了许多现成的 serializers，提供各种读写数据的方式。虽然 Kryo 提供的 serializers 可以读写大多数对象，但依然可以自定义 serializer 部分或完全替代 Kryo 内置的 serializers。
 ### Registration
 
-Kryo 在写入对象实例时，首先需要写入对象类型信息。默认情况下，Kryo 要读写的所有类都必须实现注册。注册提供一个 int ID，serializer 根据该 ID 序列化和实例化对象。
+Kryo 在写入对象实例时，首先需要写入对象类型信息。默认情况下，Kryo 要读写的所有类都必须事先注册。注册提供一个 int ID，serializer 根据该 ID 序列化和实例化对象。
 
 ```java
 Kryo kryo = new Kryo();
@@ -352,11 +360,11 @@ kryo.register(AnotherClass.class, 10);
 kryo.register(YetAnotherClass.class, 11);
 ```
 
-Class IDs 1 和 2 保留。Class IDs 0-8 用于基本类型和 String。ID 被写入为优化的 varints，因此它们为小的正整数时效率最高，负数 IDs 无法有效序列化。
+**Class IDs 1 和 2 保留**。Class IDs 0-8 用于基本类型和 `String`。ID 被写入为优化的 varints，因此它们为小的正整数时效率最高，负数 IDs 无法有效序列化。
 
 #### ClassResolver
 
-`ClassResolver` 读写表示类的字节。默认实现大多情况下是够用的，但也可以自定义，如注册类时的额外行为，序列化时遇到未注册类的行为，以及读写表示类的内容。
+`ClassResolver` 读写表示类的字节。默认实现大多情况下够用，但也可以自定义，如定义注册类时的额外行为，序列化时遇到未注册类的行为，以及读写表示类的内容。
 
 #### Optional registration
 
@@ -372,15 +380,15 @@ kryo.writeObject(output, object);
 
 可以混合使用注册和未注册的类。未注册类主要有两个缺点：
 
-1. 存在安全隐患，因为它允许通过反序列化来创建任何类的实例。在构造或销毁时具有副作用的类可能被用于恶意目的。
+1. 存在安全隐患，因为它允许通过反序列化创建任何类的实例。在构造或销毁时具有副作用的类可能被用于恶意目的。
 2. 对未注册类，初次出现在 object-graph 时，不是使用 varint 类（通常 1-2 字节），而是完全限定类名。该类在同一 object-graph 下次出现时才使用 varint。简短的包名可以减少包含未注册类的序列化大小。
 
 如果 Kryo 仅用于复制，则可以安全地禁用注册。
 
-当不需要注册时，可以启用 `setWarnUnregisteredClasses`，在遇到未注册类时 log 消息。可以重写 `unregisteredClassMessage` 以自定义日志消息或采用去他操作。
+当不需要注册时，可以启用 `setWarnUnregisteredClasses`，在遇到未注册类时 log 消息，从而获取所有未注册类。可以重写 `unregisteredClassMessage` 以自定义日志消息或采用其它操作。
 ### Default serializers
 
-注册类时可以选择指定 serializer 实例。在反序列化时，必须使用与序列化完全相同的 serializer 和配置。
+注册类时可以选择指定为 serializer 实例。在反序列化时，必须使用与序列化完全相同的 serializer 和配置。
 
 ```java
 Kryo kryo = new Kryo();
@@ -388,7 +396,7 @@ kryo.register(SomeClass.class, new SomeSerializer());
 kryo.register(AnotherClass.class, new AnotherSerializer());
 ```
 
-如果未指定 serializer，或遇到未注册的类，则从默认 serializers 中自动选择一个。拥有许多默认serializers 不会影响序列化性能，因此 Kryo 默认为各种 JRE 类提供了 50+ 默认 serializers。另外，可以继续添加默认 serializers：
+如果未指定 serializer，或遇到未注册的类，则自动从默认 serializers 中选择。拥有许多默认 serializers 不会影响序列化性能，因此 Kryo 默认为各种 JRE 类提供了 50+ 默认 serializers。另外，可以继续添加默认 serializers：
 
 ```java
 Kryo kryo = new Kryo();
@@ -402,9 +410,9 @@ kryo.writeObject(output, object);
 
 这将导致在注册 `SomeClass` 或其子类时创建 `SomeSerializer` 实例。
 
-默认 serializers 是排序的，以首先匹配更具体的类。
+默认 serializers 已排序，以首先匹配更具体的类。
 
-如果某个类没有匹配的默认 serializer，则使用全局默认 serializer。全局默认 serializer 默认为 `FieldSerializer`，可以修改。全局 serializer 一般可以处理多种不同类型：
+如果某个类没有匹配的默认 serializer，则使用全局默认 serializer。全局默认 serializer 默认为 `FieldSerializer`，可以修改。全局 serializer 可以处理多种不同类型：
 
 ```java
 Kryo kryo = new Kryo();
@@ -414,7 +422,7 @@ kryo.register(SomeClass.class);
 
 对该代码，如果没有默认 serializer 匹配 `SomeClass`，则使用 `TaggedFieldSerializer`。
 
-也可以使用 DefaultSerializer 注释类，以代替选择默认 serializers：
+也可以使用 `DefaultSerializer` 注释类，以代替选择默认 serializers：
 
 ```java
 @DefaultSerializer(SomeClassSerializer.class)
@@ -426,7 +434,7 @@ public class SomeClass {
 为了获得最大的灵活性，可以重写 Kryo `getDefaultSerializer` 以自定义选择和实例化 serializer。
 #### Serializer factories
 
-`addDefaultSerializer(Class, Class)` 方法不允许配置 serializer。但可以设置 serializer-factory，而不是 serializer，在 factory 中可以创建和配置每个 serializer 实例。常用 serializers 都提供了factories，通常使用 getConfig 方法来配置所创建的  serializer：
+`addDefaultSerializer(Class, Class)` 方法不允许配置 serializer。但可以设置 serializer-factory，而不是 serializer，在 factory 中可以创建和配置每个 serializer 实例。常用 serializers 都提供了factories，通常使用 `getConfig` 方法来配置所创建的  serializer：
 
 ```java
 Kryo kryo = new Kryo();
@@ -440,11 +448,11 @@ someClassFactory.getConfig().setFieldsCanBeNull(false);
 kryo.register(SomeClass.class, someClassFactory);
 ```
 
-serializer-factory 有一个 `isSupported(Class)` 方法，允许它拒绝一个类，即使这个类与它匹配。使得 factory 可以检查多个接口，或实现其它逻辑。
+serializer-factory 有一个 `isSupported(Class)` 方法，允许它拒绝处理某个类，即使这个类与它匹配。使得 factory 可以检查多个接口，或实现其它逻辑。
 
 ### Object creation
 
-虽然有的 serializers 是针对特定类的的，但是其它 serializers 可以序列化许多不同的类。Serializers 可以使用 Kryo 的 newInstance(Class) 方法创建任意类的实例。这是通过查找类的注册信息，然后使用注册的 ObjectInstantiator。在注册时可以指定 instantiator。
+虽然有的 serializers 是针对特定类，但是有些 serializers 可以序列化许多不同的类。Serializers 可以使用 Kryo 的 newInstance(Class) 方法创建任意类的实例。这是通过查找类的注册信息，然后使用注册的 ObjectInstantiator。在注册时可以指定 instantiator。
 
 ```java
 Registration registration = kryo.register(SomeClass.class);
@@ -455,7 +463,7 @@ registration.setInstantiator(new ObjectInstantiator<SomeClass>() {
 });
 ```
 
-如果注册没有 instantiator，则由 Kryo `newInstantiator` 提供。通过重写 Kryo `newInstantiator` 或使用 InstantiatorStrategy 可以自定义对象创建方式。
+如果注册时没有提供实例，则由 Kryo `newInstantiator` 提供。通过重写 Kryo `newInstantiator` 或使用 `InstantiatorStrategy` 可以自定义对象创建方式。
 #### InstantiatorStrategy
 
 Kryo 提供的 `DefaultInstantiatorStrategy`，它使用 ReflectASM 调用零参构造函数来创建对象。如果失败，则通过反射调用无参构造函数。如果这也失败了，则抛出异常或尝试用 `InstantiatorStrategy`。反射使用 `setAccessible`，因此提供 `private` 无参构造函数是一个很好的方法，允许 Kryo 创建类，还不影响 `public` API。
@@ -578,13 +586,13 @@ public class ColorSerializer extends Serializer<Color> {
 - `read` 创建对象新的实例，并从 `Input` 读取数据填充实例
 ### Serializer references
 
-当使用 Kryo 在 Serializer `read`  中读取嵌套对象，如果嵌套对象可能引用父对象，则需要首先与父对象一起调用 Kryo `reference`。如果嵌套对象不可能引用父对象，或者没有使用引用，则没必要调用 `reference`。如果嵌套对象可以使用相同的 serializer，则该 serializer 必须是可重入的：
+当使用 Kryo 在 Serializer `read`  中读取嵌套对象，如果嵌套对象可以引用父对象，则需要首先与父对象一起调用 Kryo `reference`。如果嵌套对象不可能引用父对象，或者没有使用引用，则没必要调用 `reference`。如果嵌套对象可以使用相同的 serializer，则该 serializer 必须是可重入的：
 
 ```java
 public SomeClass read (Kryo kryo, Input input, Class<? extends SomeClass> type) {
    SomeClass object = new SomeClass();
    kryo.reference(object);
-   // Read objects that may reference the SomeClass instance.
+   // 读取可能引用 `SomeClass` 实例的对象
    object.someField = kryo.readClassAndObject(input);
    return object;
 }
@@ -592,7 +600,7 @@ public SomeClass read (Kryo kryo, Input input, Class<? extends SomeClass> type) 
 
 #### Nested serializers
 
-Serializers 通常不应该直接使用其它 serializers，而应该使用 Kryo 的读写方法。从而允许 Kryo 使用编排序列化、引用和 null 对象等特性。
+Serializers 通常不应该直接使用其它 serializers，而应该使用 Kryo 的读写方法，从而使得 Kryo 能够协调序列化、引用和 null 对象等。
 
 如果 serializer 知道对嵌套对象使用哪个 serializer。此时应该使用接受 serializer 参数的 Kryo 的 read 和 write 方法。
 
@@ -618,7 +626,7 @@ SomeClass object = kryo.readObject(input, SomeClass.class, serializer);
 
 #### KryoException
 
-当序列化失败时，可以抛出 KryoException，其中包含 object-graph 发生异常的位置。当使用嵌套 serializers，可以在 KryoException 添加 trace 信息。
+当序列化失败时，可以抛出 `KryoException`，其中包含 object-graph 发生异常的位置。当使用嵌套 serializers，可以在 `KryoException` 添加 trace 信息。
 
 ```java
 Object object = ...
@@ -639,27 +647,28 @@ for (Field field : fields) {
 
 #### Stack size
 
-Kryo 提供的 serializers 在序列化嵌套对象时使用了调用堆栈。Kryo 最大限度地减少了堆栈调用，但是对于非常深的 object-graph 可能会发生堆栈溢出。这是大多数序列化库（包含 Java 内置的序列化）的常见问题。可以使用 `-Xss` 增加堆栈大小，但需要注意，该设置影响所有线程。在包含许多线程的 JVM 中，较大的堆栈大小会使用更多内存。
+Kryo 提供的 serializers 在序列化嵌套对象时使用了调用堆栈。Kryo 尽量减少堆栈调用，但是当 object-graph 很深可能发生堆栈溢出。这是大多数序列化库（包含 Java 内置的序列化）的常见问题。可以使用 `-Xss` 增加堆栈大小，但需要注意，该设置影响所有线程。在包含许多线程的 JVM 中，较大的堆栈大小会占用更多内存。
 
-Kryo 的 `setMaxDepth` 可以用来限制 object-graph 的最大深度，可以防止恶意数据导致堆栈溢出。
+Kryo 的 `setMaxDepth` 可以用来限制 object-graph 的最大深度，从而防止恶意数据导致堆栈溢出。
 
 ### Accepting null
 
-serializers 默认不接收 null，kryo 会根据需要写入一个字节表示 null 或非 null。如果 serializer 可以通过自己处理 null 来提高效率，它可以调用 serializer setAcceptsNull(true)。这也可以用来避免在知道序列化程序处理的所有实例不会有 null 的情况。
+serializers 默认不接收 null，kryo 会根据需要写入一个字节表示 null 或非 null。如果 serializer 可以通过自己处理 null 来提高效率，则可以调用 `setAcceptsNull(true)`。这也可以用来避免在知道序列化程序处理的所有实例不会有 null 的情况。
 
 ### Generics
 
 Kryo `getGenerics` 提供泛型类型信息，使 serializers 更高效。常用于避免在类型参数类为 final 时写入类。
 
-默认启用泛型类型推断，使用 setOptimizedGenerics(false) 可以禁用。禁用泛型优化可以提高性能，但会增加序列化大小。
+默认启用泛型类型推断，可以使用 `setOptimizedGenerics(false)` 禁用。禁用泛型优化可以提高性能，但会增加序列化大小。
 
-如果类只有一个类型参数，`nextGenericClass` 返回类型参数，如果没有则返回 null。读写嵌套对象后，必须调用 `popGenericType`。相关示例，可以参考 CollectionSerializer。
+如果类只有一个类型参数，`nextGenericClass` 返回类型参数，如果没有则返回 null。读写嵌套对象后，必须调用 `popGenericType`。相关示例，可以参考 `CollectionSerializer`。
 
 ```java
 public class SomeClass<T> {
    public T value;
 }
 public class SomeClassSerializer extends Serializer<SomeClass> {
+    
    public void write (Kryo kryo, Output output, SomeClass object) {
       Class valueClass = kryo.getGenerics().nextGenericClass();
 
@@ -690,7 +699,7 @@ public class SomeClassSerializer extends Serializer<SomeClass> {
 }
 ```
 
-对具有多个类型参数的类，`nextGenericTypes` 返回 GenericType 实例数组，并使用 `resolve` 获得每个 GenericType 的类。在读写任何嵌套对象后，必须调用 `popGenericType`。相关示例可参考 MapSerializer。
+对具有多个类型参数的类，`nextGenericTypes` 返回 `GenericType` 实例数组，并使用 `resolve` 获得每个 `GenericType` 的类。在读写任何嵌套对象后，必须调用 `popGenericType`。相关示例可参考 `MapSerializer`。
 
 ```java
 public class SomeClass<K, V> {
@@ -750,7 +759,7 @@ public class SomeClassSerializer extends Serializer<SomeClass> {
 }
 ```
 
-对传递嵌套对象类型信息的 serializer，首先使用 GenericsHierarchy 保存类的类型参数。序列化时，解析泛型类型前调用泛型 `pushTypeVariables`。如果返回值 >0，则必须继续调用泛型 popTypeVariables。具体示例可参考 FieldSerializer。
+对传递嵌套对象类型信息的 serializer，首先使用 `GenericsHierarchy` 保存类的类型参数。序列化时，解析泛型类型前调用泛型 `pushTypeVariables`。如果返回值 >0，则必须继续调用泛型 `popTypeVariables`。具体示例可参考 `FieldSerializer`。
 
 ```java
 public class SomeClass<T> {
@@ -914,7 +923,7 @@ Kryo 提供了许多具有不同配置和兼容性的 serializers。在[ kryo-se
 |`extendedFieldNames`|If true, field names are prefixed by their declaring class. This can avoid conflicts when a subclass has a field with the same name as a super class.|false|
 #### CachedField settings
 
-FieldSerializer 提供将被序列化的字段。可以删除不想序列化的字段。也可以通过合理配置提高字段序列化效率。
+`FieldSerializer` 提供将被序列化的字段。可以删除不想序列化的字段。也可以通过合理配置提高字段序列化效率。
 
 ```java
 FieldSerializer fieldSerializer = ...
