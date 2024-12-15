@@ -507,13 +507,27 @@ FastCSV 只支持用另一个双引号来转义双引号。
 
 #### BOM header
 
+FastCsv 能够处理包含 BOM header 的 CSV 文件。
+
 > [!NOTE]
 >
-> BOM  header 是文本文件开头的**字节序列**，用于指示文件编码，如 UTF-8, UTF-16, UTF-32 等。虽然目前大部分文本文件采用 UTF-8 编码，但还是有一些程序采用 BOM header 来指定文件编码
+> BOM (byte order mark) header 是文本文件开头 2-4 **字节序列**，用于指示文件 Unicode 编码，如 UTF-8, UTF-16, UTF-32 等。对 UTF-16 和 UTF-32，BOM header 还表示 byte ordre (big endian 或 little-endian)。
+>
+> 虽然目前大部分文本文件采用 UTF-8 编码，但还是有一些程序采用 BOM header 来指定文件编码
 
-- 通过 `CsvReaderBuilder.detectBomHeader(true)` 启用 BOM header 检测，就可以读取带 BOM header 的 CSV 文件。因为检测 BOM header 会影响性能，因此该功能默认禁用。
+- 通过 `CsvReaderBuilder.detectBomHeader(true)` 启用 BOM header 检测，就可以读取带 BOM header 的 CSV 文件。由于 BOM header 在现代应用中使用较少，且检测 BOM header 会影响性能，因此该功能默认禁用。
 
 - FastCSV 不支持输出 BOM header，主要因为现在编码基本采用 UTF-8
+
+下表为 FastCSV 可以检测的不同 Unicode 编码的 BOM header：
+
+| Encoding    | BOM header (hex) |
+| ----------- | ---------------- |
+| UTF-8       | `EF BB BF`       |
+| UTF-16 (BE) | `FE FF`          |
+| UTF-16 (LE) | `FF FE`          |
+| UTF-32 (BE) | `00 00 FE FF`    |
+| UTF-32 (LE) | `FF FE 00 00`    |
 
 解析带 BOM header 文件示例：
 
@@ -564,14 +578,6 @@ public class ExampleCsvReaderWithBomHeader {
 }
 ```
 
-BOM 二进制字节：
-
-| Bytes            | 编码     |
-| ---------------- | -------- |
-| `0xfe 0xff`      | UTF-16BE |
-| `0xff 0xfe`      | UTF-16LE |
-| `0xef 0xbb 0xbf` | UTF-8    |
-
 > [!NOTE]
 >
 > FastCSV 不支持创建包含 BOM header 的 csv 文件，所以上面是手动输出 BOM header 字节。
@@ -600,6 +606,58 @@ BOM 二进制字节：
 - `CommentStrategies.SKIP`
 
 ## 6. 示例
+
+### Bean Mapping
+
+许多 csv 库都支持将 csv record 映射为 Java Bean。这是一个方便的功能，但大多数库使用基于发射的方法性能较低，这与 FastCsv 的设计目标矛盾。
+
+FastCsv 通过 java stream mapping 提供类似功能，而无需牺牲性能。
+
+```java
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+/**
+ * Example for reading CSV data with a mapping function.
+ */
+public class ExampleCsvReaderMapping {
+
+    private static final String DATA = """
+            ID,firstName,lastName
+            1,John,Doe
+            2,Jane,Smith
+            """;
+
+    public static void main(final String[] args) throws IOException {
+        try (var persons = readPersons()) {
+            persons.forEach(System.out::println);
+        }
+    }
+
+    private static Stream<Person> readPersons() throws IOException {
+        try (var csv = CsvReader.builder().ofNamedCsvRecord(DATA)) {
+            return csv.stream().map(ExampleCsvReaderMapping::mapPerson);
+        }
+    }
+
+    private static Person mapPerson(final NamedCsvRecord rec) {
+        return new Person(
+                Long.parseLong(rec.getField("ID")),
+                rec.getField("firstName"),
+                rec.getField("lastName")
+        );
+    }
+
+    private record Person(long id, String firstName, String lastName) {
+    }
+
+}
+```
+
+
 
 ### 自定义 callback
 
@@ -895,6 +953,8 @@ field 1,"field 2 with a # character","field 3
 ```
 
 第二个 `#` 不是标识注释，而是跨行 field 的内容。
+
+### 跳过非 csv head
 
 
 
