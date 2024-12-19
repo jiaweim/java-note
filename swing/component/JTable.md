@@ -152,8 +152,7 @@ JScrollPane scrollPane = new JScrollPane(table);
 import javax.swing.*;
 import java.awt.*;
 
-public class ScrollTableDemo1 extends JFrame
-{
+public class ScrollTableDemo1 extends JFrame{
     public ScrollTableDemo1() throws HeadlessException {
         Container contentPane = getContentPane();
         contentPane.setLayout(new FlowLayout());
@@ -190,7 +189,7 @@ scrollPane.getViewport().setViewPosition(new Point(0,0));
 - 对水平滚动，unit-increment 为 100 像素
 - 对垂直滚动，单元增量为单个 row 的高度
 
-![|500](images/2024-01-08-22-22-52.png)
+<img src="images/2024-01-08-22-22-52.png" alt="|500" style="zoom:50%;" />
 
 下面是将 `JScrollPane` 作为表格容器的典型代码：
 
@@ -253,7 +252,7 @@ table.setTableHeader(null);
 
 还可以控制显示哪些网格线（`showGrid`），以及网格线颜色（`gridColor`）。
 
-`intercellSpacing` 属性处理 table-cell 内的多余空间。
+`intercellSpacing` 属性处理 table-cell 内的多余空间。	
 
 ### 选择模式
 
@@ -969,15 +968,16 @@ public interface TableModelListener extends java.util.EventListener{
 
 JTable 没有内置排序功能，但是经常需要该功能。
 
-排序不需要更改数据模型，但是需要更改数据模型的视图。可以通过 Decoratoe 模式支持该功能，即使用相同 API，但提供排序功能：
+排序不需要更改数据模型，但是需要更改数据模型的视图。可以通过 Decorator 模式支持该功能，即使用相同 API，但提供排序功能：
 
-- Component: 定义服务接口，被装饰
-- ConcreteComponent：实际被装饰的组件
-- Decorator：ConcreteComponent 的抽象包装器，维护服务接口
-- ConcreteDecorator(s) [A, B, C, . . .]:通过添加装饰职能扩展 Decorator，同时保持相同的编程接口。它们会将服务请求重定向到 ConcreteComponent
+- `Component`: 定义服务接口，被装饰
+- `ConcreteComponent`：实际被装饰的组件
+- `Decorator`：`ConcreteComponent` 的抽象包装器，维护服务接口
+- `ConcreteDecorator`(s) [A, B, C, . . .]:通过添加装饰职能扩展 Decorator，同时保持相同的编程接口。它们会将服务请求重定向到 `ConcreteComponent`
 
-!!! note
-    java.io stream 就是采用的 Decorator 模式。各种过滤流向基本流添加功能，并维护相同的 API。
+> [!NOTE]
+>
+>  java.io stream 就是采用的 Decorator 模式。各种过滤流向基本流添加功能，并维护相同的 API。
 
 对表格排序，只需要  `Component`, `ConcreteComponent` 和 `Decorator`，因为只有一个 `ConcreteDecorator` 实现:
 
@@ -1269,6 +1269,221 @@ public class TableHeaderSorter extends MouseAdapter
     }
 }
 ```
+
+### 排序和过滤
+
+Swing 提供了 `RowSorter` 和实现类 `TableRowSorter` 用于排序。实现排序的最简单方法是将 `autoCreateRowSorter` 设置为 `true`：
+
+```java
+JTable table = new JTable();
+table.setAutoCreateRowSorter(true);
+```
+
+该操作定义了一个 `TableRowSorter`，当用户点击 column 标题，则会根据被点击的 column 进行排序。示例：
+
+```java
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+
+public class TableSortDemo extends JPanel {
+    private boolean DEBUG = false;
+
+    public TableSortDemo() {
+        super(new GridLayout(1, 0));
+
+        JTable table = new JTable(new MyTableModel());
+        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table.setFillsViewportHeight(true);
+        table.setAutoCreateRowSorter(true);
+
+        // 将 table 添加到 scroll pane
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        //Add the scroll pane to this panel.
+        add(scrollPane);
+    }
+
+    class MyTableModel extends AbstractTableModel {
+        private String[] columnNames = {"First Name",
+                "Last Name",
+                "Sport",
+                "# of Years",
+                "Vegetarian"};
+        private Object[][] data = {
+                {"Kathy", "Smith", "Snowboarding", 5, false},
+                {"John", "Doe", "Rowing", 3, true},
+                {"Sue", "Black", "Knitting", 2, false},
+                {"Jane", "White", "Speed reading", 20, true},
+                {"Joe", "Brown", "Pool", 10, false}
+        };
+
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        public int getRowCount() {
+            return data.length;
+        }
+
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+
+        public Object getValueAt(int row, int col) {
+            return data[row][col];
+        }
+
+        /*
+         * JTable 使用该方法确定每个 cell 的默认 renderer。如果不实现该方法，最后一列
+         * 将包含文本 ("true"/"false")，而不是 checkbox。
+         */
+        public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        /*
+         * Don't need to implement this method unless your table's
+         * editable.
+         */
+        public boolean isCellEditable(int row, int col) {
+            //Note that the data/cell address is constant,
+            //no matter where the cell appears onscreen.
+            if (col < 2) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        /*
+         * Don't need to implement this method unless your table's
+         * data can change.
+         */
+        public void setValueAt(Object value, int row, int col) {
+            if (DEBUG) {
+                System.out.println("Setting value at " + row + "," + col
+                        + " to " + value
+                        + " (an instance of "
+                        + value.getClass() + ")");
+            }
+
+            data[row][col] = value;
+            // Normally, one should call fireTableCellUpdated() when 
+            // a value is changed.  However, doing so in this demo
+            // causes a problem with TableSorter.  The tableChanged()
+            // call on TableSorter that results from calling
+            // fireTableCellUpdated() causes the indices to be regenerated
+            // when they shouldn't be.  Ideally, TableSorter should be
+            // given a more intelligent tableChanged() implementation,
+            // and then the following line can be uncommented.
+            // fireTableCellUpdated(row, col);
+
+            if (DEBUG) {
+                System.out.println("New value of data:");
+                printDebugData();
+            }
+        }
+
+        private void printDebugData() {
+            int numRows = getRowCount();
+            int numCols = getColumnCount();
+
+            for (int i = 0; i < numRows; i++) {
+                System.out.print("    row " + i + ":");
+                for (int j = 0; j < numCols; j++) {
+                    System.out.print("  " + data[i][j]);
+                }
+                System.out.println();
+            }
+            System.out.println("--------------------------");
+        }
+    }
+
+    /**
+     * Create the GUI and show it.  For thread safety,
+     * this method should be invoked from the
+     * event-dispatching thread.
+     */
+    private static void createAndShowGUI() {
+        //Create and set up the window.
+        JFrame frame = new JFrame("TableSortDemo");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Create and set up the content pane.
+        TableSortDemo newContentPane = new TableSortDemo();
+        newContentPane.setOpaque(true); //content panes must be opaque
+        frame.setContentPane(newContentPane);
+
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
+}
+```
+
+为了更好控制排序，可以构造 `TableRowSorter` 实例：
+
+```java
+JTable table = new JTable(myModel);
+table.setRowSorter(new TableRowSorter(table.getModel));
+```
+
+当用户点击 column-header，表格将以可视化方式排序。
+
+`JTable` 基于 row 的方法和 `JTable` 的选择模型引用的是 view 而不是底层模型。因此需要在两者之间进行转换。例如，要获取 `myModel` 选择的内容，需要将 `JTable` 选择的索引转换为底层模型的索引：
+
+```java
+int[] selection = table.getSelectedRows();
+for (int i = 0; i < selection. length; i++) {
+  selection[i] = table.convertRowIndexToModel(selection[i]);
+}
+```
+
+同理，要根据底层模型的 index 选择 `JTable` 的一行，需要执行相反的转换：
+
+```java
+table.setRowSelectionInterval(table.convertRowIndexToView(row),
+                                 table.convertRowIndexToView(row));
+```
+
+上例假设未启用过滤。如果启用过滤，`convertRowIndexToView` 对视图不可见的位置返回 -1。
+
+`TableRowSorter` 使用 `Comparator` 进行比较。选择 `Comparator` 的规则：
+
+1. 优先使用通过 `setComparator` 为该 column 指定的 `Comparator`；
+2. 如果 `getColumnClass` 返回的 column 类为 `String`，则使用 `Collator.getInstance()` 返回的 `Comparator`
+3. 如果 column 类实现了 `Comparable`，则调用对应的 `compareTo` 方法
+4. 如果已指定 `TableStringConverter`，则使用它将值转换为 `String`，然后使用 `Collator. getInstance()` 返回的 `Comparator`
+5. 否则，对值的 `toString` 的结果使用  `Collator. getInstance()` 返回的 `Comparator`
+
+对于更复杂的排序，可以继承 `TableRowSorter` 或其父类 `DefaultRowSorter`。
+
+
+
+除了排序以外，`TableRowSorter` 还提供过滤功能，使用 `setFilter` 方法指定过滤器。例如，只显示包含字符串 "foo" 的 row：
+
+```java
+TableModel myModel = createMyTableModel();
+TableRowSorter sorter = new TableRowSorter(myModel);
+sorter.setRowFilter(RowFilter.regexFilter(".*foo.*"));
+JTable table = new JTable(myModel);
+table.setRowSorter(sorter);
+```
+
+如果底层模型结构发生变化（`modelStructureChanged` 方法被调用），则以下内容被重置为默认值：column 的 `Comparator`，当前排序，以及每个 column 是否可排序。默认排序为自然排序（与模型相同），默认所有 columns 可排序。
+
+
 
 ## TableColumnModel
 
