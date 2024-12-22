@@ -84,7 +84,7 @@ columnNames.addElement("Column Three");
 JTable table = new JTable(rowData, columnNames);
 ```
 
-直接使用数据创建 JTable 很方便，缺点是：
+**直接使用数据创建 JTable** 很方便，**缺点**是：
 
 - cell 自动可编辑
 - 所有数据作为字符串处理，例如，对 boolean 数据，使用复选框可能更直观，但这种方式只能以字符串显示
@@ -132,13 +132,25 @@ JTable table = new JTable(model, columnModel, selectionModel);
 `JTable` 实现了 `Scrollable` 接口，应该放在 `JScrollPane` 中。常用代码：
 
 ```java
-JTable table = new JTable(...);
 JScrollPane scrollPane = new JScrollPane(table);
+table.setFillsViewportHeight(true)
 ```
 
-如下所示：
+`JTable.setFillsViewportHeight` 用于设置 `fillsViewportHeight` 属性。当该属性为 `true`，即使表格没有足够内容填充整个垂直空间，表格也会占据整个高度，
 
-![[images/Pasted image 20240119123740.png|400]]
+`JScrollPane` 会自动将表格 header 放在视图顶部。滚动表格数据时，col-names 仍然在视图顶部。
+
+如果不将表格放在 `JScrollPane`，则必须获取表格标题组件并手动放置。例如：
+
+```java
+container.setLayout(new BorderLayout());
+container.add(table.getTableHeader(), BorderLayout.PAGE_START);
+container.add(table, BorderLayout.CENTER);
+```
+
+例如：
+
+<img src="images/Pasted image 20240119123740.png" style="zoom: 50%;" />
 
 这是两个相同的表格，上面的表格直接添加到面板，第二个表格添加到 `JScrollPane` 中。主要差别：不放在 `JScrollPane` 中，`JTable` 的标题行不可见，且不能调整大小。
 
@@ -170,9 +182,25 @@ public class ScrollTableDemo1 extends JFrame{
 }
 ```
 
+### 水平滚动
+
+要支持水平和垂直滚动，需要设置两个地方。
+
+一个是 `JScrollPane`，要求水平和垂直都可以滚动：
+
+```java
+new JScrollPane(myTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+```
+
+另外，取消自动调整列大小功能：
+
+```java
+myJTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+```
+
 ### 手动定位 JTable 视图
 
-将 `JTable` 放在 `JScrollPane` 中，默认位置满足左上角显示第一行和第一列。如果需要将表格调整会初始位置，可以将 viewport 位置设置为 (0,0)：
+将 `JTable` 放在 `JScrollPane` 中，默认位置满足左上角显示第一行和第一列。如果需要将表格调整回初始位置，可以将 viewport 位置设置为 (0,0)：
 
 ```java
 scrollPane.getViewport().setViewPosition(new Point(0,0));
@@ -254,63 +282,8 @@ table.setTableHeader(null);
 
 `intercellSpacing` 属性处理 table-cell 内的多余空间。	
 
-### 选择模式
 
-`JTable` 支持三种选择模式，可以选择一行、一列或一个 cell。这三个设置由 `rowSelectionAllowed`、`columnSelectionAllowed` 和 `cellSelectionEnabled` 属性控制。
-
-默认为 row 选择模式，因为 `ListSelectionModel` 默认多选，所以可以一次选择多行。
-
-通过 `JTable` 的 `selectionMode` 属性可以修改选择模式。当同时启用 row 和 column 选择，cell 选择模式自动启用。选择指示的最后一个 cell 会有标识，称为 *lead-selection*，也称为 *current-cell* 或 *focus-cell*。
-
-用户可以通过鼠标和键盘进行选择：
-
-|操作|鼠标|键盘|
-|---|---|---|
-|选择单行|点击|上下箭头|
-|选择连续多行|Shift+点击或拖动|Shift+上下箭头|
-|不连续选择多行|Ctrl+点击|上下箭头移动 focus-cell，使用空格添加选择，或 Ctrl+空格切换选择|
-
-如果对 `JTable` 的 row 或 column 选择感兴趣，可以使用 `JTable` 的 6 个相关属性进行查询：
-
-- selectedColumnCount
-- selectedColumn
-- selectedColumns
-- selectedRowCount
-- selectedRow
-- selectedRows
-
-`ListSelectionModel` 类为不同选择模式提供了常量。
-
-- `MULTIPLE_INTERVAL_SELECTION` (默认)
-- `SINGLE_INTERVAL_SELECTION`
-- `SINGLE_SELECTION`
-
-`JTable` 对行和列有独立的选择模型：
-
-- row 选择模型保存在 `JTable` 的 `selectionModel` 属性
-- column 选择模型保存在 `TableColumnModel` 中
-
-但设置 `JTable` 的 `selectionMode` 时，会同时设置这两个选择模式。
-
-下面是 `DefaultListSelectionModel` 提供的查询选择的属性：
-
-|属性|类型|权限|
-|---|---|---|
-|anchorSelectionIndex|int|Read-write|
-|leadAnchorNotificationEnabled|boolean|Read-write|
-|leadSelectionIndex|int|Read-write|
-|listSelectionListeners|ListSelectionListener[]|Read-only|
-|maxSelectionIndex|int|Read-only|
-|minSelectionIndex|int|Read-only|
-|selectionEmpty|boolean|Read-only|
-|selectionModel|int|Read-write|
-|valueIsAdjusting|boolean|Read-write|
-
-如果想直到选择时间何时发生，可以向 `ListSelectionModel` 注册 `ListSelectionListener`。
-
-在 `JList` 中有展示 `ListSelectionListener` 的使用。
-
-### 自动调整大小模式
+### Column 宽度
 
 `JTable` 余下属性处理 column-resize 行为。
 
@@ -506,6 +479,69 @@ yourTable.setToolTipText(null);
 ## JTable 事件
 
 没有可以直接注册到 `JTable` 的事件。需要注册 `JTable` 的模型类：`TableModel`, `TableColumnModel` 或 `ListSelectionModel`。
+
+### 用户选择
+
+在默认设置，`JTable` 支持单行和多行选择。多行选择时，可以选择连续行，也可以选择任意行。用户选择的最后一个 cell 会有特殊外观，如在 Metal laf 中，会有一个边框。该 cell 称为引导选择（lead selection），有时也称为焦点 cell，或当前 cell。
+
+可参考 [SimpleTableSelectionDemo](#simpletableselectiondemo)。
+
+
+### 选择模式
+
+`JTable` 支持三种选择模式，可以选择一行、一列或一个 cell。这三个设置由 `rowSelectionAllowed`、`columnSelectionAllowed` 和 `cellSelectionEnabled` 属性控制。
+
+默认为 row 选择模式，因为 `ListSelectionModel` 默认多选，所以可以一次选择多行。
+
+通过 `JTable` 的 `selectionMode` 属性可以修改选择模式。当同时启用 row 和 column 选择，cell 选择模式自动启用。选择指示的最后一个 cell 会有标识，称为 *lead-selection*，也称为 *current-cell* 或 *focus-cell*。
+
+用户可以通过鼠标和键盘进行选择：
+
+|操作|鼠标|键盘|
+|---|---|---|
+|选择单行|点击|上下箭头|
+|选择连续多行|Shift+点击或拖动|Shift+上下箭头|
+|不连续选择多行|Ctrl+点击|上下箭头移动 focus-cell，使用空格添加选择，或 Ctrl+空格切换选择|
+
+如果对 `JTable` 的 row 或 column 选择感兴趣，可以使用 `JTable` 的 6 个相关属性进行查询：
+
+- selectedColumnCount
+- selectedColumn
+- selectedColumns
+- selectedRowCount
+- selectedRow
+- selectedRows
+
+`ListSelectionModel` 类为不同选择模式提供了常量。
+
+- `MULTIPLE_INTERVAL_SELECTION` (默认)
+- `SINGLE_INTERVAL_SELECTION`
+- `SINGLE_SELECTION`
+
+`JTable` 对行和列有独立的选择模型：
+
+- row 选择模型保存在 `JTable` 的 `selectionModel` 属性
+- column 选择模型保存在 `TableColumnModel` 中
+
+但设置 `JTable` 的 `selectionMode` 时，会同时设置这两个选择模式。
+
+下面是 `DefaultListSelectionModel` 提供的查询选择的属性：
+
+|属性|类型|权限|
+|---|---|---|
+|anchorSelectionIndex|int|Read-write|
+|leadAnchorNotificationEnabled|boolean|Read-write|
+|leadSelectionIndex|int|Read-write|
+|listSelectionListeners|ListSelectionListener[]|Read-only|
+|maxSelectionIndex|int|Read-only|
+|minSelectionIndex|int|Read-only|
+|selectionEmpty|boolean|Read-only|
+|selectionModel|int|Read-write|
+|valueIsAdjusting|boolean|Read-write|
+
+如果想直到选择时间何时发生，可以向 `ListSelectionModel` 注册 `ListSelectionListener`。
+
+在 `JList` 中有展示 `ListSelectionListener` 的使用。
 
 ## 自定义 JTable Laf
 
@@ -1483,17 +1519,17 @@ table.setRowSorter(sorter);
 
 如果底层模型结构发生变化（`modelStructureChanged` 方法被调用），则以下内容被重置为默认值：column 的 `Comparator`，当前排序，以及每个 column 是否可排序。默认排序为自然排序（与模型相同），默认所有 columns 可排序。
 
-
-
 ## TableColumnModel
 
-TableColumnModel 管理 JTable 显示的 columns。在创建 JTable 时，组件会根据数模型创建默认的 TableColumnModel。该接口通常在后台运行，不需要太多关注。
+`TableColumnModel` 管理 `JTable 显示`的 columns。
 
-如果在设置 JTable 的数据模型之前将 JTable 的 autoCreateColumnsFromModel 属性设置为 true，则会自动创建 TableColumnModel。如果需要重置当前设置，也可以手动让 JTable 创建默认 TableColumnModel。`createDefaultColumnsFromModel()` 负责创建默认 TableColumnModel 并分配给 JTable。
+在创建 `JTable` 时，组件会根据数模型创建默认的 `TableColumnModel`。该接口通常在后台运行，不需要太多关注。
 
-所有这些都自动完成，那么，为什么还需要学习 TableColumnModel？当不喜欢默认配置，或者需要手动移动内容时，就需要使用此接口。除了维护一组 TableColumn 对象，TableColumnModel 还管理了另一个 ListSelectionModel，从而允许用户选择行或列。
+如果在设置 JTable 的数据模型之前将 `JTable` 的 `autoCreateColumnsFromModel` 属性设置为 `true`，则会自动创建 `TableColumnModel`。如果需要重置当前设置，也可以手动让 JTable 创建默认 TableColumnModel。`createDefaultColumnsFromModel()` 负责创建默认 TableColumnModel 并分配给 JTable。
 
-TableColumnModel 定义：
+所有这些都自动完成，那么，为什么还需要学习 `TableColumnModel`？当不喜欢默认配置，或者需要手动移动内容时，就需要使用此接口。除了维护一组 `TableColumn` 对象，`TableColumnModel` 还管理了另一个 `ListSelectionModel`，从而允许用户选择行或列。
+
+`TableColumnModel` 定义：
 
 ```java
 public interface TableColumnModel
@@ -1529,7 +1565,7 @@ public interface TableColumnModel
 
 ### DefaultTableColumnModel
 
-DefaultTableColumnModel 类定义了系统使用的 TableColumnModel 实现。它通过跟踪 margins, width, selection 和 quantity 来描述 TableColumn 对象的外观。下表是 DefaultTableColumnModel 的属性：
+`DefaultTableColumnModel` 类定义了系统使用的 `TableColumnModel` 实现。它通过跟踪 margins, width, selection 和 quantity 来描述 `TableColumn` 对象的外观。下表是 DefaultTableColumnModel 的属性：
 
 |属性|类型|权限|
 |---|---|---|
@@ -1556,8 +1592,8 @@ public void moveColumn(int currentIndex, int newIndex);
 使用 TableColumnModel 的一个主要原因可能是使用 TableColumnModelListener 监听 TableColumnModelEvent 事件。添加、删除、移动和选择 columns，以及修改 column margins 都会触发该事件。
 
 ```java
-public interface TableColumnModelListener extends java.util.EventListener
-{
+public interface TableColumnModelListener extends java.util.EventListener{
+    
     public void columnAdded(TableColumnModelEvent e);
 
     public void columnRemoved(TableColumnModelEvent e);
@@ -1793,13 +1829,13 @@ public class LabelHeaderSample
 
 #### 设置 column 宽度
 
-表格所有 columns 宽度默认相同，且所有 columns 会自动展开以填充表格的整个宽度。当调整表格宽度，所有 columns 宽度对相应改变。
+表格所有 columns 宽度默认相同，且所有 columns 会自动展开以填充表格的整个宽度。当调整表格宽度，所有 columns 宽度也相应改变。
 
 当拖动 column 右边框调整 column 宽度，则其它 column 或整个表格的宽度必须改变。默认表格宽度不变，拖放点右侧的所有 columns 会相应调整宽度。
 
-调用 `TableColumn.setPreferredWidth` 可以自定义 column 初始宽度。
+对每一列分别调用 `TableColumn.setPreferredWidth` 可以自定义每个 column 的初始宽度。这既设置了列的首选宽度，也设置了它们的近似相对宽度。
 
-**示例：** 将表格的第三个 column 设置宽一点
+**示例：** 将以下代码添加到 `SimpleTableDemo` 中设置表格的第三个 column 设置宽一点
 
 ```java
 TableColumn column = null;
@@ -1813,15 +1849,15 @@ for (int i = 0; i < 5; i++) {
 }
 ```
 
-`TableColumn` 提供 column 的 min, max, pref 宽度的 getter 和 setter 方法，以及获取当前宽度。
+每一列由一个 `TableColumn` 表示。`TableColumn` 提供了获取列的最小宽度、首选宽度和最大宽度的 getter 和 setter 方法，以及获取当前宽度的方法。
 
-用户显式调整 column 宽度设置的是 prefWidth，从而使用户设置的宽度称为当前宽度。不过，当调整表格大小，column 的 prefWidth 不会改变，而是根据现有 prefWidth 计算新的 column 宽度。
+用户显式调整 column 宽度设置的是 `prefWidth`，从而使用户设置的宽度成为当前宽度。不过，当调整表格大小，column 的 `prefWidth` 不会改变，而是根据现有 `prefWidth` 计算新的列宽。
 
 调用 `setAutoResizeMode` 可以修改表格调整大小的策略。
 
 ## JTableHeader
 
-每个 JTableHeader 对应 column 的一个标题。JTableHeader 放在 JScrollPane 的 column-header-view 中。很少需要直接使用 JTableHeader，不过你也可以根据需要设置 column-header 的一些属性。
+每个 `JTableHeader` 对应 column 的一个标题。JTableHeader 放在 `JScrollPane` 的 column-header-view 中。很少需要直接使用 JTableHeader，不过你也可以根据需要设置 column-header 的一些属性。
 
 ### 创建 JTableHeader
 
@@ -1837,3 +1873,244 @@ JComponent headerComponent = new JTableHeader(aColumnModel)
 
 ### JTableHeader 属性
 
+## 示例
+
+### SimpleTableDemo
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class SimpleTableDemo extends JPanel {
+
+    private boolean DEBUG = false;
+
+    public SimpleTableDemo() {
+        super(new GridLayout(1, 0));
+    	// 表格 cols 名称
+        String[] columnNames = {"First Name", "Last Name", "Sport",
+                "# of Years", "Vegetarian"};
+		// 表格数据
+        Object[][] data = {
+                {"Kathy", "Smith", "Snowboarding", 5, false},
+                {"John", "Doe", "Rowing", 3, true},
+                {"Sue", "Black", "Knitting", 2, false},
+                {"Jane", "White", "Speed reading", 20, true},
+                {"Joe", "Brown", "Pool", 10, false}
+        };
+        // 使用 col 名称和数据创建表格
+        final JTable table = new JTable(data, columnNames);
+        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table.setFillsViewportHeight(true);
+
+        if (DEBUG) {
+            table.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    printDebugData(table);
+                }
+            });
+        }
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane);
+    }
+
+    private void printDebugData(JTable table) {
+        int numRows = table.getRowCount();
+        int numCols = table.getColumnCount();
+        javax.swing.table.TableModel model = table.getModel();
+
+        System.out.println("Value of data: ");
+        for (int i = 0; i < numRows; i++) {
+            System.out.print("    row " + i + ":");
+            for (int j = 0; j < numCols; j++) {
+                System.out.print("  " + model.getValueAt(i, j));
+            }
+            System.out.println();
+        }
+        System.out.println("--------------------------");
+    }
+
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("SimpleTableDemo");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        SimpleTableDemo newContentPane = new SimpleTableDemo();
+        newContentPane.setOpaque(true); //content panes must be opaque
+        frame.setContentPane(newContentPane);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(SimpleTableDemo::createAndShowGUI);
+    }
+}
+```
+
+### SimpleTableSelectionDemo
+
+`SimpleTableSelectionDemo` 与 `SimpleTableDemo` 类似，只是会检测选择事件，并打印当前选择信息。
+
+```java
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JComponent;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class SimpleTableSelectionDemo extends JPanel {
+    
+    private boolean DEBUG = false;
+    private boolean ALLOW_COLUMN_SELECTION = false;
+    private boolean ALLOW_ROW_SELECTION = true;
+
+    public SimpleTableSelectionDemo() {
+        super(new GridLayout(1, 0));
+
+        final String[] columnNames = {"First Name",
+                "Last Name",
+                "Sport",
+                "# of Years",
+                "Vegetarian"};
+
+        final Object[][] data = {
+                {"Kathy", "Smith", "Snowboarding", 5, false},
+                {"John", "Doe", "Rowing", 3, true},
+                {"Sue", "Black", "Knitting", 2, false},
+                {"Jane", "White", "Speed reading", 20, true},
+                {"Joe", "Brown", "Pool", 10, false}
+        };
+
+        final JTable table = new JTable(data, columnNames);
+        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table.setFillsViewportHeight(true);
+
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        if (ALLOW_ROW_SELECTION) { // true by default
+            ListSelectionModel rowSM = table.getSelectionModel();
+            rowSM.addListSelectionListener(new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent e) {
+                    //Ignore extra messages.
+                    if (e.getValueIsAdjusting()) return;
+
+                    ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+                    if (lsm.isSelectionEmpty()) {
+                        System.out.println("No rows are selected.");
+                    } else {
+                        int selectedRow = lsm.getMinSelectionIndex();
+                        System.out.println("Row " + selectedRow
+                                + " is now selected.");
+                    }
+                }
+            });
+        } else {
+            table.setRowSelectionAllowed(false);
+        }
+
+        if (ALLOW_COLUMN_SELECTION) { // false by default
+            if (ALLOW_ROW_SELECTION) {
+                //We allow both row and column selection, which
+                //implies that we *really* want to allow individual
+                //cell selection.
+                table.setCellSelectionEnabled(true);
+            }
+            table.setColumnSelectionAllowed(true);
+            ListSelectionModel colSM =
+                    table.getColumnModel().getSelectionModel();
+            colSM.addListSelectionListener(new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent e) {
+                    //Ignore extra messages.
+                    if (e.getValueIsAdjusting()) return;
+
+                    ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+                    if (lsm.isSelectionEmpty()) {
+                        System.out.println("No columns are selected.");
+                    } else {
+                        int selectedCol = lsm.getMinSelectionIndex();
+                        System.out.println("Column " + selectedCol
+                                + " is now selected.");
+                    }
+                }
+            });
+        }
+
+        if (DEBUG) {
+            table.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    printDebugData(table);
+                }
+            });
+        }
+
+        //Create the scroll pane and add the table to it.
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        //Add the scroll pane to this panel.
+        add(scrollPane);
+    }
+
+    private void printDebugData(JTable table) {
+        int numRows = table.getRowCount();
+        int numCols = table.getColumnCount();
+        javax.swing.table.TableModel model = table.getModel();
+
+        System.out.println("Value of data: ");
+        for (int i = 0; i < numRows; i++) {
+            System.out.print("    row " + i + ":");
+            for (int j = 0; j < numCols; j++) {
+                System.out.print("  " + model.getValueAt(i, j));
+            }
+            System.out.println();
+        }
+        System.out.println("--------------------------");
+    }
+
+    /**
+     * Create the GUI and show it.  For thread safety,
+     * this method should be invoked from the
+     * event-dispatching thread.
+     */
+    private static void createAndShowGUI() {
+        //Create and set up the window.
+        JFrame frame = new JFrame("SimpleTableSelectionDemo");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Create and set up the content pane.
+        SimpleTableSelectionDemo newContentPane = new SimpleTableSelectionDemo();
+        newContentPane.setOpaque(true); //content panes must be opaque
+        frame.setContentPane(newContentPane);
+
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
+}
+```
+
+
+
+## 参考
+
+- https://docs.oracle.com/javase/tutorial/uiswing/components/table.html

@@ -6,7 +6,6 @@ package mjw.swing;
  * images/Forward24.gif
  * images/Up24.gif
  */
-
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
@@ -26,8 +25,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ToolBarDemo2 extends JPanel
-        implements ActionListener {
+public class ToolBarDemo2 extends JPanel implements ActionListener {
+
     protected JTextArea textArea;
     protected String newline = "\n";
     static final private String PREVIOUS = "previous";
@@ -175,12 +174,10 @@ public class ToolBarDemo2 extends JPanel
     public static void main(String[] args) {
         //Schedule a job for the event dispatch thread:
         //creating and showing this application's GUI.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                createAndShowGUI();
-            }
+        SwingUtilities.invokeLater(() -> {
+            //Turn off metal's use of bold fonts
+            UIManager.put("swing.boldMetal", Boolean.FALSE);
+            createAndShowGUI();
         });
     }
 }

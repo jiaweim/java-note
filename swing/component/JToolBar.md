@@ -1,5 +1,21 @@
 # JToolBar
 
+- [JToolBar](#jtoolbar)
+  - [简介](#简介)
+  - [构造函数](#构造函数)
+  - [添加组件](#添加组件)
+  - [JToolBar 属性](#jtoolbar-属性)
+  - [JToolBar 事件处理](#jtoolbar-事件处理)
+  - [自定义 JToolBar 的 laf](#自定义-jtoolbar-的-laf)
+  - [示例](#示例)
+    - [ToolBarDemo](#toolbardemo)
+    - [ToolBarDemo2](#toolbardemo2)
+  - [参考](#参考)
+
+2024-12-21 ⭐
+@author Jiawei Mao
+***
+
 ## 简介
 
 工具栏（`JToolBar` ）是一个容器，它将多个组件（通常是带 icon 的 button）放在一行或一列，一般用于快速访问常用命令，这些命令通常隐藏在分层菜单中。
@@ -56,7 +72,9 @@ public JToolBar(String name,int orientation)
 JToolBar jToolBar = new JToolBar("Window Title", ToolBar.VERTICAL);
 ```
 
-`JToolBar` 默认为水平方向，通过常量 `HORIZONTAL` 和 `VERTICAL` 设置工具栏方向。
+`JToolBar` 默认为**水平方向**，通过常量 `HORIZONTAL` 和 `VERTICAL` 设置工具栏方向。
+
+`String` 参数指定标题，当将 `JToolBar` 拖到单独的窗口，就会显示。
 
 另外，工具栏默认 floatable。因此在创建指定方向的工具栏后，用户可以拖动工具栏改变方向。
 
@@ -160,9 +178,11 @@ setFloatable(false)
 
 **rollover**
 
-`rollover` 属性定义用户将鼠标移到工具栏内不同组件上时的外观。该行为可能涉及颜色或边框差异。默认当鼠标指针悬停在工具栏按钮上才绘制按钮的边框，默认为 `false`。
+`rollover` 属性定义当用户将鼠标移到工具栏内不同组件上时，呈现不同外观。该行为可能涉及颜色或边框差异，取决于 laf。默认当鼠标指针悬停在工具栏按钮上才绘制按钮的边框，默认为 `false`。
 
 在 `ToolBarDemo2` 示例完整展示了这些特性。
+
+通过 `setAlignmentY` 设置组件对齐方式，默认居中。
 
 ## JToolBar 事件处理
 
@@ -399,7 +419,7 @@ public class ToolBarDemo2 extends JPanel
         button.addActionListener(this);
         toolBar.add(button);
 
-        //fifth component is NOT a button!
+        // 最后一个不是 button，而是 textField
         JTextField textField = new JTextField("A text field");
         textField.setColumns(10);
         textField.addActionListener(this);
