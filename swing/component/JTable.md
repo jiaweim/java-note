@@ -1837,3 +1837,33 @@ JComponent headerComponent = new JTableHeader(aColumnModel)
 
 ### JTableHeader 属性
 
+## 格式化和排序
+
+经过验证，要同时支持 double 的格式化和排序，需要实现两点。
+
+1. 首先，覆盖 `AbstractTableModel` 的 `getColumnClass` 方法，对 double column，返回 `Double.class`.
+
+```java
+public Class<?> getColumnClass(int columnIndex) {
+    return Object.class;
+}
+```
+
+2. 自定义  `TableCellRenderer`
+
+```java
+public class DoubleCellRenderer2 extends DefaultTableCellRenderer.UIResource {
+
+    private NumberFormat formatter;
+
+    public DoubleCellRenderer2(NumberFormat formatter) {
+        this.formatter = formatter;
+    }
+
+    @Override
+    protected void setValue(Object value) {
+        setText((value == null) ? "" : formatter.format(value));
+    }
+}
+```
+
