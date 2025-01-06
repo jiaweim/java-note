@@ -5,14 +5,15 @@ package mjw.swing;
  * images/Forward24.gif
  * images/Up24.gif
  */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 
-public class ToolBarDemo extends JPanel
-        implements ActionListener {
+public class ToolBarDemo extends JPanel implements ActionListener {
+
     protected JTextArea textArea;
     protected String newline = "\n";
     static final private String PREVIOUS = "previous";
@@ -39,7 +40,7 @@ public class ToolBarDemo extends JPanel
     }
 
     protected void addButtons(JToolBar toolBar) {
-        JButton button = null;
+        JButton button;
 
         //first button
         button = makeNavigationButton("Back24", PREVIOUS,
@@ -117,12 +118,10 @@ public class ToolBarDemo extends JPanel
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                createAndShowGUI();
-            }
+        SwingUtilities.invokeLater(() -> {
+            //Turn off metal's use of bold fonts
+            UIManager.put("swing.boldMetal", Boolean.FALSE);
+            createAndShowGUI();
         });
     }
 }
