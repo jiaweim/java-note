@@ -135,7 +135,7 @@ g.setColor(Color.BLACK);
 g.drawRect(x, y, w, h);
 ```
 
-![](images/2024-01-11-10-12-24.png)
+<img src="images/2024-01-11-10-12-24.png" style="zoom:50%;" />
 
 > fillRect(x, y, 3, 3) 和随后进行的 drawRect(x, y, 3, 3)
 
@@ -148,7 +148,7 @@ g.setColor(Color.LIGHT_GRAY);
 g.fillRect(x, y, w, h);
 ```
 
-![](images/2024-01-11-10-14-22.png)
+<img src="images/2024-01-11-10-14-22.png" style="zoom:50%;" />
 
 > drawRect(x, y, 3, 3) 和随后的 fillRect(x, y, 3, 3)
 
