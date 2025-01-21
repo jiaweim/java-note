@@ -393,7 +393,7 @@ jpackage --type app-image -n name -p modulePath \
          -m moduleName/className
 ```
 
-- non-modular application
+- **non-modular application**
 
 ```
 jpackage --type app-image -i inputDir -n name \
