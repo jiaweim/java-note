@@ -12,35 +12,40 @@
     - [底层日志步骤](#底层日志步骤)
   - [性能](#性能)
 
-2024-02-22, 16:33
-@author Jiawei Mao✔️
+2024-02-22 ⭐
+@author Jiawei Mao
+
 ***
 
 ## 简介
 
 logback 划分为三个模块： logback-core, logback-classic 和 logback-access。
 
-- logback-core 模块是其它两个模块的基础
-- logback-classic 模块可以看做 log4j 的升级版，原生实现了 slf4j
-- logback-access 模块集成到 Servlet 容器，以提供 HTTP 访问日志功能
+- logback-core 是其它两个模块的基础
+- logback-classic 可以看做 log4j 的升级版，原生实现了 slf4j
+- logback-access 集成到 Servlet 容器，以提供 HTTP 访问日志功能
+
+access 有专门的介绍文档，下面介绍 logback-classic 的模块。
+
+## Logger, Appender 和 Layout
 
 Logback 构建在三个核心类上：`Logger`, `Appender` 和 `Layout`。`Logger` 类在 logback-classic 模块中。`Appender` 和 `Layout` 接口在 logback-core 模块中。
 
-## Logger context
+### Logger context
 
-logging API 相对于 `System.out.println` 的最重要的优点在于能禁用部分日志，且不影响其它日志。改功能的实现依赖于日志空间(logging space)分类。在 logback-classic 中，该分类功能通过 `LoggerContext` 实现，每个 `Logger` 都有一个 `LoggerContext`，`LoggerContext` 负责生成 logger，并将 loggers 组织成树形结构。
+logging API 相对于 `System.out.println` 的最重要的优点在于能禁用部分日志，且不影响其它日志。该功能的实现依赖于日志空间(logging space)分类。在 logback-classic 中，该分类功能通过 `LoggerContext` 实现，每个 `Logger` 都有一个 `LoggerContext`，`LoggerContext` 负责生成 logger，并将 loggers 组织成树形结构。
 
-Loggers 为命名实体，其命名规则和 Java 完全一致。
+Loggers 的命名规则和 Java 完全一致。
 
 > **分层命名**
 > 如果一个 logger 名加点号后是另一个 logger 的前缀，就称前者是后者的祖先 logger。
 
-例如，"com.foo" logger 是 "com.foo.Bar" logger 的父 logger。
+例如，名为 "com.foo" 的 logger 是名为 "com.foo.Bar" logger 的父 logger。
 
 root-logger 是 logger-tree 的树根，获取方式：
 
 ```java
-Logger rootLogger = LoggerFactory.​getLogger(org.slf4j.Logger.​ROOT_LOGGER_NAME);
+Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 ```
 
 其它 logger 都通过 `org.slf4j.LoggerFactory.getLogger` 方法获得。`Logger` 接口中的一些基本方法：
@@ -49,7 +54,7 @@ Logger rootLogger = LoggerFactory.​getLogger(org.slf4j.Logger.​ROOT_LOGGER_N
 package org.slf4j; 
 public interface Logger {
 
-  // Printing methods: 
+  // 输出方法
   public void trace(String message);
   public void debug(String message);
   public void info(String message); 
@@ -58,19 +63,25 @@ public interface Logger {
 }
 ```
 
-## 日志等级继承
+### 日志等级继承
 
 日志级别定义在 `ch.qos.logback.classic.Level` 类中，包括(`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`)。 `Level` 为 `final` 类，不能继承，如果需要更灵活的分类方式，可以使用 `Marker` 对象。
 
-日志级别顺序：`TRACE<DEBUG<INFO<WARN<ERROR`
+> [!NOTE]
+>
+> **日志级别顺序**
+>
+> `TRACE<DEBUG<INFO<WARN<ERROR`
+
+如果没有给 logger 分配级别，那么它会从其最近的已分配级别的祖先处继承级别。
 
 日志级别继承概念：
 
 - 如果该 `Logger` 设置了`level`，则以该 `level` 为准；
-- 如果该 Logger 未设置 level，则从其父Logger继承；
-- 根Logger具有默认级别 DEBUG。
+- 如果该 Logger 未设置 level，则从其父 `Logger` 继承；
+- root-logger 默认级别为 DEBUG。
 
-下面 4 个示例，设置不同的日志级别，以及对应的效果
+下面 4 个示例，设置不同的日志级别，以及以及根据级别继承规则对应的效果
 
 **示例 1**
 

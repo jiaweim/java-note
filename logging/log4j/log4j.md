@@ -456,11 +456,11 @@ Log4j Core 的配置通常在 app 初始化时完成。首选方式是读取配�
 
 一些元配置选项，如配置文件位置，只能通过系统属性获得。
 
-#### 配置文件
+## 配置文件
 
 使用配置文件是配置 Log4j Core 最流行和推荐的方法。
 
-##### 配置文件位置
+### 配置文件位置
 
 在初始化新的 `LoggerContext` 时，Log4j Core 会为其分配一个上下文名称，并按以下顺序扫描以查找配置文件：
 
@@ -476,6 +476,51 @@ Log4j Core 的配置通常在 app 初始化时完成。首选方式是读取配�
 从运行时环境派生的名称：
 
 - 对独立的 
+
+
+
+## Appenders
+
+Appenders 负责将日志发送到指定位置。所有 appender 必须实现 `Appender` 接口。
+
+Log4j Core 大多数 appender 继承自 `AbstractAppender`，并且：
+
+- 日志过滤委托给 `Filter` 实现。
+- 日志格式化委托给 `Layout` 实现。
+- appender 只负责将日志数据写入指定位置。
+
+每个 appender 都有一个名字，在 logger 配置中可以引用。
+
+### appender 集合
+
+Log4j 捆绑了几个预定义的 appenders。
+
+#### Console Appender
+
+console-appender 输出到 stdout 或 stderr。该 appender 支持 4 种访问输出流的方式：
+
+- **direct**
+
+该模式性能最好。通过将 `direct` 属性设置为 `true` 启用。
+
+- **default**
+
+
+
+### 扩展
+
+appenders 是实现 `Appender` 接口的插件。下面介绍如何自定义 appender。
+
+> [!WARNING]
+>
+> 实现一个可靠且高效的 appender 并不容易，因此建议：
+>
+> 1. 尽可能使用已有的 appender
+> 2. 如果有需求，可以向 log4j 团队反馈
+
+#### 准备插件
+
+
 
 ## 迁移
 

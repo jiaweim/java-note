@@ -1031,7 +1031,6 @@ jpackage --input target/ \
 
 - `--main-class` 指定 main-class
 
-  
 
 
 ## 参考

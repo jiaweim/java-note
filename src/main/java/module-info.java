@@ -51,6 +51,9 @@ module java.module {
     requires java.sql;
     requires jcommander;
     requires org.checkerframework.checker.qual;
+    requires io.vavr;
+    requires commons.math3;
+    requires hipparchus.optim;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -59,6 +62,7 @@ module java.module {
     opens mjw.java.util;
     opens mjw.java.time;
     opens mjw.gson;
+    opens mjw.vavr;
     opens mjw.jcommander;
 
     opens mjw.jgrapht;
