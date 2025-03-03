@@ -6,8 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
-public class ScaleTest extends JComponent
-{
+public class ScaleTest extends JComponent {
 
     private static final int FULL_SIZE = 190;
     private static final int PADDING = 5;
@@ -253,8 +252,7 @@ public class ScaleTest extends JComponent
     }
 
     public static void main(String args[]) {
-        Runnable doCreateAndShowGUI = new Runnable()
-        {
+        Runnable doCreateAndShowGUI = new Runnable() {
             public void run() {
                 createAndShowGUI();
             }

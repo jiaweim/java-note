@@ -14,8 +14,7 @@ import java.util.Random;
  * @author Cay Horstmann
  * @version 1.04 2018-05-01
  */
-public class ShapeTest
-{
+public class ShapeTest {
     public static void main(String[] args) {
         EventQueue.invokeLater(() ->
         {
@@ -30,8 +29,7 @@ public class ShapeTest
 /**
  * This frame contains a combo box to select a shape and a component to draw it.
  */
-class ShapeTestFrame extends JFrame
-{
+class ShapeTestFrame extends JFrame {
     public ShapeTestFrame() {
         var comp = new ShapeComponent();
         add(comp, BorderLayout.CENTER);
@@ -58,8 +56,7 @@ class ShapeTestFrame extends JFrame
 /**
  * This component draws a shape and allows the user to move the points that define it.
  */
-class ShapeComponent extends JComponent
-{
+class ShapeComponent extends JComponent {
     private static final Dimension PREFERRED_SIZE = new Dimension(300, 200);
     private Point2D[] points;
     private static Random generator = new Random();
@@ -68,8 +65,7 @@ class ShapeComponent extends JComponent
     private ShapeMaker shapeMaker;
 
     public ShapeComponent() {
-        addMouseListener(new MouseAdapter()
-        {
+        addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent event) {
                 Point p = event.getPoint();
                 for (int i = 0; i < points.length; i++) {
@@ -87,8 +83,7 @@ class ShapeComponent extends JComponent
                 current = -1;
             }
         });
-        addMouseMotionListener(new MouseMotionAdapter()
-        {
+        addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent event) {
                 if (current == -1) return;
                 points[current] = event.getPoint();
@@ -133,8 +128,7 @@ class ShapeComponent extends JComponent
 /**
  * A shape maker can make a shape from a point set. Concrete subclasses must return a shape in the makeShape method.
  */
-abstract class ShapeMaker
-{
+abstract class ShapeMaker {
     private int pointCount;
 
     /**
@@ -171,8 +165,7 @@ abstract class ShapeMaker
 /**
  * Makes a line that joins two given points.
  */
-class LineMaker extends ShapeMaker
-{
+class LineMaker extends ShapeMaker {
     public LineMaker() {
         super(2);
     }
@@ -185,8 +178,7 @@ class LineMaker extends ShapeMaker
 /**
  * Makes a rectangle that joins two given corner points.
  */
-class RectangleMaker extends ShapeMaker
-{
+class RectangleMaker extends ShapeMaker {
     public RectangleMaker() {
         super(2);
     }
@@ -201,8 +193,7 @@ class RectangleMaker extends ShapeMaker
 /**
  * Makes a round rectangle that joins two given corner points.
  */
-class RoundRectangleMaker extends ShapeMaker
-{
+class RoundRectangleMaker extends ShapeMaker {
     public RoundRectangleMaker() {
         super(2);
     }
@@ -217,8 +208,7 @@ class RoundRectangleMaker extends ShapeMaker
 /**
  * Makes an ellipse contained in a bounding box with two given corner points.
  */
-class EllipseMaker extends ShapeMaker
-{
+class EllipseMaker extends ShapeMaker {
     public EllipseMaker() {
         super(2);
     }
@@ -235,8 +225,7 @@ class EllipseMaker extends ShapeMaker
  * lines emanating from the center of the bounding box and ending in two given points. To show the correctness of the
  * angle computation, the returned shape contains the arc, the bounding box, and the lines.
  */
-class ArcMaker extends ShapeMaker
-{
+class ArcMaker extends ShapeMaker {
     public ArcMaker() {
         super(4);
     }
@@ -274,8 +263,7 @@ class ArcMaker extends ShapeMaker
 /**
  * Makes a polygon defined by six corner points.
  */
-class PolygonMaker extends ShapeMaker
-{
+class PolygonMaker extends ShapeMaker {
     public PolygonMaker() {
         super(6);
     }
@@ -293,8 +281,7 @@ class PolygonMaker extends ShapeMaker
 /**
  * Makes a quad curve defined by two end points and a control point.
  */
-class QuadCurveMaker extends ShapeMaker
-{
+class QuadCurveMaker extends ShapeMaker {
     public QuadCurveMaker() {
         super(3);
     }
@@ -308,8 +295,7 @@ class QuadCurveMaker extends ShapeMaker
 /**
  * Makes a cubic curve defined by two end points and two control points.
  */
-class CubicCurveMaker extends ShapeMaker
-{
+class CubicCurveMaker extends ShapeMaker {
     public CubicCurveMaker() {
         super(4);
     }

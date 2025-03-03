@@ -2,19 +2,19 @@
 
 - [logback 架构](#logback-架构)
   - [简介](#简介)
-  - [Logger context](#logger-context)
+  - [Logger, Appender 和 Layout](#logger-appender-和-layout)
+    - [Logger context](#logger-context)
   - [日志等级继承](#日志等级继承)
   - [输出日志方法](#输出日志方法)
     - [获取 Logger](#获取-logger)
     - [Appenders 和 Layouts](#appenders-和-layouts)
   - [参数化日志](#参数化日志)
     - [推荐方式](#推荐方式)
-    - [底层日志步骤](#底层日志步骤)
+  - [底层日志步骤](#底层日志步骤)
   - [性能](#性能)
 
 2024-02-22 ⭐
 @author Jiawei Mao
-
 ***
 
 ## 简介
@@ -63,7 +63,7 @@ public interface Logger {
 }
 ```
 
-### 日志等级继承
+## 日志等级继承
 
 日志级别定义在 `ch.qos.logback.classic.Level` 类中，包括(`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`)。 `Level` 为 `final` 类，不能继承，如果需要更灵活的分类方式，可以使用 `Marker` 对象。
 
@@ -135,7 +135,7 @@ public interface Logger {
 
 ![](images/2024-02-22-14-21-10.png)
 
-垂直放心是请求的日志级别，水平放心是 logger 的有效级别。
+垂直方向是请求的日志级别，水平方向是 logger 的有效级别。
 
 下面是基本选择规则示例：
 
@@ -146,12 +146,12 @@ import org.slf4j.LoggerFactory;
 ....
 
 // 获取名为 com.foo 的 logger 实例
-ch.qos.logback.​classic.Logger logger = 
-        (ch.qos.logback.​classic.Logger) LoggerFactory.​getLogger("com.foo");
+ch.qos.logback.classic.Logger logger = 
+        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("com.foo");
 // 设置 logger 级别
-logger.setLevel(Level. INFO);
+logger.setLevel(Level.INFO);
 
-Logger barlogger = LoggerFactory.​getLogger(​"com.foo.Bar");
+Logger barlogger = LoggerFactory.getLogger("com.foo.Bar");
 
 // 有效：WARN >= INFO
 logger.warn("Low fuel level.");
@@ -169,7 +169,7 @@ barlogger.debug("Exiting gas station search");
 
 ### 获取 Logger
 
-使用相同名字从 `LoggerFactory.getLogger` 总是返回相同的 logger 引用。例如：
+使用相同名字调用 `LoggerFactory.getLogger` 总是返回相同的 logger 对象。例如：
 
 ```java
 Logger x = LoggerFactory.getLogger("wombat"); 
@@ -184,14 +184,14 @@ Logger y = LoggerFactory.getLogger("wombat");
 
 logback 支持将日志输出到多个地方。在 logback 中，日志输出目的地称为 appender，logback 目前支持控制台、文件、远程 socket 服务器、MySQL、PostgreSQL、Oracle 和其它数据库，JMS，远程 UNIX Syslog daemons。
 
-一个 logger 可以配置几多个 appenders。
+一个 logger 可以配置几多个 appenders，即一条日志可以输出到多个地方。
 
-`addAppender` 方法将 appender 附加到指定 logger。logger 的所有有效日志会输出到该 logger 以及父 logger 的 appenders。换句话说，appender 也有继承效果。例如，如果为 root-logger 添加一个 console-appender，那么所有有效日志至少会输出到控制台。如果在 logger `L` 上还添加了一个 file-appender，那么 `L` 以及 `L` 的子 logger 将输出日志到控制台和文件。将 logger 的 `additivity` flag 设置为 false 可以禁用该默认行为，不再继承 appender。
+`addAppender` 方法为指定 logger 添加 appender。logger 的所有有效日志会输出到该 logger 以及父 logger 的 appenders。换言之，appender 也有继承效果。例如，如果为 root-logger 添加一个 console-appender，那么所有有效日志至少会输出到控制台。如果在 logger `L` 上还添加了一个 file-appender，那么 `L` 以及其子 logger 将输出日志到控制台和文件。将 logger 的 `additivity` flag 设置为 false 可以禁用该默认行为，不再继承 appender。
 
 **appender 加性规则总结：**
 
-> logger L 的日志会输出到 L 及其父 logger 的所有 appenders。
-> 如果 `L` 父 logger，假设为 `P`，其 `additivity` 属性设置为 `false`，那么 L 的日志将输出到 L 的所有 appenders，以及 P 的所有 appenders，但不包括 P 的祖先的 appenders。
+> logger `L` 的日志输出到 L 及其父 logger 的所有 appenders，即 appender 加性。
+> 如果 `L` 的父 logger `P`，其 `additivity` 属性为 `false`，那么 L 的日志将输出到 L 的所有 appenders，以及 P 的所有 appenders，但不包括 P 的祖先的 appenders。
 > logger 的 `additivity` 属性默认为 `true`。
 
 示例：
@@ -202,14 +202,14 @@ logback 支持将日志输出到多个地方。在 logback 中，日志输出目
 |x|A-x1, A-x2|true|A1, A-x1, A-x2|"x" 和 root 的 appenders|
 |x.y|none|true|A1, A-x1, A-x2|"x" 和 root 的 appenders|
 |x.y.z|A-xyz1|true|A1, A-x1, A-x2, A-xyz1|"x.y.z", "x" 和 root 的 appenders|
-|security|A-sec|`false`|A-sec|由于 additivity 设置为 false，因此不累计 appender，只使用 A-sec|
+|security|A-sec|`false`|A-sec|由于 additivity 设置为 `false`，因此不累加 appender，只使用 A-sec|
 |security.access|none|true|	A-sec|只有 "security" 的 appender|
 
-通常，用户不仅希望自定义输出位置，还希望自定义输出格式。通过组合 layout 和 appender 实现。
+通常，用户不仅需要自定义输出位置，还需要自定义输出格式。通过组合 layout 和 appender 即可实现。
 
-layout 负责格式化日志，appender 复制将格式化的日志输出到指定位置。logback 中的 `PatternLayout` 使用类似 C 语言 `printf` 函数的语法指定输出格式。
+layout 负责格式化日志，appender 负责将格式化的日志输出到指定位置。logback 中的 `PatternLayout` 使用类似 C 语言 `printf` 函数的语法指定输出格式。
 
-例如，转换模式为 "%-4relative [%thread] %-5level %logger{32} - %msg%n" 的 PatternLayout 将输出类似如下内容：
+例如，转换模式为 "%-4relative [%thread] %-5level %logger{32} - %msg%n" 的 `PatternLayout` 将输出类似如下内容：
 
 ```
 176  [main] DEBUG manual.architecture.HelloWorld2 - Hello world.
@@ -219,7 +219,7 @@ layout 负责格式化日志，appender 复制将格式化的日志输出到指�
 
 ## 参数化日志
 
-考虑到 logback-classic 中的 logger 实现了 SLF4J 的 `Logger` 接口，有些 print 方法支持多个参数。这个 print 方法变体主要为了提高性能的同时减少对代码可读性的影响。
+由于 logback-classic 的 logger 实现了 SLF4J 的 `Logger` 接口，因此有些 print 方法支持多个参数。这些 print 方法变体主要为了在提高性能的同时减少对代码可读性的影响。
 
 对有些 logger：
 
@@ -227,7 +227,7 @@ layout 负责格式化日志，appender 复制将格式化的日志输出到指�
 logger.debug("Entry number: " + i + " is " + String.valueOf(entry[i]));
 ```
 
-会有构造消息的成本，即将整数 `i` 和 `entry[i]` 转好为 `String`，并连接这些字符串。这与消息是否被记录无关。
+会有构造消息的成本，即将整数 `i` 和 `entry[i]` 转换为 `String`，并连接这些字符串。这与消息是否被记录都会有这些开销。
 
 避免参数构造成本的一种方法是在日志语句前加一个判断，例如：
 
@@ -248,38 +248,38 @@ Object entry = new SomeObject();
 logger.debug("The entry is {}.", entry);
 ```
 
-这种方式，只在评估日志有效后才会构造格式化日志信息，将 `{}` 替换为 `entry` 的字符串值。换句话说，当禁用该日志语句，这种方式不会有构造参数的开销。
+这种方式，只在评估日志有效后才会构造格式化日志信息，将 `{}` 替换为 `entry` 的字符串值。换言之，当禁用该日志语句，这种方式不会有构造参数的开销。
 
-下面两行产生生成相同的输出。但是，在禁用日志的情况下 ，第二个变体性能比第一个高出至少 30 倍。
+下面两行生成的输出相同。但是，在禁用日志的情况下 ，第二个版本性能比第一个高出至少 30 倍。
 
 ```java
 logger.debug("The new entry is "+entry+".");
 logger.debug("The new entry is {}.", entry);
 ```
 
-还有两个参数的变体：
+还有两个参数的版本：
 
 ```java
 logger.debug("The new entry is {}. It replaces {}.", entry, oldEntry);
 ```
 
-多个参数的变体：
+多个参数的版本：
 
 ```java
 logger.debug("Value {} was inserted between {} and {}.", newVal, below, above);
 ```
 
-多个参数的变体会产生创建 `Object[]` 实例的成本。
+多个参数的版本会产生创建 `Object[]` 实例的成本。
 
-### 底层日志步骤
+## 底层日志步骤
 
-介绍完 logback 的基本组件后，下面简要描述当用户调用 logger 的 print 方法时，logback 框架执行了哪些操作。
+介绍完 logback 的基本组件后，下面简要描述当用户调用 logger 的输出方法时，logback 框架执行了哪些操作。
 
 分析：当用户调用名为 `com.wombat` logger 的 `info()` 方法时，logback 所采取的步骤。
 
 **1. 获得 filter 结果**
 
-调用 `TurboFilter` chain（如果存在）。Turbo filter 可以设置 context-wide 阈值，或根据每个日志请求相关信息（如 Marker, Level, Logger, 信息或 Throwable）过滤事件，filter-chain 可能结果有：
+调用 `TurboFilter` chain（如果存在）。Turbo filter 可以设置 context 范围阈值，或根据每个日志请求相关信息（如 `Marker`, `Level`, `Logger`, 信息或 `Throwable`）过滤事件，filter-chain 可能结果有：
 
 - `FilterReply.DENY`，丢弃日志请求；
 - `FilterReply.NEUTRAL`，继续下一步；
@@ -291,17 +291,17 @@ logger.debug("Value {} was inserted between {} and {}.", newVal, below, above);
 
 **3. 创建 `LoggingEvent` 对象**
 
-如果日志请求通过了前面的过滤器，logback 创建 `ch.qos.logback.​classic.​LoggingEvent` 对象，该对象包含日志请求相关的所有信息，如日志级别，日志信息，当前时间，当前线程和 MDC 等。有些字段是 lazily 初始化的。MDC 在日志记录请求上附加上下文信息，后面会讨论。
+如果日志请求通过了前面的过滤器，logback 将创建 `ch.qos.logback.​classic.​LoggingEvent` 对象，该对象包含日志请求相关的所有信息，如日志级别、日志信息、可能异常、当前时间，当前线程和 MDC 等。有些字段是 lazily 初始化的。MDC 在日志记录上附加上下文信息，后面会讨论。
 
 **4. 调用 appenders**
 
 创建 `LoggingEvent` 后，logback 调用所有 appenders 的 `doAppend()` 方法。
 
-logback 自带的所有 appenders 都扩展 `AppenderBase` 抽象类。在类在 synchronized block 中实现 `doAppend` 方法，以确保线程安全。`AppenderBase` 的 `doAppend()` 方法还会调用 appender 中的自定义过滤器。后面会单独讲解自定义过滤器。
+logback 自带的 appenders 都扩展 `AppenderBase` 抽象类。在类在 synchronized 中实现 `doAppend` 方法，以确保线程安全。`AppenderBase` 的 `doAppend()` 方法还会调用 appender 中的自定义过滤器。后面会单独讲解自定义过滤器。
 
 **5. 格式化输出**
 
-被调用的 appender 负责格式化日志事件。然而，部分（不是全部） appender 将格式化任务委托给 layout。layout 格式化 `LoggingEvent` 实例，返回日志 `String`。有些 appenders，如 `SocketAppender`，不会格式化 `LoggingEvent`。而是直接序列化，因此不需要 layout。
+被调用的 appender 负责格式化日志事件。然而，部分（不是全部） appender 将格式化任务委托给 layout。layout 格式化 `LoggingEvent` 实例，返回日志 `String`。有些 appenders，如 `SocketAppender`，不会格式化 `LoggingEvent`，而是直接序列化，因此不需要 layout。
 
 **6. 输出 `LoggingEvent`**
 
@@ -313,9 +313,9 @@ logback 自带的所有 appenders 都扩展 `AppenderBase` 抽象类。在类在
 
 **1. 完全关闭日志记录时的日志性能**
 
-将 root-logger 的日志级别设置为 `Level.OFF` 可以完全关闭日志记录。当完全关闭日志记录，一个日志请求的开销包括一个方法调用和一个整数比较。在 3.2Ghz Pentium D 机器上，这个成本在 20 纳秒左右。
+将 root-logger 的日志级别设置为 `Level.OFF` 可以完全关闭日志记录。当完全关闭日志记录，一个日志请求的开销包括一个方法调用和一个整数比较。在 3.2Ghz Pentium D 机器上，这个成本大约 20 纳秒。
 
-然而，任何方法调用都设计参数构造的隐含成本。例如，logger `x` 写入：
+但是，任何方法调用都涉及参数构造的隐含成本。例如，logger `x` 写入：
 
 ```java
 x.debug("Entry number: " + i + "is " + entry[i]);
@@ -329,13 +329,13 @@ x.debug("Entry number: " + i + "is " + entry[i]);
 x.debug("Entry number: {} is {}", i, entry[i]);
 ```
 
-如果该日志记录没有通过过滤器，这种变体不会产生构造参数的成本。只有当日志请求被发送到 appenders 时，才会开始格式化消息。此外，格式化消息的组件也进行了大量优化。
+如果该日志记录没有通过过滤器，这种变体不会产生构造参数的成本。只有当日志请求被发送到 appenders 时，才会格式化消息。此外，格式化消息的组件也进行了大量优化。
 
-另外，不建议将日志语句放在 tight-loop 语句中，这会导致性能下降。即使关闭日志记录，在 right-loop 中记录日志也会降低应用速度，如果打开日志记录，里面会有大量输出（因此无用）。
+另外，不建议将日志语句放在循环语句中，即非常频繁地记录日志，这会导致性能下降。即使关闭日志记录，在 大量循环中记录日志也会降低应用速度，如果打开日志记录，里面会有大量输出（因此无用）。
 
 **2. 启用日志时判断是否记录的性能**
 
-在 logback 中，不需要遍历 logger 层次树，logger 在创建时就知道了它的有效 level。如果更改父 logger 的 level，则所有子 logger 会受到通知。因此，在基于有效 level 接受或拒绝之前，logger 可以立即做出决定，无需咨询其祖先 loggers。
+在 logback 中，不需要遍历 logger 层次树，logger 在创建时就知道了它的有效 level。如果更改父 logger 的 level，则所有子 logger 会收到通知。因此，在基于有效 level 接受或拒绝之前，logger 可以立即做出决定，无需咨询其祖先 loggers。
 
 **3. 实际日志（格式化并输出）**
 
