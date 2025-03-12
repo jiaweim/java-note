@@ -1,22 +1,7 @@
 # Swing 并发
 
-- [Swing 并发](#swing-并发)
-  - [简介](#简介)
-  - [启动线程](#启动线程)
-  - [事件派发线程](#事件派发线程)
-    - [判断是否在 EDT](#判断是否在-edt)
-    - [添加任务到 EDT](#添加任务到-edt)
-    - [在 EDT 外可调用方法](#在-edt-外可调用方法)
-  - [工作线程](#工作线程)
-    - [简单后台线程](#简单后台线程)
-    - [获得执行结果](#获得执行结果)
-    - [中间结果](#中间结果)
-    - [取消任务](#取消任务)
-    - [绑定属性和状态方法](#绑定属性和状态方法)
-      - [progress](#progress)
-      - [state](#state)
-  - [参考](#参考)
-
+2025-03-12 ⭐
+@author Jiawei Mao
 ***
 
 ## 简介
@@ -25,15 +10,15 @@
 
 Swing 程序涉及如下线程：
 
-- 初始线程（initial thread），执行初始应用代码的线程
-- 事件分派线程（event dispatch thread, EDT），执行所有事件处理代码。与 Swing 框架交互的大多数代码都必须在这个线程执行
-- 工作线程（worker thread），也称为后台线程（background thread），执行耗时的后台任务。
+- **初始线程**（initial thread），创建一个可运行对象（负责初始化GUI），然后将该对象安排到事件分派线程
+- **事件分派线程**（event dispatch thread, EDT），执行所有事件处理代码。与 Swing 框架交互的大多数代码都必须在这个线程执行
+- **工作线程**（worker thread），也称为后台线程（background thread），执行耗时的后台任务
 
-我们一般不需要显式创建这些线程，它们由 runtime 或 Swing 框架提供。程序员的任务是利用这些线程创建响应性好、易于维护的 Swing 程序。
+我们一般不需要显式创建这些线程，它们由 jre 或 Swing 框架提供。程序员的任务是利用这些线程创建响应性好、易于维护的 Swing 程序。
 
-与其它在 Java 平台运行的程序 一样，Swing 程序中也可以创建额外的线程和线程池。不过对基础的 Swing 程序，这个描述的线程足够使用。
+与其它在 Java 平台运行的程序 一样，Swing 程序中也可以创建额外的线程和线程池。不过对基础的 Swing 程序，这里描述的线程足够使用。
 
-## 启动线程
+## 初始线程
 
 在标准程序中，只有调用 `main` 方法的线程，该线程称为**启动线程**。
 
@@ -41,13 +26,15 @@ Swing 程序涉及如下线程：
 
 创建 GUI 后，程序主要由 GUI 事件驱动，每个 GUI 事件对应一个 EDT 线程上的短时任务。对**额外任务**，有两种处理方式：
 
-- 可以快速完成的任务，可以直接在 EDT 上执行
+- 可以快速完成的任务，直接在 EDT 上执行
 - 需要长时间运行的耗时任务，在工作线程执行
 
 初始线程通过调用 `javax.swing.SwingUtilities.invokeLater` 或 `javax.swing.SwingUtilities.invokeAndWait` 调度 GUI 创建任务。这两个方法都有一个 `Runnable` 参数，包含分配到 EDT 上的任务：
 
-- `invokeLater` 调度任务并立刻返回
-- `invokeAndWait` 等待任务完成再返回
+- `invokeLater` 调度任务并**立刻返回**
+- `invokeAndWait` 等待**任务完成**再返回
+
+`invokeLater` 一般用在工作线程里修改 Swing 组件的外观，因为 Swing 组件是非同步的，所以不能在工作线程直接修改，必须将修改 Swing 组件外观的代码放在 `invokeLater` 中提交到 EDT 执行。
 
 在 Swing 中常能看到如下代码：
 
@@ -61,10 +48,12 @@ SwingUtilities.invokeLater(new Runnable() {
 
 将创建 GUI 任务调度到 EDT 通常是初始线程做的最后一件事，所以使用 `invokeLater` 还是 `invokeAndWait` 并不重要。
 
-## 事件派发线程
+## 事件分派线程
 
-Swing 事件处理代码在专门的事件派发线程（Event Dispatch Thread, EDT）上 运行。大多数调用 Swing 方法的代码也在 EDT 运行。这是因为大多数 Swing 对象方法不是线程安全的，从多个线程调用会有线程干扰或内存不一致的风险。对所有 Swing 组件，除了明确标记为线程安全的方法，其它组件方法必须在 EDT 调用。
+Swing 事件处理代码在专门的事件派发线程（Event Dispatch Thread, EDT）上运行。大多数调用 Swing 方法的代码也在 EDT 运行，因为大多数 Swing 对象方法不是线程安全的，从多个线程调用会有线程干扰或内存不一致的风险。对所有 Swing 组件，除了明确标记为线程安全的方法，其它组件方法必须在 EDT 调用。
 
+> [!WARNING]
+>
 > 不遵守这条规则的程序，可能大多数情况下运行正常，但有可能出现无法重现、不可预测的错误。
 
 可以将 EDT 上运行的代码看作一系列的短任务。大多数任务是调用事件处理方法，如 `ActionListener.actionPerformed`。其它任务可以由应用代码通过 `invokeLater` 或 `invokeAndWait` 调度。EDT 上的任务必须**快速完成**，否则导致界面无响应。
@@ -73,7 +62,7 @@ Swing 的线程模式规则：EDT负责执行任何修改组件的方法。Swing
 
 `javax.swing.SwingUtilities` 类提供了三个处理 EDT 的方法：
 
-- `invokeLater()` 用于在 EDT 中发布一个新任务，并让它排队等待，用于不需要任务执行返回值、不关心完成的确切时间的情况；
+- `invokeLater()` 用于在 EDT 中发布一个新任务，并让它排队等待，用于不需要返回值、不关心完成的确切时间的情况；
 - `isEventDispatchThread()`，判断当前线程是否为 EDT 线程；
 - `invokeAndWait()`类似于 `invokeLater()`。
 
@@ -155,15 +144,17 @@ public class ButtonSample{
 }
 ```
 
+> [!NOTE]
+>
 > `invokeLater()`, `invokeAndWait()` 方法在 `EventQueue` 中，在 `SwingUtilities` 也有它们的代理调用方法。`SwingUtilities` 是为早期 Swing 版本服务的，当时还没有 `EventQueue` 类，因此推荐直接使用 `EventQueue`。
 
 ### 在 EDT 外可调用方法
 
-除了上面提到的三个工具方法：`invokeLater`、`invokeAndWait` 和 `isDispatchThread`。每个 Swing 组件提供了三个可以在 EDT 外面调用的方法：
+除了上面提到的三个方法：`invokeLater`、`invokeAndWait` 和 `isDispatchThread`。每个 Swing 组件提供了三个可以在 EDT 外面调用的方法：
 
-- `revalidate()` 强制一个组件布置它的子组件；
-- `repaint()` 刷新显示；
-- `revalidate()`。
+- `revalidate()` 强制一个组件布置它的子组件
+- `repaint()` 刷新显示
+- `revalidate()`
 
 三个方法都是在 EDT 上执行，不管在哪个线程调用它们。
 
@@ -171,12 +162,14 @@ public class ButtonSample{
 
 ## 工作线程
 
-在 Swing 程序中，耗时任务需要在工作线程运行，也称为**后台线程**。在工作线程运行的任务由 `javax.swing.SwingWorker` 实例方式。SwingWorker 是抽象类，因此创建 SwingWorker 需要定义子类。对简单任务可以采用匿名内部类。
+在 Swing 程序中，耗时任务需要在工作线程运行，也称为**后台线程**。在工作线程运行的任务由 `javax.swing.SwingWorker` 处理。`SwingWorker` 是抽象类，因此创建 `SwingWorker` 需要定义子类。对简单任务可以采用匿名内部类。
+
+扩展 `SwingWorker` 必须实现 `doInBackground()` 方法，在该方法内部就是耗时的任务。在初始化 `SwingWorker` 子类时，它会创建一个线程，`doInBackground()` 的代码就在该线程执行。
 
 `SwingWorker` 提供了许多通信和控制功能：
 
-- `SwingWorker` 的 `done` 方法在后台任务完成后，自动在 EDT 执行（可以再 done 里更新 UI）
-- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口，因此可以再任务完成后为其它线程提供返回值、取消任务、检查任务是否完成、是否取消等功能
+- `SwingWorker` 的 `done` 方法在后台任务完成后，自动在 EDT 执行（可以在 `done` 里更新 UI）
+- `SwingWorker` 实现了 `java.util.concurrent.Future` 接口，因此可以在任务完成后为其它线程提供返回值、取消任务、检查任务是否完成、是否取消等功能
 - 后台任务调用 `SwingWorker.publish` 可以提供临时结果，触发在 EDT 调用 `SwingWorker.process`
 - 后台任务可以定义绑定属性，修改这些属性可以触发事件，从而触发 EDT 上的事件处理方法的调用
 
@@ -186,16 +179,14 @@ public class ButtonSample{
 
 `SwingUtilities` 对确保程序平稳、正确运行十分有用，但是需要创建大量的匿名 `Runnable` 类，使得代码难以维护。为了解决该问题，Swing 团队创建了 `SwingWorker`，它简化了创建需要更新用户界面的耗时任务。使用 `SwingWorker` 可以在后台线程执行特定任务，在 EDT 上更新结果。
 
-下面来看一个简单的用例以更好地理解 `SwingWorker`。假设需要要从硬盘加载图像，并在 UI 显示这些图像。为了避免阻塞 UI，需要将加载图像放在后台线程。
+下面来看一个简单用例以更好地理解 `SwingWorker`。假设需要要从硬盘加载图像，并在 UI 显示这些图像。为了避免阻塞 UI，需要将加载图像放在后台线程。
 
 同时，我们希望通过显示已加载图像的名称，向用户展示进度信息。当后台线程完成时，要求返回它加载的图像列表。要在 `SwingWorker` 实现该任务，需要继承 `SwingWorker` 并覆盖 `doInBackground()` 方法。`doInBackground()` 在后台线程执行。
 
 `SwingWorker` 是泛型类，有两个泛型参数 `T` 和 `V`：
 
 - `T` 是 `doInBackground()` 的返回值
-- `V` 是中间值类型，可以使用 `publish(V...)` 发送到 EDT。
-
-然后 `SwingWorker` 在 EDT 上调用 `process(V...)` 方法。需要覆盖 `process` 方法从而在 GUI 上显示中间值。任务完成后，`SwingWorker` 在 EDT 上调用 `done()` 方法。
+- `V` 是临时结果类型，可以使用 `publish(V...)` 发送到 EDT。然后 `SwingWorker` 在 EDT 上调用 `process(V...)` 方法。需要覆盖 `process` 方法从而在 GUI 上显示临时结果。任务完成后，`SwingWorker` 在 EDT 上调用 `done()` 方法。
 
 通常还会覆盖 `done()` 方法以显示最终结果。`doInBackground()` 完成后，`SwingWorker` 会自动在 EDT 中调用 `done()`。在 `done()` 中，可以使用 `get()` 方法获得 `doInBackground` 的返回值。
 
@@ -250,11 +241,15 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>{
 }
 ```
 
+> [!TIP]
+>
+> `done()` 和 `process()` 都是在 EDT 线程执行。
+
 ### 获得执行结果
 
 使用 `SwingWorker` 的 `get()` 方法获得 `doInBackground` 执行的返回值。
 
-之所以不直接在 `doInBackground` 直接使用计算结果，是因为 `doInBackground` 中的代码是在后台线程执行，而 `done` 方法是在 EDT 执行，所以为了线程安全，专门设计了 `get` 方法，`get` 是线程安全的。
+之所以不直接在 `doInBackground` 使用计算结果，是因为 `doInBackground` 中的代码是在后台线程执行，而 `done` 方法是在 EDT 执行，所以为了线程安全，专门设计了 `get` 方法，`get` 是线程安全的。
 
 获得 `doInBackground` 返回结果的`get` 方法有两个重载：
 
@@ -267,8 +262,8 @@ public class ImageLoadingWorker extends SwingWorker<List<Image>, String>{
 
 后台线程在执行过程中提供已计算出来的结果有时候很有用:
 
-- 通过调用 `SwingWorker.publish` 方法发送结果。该方法接受可变参数，参数类型为 `SwingWorker` 的第二个泛型参数类型。
-- 覆盖 `SwingWorker.process` 方法收集 `publish` 发布的结果。该方法在 EDT 中执行。出于性能考虑，往往多次调用的 `publish` 结果累计到一次 `process` 调用中。
+- 通过 `SwingWorker.publish` 方法发送临时结果。该方法接受可变参数，参数类型为 `SwingWorker` 的第二个泛型参数类型。
+- 覆盖 `SwingWorker.process` 方法收集 `publish` 发布的临时结果。该方法在 EDT 中执行。出于性能考虑，往往多次调用的 `publish` 结果累计到一次 `process` 调用中。
 
 下面使用一个实例来演示该功能，该程序 `java.util.Random` 在后台生成一系列随机 `boolean` 值测试 `java.util.Random` 的公平性，和抛硬币一样，所以命名为 `Flipper`。后台任务使用 `FlipPair` 发布结果。
 
@@ -320,22 +315,18 @@ public class Flipper extends JFrame implements ActionListener{
         setVisible(true);
     }
 
-    private static class FlipPair
-    {
+    private static class FlipPair{
         private final long heads, total;
 
-        FlipPair(long heads, long total)
-        {
+        FlipPair(long heads, long total){
             this.heads = heads;
             this.total = total;
         }
     }
 
-    private class FlipTask extends SwingWorker<Void, FlipPair>
-    {
+    private class FlipTask extends SwingWorker<Void, FlipPair> {
         @Override
-        protected Void doInBackground()
-        {
+        protected Void doInBackground(){
             long heads = 0; // 结果为 true 的次数
             long total = 0; // 总随机次数
             Random random = new Random();
@@ -350,8 +341,7 @@ public class Flipper extends JFrame implements ActionListener{
         }
 
         @Override
-        protected void process(List<FlipPair> pairs)
-        {
+        protected void process(List<FlipPair> pairs){
             // 处理临时结果
             FlipPair pair = pairs.get(pairs.size() - 1);
             headsText.setText(String.format("%d", pair.heads));
@@ -362,8 +352,7 @@ public class Flipper extends JFrame implements ActionListener{
     }
 
 
-    public void actionPerformed(ActionEvent e)
-    {
+    public void actionPerformed(ActionEvent e){
         if ("Start" == e.getActionCommand()) {
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
@@ -374,11 +363,9 @@ public class Flipper extends JFrame implements ActionListener{
             flipTask.cancel(true);
             flipTask = null;
         }
-
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args){
         SwingUtilities.invokeLater(Flipper::new);
     }
 }
@@ -451,9 +438,7 @@ if ("Stop" == e.getActionCommand()) {
 
 ### 绑定属性和状态方法
 
-`SwingWorker` 支持绑定属性，便于和其它线程通信。
-
-预定义了两个属性：
+`SwingWorker` 支持绑定属性，便于和其它线程通信。预定义了两个属性：
 
 - progress
 - state
@@ -467,8 +452,7 @@ if ("Stop" == e.getActionCommand()) {
 使用基本流程是，在 `doInBackground` 中更新进度，用 `setProgress` 发布进度：
 
 ```java
-public Void doInBackground()
-{
+public Void doInBackground(){
     Random random = new Random();
     int progress = 0;
     //Initialize progress property.

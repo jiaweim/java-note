@@ -7,7 +7,7 @@
 
 `JFileChooser` 用于选择文件，其视图如下：
 
-![|500](images/2021-11-16-22-29-05.png)
+<img src="images/2021-11-16-22-29-05.png" alt="|500" style="zoom:67%;" />
 
 `JFileChooser` 类的实现在 `javax.swing.filechooser` 包中，包括
 
@@ -15,9 +15,9 @@
 - `FileView`，控制如何列出目录和文件；
 - `FileSystemView`，是一个抽象类，是 `JFileChooser` 到文件系统的网关，隐藏根分区、文件类型信息以及隐藏文件等信息。
 
-```ad-warning
-不要混淆 `javax.swing.filechooser.FileFilter` 类和 `java.io.FileFilter`。两者虽然功能类似，但是 `java.io.FileFilter` 接口在 Java 1.1 不存在，基于兼容考虑，两者都存在。
-```
+> [!WARNING]
+>
+> 不要混淆 `javax.swing.filechooser.FileFilter` 类和 `java.io.FileFilter`。两者虽然功能类似，但是 `java.io.FileFilter` 接口在 Java 1.1 不存在，基于兼容考虑，两者都存在。
 
 ## 创建 JFileChooser
 
@@ -31,7 +31,7 @@ public JFileChooser()
 JFileChooser fileChooser = new JFileChooser();
 ```
 
-创建指向用户默认目录的 `JFileChooser`，该默认目录依赖于系统，在 Windows 系统一般是 "My Documents"，在 Unix 一般为用户 home 目录。
+创建指向用户默认目录的 `JFileChooser`，默认目录依赖于系统，在 Windows 系统一般是 "My Documents"，在 Unix 一般为用户 home 目录。
 
 - 指定初始目录，通过 `File` 或 `String` 参数指定初始目录
 
@@ -64,15 +64,13 @@ JFileChooser fileChooser = new JFileChooser(currentDirectoryPath, fileSystemView
 
 创建 `JFileChooser` 后，可以将其放在任何容器中，因为它是一个 `JComponent`。但是在弹窗之外的地方使用 `JFileChooser` 有点奇怪。
 
-**示例：** 直接将 JFileChooser 添加到界面
+**示例：** 直接将 `JFileChooser` 添加到界面
 
 ```java
 import javax.swing.*;
 import java.awt.*;
 
-public class FileSamplePanel
-{
-
+public class FileSamplePanel{
     public static void main(String[] args) {
         Runnable runner = () -> {
             JFrame frame = new JFrame("JFileChooser Popup");
@@ -97,7 +95,8 @@ public class FileSamplePanel
 }
 ```
 
-![[images/Pasted image 20240118214316.png|500]]
+<img src="images/Pasted image 20240118214316.png" style="zoom: 67%;" />
+
 ### 添加 ActionListener
 
 `JFileChooser` 支持添加 `ActionListener` 来监听确认或取消操作。双击文件触发确认，按 Escape 触发取消。
@@ -221,8 +220,7 @@ public abstract class FileFilter {
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
-public class ExtensionFileFilter extends FileFilter
-{
+public class ExtensionFileFilter extends FileFilter{
     String description;
     String[] extensions;
 
@@ -337,9 +335,9 @@ public void setFileSelectionMode(int newMode)
 fileChooser.setAccessory(new LabelAccessory(fileChooser));
 ```
 
-![[images/Pasted image 20240119101404.png]]
+<img src="images/Pasted image 20240119101404.png" style="zoom:67%;" />
 
-这里使用将图像设置为 JLabel 的 icon 实现预览。完整代码：
+这里使用将图像设置为 `JLabel` 的 icon 实现预览。完整代码：
 
 ```java
 import javax.swing.*;
@@ -348,8 +346,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 
-public class LabelAccessory extends JLabel implements PropertyChangeListener
-{
+public class LabelAccessory extends JLabel implements PropertyChangeListener{
     private static final int PREFERRED_WIDTH = 125;
     private static final int PREFERRED_HEIGHT = 100;
 
