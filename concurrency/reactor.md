@@ -17,6 +17,8 @@ Reactor 还通过 reactor-netty 项目支持进程间的非阻塞通讯。reacto
 > **反压（backpressure）**
 >
 > 数据流从上游生产者到下游消费者传输过程中，上游生产速度大于下游消费速度，导致下游的 buffer 溢出，这种现象称为出现了 backpressure。
+>
+> 反压功能的实现指下游消费者能够告诉生产者需要多少数据以防止反压的形成。
 
 ### BOM 和版本
 
@@ -371,7 +373,7 @@ Reactor 引入了可组合的 reactive 类型，这些类型实现 `Publisher`�
 
 ### Flux 
 
-下图展示 `Flux` 如何元素：
+下图展示 `Flux` 如何转换元素：
 
 <img src="./images/image-20250312191401497.png" alt="image-20250312191401497" style="zoom: 50%;" />
 
@@ -384,8 +386,317 @@ Reactor 引入了可组合的 reactive 类型，这些类型实现 `Publisher`�
 
 ### Mono
 
+下图展示 `Mono` 如何转换一个元素：
 
+<img src="./images/image-20250313091254356.png" alt="image-20250313091254356" style="zoom: 50%;" />
+
+`Mono<T>` 是 一个 `Publisher<T>` 实现，它通过 `onNext` 最多发射一个元素，然后以 `onComplete` 信号终止（成功的 `Mono`），如果失败则仅发射一个 `onError` 信号。
+
+大多数 `Mono` 实现在调用 `onNext` 后立即在 `Subscriber` 上调用 `onComplete`。`Mono.never()` 例外：它不发出任何信号，这在技术上是可行的，不过仅在测试中有用。另外，`onNext` 和 `onError` 的组合是明确禁止的。
+
+`Mono` 仅提供 `Flux` 的部分操作符，并且某些操作符，尤其是将 `Mono` 与另一个 `Publisher` 组合起来的操作符会切换到 `Flux`。例如，`Mono#concatWith(Publisher)` 返回 `Flux`，而 `Mono#then(Mono)` 返回另一个 `Mono`。
+
+另外，可以使用 `Mono` 表示无返回值的异步进程，类似 `Runnable`，创建空的 `Mono<Void>` 即可。
+
+### 创建 Flux 或 Mono 并订阅的简单方法
+
+使用 `Flux` 和 `Mono` 的最简单方法是使用它们各自的**工厂方法**。
+
+例如，创建一个 `String` 序列，可以枚举它们，或者将它们放在一个集合中并创建 `Flux`：
+
+```java
+Flux<String> seq1 = Flux.just("foo", "bar", "foobar"); // 直接枚举
+
+List<String> iterable = Arrays.asList("foo", "bar", "foobar");
+Flux<String> seq2 = Flux.fromIterable(iterable);// 通过集合
+```
+
+其它工厂方法：
+
+```java
+Mono<String> noData = Mono.empty(); // ①
+
+Mono<String> data = Mono.just("foo");
+
+Flux<Integer> numbersFromFiveToSeven = Flux.range(5, 3); // ②
+```
+
+1. 工厂方法也支持泛型
+2. 第一个参数为范围开始，第二个参数是要生成的元素个数
+
+在订阅方面，`Flux` 和 `Mono` 使用 Java 8 lambda。`.subscribe()` 有许多版本，这些版本采用 lambda 来实现不同的 callback 组合，如下所示：
+
+```java
+subscribe(); // ①
+
+subscribe(Consumer<? super T> consumer); // ②
+
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer); // ③
+
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer,
+          Runnable completeConsumer); // ④
+
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer,
+          Runnable completeConsumer,
+          Consumer<? super Subscription> subscriptionConsumer); // ⑤
+```
+
+1. 订阅并触发序列
+2. 对生成的每个值执行某些操作
+3. 处理值，同时处理错误
+4. 处理值和错误，并在序列成功完成时运行一些代码
+5. 处理值和错误以及成功完成时运行一些代码，同时对此订阅调用产生的订阅执行某些操作
+
+> [!TIP]
+>
+> 这些不同版本均返回对订阅的引用，当不需要更多数据时，可以使用该引用取消订阅。取消后，source 应停止生成值并清理其创建的任何资源。这种取消和清理行为在 Reactor 由通用的 `Disposable` 接口表示。
+
+#### subscribe 示例
+
+下面介绍 `subscribe` 的 5 个版本的最简单示例。
+
+- 以下为不带参数的示例：
+
+```java
+Flux<Integer> ints = Flux.range(1, 3); // ①
+ints.subscribe(); // ②
+```
+
+1. 设置 `Flux`，当天还订阅者时，生成 3 个值
+2. 最简单的订阅方式
+
+上述代码产生以下输出：
+
+```
+1
+2
+3
+```
+
+- 为了演示下一个版本，我们故意引入一个错误：
+
+```java
+Flux<Integer> ints = Flux.range(1, 4) // ①
+      .map(i -> { // ②
+        if (i <= 3) return i; // ③
+        throw new RuntimeException("Got to 4"); // ④
+      });
+ints.subscribe(i -> System.out.println(i), // ⑤
+      error -> System.err.println("Error: " + error));
+```
+
+1. 设置 `Flux`，生成 4 个值
+2. 通过 `map`，对不同值以不同方式处理
+3. 对大多数值，返回该值
+4. 对 4，则抛出错误
+5. 使用包含错误处理程序的 subscriber 订阅
+
+现在有 2 个 lambda 表达式：一个用于期望的输出，一个 用于错误。上述代码输出：
+
+```
+1
+2
+3
+Error: java.lang.RuntimeException: Got to 4
+```
+
+- 下一个 `subscribe` 包含错误处理和完成事件处理
+
+```java
+Flux<Integer> ints = Flux.range(1, 4); // ①
+ints.subscribe(i -> System.out.println(i),
+    error -> System.err.println("Error " + error),
+    () -> System.out.println("Done")); // ②
+```
+
+1. 设置 `Flux`，生成 4 个值
+2. 使用包含完成事件处理程序的 `Subscriber` 进行订阅
+
+错误信号和完成信号都是终止事件，并且彼此独立（不可能同时获得两者）。为了使事件完成 consumer 工作，必须注意不要触发错误。
+
+完成 callback 没有输入，用一对空括号表示：与 `Runnable` 接口的 `run` 方法对应。上述代码的输出：
+
+```
+1
+2
+3
+4
+Done
+```
+
+#### 取消 subscribe
+
+所有这些基于 lambda 的 `subscribe()` 方法都返回 `Disposable` 类型。`Disposable` 接口表示可以通过调用 `dispose()` 方法来取消订阅。
+
+对 `Flux` 或 `Mono`，取消是让 source 停止生成元素的信号。但是，不能保证立即停止，某些 source 特别快，在收到取消指令之前就已经完成。
+
+在 `Disposables` 类中有一些针对 `Disposable` 的辅助工具。其中，`Disposables.swap()` 创建一个 `Disposable` wrapper，可以 atomically 取消并替换为另一个 `Disposable`。例如，在 UI 中，当用户点击按钮，可以通过它取消 request 并替换为其它操作。
+
+另外还有 `Disposables.composite(...)`。它可以收集多个 `Disposable`，例如，多个与一个 service-call 相关的 in-flight request，并随后全部取消。一旦调用 composite 的 `dispose()` 方法，后面添加的 `Disposable` 都会被立即取消。
+
+#### lambda 的替代方案：BaseSubscriber
+
+还有一种更通用的 `subscribe` 方法，需要更成熟的 `Subscriber`，而不是 lambda 的组合。为了辅助编写这种 `Subscriber`，Reactor 提供了可扩展类 `BaseSubscriber`。
+
+> [!WARNING]
+>
+> `BaseSubscriber` 及其子类的实例是一次性的，因此，如果使用 `BaseSubscriber` 订阅第二个 `Publisher`，则会取消对第一个 `Publisher` 的订阅。这是因为使用相同实例两次会违反 Reactive Streams `onNext` 不能不行调用的规范。因此，匿名实现只有在 `Publisher#subscribe(Subscriber)`直接调用才行。
+
+现在假设实现了一个 `BaseSubscriber`，称其为 `SampleSubscriber`。下面演示如何用它订阅 `Flux`：
+
+```java
+SampleSubscriber<Integer> ss = new SampleSubscriber<Integer>();
+Flux<Integer> ints = Flux.range(1, 4);
+ints.subscribe(ss);
+```
+
+下面为  `SampleSubscriber`，是 `BaseSubscriber` 的简单实现：
+
+```java
+import org.reactivestreams.Subscription;
+
+import reactor.core.publisher.BaseSubscriber;
+
+public class SampleSubscriber<T> extends BaseSubscriber<T> {
+
+	@Override
+	public void hookOnSubscribe(Subscription subscription) {
+		System.out.println("Subscribed");
+		request(1);
+	}
+
+	@Override
+	public void hookOnNext(T value) {
+		System.out.println(value);
+		request(1);
+	}
+}
+```
+
+`BaseSubscriber` 是 Reactor 推荐的用户自定义 `Subscriber` 的抽象类，`SampleSubscriber` 扩展该类。该类提供了可以覆盖的 hooks 以调整 subscriber 的行为。它默认触发一个无限 request，与 `subscribe()` 行为相同。但是，当需要自定义 request，则扩展 `BaseSubscriber` 更合适。
+
+扩展 `BaseSubscriber` 至少需要实现 `hookOnSubscribe(Subscription subscription)` 和 `hookOnNext(T value)`。在 `SampleSubscriber` 中，`hookOnSubscribe` 打印状态并提出第一个 request。`hookOnNext` 打印状态并提出另一个 request。
+
+`SampleSubscriber` 输出如下：
+
+```java
+Subscribed
+1
+2
+3
+4
+```
+
+`BaseSubscriber` 还提供了 `requestUnbounded()` 方法，用于切换到无界模式（等价于 `request(Long.MAX_VALUE)`）；以及 `cancel()` 方法。
+
+另外还有：`hookOnComplete`, `hookOnError`, `hookOnCancel`, `hookFinally`（序列终止时被调用）。
+
+#### backpressure 以及 reshape request 的方法
+
+在 Reactor 中实现反压时，consumer 压力通过发送 `request` 向上游操作符传播实现。当前 request 的加和被称为当前 demand。demand 上限为 `Long.MAX_VALUE`，表示无限 request (表示尽可能快地生产，基本等价于禁用反压)。
+
+第一个 request 来自 final-subscriber，订阅全部内容的最直接方式是触发 `Long.MAX_VALUE` 无界 request：
+
+- `subscribe()` 极其大多数 lambda 版本（包含 `Consumer<Subscription>` 的除外）
+- `block()`, `blockFirst()` 和 `blockLast()`
+- 迭代 `toIterable()` 或 `toStream()`
+
+自定义原始 request 的最简单方式是实现 `BaseSubscriber` 并覆盖 `hookOnSubscribe`，如下所示：
+
+```java
+Flux.range(1, 10)
+    .doOnRequest(r -> System.out.println("request of " + r))
+    .subscribe(new BaseSubscriber<Integer>() {
+
+      @Override
+      public void hookOnSubscribe(Subscription subscription) {
+        request(1);
+      }
+
+      @Override
+      public void hookOnNext(Integer integer) {
+        System.out.println("Cancelling after having received " + integer);
+        cancel();
+      }
+    });
+```
+
+输出
+
+```
+request of 1
+Cancelling after having received 1
+```
+
+> [!WARNING]
+>
+> 在操作 request 时，要谨慎提出需求，以避免 Flux 卡住。这是 `BaseSubscriber` 的 `hookOnSubscribe` 默认为无界 request 的原因。在覆盖该 hook 时，至少需要调用一次 `request`。
+
+#### 从下游修改需求的操作符
+
+在 subscribe 水平表达的需求可以被上游的操作符重塑。以 `buffer(N)` 操作符为例：如果它收到 `request(2)`，它将其理解为 2 个状态的 buffer 需求。由于 buffer 需要 N 个元素填满，因此 `buffer` 操作符将需求重塑为 `2xN` 。
+
+另外，有些操作符包含一个 `int` 类型的参数 `prefetch`。这是修改下游去求的另一类操作符。它们通常用于处理内部需求，从每个传入元素生成 `Publisher`，如 `flatMap`。
+
+`prefetch` 是调整内部序列初始需求的 一种方法，如果未指定，大多数操作符初始需求为 32。
+
+这些操作符通常还实现了补充优化：当操作符发现其 75% 预取请求，它会从上游重新要求 75%。这是一种启发式优化。
+
+另外还有操作符直接调整请求：`limitRate` 和 `limitRequest`。
+
+`limitRate(N)` 将下游请求拆分为较小的 batch 传到上游。例如，一个 `100` 的请求传到 `limitRate(10)`，会得到 10 个 request`10`  传递到上游。这也是一种补充优化。
+
+该操作符还有一个可以调整补充量得版本：`limitRate(highTide, lowTide)`。将 `lowTide` 设置为 `0` 会得到严格的 `highTide` 请求，而不是通过补充策略进行优化。
+
+`limitRequest(N)` 限制下游的最大需求。如果单个 `request`不会使总需求超出 `N`，则将该去求向上游传播。当 source 发出对应数量，`limitRequest` 认为序列完成，发出 `onComplete` 信号到下游，并取消 source。
+
+### 编程创建序列
+
+下面通用定义 `onNext`, `onError` 和 `onComplete` 等相关事件来创建 `Flux` 和 `Mono`。所有这些方法都通过 API 触发称为 sink 的事件。
+
+#### 同步 generate
+
+通过编程创建 `Flux` 的最简单形式是调用 `generate` 方法通过 generator 函数生成 `Flux`。
+
+这是一个同步的一对一 push 元素，即 sink 类型为 `SynchronousSink`，且每次 callback 最多调用一次 `next()`。也可以另外调用 `error()` 或 `complete()`，但是可选的。
+
+最有用的版本
+
+## Publish Subscribe 模式
+
+问题：多个具有依赖关系的并发执行路径，还需要共享数据。同步是最基本的问题，解决同步有许多方案，publish-subscibe 模式追求的是 1:N 关系。
+
+该模式有两个对象：一个 publisher，负责生产数据；许多 subscriber，负责消费数据
+
+- subscriber 可以订阅 publisher，表示对其数据感兴趣
+- publisher 在准备好数据时，可以通知所有 subscribers
+
+与其它同步机制相比，这种模式可以同时发生，无需等待，并基于推送（push）的机制进行交流。subscriber 不需要刻意等待数据到达，只需定义好数据到达时要执行的操作，然后做其它工作。反之亦然，publisher 也不用等待 subsciber 准备好接收数据，而是直接推送给他。
+
+### Publisher
+
+#### 生命周期
+
+Reactor 中对 publisher 有两个实现：`Flux` 和 `Mono`。从数据源创建 publisher 后，可以添加 operator-chain 处理数据，然后传递给 subscriber。因此，publisher 的生命周期有三个阶段：
+
+- 组装
+- 订阅
+- 执行
+
+在组装阶段，创建 publisher 并定义 operator-chain。
+
+## 注意事项
+
+与普通同步 java 代码相比，创建 Reactor 的 `Publisher` Flux/Mono 具有明显的性能开销。Reactor 主要用于处理异步调用，对非异步调用不需要用 Reactor。
+
+> [!WARNING]
+>
+> 创建 Reactor 的开销大概是 for 循环的 5 倍。
 
 ## 参考
 
 - https://projectreactor.io/docs/core/release/reference/gettingStarted.html
+- https://gist.github.com/Lukas-Krickl/50f1daebebaa72c7e944b7c319e3c073
