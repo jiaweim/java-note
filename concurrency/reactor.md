@@ -665,7 +665,7 @@ Cancelling after having received 1
 
 最有用的版本
 
-## Publish Subscribe 模式
+## 4. Publish Subscribe 模式
 
 问题：多个具有依赖关系的并发执行路径，还需要共享数据。同步是最基本的问题，解决同步有许多方案，publish-subscibe 模式追求的是 1:N 关系。
 
@@ -674,19 +674,86 @@ Cancelling after having received 1
 - subscriber 可以订阅 publisher，表示对其数据感兴趣
 - publisher 在准备好数据时，可以通知所有 subscribers
 
-与其它同步机制相比，这种模式可以同时发生，无需等待，并基于推送（push）的机制进行交流。subscriber 不需要刻意等待数据到达，只需定义好数据到达时要执行的操作，然后做其它工作。反之亦然，publisher 也不用等待 subsciber 准备好接收数据，而是直接推送给他。
+与其它同步机制相比，这种模式可以同时发生，无需等待，并基于推送（push）机制进行交流。subscriber 不需要刻意等待数据到达，只需定义好数据到达时要执行的操作，然后做其它工作。反之亦然，publisher 也不用考虑 subsciber 是否准备好接收数据，直接推送给他即可。
 
 ### Publisher
 
 #### 生命周期
 
-Reactor 中对 publisher 有两个实现：`Flux` 和 `Mono`。从数据源创建 publisher 后，可以添加 operator-chain 处理数据，然后传递给 subscriber。因此，publisher 的生命周期有三个阶段：
+Reactor 中有两个 publisher 实现：`Flux` 和 `Mono`。从数据源创建 publisher 后，可以添加 operator-chain 处理数据，最后传递给 subscriber。因此，publisher 的生命周期有三个阶段：
 
 - 组装
 - 订阅
 - 执行
 
-在组装阶段，创建 publisher 并定义 operator-chain。
+在组装阶段，创建 publisher 并定义 operator-chain。然后 subscriber 订阅 publisher，接着执行。
+
+**`subscribe()` 之前无计算**
+
+在 `subscribe()` 之前只是定义数据分析流程，没有执行任何实际操作。最后调用 `subscribe()` 或 `block()` 进行订阅，执行才开始。执行结束时，`subscriber` 接收结果。
+
+#### 后台
+
+publisher 为 immutable。当使用 operator 时，创建并返回新的 immutable publisher。operator-publisher 组合订阅原始 publisher。因此，当在 `Mono` 上定义一系列 operators 时，对每个 operator，创建一个新的 publisher，该 publisher 订阅上一个 publisher，并 publish 到下一个 publisher。
+
+例如，每个 operator 调用后都注释了返回类型：
+
+```java
+Mono.just("text") // MonoJust.class
+    .map(String::length) // MonoMap.class
+    .filter(this::isOdd) //MonoFilter.class
+    .subscribe(log::info); //LambdaMonoSubscriber.class
+```
+
+注意：订阅时执行仅适用于显式订阅，不适用于内部订阅。因此仅在调用 `subscribe()` 或 `block()` 才执行。
+
+#### hot/cold publisher
+
+有两种 publisher 类型，可以简单描述为：
+
+- hot：已经准备好数据，如 `Mono.just("data")`
+- cold：没有准备好数据，需要 request，如 http 客户端请求
+
+**hot publisher**
+
+hot-publisher 是 `subscribe` 前没有任何发生规则的唯一例外，因为数据已经准备好。
+
+**code publisher**
+
+code-publisher 与 Reactor 声明周期描述的那样，订阅后出发执行，数据准备就绪时 push 到 subscriber。
+
+需要注意的是，code-publisher 会为每个 subscriber 启动该过程。因此，如果两个 subscriber 连接到一个 `Mono`执行 http 请求，会得到 2 个 http 请求，即 1:1 关系。也可以使用 `share` 或 `publish` operator 将其转换为 1:n 关系，将数据传送到所有 subscriber，无需出发单独的调用。如果某个 subscriber 来晚了，在数据发送后才 subscribe，则会触发对 source 的调用。
+
+有许多操作可以将 code-publisher 转换为 hot-publisher，如 `cache()`。
+
+### 示例
+
+- fork (single source, multiple subscribers)
+
+```java
+var mono = webclient.get()
+    .exchangeToMono(r -> r.bodyToMono(String.class))
+    .share(); // calling share to prevent 2 http calls
+mono.map(mapper::mapForA).subscribe(subscriberA);
+mono.map(mapper::mapForB).subscribe(subscriberB);
+```
+
+- join (multiple source, single subscriber)
+
+```java
+var callA = webclient.get()
+    .exchangeToMono(r -> r.bodyToMono(String.class));
+var callB = webclient.get()
+    .exchangeToMono(r -> r.bodyToMono(String.class));
+Mono.zip(callA, callB, this::joinResults)
+    .subscribe(System.out::println);
+```
+
+## 5. Reactor Operators
+
+下面介绍常用的 operators 和 operator-chain。详细 operator list 可以参考 [Reactor API](https://projectreactor.io/docs/core/release/api/)。
+
+
 
 ## 注意事项
 
@@ -694,7 +761,7 @@ Reactor 中对 publisher 有两个实现：`Flux` 和 `Mono`。从数据源创�
 
 > [!WARNING]
 >
-> 创建 Reactor 的开销大概是 for 循环的 5 倍。
+> 创建 Reactor 的开销大概是 for 循环的 5 倍。因此，只在需要时使用 Reator，Reactor 用于异步调用，因此仅在需要异步调用时使用 Reactor。
 
 ## 参考
 
