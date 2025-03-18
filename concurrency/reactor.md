@@ -1,12 +1,17 @@
 # Reactor
 
+2025-03-18 add: Reactor 核心功能 ⭐
 2025-03-12 add: Reactive 编程简介
 @author Jiawei Mao
 
 ***
 ## 1. 简介
 
-Reactor 是 JVM 非阻塞 reactive 编程基础，具有高效的需求管理。它直接与 Java 8 函数式 API 集成，尤其是 `CompletableFuture`, `Stream` 和 `Duration`。它提供了可组合的异步序列 API：`Flux` (用于  N 个元素)和 `Mono` (用于 0 或 1 个元素)，比广泛实现 [Reactive Streams](https://www.reactive-streams.org/) 规范。
+响应式编程（reactive programming）通过声明式语法构建异步处理 pipeline，采用基于事件的模型将数据推送到 consumer，围绕异步和非阻塞建立，比 JDK 有限的基于 callback 的 API 和 `Future` 更强大。
+
+Reactor 是 JVM 非阻塞 reactive 编程基础，具有高效的需求管理。它直接与 Java 8 函数式 API 集成，尤其是 `CompletableFuture`, `Stream` 和 `Duration`。它提供了可组合的异步序列 API：`Flux` (用于  N 个元素)和 `Mono` (用于 0 或 1 个元素)，以广泛实现 [Reactive Streams](https://www.reactive-streams.org/) 规范。
+
+Reactive Streams 规范是行业驱动的结果，旨在标准化 JVM 的响应式编程库。已有库包括 Reactor 3、RxJava、Akka Streams、Vert.x 和 Ratpack。
 
 Reactor 还通过 reactor-netty 项目支持进程间的非阻塞通讯。reactor-netty 适合微服务架构，为 HTTP、TCP 和 UDP 提供 backpressure-ready 网络引擎。
 
@@ -83,7 +88,77 @@ artifacts 采用版本方案为 `AJOR.MINOR.PATCH-QUALIFIER`，而 BOM 采用 `Y
 </dependencies>
 ```
 
-## 2. Reactive 编程简介
+## 2. Publish Subscribe 模式
+
+问题：多个具有依赖关系的并发执行路径，还需要共享数据。同步是最基本的问题，解决同步有许多方案，publish-subscibe 模式追求的是 1:N 关系。
+
+该模式有两个对象：一个 **publisher**，负责生产数据；许多 **subscriber**，负责消费数据
+
+- subscriber 可以订阅 publisher，表示对其数据感兴趣
+- publisher 在准备好数据时，可以通知所有 subscribers
+
+与其它同步机制相比，这种模式无需等待，并基于推送（push）机制进行交流。subscriber 不需要刻意等待数据到达，只需提前定义好数据到达时要执行的操作。反之亦然，publisher 也不用考虑 subsciber 是否准备好接收数据，直接推送给他即可。
+
+<img src="./images/fileservlet.png" alt="Publisher and Subscriber" style="zoom:50%;" />
+
+Reactor 还提供了 operator 的概念：
+
+- operator 用于处理数据
+- 将多个 operator 串联实现对数据复杂分析
+- operator 返回中间 `Publisher`，中间 `Publisher` 可以看作上游 `Publisher` 的 `Subscriber`，下游的 `Publisher`
+- 处理好的数据发送给最后的 `Subscriber` 
+
+### Publisher
+
+#### 生命周期
+
+Reactor 中有两个 publisher 实现：`Flux` 和 `Mono`。从数据源创建 publisher 后，可以添加 operator-chain 处理数据，最后传递给 subscriber。因此，publisher 的生命周期有三个阶段：
+
+- 组装
+- 订阅
+- 执行
+
+在组装阶段，创建 publisher 并定义 operator-chain。然后 subscriber 订阅 publisher，接着执行。
+
+**`subscribe()` 之前无计算**
+
+在 `subscribe()` 之前只是定义数据分析流程，没有执行任何实际操作。最后调用 `subscribe()` 或 `block()` 进行订阅，执行才开始。执行结束时，`subscriber` 接收结果。
+
+#### 后台
+
+publisher 为 immutable。当使用 operator 时，创建并返回新的 immutable publisher。operator-publisher 组合订阅原始 publisher。因此，当在 `Mono` 上定义一系列 operators 时，对每个 operator，创建一个新的 publisher，该 publisher 订阅上一个 publisher，并 publish 到下一个 publisher。
+
+例如，每个 operator 调用后都注释了返回类型：
+
+```java
+Mono.just("text") // MonoJust.class
+    .map(String::length) // MonoMap.class
+    .filter(this::isOdd) //MonoFilter.class
+    .subscribe(log::info); //LambdaMonoSubscriber.class
+```
+
+注意：订阅时执行仅适用于显式订阅，不适用于内部订阅。因此仅在调用 `subscribe()` 或 `block()` 才执行。
+
+#### hot/cold publisher
+
+有两种 publisher 类型，可以简单描述为：
+
+- hot：已经准备好数据，如 `Mono.just("data")`
+- cold：没有准备好数据，需要 request，如 http 客户端请求
+
+**hot publisher**
+
+hot-publisher 是 `subscribe` 前没有任何发生规则的唯一例外，因为数据已经准备好。
+
+**code publisher**
+
+code-publisher 与 Reactor 声明周期描述的那样，订阅后出发执行，数据准备就绪时 push 到 subscriber。
+
+需要注意的是，code-publisher 会为每个 subscriber 启动该过程。因此，如果两个 subscriber 连接到一个 `Mono`执行 http 请求，会得到 2 个 http 请求，即 1:1 关系。也可以使用 `share` 或 `publish` operator 将其转换为 1:n 关系，将数据传送到所有 subscriber，无需出发单独的调用。如果某个 subscriber 来晚了，在数据发送后才 subscribe，则会触发对 source 的调用。
+
+有许多操作可以将 code-publisher 转换为 hot-publisher，如 `cache()`。
+
+## 3. Reactive 编程简介
 
 Reactor 实现 reactive 编程范式，可以概括为：
 
@@ -358,7 +433,7 @@ Rx 系列 reactive 库将 reactive 序列分为两类：hot 和 cold。主要区
 - **Cold**: cold 序列为每个 `Subscriber` 重新开始，包含数据源。例如，如果 source 包装一个 HTTP 调用，则每个订阅都回发出新的 HTTP 请求。
 - **Hot**: hot 序列不会为每个 `Subscriber` 从头开始。后期订阅者会订阅后会收到之前发出的信号。注意，有些 hot reactive stream 可以全部或部分缓存/重新发射。从一般角度看，hot 序列甚至可以在没有订阅者时发出信号。
 
-## 3. Reactor 核心功能
+## 4. Reactor 核心功能
 
 Reactor 项目的主要 artifact 为 reactor-core，这是一个实现 Reactive Streams 规范基于 Java 8 实现的 reactive 库。
 
@@ -369,7 +444,7 @@ Reactor 引入了可组合的 reactive 类型，这些类型实现 `Publisher`�
 
 这种区别带入一些语义信息，指示异步处理的大致基数。例如，一个 HTTP 请求仅生成一个响应，因此执行 `count` 操作没有意义。因此，将此类 HTTP 调用的结果表示为 `Mono<HttpResponse>` 比表示为 `Flux<HttpResponse>` 更有意义，`Mono` 仅提供与 0 或1 项元素相关的操作符。
 
-更改处理最大基数的操作符会切换到相应类型。例如，如果 `Flux` 中存在 `count` 运算符，它会返回 `Mono<Long>`。
+更改基数的操作符会切换到相应类型。例如，如果 `Flux` 中存在 `count` 运算符，它会返回 `Mono<Long>`。
 
 ### Flux 
 
@@ -377,12 +452,129 @@ Reactor 引入了可组合的 reactive 类型，这些类型实现 `Publisher`�
 
 <img src="./images/image-20250312191401497.png" alt="image-20250312191401497" style="zoom: 50%;" />
 
-`Flux<T>` 是标准的 `Publisher<T>`，表示一个异步序列，可以发出 0 到 N 个元素，然后完成（成功或失败）。与 Reactive Streams 规范一样，这三种类型的信号会转换为对下游订阅者的 `onNext`, `onComplete` 和 `onError` 方法的调用。
+`Flux<T>` 是标准的 `Publisher<T>`，表示一个异步序列，可以生成 0 到 N 个元素，然后完成（成功或失败）。与 Reactive Streams 规范一样，这三种类型的信号会转换为对下游订阅者的 `onNext`, `onComplete` 和 `onError` 方法的调用。
 
-由于可能的信号范围很大，所以 `Flux` 是一种通用的 reactive 类型。所有事件（包括终止事件）都是可选的：
+`Flux` 的信号范围很大，是一种通用的 reactive 类型。所有事件（包括终止事件）都是可选的：
 
 - 没有 `onNext` 但有 `onComplete` 事件代表一个空序列，删除 `onComplete` 则得到一个无限空序列（除了测试取消操作，没有其它 用处）
 - `Flux.interval(Duration)` 生成一个无限的 `Flux<Long>`，从时钟发出规则的 ticks
+
+API 说明：
+
+- 采用 `Flux` 的 factory 从 sources 创建 `Flux`，或者从几种 callback 类型生成 `Flux`
+- `Flux` 的实例方法，即 operators，可用来构建异步处理 pipeline，以生成异步序列
+- 每个`Flux#subscribe()` 或多播操作，如 `Flux#publish` 和 `Flux#publishNext`， 会将 pipeline 具体化（materialize），触发数据流
+
+#### 创建 Flux
+
+> [!TIP]
+>
+> 如果想知道 `Flux` 或 `Mono` 内部情况，可以在返回前调用 `.log()` 输出日志信息。
+
+- 创建空的 `Flux`
+
+空 `Flux`，不生成任何元素，直接完成：
+
+```java
+public static <T> Flux<T> empty()
+```
+
+- 使用已有数据创建 `Flux`
+
+生成提供的数据后，`Flux` 完成：
+
+```java
+public static <T> Flux<T> just(T... data);
+public static <T> Flux<T> just(T data);
+```
+
+例如：
+
+```java
+Flux.just("foo", "bar");
+```
+
+- 使用集合创建 `Flux`
+
+```java
+public static <T> Flux<T> fromIterable(java.lang.Iterable<? extends T> it);
+```
+
+例如：
+
+```java
+Flux<String> flux = Flux.fromIterable(Arrays.asList("foo", "bar"));
+```
+
+- 异常处理
+
+在命令式同步代码中， 可以很容易采用 `try-catch` 和 `throws` 处理异常。
+
+在异步代码中，处理方式稍有不同。Reactive Streams 定义 `onError` 信号来处理异常。不过这是一个 terminal 事件，即 `Flux` 生成的最后一个事件。
+
+`Flux#error` 升成一个 `Flux`，该 `Flux` 只升成 `onError` 信号，并立即终止。
+
+```java
+public static <T> Flux<T> error(java.lang.Throwable error);
+public static <T> Flux<T> error(java.util.function.Supplier<? extends 	
+                                java.lang.Throwable> errorSupplier);
+public static <O> Flux<O> error(java.lang.Throwable throwable,
+                                boolean whenRequested)
+```
+
+例如：
+
+```java
+Flux<String> flux = Flux.error(new IllegalStateException());
+```
+
+- 更复杂的示例
+
+可以使用 `interval` 创建一个以固定速度生成 10 个元素的 `Flux`。但是 `interval` 生成的是无限流（类似时钟）。
+
+下面创建一个 `Flux<Long>`，从 0 开始，然后以固定速度 `period` 递增。
+
+1. `period` 指定时间间隔；
+2. `delay` 初始延迟时间；
+3. `timer` 执行计时器，默认为 global timer。
+
+```java
+public static Flux<java.lang.Long> interval(java.time.Duration period);
+public static Flux<java.lang.Long> interval(java.time.Duration delay,
+                                            java.time.Duration period);
+public static Flux<java.lang.Long> interval(java.time.Duration period,
+                                            Scheduler timer);
+public static Flux<java.lang.Long> interval(java.time.Duration delay,
+                                            java.time.Duration period,
+                                            Scheduler timer);
+```
+
+<img src="./images/image-20250318104423187.png" alt="image-20250318104423187" style="zoom:50%;" />
+
+#### take
+
+- 从 `Flux` 获取前 n 个值。如果 n 为 0，则在订阅后 operator 立即完成。
+
+```java
+public final Flux<T> take(long n);
+```
+
+该 operator 可以确保上游 request 上限为 n，但如果下游的 request 小于 n，也可以生成更少的元素。
+
+- 在指定时间内从 `Flux` 生成值，如果 `timespan` 为 0，则生成 1 个值后立刻停止
+
+```java
+public final Flux<T> take(java.time.Duration timespan);
+```
+
+- 
+
+```java
+public final Flux<T> take(java.time.Duration timespan,
+                          Scheduler timer);
+```
+
+
 
 ### Mono
 
@@ -390,15 +582,554 @@ Reactor 引入了可组合的 reactive 类型，这些类型实现 `Publisher`�
 
 <img src="./images/image-20250313091254356.png" alt="image-20250313091254356" style="zoom: 50%;" />
 
-`Mono<T>` 是 一个 `Publisher<T>` 实现，它通过 `onNext` 最多发射一个元素，然后以 `onComplete` 信号终止（成功的 `Mono`），如果失败则仅发射一个 `onError` 信号。
+`Mono<T>` 是 一个 `Publisher<T>` 实现，它通过 `onNext` 最多生成一个元素，然后以 `onComplete` 信号终止（成功的 `Mono`），失败则仅发射一个 `onError` 信号。
 
 大多数 `Mono` 实现在调用 `onNext` 后立即在 `Subscriber` 上调用 `onComplete`。`Mono.never()` 例外：它不发出任何信号，这在技术上是可行的，不过仅在测试中有用。另外，`onNext` 和 `onError` 的组合是明确禁止的。
 
 `Mono` 仅提供 `Flux` 的部分操作符，并且某些操作符，尤其是将 `Mono` 与另一个 `Publisher` 组合起来的操作符会切换到 `Flux`。例如，`Mono#concatWith(Publisher)` 返回 `Flux`，而 `Mono#then(Mono)` 返回另一个 `Mono`。
 
-另外，可以使用 `Mono` 表示无返回值的异步进程，类似 `Runnable`，创建空的 `Mono<Void>` 即可。
+对无返回值，类似 `Runnable` 的任务，可以用 `Mono<Void>` 表示。
 
-### 创建 Flux 或 Mono 并订阅的简单方法
+#### 创建 Mono
+
+- 创建空的  `Mono`
+
+```java
+public static <T> Mono<T> empty();
+```
+
+例如：
+
+```java
+Mono<String> mono = Mono.empty();
+```
+
+- 不发出任何信号
+
+`Mono.empty()` 好歹会发出 `onCommplete` 信号，`never()` 不发出任何信号。本质上无限期运行。
+
+```java
+public static <T> Mono<T> never();
+```
+
+例如：
+
+```java
+Mono<String> mono = Mono.never();
+```
+
+- 生成一个值
+
+```java
+public static <T> Mono<T> just(T data);
+```
+
+例如：
+
+```java
+Mono<String> mono = Mono.just("foo");
+```
+
+- 发出异常信号
+
+在订阅后立即因指定错误而终止。
+
+```java
+public static <T> Mono<T> error(java.lang.Throwable error);
+public static <T> Mono<T> error(java.util.function.Supplier<? extends 
+                                java.lang.Throwable> errorSupplier);
+```
+
+### StepVerifier
+
+`StepVerifier` 来自 reactor-test artifiact，它能够订阅任何 `Publisher`，如 `Flux`, Akka Stream 等，然后针对该序列断言。
+
+如果事件与断言不一致，`StepVerifier` 抛出 `AssertionError`。
+
+可以使用静态工厂方法 `create` 创建 `StepVerifier`。它提供了一个 DSL 设置对数据的期望，并以终端期望（completion, error, calcel）结束。
+
+`StepVerifier` 使用步骤：
+
+- 创建 `StepVerifier`，使用 `create(Publisher)` 或 `withVirtualTime()`
+- 设置期望值，`expectNext(T...)`, `expectNextMatches(Predicate)`, `expectNextCount(long)` 或 `expectNextSequence(Iterable)`
+- 设置订阅操作，`thenRequest(long)` 后 `thenCancel()`
+- 构建 `StepVerifier`，`expectComplete()`, `expectError()`, `expectError(class)`, `expectErrorMatches(Predicate)`, `thenCancel()`
+- 使 `StepVerifier` 订阅 `Publisher`
+- 使用 `verify()` 或 `verify(Dueration)` 验证期望
+
+> [!NOTE]
+>
+> 必须调用 `verify()` 方法或与 terminal 期望结合的 verify 方法，如 `.verifyErrorMessage(String)`，否则 `StepVerifier` 不会订阅序列，也就不会断言任何内容。
+
+```java
+StepVerify.create(T<Publisher>)
+    .{expectations...}
+	.verify();
+```
+
+`StepVerify` 提供了许多断言，具体可参考 [API](https://javadoc.io/static/io.projectreactor.addons/reactor-test/3.0.7.RELEASE/reactor/test/StepVerifier.html)。
+
+- `Flux` 断言示例
+
+断言 `Flux` 依次生成 "foo" 和 "bar" 两个元素，然后完成。
+
+```java
+Flux<String> flux = Flux.just("foo", "bar");
+StepVerifier.create(flux)
+        .expectNext("foo")
+        .expectNext("bar")
+        .expectComplete()
+        .verify();
+```
+
+- 异常断言
+
+```java
+StepVerifier.create(flux)
+        .expectNext("foo")
+        .expectNext("bar")
+        .expectError(RuntimeException.class)
+        .verify();
+```
+
+- `expectNextMatches` 断言
+
+`expectNextMatches` 可以检查元素是否满足指定 `Predicate`。例如：
+
+断言第一个 `User` 的 userName 为 "swhite"，第二个为 "jpinkman"，然后完成。
+
+```java
+StepVerifier.create(flux)
+        .expectNextMatches(user -> user.getUsername().equals("swhite"))
+        .expectNextMatches(user -> user.getUsername().equals("jpinkman"))
+        .expectComplete()
+        .verify();
+```
+
+- assert 断言
+
+```java
+default StepVerifier.Step<T> assertNext(java.util.function.Consumer<? super T> 
+                                        assertionConsumer);
+StepVerifier.Step<T> consumeNextWith(java.util.function.Consumer<? super T> consumer);
+```
+
+`assertNext` 与 `consumeNextWith` 等价。在 `Consumer` 中可以用 Hamcrest, AssertJ, Junit 等断言方法进行断言。
+
+- 计数断言
+
+每秒生成 1 个元素，生成 10 个元素。
+
+```java
+Flux<Long> flux = Flux.interval(Duration.ofSeconds(1)).take(10);
+StepVerifier.create(flux)
+        .expectNextCount(10)
+        .verifyComplete();
+```
+
+- 虚拟时间
+
+如果 `Flux` 每秒生成一个元素，生成 3600 个元素才完成。
+
+显然我们不希望测试运行数小时，那么如果加速运行，同能能够断言数据？`StepVerifier` 提供了一个虚拟时间选项 ：使用 `StepVerifier.withVirtualTime(Supplier<Publisher>)`，`StepVerifier` 会用 `VirtualTimeScheduler` 临时替换默认的`Scheduler`，即用可操作的虚拟时钟替换实际时钟。
+
+操作示例：
+
+```java
+StepVerifier.withVirtualTime(() -> Mono.delay(Duration.ofHours(3)))
+            .expectSubscription()
+            .expectNoEvent(Duration.ofHours(2))
+            .thenAwait(Duration.ofHours(1))
+            .expectNextCount(1)
+            .expectComplete()
+            .verify();
+```
+
+在 `Supplier` 参数中提供 `Publisher`。然后通过调用 `thenAwait(Duration)` 或 `expectNoEvent(Duration)` 来推进时间：
+
+- `thenAwait(Duration)` 只是推进时间
+- `expectNoEvent(Duration)` 除了推进时间，还要求这段时间内没有时间，否则测试失败
+
+即使没有推进时间，至少有一个 subscription 事件，因此在 `.withVirtualTime()` 后至少要加一个 `expectSubscription()`，才能添加 `expectNoEvent()`。
+
+示例：每秒 1 个元素，3600 个元素。
+
+```java
+Supplier<Fulx<Long>> supplier = ()->Flux.interval(Duration.ofSeconds(1)).take(3600);
+StepVerifier.withVirtualTime(supplier)
+        .thenAwait(Duration.ofHours(1))
+        .expectNextCount(3600)
+        .verifyComplete();
+```
+
+### Transform
+
+Reactor 提供了多个 operators，可用于转换数据。
+
+- 示例：将字符串转换为大写
+
+这是一个简单的 1-1 转换，没有延迟，可以采用 `map` operator。下面将 `User` 的所有名称转换为大写：
+
+```java
+mono.map(user -> new User(user.getUsername().toUpperCase(),
+            user.getFirstname().toUpperCase(),
+            user.getLastname().toUpperCase()));
+```
+
+- 对 `Flux`，也可以用相同代码映射每个元素
+
+```java
+flux.map(user -> new User(user.getUsername().toUpperCase(),
+            user.getFirstname().toUpperCase(),
+            user.getLastname().toUpperCase()));
+```
+
+- 异步映射
+
+现在，假设你需要调用一个 Web 服务来将字符串大写。这个调用可能会有延迟，因此不能使用 `map`，而是用 `Flux` 或 `Mono` 来表示异步调用，使用 `flatMap`。
+
+`flatMap` 采用一个 trans `Function`，返回 `Publisher<U>` 而不是 `U`。`flatMap`订阅内部 publisher，合并为一个全局输出，得到 `Flux<U>`。注意：内部 publisher 生成的值达到时间不同，得到的结果在 `Flux` 中可能交错。
+
+```java
+Mono<User> asyncCapitalizeUser(User u) {
+    return Mono.just(new User(u.getUsername().toUpperCase(),
+            u.getFirstname().toUpperCase(),
+            u.getLastname().toUpperCase()));
+}
+
+flux.flatMap(user -> asyncCapitalizeUser(user));
+```
+
+### Merge
+
+merge 将多个 `Publisher` 的结果合并到一个 `Flux`。
+
+- `mergeWith`
+
+将当前 `Flux` 和一个 `Publisher` 的数据合并，得到一个**交错**合并的序列。
+
+```java
+public final Flux<T> mergeWith(Publisher<? extends T> other);
+```
+
+<img src="./images/image-20250318142605266.png" alt="image-20250318142605266" style="zoom:50%;" />
+
+- `concatWith`
+
+将当前 `Flux` 和另一个 `Publisher` 的数据拼接，没有交错。
+
+如果希望保持数据的顺序，`concatWith` 与 `mergeWith` 更合适。
+
+```java
+public final Flux<T> concatWith(Publisher<? extends T> other);
+```
+
+<img src="./images/image-20250318142843507.png" alt="image-20250318142843507" style="zoom:50%;" />
+
+在 `flux1` 元素发送完成后，再发送 `flux2` 的元素。
+
+- `concat`
+
+静态方法 `concat` 串联 `sources` 提供的所有 `Publisher` 的元素。该合并操作按顺序进行，先订阅第一个 source 的元素，完成后再到下一个。任何错误都会导致序列中断，并立即转发到下游
+
+```java
+public static <T> Flux<T> concat(java.lang.Iterable<? extends Publisher<? extends T>> sources);
+```
+
+<img src="./images/image-20250318143627596.png" alt="image-20250318143627596" style="zoom:50%;" />
+
+
+
+```java
+public static <I> Flux<I> merge(java.lang.Iterable<? extends Publisher<? extends I>> sources);
+```
+
+<img src="./images/image-20250318142305355.png" alt="image-20250318142305355" style="zoom:50%;" />
+
+- 示例：将两个 `Flux` 的元素合并
+
+### Request
+
+反压（backpressure）是一种反馈机制，`Subscriber` 向 `Publisher` 发出信号，告知其能够处理多少数据，从而限制 `Publisher` 生成数据的速率。
+
+这种需求控制在 `Subscription` 水平完成：每次调用 `subscribe()` 都会创建一个 `Subscription`，通过对 `Subscription` 的操作可以取消数据流，或使用 `request(long)` 调整数据需求。
+
+`request(Long.MAX_VALUE)` 表示无限制需求，因此 `Publisher` 会尽可能快地生成数据。
+
+- 示例：`StepVerifier` 也可以调整需求，通过使用相关参数为初始 request `create` 或 `withVirtualTime`，然后在期望中使用 `thenRequest(long)` 进一步 request。
+
+下面使用 `StepVerifier` 先 request 所有值，然后期望收到 4 个值。
+
+```java
+StepVerifier.create(flux)
+        .expectNextCount(4)
+        .expectComplete();
+```
+
+- 一次 request 一个元素
+
+初始 request 1 个元素；收到并断言第一个元素后，再 request 1 个元素
+
+```java
+StepVerifier.create(flux, 1)
+        .expectNext(User.SKYLER)
+        .thenRequest(1)
+        .expectNext(User.JESSE)
+        .thenCancel();
+```
+
+如果 request 数不够，source 无法 complete，除非直接取消。如果想确保在指定时间内没有传入信号，可以使用 `.expectTimeout(Duration)`。
+
+- `log`
+
+下面使用 `log` operator 来输出序列内部状态。
+
+`repository` 是包含多个 `User` 的 `Flux`。
+
+```java
+repository
+        .findAll()
+        .log();
+```
+
+```
+15:04:00.116 [main] INFO reactor.Flux.Zip.1 - onSubscribe(FluxZip.ZipCoordinator)
+15:04:00.116 [main] INFO reactor.Flux.Zip.1 - request(1)
+15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='swhite', firstname='Skyler', lastname='White'})
+15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - request(1)
+15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='jpinkman', firstname='Jesse', lastname='Pinkman'})
+15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - request(2)
+15:04:00.426 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='wwhite', firstname='Walter', lastname='White'})
+15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='sgoodman', firstname='Saul', lastname='Goodman'})
+15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onComplete()
+```
+
+- `do` / `doOn`
+
+如果希望指定自定义操作，而不是修改序列中的元素，则可以使用以 `do` 或 `doOn` 开头的带副作用的方法。
+
+例如，如果希望operator 每次收到 request 都打印 "Requested"，则可以使用 `doOnRequest`。
+
+如果每次收到 `subscription`，在发出任何信号之前先打印 "Starting"，则可以使用 `doFirst`。
+
+每个 `doOn` 方法都采用一个 callback 表示相应事件的自定义操作。
+
+在这些 callbacks 中不应该调用具有延迟的操作。
+
+下面：所所有用户，先打印 "Starring:"，然后对每个元素打印 "firstname lastname"，完成后输出 "The end!"。
+
+```java
+repository.findAll()
+    .doFirst(() -> System.out.println("Starring:"))
+    .doOnNext(user -> System.out.println(user.getFirstname() + " " + user.getLastname()))
+    .doOnComplete(() -> System.out.println("The end!"));
+```
+
+### Error
+
+Reactor 提供了几个用于处理错误的 operators。
+
+- 出错时采用默认值：`onErrorReturn`
+
+当输入 `Mono` 出错时，返回默认 `User.SAUL`，否则不变。
+
+```java
+mono.onErrorReturn(User.SAUL);
+```
+
+- 出错时采用另一个 `Publisher<T>`：`onErrorResumeWith`
+
+```jva
+flux.onErrorResume(throwable -> Flux.just(User.SAUL, User.JESSE));
+```
+
+`onErrorReturn` 只能返回一个值，`onErrorREsume` 则可以返回多个值。
+
+- 处理异常
+
+处理异常稍微复杂一些。最简单的方式是在 lambda 表达式中使用 `try-catch` 将其转换为 `RuntimeException`，向下游发出信号。
+
+`Exceptions#propagate` 工具可以将一个异常包装成一个特殊的 runtime 异常，该异常可以由 Reactor Subscriber 和 `StepVerifier` 解包，从而避免在堆栈中看到不相关的 `RuntimeException`。
+
+例如：`capitalizeUser` 会抛出 `GetOutOfHereException`，在 catch 中用 `Exceptions.propagate(e)` 进行包装。
+
+```java
+flux.map(user -> {
+        try {
+            return capitalizeUser(user);
+        } catch (GetOutOfHereException e) {
+            throw Exceptions.propagate(e);
+        }
+    });
+```
+
+### Adapt
+
+RxJava3 和 Reactor 3 都实现了 Reactive Streams 规范，两者可以交互。
+
+两个库都提供从 `Publisher` 创建的工厂方法，因此转换很容易。
+
+- Reactor `Flux` 转换为 RxJava `Flowable`
+
+```java
+Flowable<User> flowable = Flowable.fromPublisher(flux)
+```
+
+- 从 `Flowable` 到 `Flux`
+
+```java
+Flux<User> flux = Flux.from(flowable);
+```
+
+- 从 `Flux` 到 `Observable`
+
+```java
+Observable<User> observable = Observable.fromPublisher(flux);
+```
+
+- 从 `Observable` 到 `Flux`
+
+```java
+Flux<User> flux = Flux.from(observable.toFlowable(BackpressureStrategy.BUFFER));
+```
+
+这里需要定义反压策略，因为 RxJava 3 `Observable` 不支持反压。
+
+- 从 `Mono` 到 `Single`
+
+```java
+Single<User> single = Single.fromPublisher(mono);
+```
+
+- 从 `Single` 到 `Mono`
+
+```java
+Mono<User> mono = Mono.from(single.toFlowable());
+```
+
+- 从 `Mono` 到 Java 8 `CompletableFuture`
+
+```java
+CompletableFuture<User> future = mono.toFuture();
+```
+
+- 从 `CompletableFuture` 到 `Mono`
+
+```java
+Mono<User> mono = Mono.fromFuture(future);
+```
+
+### 其它 operators
+
+下面介绍一些其它 operators，它们不属于以上分类，但非常有用。
+
+#### zip
+
+```java
+public static <T1,T2,T3> Flux<Tuple3<T1,T2,T3>> zip(Publisher<? extends T1> source1,
+                                                    Publisher<? extends T2> source2,
+                                                    Publisher<? extends T3> source3)
+```
+
+将三个 source 合并在一起，将等待所有 source 生成一个元素，然后合并这些元素为一个 `Tuple3`。持续该操作，直到任何一个 source 完成。
+
+<img src="./images/image-20250318160602519.png" alt="image-20250318160602519" style="zoom:50%;" />
+
+例如，使用三个 `Flux<String>` 创建用户：`zip` 得到一个 `Tuple3`，然后用 `Tuple3` 创建 `User`：
+
+```java
+Flux.zip(usernameFlux, firstnameFlux, lastnameFlux)
+		.map(tuple -> new User(tuple.getT1(), tuple.getT2(), tuple.getT3()));
+```
+
+#### firstWithValue
+
+- **Mono**
+
+```java
+public static <T> Mono<T> firstWithValue(java.lang.Iterable<? extends Mono<? extends T>> monos)
+```
+
+选择第一个发出任意值的 `Mono`。
+
+包含值的 source 比空 source (仅发出 `onComplete`)或失败的 source（仅发出 `onError`）优先级高。
+
+如果没有任何 source 提供值，`firstWithValue` 失败并抛出 `NoSuchElementException`（前提是至少有两个 sources）。
+
+<img src="./images/image-20250318162717366.png" alt="image-20250318162717366" style="zoom:50%;" />
+
+- **Flux**
+
+```java
+public static <I> Flux<I> firstWithValue(java.lang.Iterable<? extends Publisher<? extends I>> sources)
+```
+
+选择第一个生成值的 `Publisher`。
+
+<img src="./images/image-20250318162905140.png" alt="image-20250318162905140" style="zoom:50%;" />
+
+#### ignoreElements
+
+```java
+public final Mono<T> ignoreElements()
+```
+
+忽略 `onNext()` 信号，仅传播终止事件。
+
+<img src="./images/image-20250318163043521.png" alt="image-20250318163043521" style="zoom:50%;" />
+
+#### then
+
+```java
+public final Mono<java.lang.Void> then()
+```
+
+返回一个当 `Flux` 完成，同时完成的 `Mono`。该操作忽略序列，仅响应完成或错误信号。
+
+<img src="./images/image-20250318163331468.png" alt="image-20250318163331468" style="zoom:50%;" />
+
+
+
+#### justOrEmpty
+
+```java
+public static <T> Mono<T> justOrEmpty(@Nullable
+                                      java.util.Optional<? extends T> data)
+public static <T> Mono<T> justOrEmpty(@Nullable
+                                      T data)；
+```
+
+如果 `Optional.isPresent()`，则创建的 `Mono` 包含该元素，否则 `Mono` 只发出 onComplete 信号。
+
+<img src="./images/image-20250318163635012.png" alt="image-20250318163635012" style="zoom:50%;" />
+
+#### defaultIfEmpty
+
+```java
+public final Mono<T> defaultIfEmpty(T defaultV);
+```
+
+如果 `Mono` 完成后没有任何数据，则提供一个默认值。
+
+<img src="./images/image-20250318163843095.png" alt="image-20250318163843095" style="zoom:50%;" />
+
+#### collectList
+
+- Flux
+
+```java
+public final Mono<java.util.List<T>> collectList();
+```
+
+收集 `Flux` 生成的所有元素到一个 `List`，以 `Mono` 的形式返回。
+
+<img src="./images/image-20250318164205353.png" alt="image-20250318164205353" style="zoom:50%;" />
+
+
+
+
+
+### 创建 Flux 或 Mono 并订阅
 
 使用 `Flux` 和 `Mono` 的最简单方法是使用它们各自的**工厂方法**。
 
@@ -665,66 +1396,7 @@ Cancelling after having received 1
 
 最有用的版本
 
-## 4. Publish Subscribe 模式
 
-问题：多个具有依赖关系的并发执行路径，还需要共享数据。同步是最基本的问题，解决同步有许多方案，publish-subscibe 模式追求的是 1:N 关系。
-
-该模式有两个对象：一个 publisher，负责生产数据；许多 subscriber，负责消费数据
-
-- subscriber 可以订阅 publisher，表示对其数据感兴趣
-- publisher 在准备好数据时，可以通知所有 subscribers
-
-与其它同步机制相比，这种模式可以同时发生，无需等待，并基于推送（push）机制进行交流。subscriber 不需要刻意等待数据到达，只需定义好数据到达时要执行的操作，然后做其它工作。反之亦然，publisher 也不用考虑 subsciber 是否准备好接收数据，直接推送给他即可。
-
-### Publisher
-
-#### 生命周期
-
-Reactor 中有两个 publisher 实现：`Flux` 和 `Mono`。从数据源创建 publisher 后，可以添加 operator-chain 处理数据，最后传递给 subscriber。因此，publisher 的生命周期有三个阶段：
-
-- 组装
-- 订阅
-- 执行
-
-在组装阶段，创建 publisher 并定义 operator-chain。然后 subscriber 订阅 publisher，接着执行。
-
-**`subscribe()` 之前无计算**
-
-在 `subscribe()` 之前只是定义数据分析流程，没有执行任何实际操作。最后调用 `subscribe()` 或 `block()` 进行订阅，执行才开始。执行结束时，`subscriber` 接收结果。
-
-#### 后台
-
-publisher 为 immutable。当使用 operator 时，创建并返回新的 immutable publisher。operator-publisher 组合订阅原始 publisher。因此，当在 `Mono` 上定义一系列 operators 时，对每个 operator，创建一个新的 publisher，该 publisher 订阅上一个 publisher，并 publish 到下一个 publisher。
-
-例如，每个 operator 调用后都注释了返回类型：
-
-```java
-Mono.just("text") // MonoJust.class
-    .map(String::length) // MonoMap.class
-    .filter(this::isOdd) //MonoFilter.class
-    .subscribe(log::info); //LambdaMonoSubscriber.class
-```
-
-注意：订阅时执行仅适用于显式订阅，不适用于内部订阅。因此仅在调用 `subscribe()` 或 `block()` 才执行。
-
-#### hot/cold publisher
-
-有两种 publisher 类型，可以简单描述为：
-
-- hot：已经准备好数据，如 `Mono.just("data")`
-- cold：没有准备好数据，需要 request，如 http 客户端请求
-
-**hot publisher**
-
-hot-publisher 是 `subscribe` 前没有任何发生规则的唯一例外，因为数据已经准备好。
-
-**code publisher**
-
-code-publisher 与 Reactor 声明周期描述的那样，订阅后出发执行，数据准备就绪时 push 到 subscriber。
-
-需要注意的是，code-publisher 会为每个 subscriber 启动该过程。因此，如果两个 subscriber 连接到一个 `Mono`执行 http 请求，会得到 2 个 http 请求，即 1:1 关系。也可以使用 `share` 或 `publish` operator 将其转换为 1:n 关系，将数据传送到所有 subscriber，无需出发单独的调用。如果某个 subscriber 来晚了，在数据发送后才 subscribe，则会触发对 source 的调用。
-
-有许多操作可以将 code-publisher 转换为 hot-publisher，如 `cache()`。
 
 ### 示例
 
@@ -749,9 +1421,120 @@ Mono.zip(callA, callB, this::joinResults)
     .subscribe(System.out::println);
 ```
 
-## 5. Reactor Operators
+## 5. Reactive
 
-下面介绍常用的 operators 和 operator-chain。详细 operator list 可以参考 [Reactor API](https://projectreactor.io/docs/core/release/api/)。
+### Reactive to Blocking
+
+有时候，我们只能把部分代码迁移为响应式的，然后在命令式代码中重用响应式序列。
+
+因此，对 `Mono` 需要阻塞直到值可用，可以使用 `Mono#block()`。如果触发 `onError` 事件，会抛出异常。
+
+一般来说，应该尽可能端到端的使用响应式代码。阻塞操作可能导致整个 pipeline 锁死。
+
+- **Mono**
+
+```java
+public T block()
+```
+
+`block()` 订阅 `Mono` 并阻塞，直到收到下一个信号。返回 `Mono` 的值，如果 `Mono` 为空则返回 `null`。如果 `Mono` 出错，则抛出异常。
+
+<img src="./images/image-20250318171628422.png" alt="image-20250318171628422" style="zoom:50%;" />
+
+- **Flux**
+
+```java
+public final T blockFirst();
+```
+
+订阅 `Flux` 并阻塞，直到上游发出第一个值或完成。返回第一个值，如果  `Flux` 为空则返回 null。如果 Flux 出错，则抛出异常。
+
+
+
+<img src="./images/image-20250318172301627.png" alt="image-20250318172301627" style="zoom:50%;" />
+
+```java
+public final T blockFirst(java.time.Duration timeout);
+```
+
+订阅 `Flux` 并阻塞，直到上游发出第一个值的信号、完成或超时。返回第一个值，如果 `Flux` 为空则返回 null。如果 `Flux` 出错则抛出错误，如果超时，也抛出错误。
+
+<img src="./images/image-20250318172815985.png" alt="image-20250318172815985" style="zoom:50%;" />
+
+
+
+```java
+public final T blockLast();
+```
+
+订阅 `Flux` 并阻塞，直到上游发出最后一个值或完成。返回最后一个值，如果 `Flux` 为空则返回 null。如果出错则抛出异常。
+
+需要注意的是，`blockLast()` 会触发一个新的订阅，换言之，对 hot-publisher，`blockLast()` 可能会错过信号。
+
+<img src="./images/image-20250318173038609.png" alt="image-20250318173038609" style="zoom:50%;" />
+
+```java
+public final T blockLast(java.time.Duration timeout);
+```
+
+<img src="./images/image-20250318173059141.png" alt="image-20250318173059141" style="zoom:50%;" />
+
+```java
+public final java.lang.Iterable<T> toIterable();
+```
+
+将 `Flux` 转换为 `Iterable`，在 `Iteratoe.next()` 调用上阻塞。
+
+<img src="./images/image-20250318173410255.png" alt="image-20250318173410255" style="zoom:50%;" />
+
+### Blocking to Reactive
+
+假设你有阻塞代码，如与数据库的 JDBC 连接，现在希望将其集成到 reactive pipeline 中，同时避免影响性能。
+
+最好的做法是通过 `Scheduler` 将阻塞的部分进行隔离，保持 pipeline 余下部分的高效，并且只在需要时创建额外线程。
+
+对 JDBC 示例，可以用 `fromIterable`，问题是如何防止它阻塞 pipeline 的余下分布。
+
+`subscribeOn` 可以从 `Scheduler` 的开始隔离序列。例如，`Schedulers.boundedElastic()` 会创建一个按需增长的线程池，自动释放在一段时间内未使用的线程。为了避免滥用导致线程过多，`boundedElastic` 可以设置线程数上限。
+
+JDBC 示例:
+
+```java
+Flux.defer(() -> Flux.fromIterable(repository.findAll()))
+            .subscribeOn(Schedulers.boundedElastic());
+```
+
+### defer
+
+```java
+public static <T> Flux<T> defer(java.util.function.Supplier<? extends Publisher<T>> supplier)
+```
+
+对生成的 `Flux` 进行订阅时，会延迟提供 `Publisher`，因此 source 的实例化推迟到每次订阅，并且 `Supplier` 可以创建特定于 Subscriber 的实例。但是，如果 supplier 不生成新实例，则该 operator 的行为与 `from(Publisher)` 类似。
+
+### subscribeOn
+
+```java
+public final Flux<T> subscribeOn(Scheduler scheduler);
+```
+
+在指定 `Scheduler` 的 `Scheduler.Worker` 运行 subscribe, onSubscribe 和 request。因此，将此 operator 放在 chain 的任何位置都会影响从 chain 的开头到下一次 `publishOn` 的 `onNext`, `onError`, `onComplete` 的执行上下文。
+
+用于慢速 publisher，如阻塞 IO 和快速 consumer 的场景：
+
+```java
+flux.subscribeOn(Schedulers.single()).subscribe() 
+```
+
+### publishOn
+
+```jade
+public final Flux<T> publishOn(Scheduler scheduler);
+```
+
+在指定 Scheduler Worker 运行 `onNext`, `onComplete` 和 `onError`。
+
+
 
 
 
@@ -767,3 +1550,5 @@ Mono.zip(callA, callB, this::joinResults)
 
 - https://projectreactor.io/docs/core/release/reference/gettingStarted.html
 - https://gist.github.com/Lukas-Krickl/50f1daebebaa72c7e944b7c319e3c073
+- https://projectreactor.io/learn
+- https://github.com/schananas/practical-reactor
