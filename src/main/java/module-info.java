@@ -54,6 +54,7 @@ module java.module {
     requires io.vavr;
     requires commons.math3;
     requires hipparchus.optim;
+    requires reactor.core;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
