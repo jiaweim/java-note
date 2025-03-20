@@ -55,6 +55,7 @@ module java.module {
     requires commons.math3;
     requires hipparchus.optim;
     requires reactor.core;
+    requires org.reactivestreams;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
