@@ -284,6 +284,16 @@ subscribe(500) - boundedElastic-1
 - `publishOn`
 - `subscribeOn`
 
+### publishOn
+
+`publishOn` 可以修改 operator-chain 下游 operators 的 `Scheduler`。其定义如下：
+
+```java
+public final Flux<T> publishOn(Scheduler scheduler);
+public final Flux<T> publishOn(Scheduler scheduler,
+                               int prefetch);
+```
+
 
 
 ## 参考

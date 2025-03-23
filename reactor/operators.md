@@ -4,7 +4,7 @@
 @author Jiawei Mao
 ***
 
-## 6.1 创建
+## 1. 创建
 
 > [!TIP]
 >
@@ -406,7 +406,7 @@ Mono<String> futureMonoLazy = Mono.fromFuture(
 
 
 
-#### Flux.from
+### Flux.from
 
 ```java
 public static <T> Flux<T> from(Publisher<? extends T> source);
@@ -414,7 +414,7 @@ public static <T> Flux<T> from(Publisher<? extends T> source);
 
 `Flux` 可以 emit 多个元素，可以许多包含多个元素的对象创建 `Flux`。
 
-##### fromArray
+#### fromArray
 
 ```java
 public static <T> Flux<T> fromArray(T[] array);
@@ -433,7 +433,7 @@ StepVerifier.create(arrayFlux)
         .verifyComplete();
 ```
 
-##### fromIterable
+#### fromIterable
 
 ```java
 public static <T> Flux<T> fromIterable(Iterable<T> it);
@@ -454,7 +454,7 @@ StepVerifier.create(listFlux)
         .verifyComplete();
 ```
 
-##### fromStream
+#### fromStream
 
 ```java
 public static <T> Flux<T> fromStream(Stream<T> s);
@@ -489,7 +489,7 @@ Flux<Integer> streamFluxUseMultipleTimes = Flux.fromStream(() -> Stream.of(1, 2,
 
 对两种情况，`Stream` 都会延迟到订阅 `Flux` 执行。
 
-#### Flux.range
+### Flux.range
 
 ```java
 public static Flux<Integer> range(int start,
@@ -529,7 +529,7 @@ Range:
 
 
 
-#### Mono.never
+### Mono.never
 
 ```java
 public static <T> Mono<T> never()
@@ -550,7 +550,7 @@ StepVerifier.create(seen.timeout(Duration.ofSeconds(5)))
 
 
 
-#### defer
+### defer
 
 `defer` 在订阅时才执行 `Supplier`，即延迟提供 `Publisher`。
 
@@ -595,7 +595,7 @@ Mono<Integer> monoNotDeferred = Mono.just(getValue());
 
 
 
-## 6.2 转换
+## 2. 转换
 
 - **转换已有数据**
 
@@ -958,7 +958,7 @@ Repeat:
 
 
 
-## 6.3 查看
+## 3. 查看
 
 lifecycle hooks 用于添加额外的行为（side effect）并查看序列，但不修改序列。
 
