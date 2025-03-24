@@ -6,6 +6,7 @@
 2025-03-18 add: Reactor 核心功能 ⭐
 2025-03-12 add: Reactive 编程简介
 @author Jiawei Mao
+
 ***
 
 ## 1. 简介
@@ -1399,8 +1400,6 @@ T
 
 ### 线程和 Schedulers
 
-Reactor 和 RxJava 一样，不强制并发模型，而是由开发人员控制。但是，这并不妨碍 Reactor 帮你处理并发问题。
-
 示例：在新线程运行 `Mono`
 
 ```java
@@ -1439,43 +1438,6 @@ hello thread Thread-0
 ```java
 Flux.interval(Duration.ofMillis(300), Schedulers.newSingle("test"))
 ```
-
-Reactor 提供了两种在 reactive chain 中切换 `Scheduler` 的方法：
-
-- `publishOn`
-- `subscribeOn`
-
-两者都接受一个 `Scheduler`，将执行 context 切换到该 `Scheduler`。但是 `publishOn` 在 chain 中的位置很重要，而 `subscribeOn` 的位置则无关紧要。只要理解在 subscribe 之前什么都不会发生，就能理解这种差异。
-
-在 Reactor 中，在链接 operator 时，可以根据需要将很多 `Flux` 和 `Mono` 包装到彼此内部。在订阅后，将创建一个 `Subscriber` 对象 chain，沿链向上到第一个 publisher。下面来详细看看 `publishOn` 和 `subscribeOn`。
-
-#### publishOn
-
-`publishOn` 的使用方式与 subcriber-chain 中其它 operator 相同。它从上游获取信号，并在关联的 Scheduler 的 worker 中执行 callback，将信号重播到下游。因此，它会影响后续 operator 的执行位置，直到下一个 `publishOn`：
-
-- 将执行 context 更改为 `Scheduler` 选择的 `Thread`
-- 根据规范，`onNext` 按顺序发生，因此这会占用单个线程
-- 除非在特定 `Scheduler` 工作，否则 `publishOn` 之后的 operator 会继续在同一线程执行
-
-以下示例使用 `publishOn` 方法：
-
-```java
-Scheduler s = Schedulers.newParallel("parallel-scheduler", 4); // ①
-
-final Flux<String> flux = Flux
-    .range(1, 2)
-    .map(i -> 10 + i) // ②
-    .publishOn(s) // ③
-    .map(i -> "value " + i); // ④
-
-new Thread(() -> flux.subscribe(System.out::println)); // ⑤
-```
-
-1. 创建一个包含 4 个 `Thread` 的 `Scheduler`
-2. 第一个 `map` 在 <5> 的匿名线程上运行
-3. `publishOn` 将整个序列切换到 <1> 中的线程
-4. 第二个 `map` 在 <1> 中的线程运行
-5. 该匿名线程为 subscription 发生的地方。打印发生在最新的 context 中，即来自 `publishOn` 的 context。
 
 #### subscribeOn
 
@@ -1580,152 +1542,7 @@ Flux.defer(() -> Flux.fromIterable(repository.findAll()))
             .subscribeOn(Schedulers.boundedElastic());
 ```
 
-
-### subscribeOn
-
-```java
-public final Flux<T> subscribeOn(Scheduler scheduler);
-```
-
-在指定 `Scheduler` 的 `Scheduler.Worker` 运行 subscribe, onSubscribe 和 request。因此，将此 operator 放在 chain 的任何位置都会影响从 chain 的开头到下一次 `publishOn` 的 `onNext`, `onError`, `onComplete` 的执行上下文。
-
-用于慢速 publisher，如阻塞 IO 和快速 consumer 的场景：
-
-```java
-flux.subscribeOn(Schedulers.single()).subscribe() 
-```
-
-### publishOn
-
-```jade
-public final Flux<T> publishOn(Scheduler scheduler);
-```
-
-在指定 Scheduler Worker 运行 `onNext`, `onComplete` 和 `onError`。
-
-## 6. Test: StepVerifier
-
-`StepVerifier` 来自 reactor-test artifiact，它能够订阅任何 `Publisher`，如 `Flux`, Akka Stream 等，然后针对该序列断言。
-
-如果事件与断言不一致，`StepVerifier` 抛出 `AssertionError`。
-
-可以使用静态工厂方法 `create` 创建 `StepVerifier`。它提供了一个 DSL 设置对数据的期望，并以终端期望（completion, error, calcel）结束。
-
-`StepVerifier` 使用步骤：
-
-- 创建 `StepVerifier`，使用 `create(Publisher)` 或 `withVirtualTime()`
-- 设置期望值，`expectNext(T...)`, `expectNextMatches(Predicate)`, `expectNextCount(long)` 或 `expectNextSequence(Iterable)`
-- 设置订阅操作，`thenRequest(long)` 后 `thenCancel()`
-- 构建 `StepVerifier`，`expectComplete()`, `expectError()`, `expectError(class)`, `expectErrorMatches(Predicate)`, `thenCancel()`
-- 使 `StepVerifier` 订阅 `Publisher`
-- 使用 `verify()` 或 `verify(Dueration)` 验证期望
-
-> [!NOTE]
->
-> 必须调用 `verify()` 方法或与 terminal 期望结合的 verify 方法，如 `.verifyErrorMessage(String)`，否则 `StepVerifier` 不会订阅序列，也就不会断言任何内容。
-
-```java
-StepVerify.create(T<Publisher>)
-    .{expectations...}
-	.verify();
-```
-
-`StepVerify` 提供了许多断言，具体可参考 [API](https://javadoc.io/static/io.projectreactor.addons/reactor-test/3.0.7.RELEASE/reactor/test/StepVerifier.html)。
-
-- `Flux` 断言示例
-
-断言 `Flux` 依次生成 "foo" 和 "bar" 两个元素，然后完成。
-
-```java
-Flux<String> flux = Flux.just("foo", "bar");
-StepVerifier.create(flux)
-        .expectNext("foo")
-        .expectNext("bar")
-        .expectComplete()
-        .verify();
-```
-
-- 异常断言
-
-```java
-StepVerifier.create(flux)
-        .expectNext("foo")
-        .expectNext("bar")
-        .expectError(RuntimeException.class)
-        .verify();
-```
-
-- `expectNextMatches` 断言
-
-`expectNextMatches` 可以检查元素是否满足指定 `Predicate`。例如：
-
-断言第一个 `User` 的 userName 为 "swhite"，第二个为 "jpinkman"，然后完成。
-
-```java
-StepVerifier.create(flux)
-        .expectNextMatches(user -> user.getUsername().equals("swhite"))
-        .expectNextMatches(user -> user.getUsername().equals("jpinkman"))
-        .expectComplete()
-        .verify();
-```
-
-- assert 断言
-
-```java
-default StepVerifier.Step<T> assertNext(java.util.function.Consumer<? super T> 
-                                        assertionConsumer);
-StepVerifier.Step<T> consumeNextWith(java.util.function.Consumer<? super T> consumer);
-```
-
-`assertNext` 与 `consumeNextWith` 等价。在 `Consumer` 中可以用 Hamcrest, AssertJ, Junit 等断言方法进行断言。
-
-- 计数断言
-
-每秒生成 1 个元素，生成 10 个元素。
-
-```java
-Flux<Long> flux = Flux.interval(Duration.ofSeconds(1)).take(10);
-StepVerifier.create(flux)
-        .expectNextCount(10)
-        .verifyComplete();
-```
-
-- 虚拟时间
-
-如果 `Flux` 每秒生成一个元素，生成 3600 个元素才完成。
-
-显然我们不希望测试运行数小时，那么如果加速运行，同能能够断言数据？`StepVerifier` 提供了一个虚拟时间选项 ：使用 `StepVerifier.withVirtualTime(Supplier<Publisher>)`，`StepVerifier` 会用 `VirtualTimeScheduler` 临时替换默认的`Scheduler`，即用可操作的虚拟时钟替换实际时钟。
-
-操作示例：
-
-```java
-StepVerifier.withVirtualTime(() -> Mono.delay(Duration.ofHours(3)))
-            .expectSubscription()
-            .expectNoEvent(Duration.ofHours(2))
-            .thenAwait(Duration.ofHours(1))
-            .expectNextCount(1)
-            .expectComplete()
-            .verify();
-```
-
-在 `Supplier` 参数中提供 `Publisher`。然后通过调用 `thenAwait(Duration)` 或 `expectNoEvent(Duration)` 来推进时间：
-
-- `thenAwait(Duration)` 只是推进时间
-- `expectNoEvent(Duration)` 除了推进时间，还要求这段时间内没有时间，否则测试失败
-
-即使没有推进时间，至少有一个 subscription 事件，因此在 `.withVirtualTime()` 后至少要加一个 `expectSubscription()`，才能添加 `expectNoEvent()`。
-
-示例：每秒 1 个元素，3600 个元素。
-
-```java
-Supplier<Fulx<Long>> supplier = ()->Flux.interval(Duration.ofSeconds(1)).take(3600);
-StepVerifier.withVirtualTime(supplier)
-        .thenAwait(Duration.ofHours(1))
-        .expectNextCount(3600)
-        .verifyComplete();
-```
-
-## 7. Adapt
+## 6. Adapt
 
 RxJava3 和 Reactor 3 都实现了 Reactive Streams 规范，两者可以交互。
 
@@ -1781,7 +1598,7 @@ CompletableFuture<User> future = mono.toFuture();
 Mono<User> mono = Mono.fromFuture(future);
 ```
 
-## 8. FAQ
+## 7. FAQ
 
 ### 理解 marble diagram
 
@@ -1844,3 +1661,4 @@ window-operator 会生成 `Flux<Flux<T>>`：main `Flux` 通知每个 window 的�
 - https://projectreactor.io/learn
 - https://github.com/schananas/practical-reactor
 - https://eherrera.net/project-reactor-course/
+- https://github.com/reactor/lite-rx-api-hands-on

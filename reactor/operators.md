@@ -2,6 +2,7 @@
 
 2025-03-21
 @author Jiawei Mao
+
 ***
 
 ## 1. 创建
@@ -41,7 +42,7 @@
   - 逐个同步生成：`Flux#generate` 参考 [同步:generate](#同步-generate)
   - 异步，一次 emit 多个信号：`Flux#create`, `Mono#create` 也可以，但不能 emit 多个信号
 
-#### empty
+### empty
 
 - **Mono**
 
@@ -49,14 +50,13 @@
 public static <T> Mono<T> empty();
 ```
 
-创建的 `Mono` 直接完成，不 emit 任何值。
+⭐创建的 `Mono` 直接完成，不 emit 任何值。
 
-**示例**：创建 Mono，直接完成，不 emit 值
+**示例**：创建空 `Mono`，即直接完成，不 emit 值
 
 ```java
-Mono<String> acknowledged = Mono.empty();
-
-StepVerifier.create(acknowledged)
+Mono<String> mono = Mono.empty();
+StepVerifier.create(mono)
         .verifyComplete();
 ```
 
@@ -66,16 +66,25 @@ StepVerifier.create(acknowledged)
 public static <T> Flux<T> empty();
 ```
 
-创建的 `Flux` 直接完成，不 emit 任何值。
+⭐创建的 `Flux` 直接完成，不 emit 任何值。
 
-示例：创建空的 `Mono<String>` 和 `Flux<String>`，订阅这两个 `Publisher`，因为它们没有值，所以只 emit complete 信号
+**示例**：创建空 `Flux`
+
+```java
+Flux<String> flux = Flux.empty();
+
+StepVerifier.create(flux)
+        .verifyComplete();
+```
+
+**示例**：创建空的 `Mono<String>` 和 `Flux<String>`，订阅这两个 `Publisher`，因为它们没有值，所以只 emit complete 信号
 
 ```java
 Mono<String> emptyMono = Mono.empty();
 Flux<String> emptyFlux = Flux.empty();
 ```
 
-#### error
+### error
 
 在命令式同步代码中， 可以采用 `try-catch` 和 `throws` 处理异常。
 
@@ -92,22 +101,24 @@ public static <T> Mono<T> error(Throwable error);
 **示例**：创建一个 `Mono`，因 `IllegalStateException` 而异常终止
 
 ```java
-Mono<String> trouble = Mono.error(new IllegalStateException());
+Mono<String> mono = Mono.error(new IllegalStateException());
+StepVerifier.create(mono)
+        .verifyError(IllegalStateException.class);
+```
 
-StepVerifier.create(trouble)
-        .expectError(IllegalStateException.class)
-        .verify();
+- **Flux**
+
+**示例**：创建 emit `IllegalStateException` 的 `Flux` 
+
+```java
+Flux<String> flux = Flux.error(new IllegalStateException());
+StepVerifier.create(flux)
+        .verifyError(IllegalStateException.class);
 ```
 
 
 
-- **Flux**
-
-
-
-
-
-#### just
+### just
 
 - **Mono**
 
@@ -115,17 +126,15 @@ StepVerifier.create(trouble)
 public static <T> Mono<T> just(T data);
 ```
 
-创建包含指定元素的 `Mono`。
+⭐创建包含指定元素的 `Mono`。
 
-**示例**：使用已有的值创建 `Mono`
+**示例**：创建一个包含 "foo" 值的 `Mono`
 
 ```java
-String valueIAlreadyHave = "value";
-Mono<String> valueIAlreadyHaveMono = Mono.just(valueIAlreadyHave);
-
-StepVerifier.create(valueIAlreadyHaveMono)
-            .expectNext("value")
-            .verifyComplete();
+Mono<String> mono = Mono.just("foo");
+StepVerifier.create(mono)
+        .expectNext("foo")
+        .verifyComplete();
 ```
 
 - **Flux**
@@ -135,23 +144,32 @@ public static <T> Flux<T> just(T data);
 public static <T> Flux<T> just(T... data);
 ```
 
-创建包含指定元素的 `Flux`。
+⭐创建包含指定元素的 `Flux`。
 
-示例：
+**示例**：创建包含 "foo" 和 "bar" 两个值的 `Flux`，不使用数组或集合
+
+```java
+Flux<String> flux = Flux.just("foo", "bar");
+StepVerifier.create(flux)
+        .expectNext("foo", "bar")
+        .verifyComplete();
+```
+
+**示例**：
 
 ```java
 Mono<Integer> integerMono = Mono.just(1);
 Flux<Integer> integerFlux = Flux.just(1, 2);
 ```
 
-#### Mono.justOrEmpty
+### Mono.justOrEmpty
 
 ```java
 public static <T> Mono<T> justOrEmpty(Optional<? extends T> data);
 public static <T> Mono<T> justOrEmpty(T data);
 ```
 
-如果知道没有值，用 `Mono#empty()`；如果知道有值，用 `Mono#just()`。
+⭐如果知道没有值，用 `Mono#empty()`；如果知道有值，用 `Mono#just()`。
 
 `Mono#justOrEmpty` 用于不确定有没有值的情况。
 
@@ -204,7 +222,7 @@ Mono with value complete
 Mono empty complete
 ```
 
-#### Mono.from
+### Mono.from
 
 `from*()` 有许多方法：
 
@@ -245,7 +263,7 @@ public static <T> Mono<T> fromCompletionStage(
     Supplier<? extends CompletionStage<? extends T>> stageSupplier);
 ```
 
-##### from
+#### from
 
 ```java
 public static <T> Mono<T> from(Publisher<? extends T> source);
@@ -267,7 +285,7 @@ Mono<Integer> mono2 = Mono.fromDirect(integerFlux);
 
 `mono1` 和 `mono2` 都会 emit `integerFlux` 的第一个元素 1。但是，`mono1` 在 emit 1 后会取消 `integerFlux`，而 `mono2` 允许 `integerFlux` 在后台继续 emit 2。这会导致意想不到的 side-effect，所以只有当你确定作为参数的 `Publisher` 只会 emit 一个元素时，才使用 `fromDirect`。
 
-##### fromDirect
+#### fromDirect
 
 ```java
 public static <I> Mono<I> fromDirect(Publisher<? extends I> source);
@@ -277,7 +295,7 @@ public static <I> Mono<I> fromDirect(Publisher<? extends I> source);
 
 使用该 operator 意味着你直到要转换的 `Publisher` 遵循 `Mono` 语义，即只 emit 一个元素。
 
-##### fromRunnable
+#### fromRunnable
 
 ```java
 public static <T> Mono<T> fromRunnable(Runnable runnable);
@@ -325,7 +343,7 @@ Mono<Void> runnableMono2 = Mono.fromRunnable(
 );
 ```
 
-##### fromCallable
+#### fromCallable
 
 ```java
 public static <T> Mono<T> fromCallable(Callable<T> supplier)
@@ -349,7 +367,7 @@ StepVerifier.create(callableCounterMono.repeat(2))
             .verifyComplete();
 ```
 
-##### fromFuture
+#### fromFuture
 
 ```java
 public static <T> Mono<T> fromFuture(CompletableFuture<T> future);
@@ -439,9 +457,18 @@ StepVerifier.create(arrayFlux)
 public static <T> Flux<T> fromIterable(Iterable<T> it);
 ```
 
-⭐创建一个 `Flux`，emit `Iterable` 包含的所有元素。每个 subscriber 至少调用一次 `Iterable.iterator()` 方法，最多调用两次。
+⭐创建一个 `Flux`，emit `Iterable` 包含的元素。每个 subscriber 至少调用一次 `Iterable.iterator()`，最多调用两次。
 
-该 operator 会检查 `Iterable` 的 `Spliterator` 以估计迭代是否是有限的（参考 `Operators.onDiscardMultiple()`）。由于默认 `Spliterator` 包装  `Iterator`，因此可以调用 `Iterable.iterator()` 两次。不过对 `Collection`  类型，第二次调用被跳过。
+该 operator 会检查 `Iterable` 的 `Spliterator` 以估计迭代是否是有限（参考 `Operators.onDiscardMultiple()`）。由于默认 `Spliterator` 包装  `Iterator`，因此可以调用 `Iterable.iterator()` 两次。不过对 `Collection`  类型，第二次调用被跳过。
+
+**示例**： 从 `List` 创建 `Flux`，包含 "foo" 和 "bar" 两个元素
+
+```java
+Flux<String> flux = Flux.fromIterable(Arrays.asList("foo", "bar"));
+StepVerifier.create(flux)
+        .expectNext("foo", "bar")
+        .verifyComplete();
+```
 
 **示例**：创建一个 `Flux`，emit list 的所有元素
 
@@ -535,17 +562,17 @@ Range:
 public static <T> Mono<T> never()
 ```
 
-`Mono.never()` 不发出任何数据、错误和完成信号，无限期运行，仅在测试中有用。
+⭐`Mono.never()` 不发出任何数据、错误和完成信号，无限期运行，仅在测试中有用。
 
 **示例**：创建一个 `Mono`，不 emit 值，也永远不完成
 
 ```java
-Mono<String> seen = Mono.never();
-
-StepVerifier.create(seen.timeout(Duration.ofSeconds(5)))
+Mono<String> mono = Mono.never();
+StepVerifier
+        .create(mono)
         .expectSubscription()
-        .expectNoEvent(Duration.ofSeconds(4))
-        .verifyTimeout(Duration.ofSeconds(5));
+        .expectTimeout(Duration.ofSeconds(1))
+        .verify();
 ```
 
 
@@ -629,44 +656,59 @@ Mono<Integer> monoNotDeferred = Mono.just(getValue());
     - 至少一个值（OR）：`any`
     - 测试值的存在：`hasElements` (`Mono` 也有)
     - 测试特定值的存在：`hasElement(T)`
-
 - 重复已有序列：`repeat(Flux|Mono)`
-
   - 按时间间隔：`Flux.interval(duration).flatMap(tick -> myExistingPublisher)`
-
 - 有一个空序列，但是：
-
   - 需要一个值：`defualtIfEmpty(Flux|Mono)`
   - 需要另一个序列：`switchIfEmpty(Flux|Mono)`
-
 - 有一个序列，但是对序列元素不感兴趣：`ignoreElements(Flux.ignoreElements()|Mono.ignoreELement())`
-
   - 完成结果为 `Mono<Void>`: `then(Flux|Mono)`
   - 最后等待另一个 task 完成：`thenEmpty(Flux|Mono)`
   - 最后切换到另一个 `Mono`: `Mono#then(mono)`
   - 最后 emit 一个值：`Mono#thenReturn(T)`
   - 最后切换到另一个 `Flux`：`thenMany(Flux|Mono)`
-
 - 有一个 `Mono`，希望推迟完成：
-
   - 直到另一个从该值派生的 publisher 完成：`Mono#delayUntil(Function)`
-
 - 递归扩展为序列 graph，并 emit 组合：
-
   - 广度优先扩展：`expand(Function)(Flux|Mono)`
   - 深度优先扩展：`expandDeep(Function)(Flux|Mono)`
 
-
-
-
-
 ### map
+
+- **Mono**
+
+```java
+public final <R> Mono<R> map(Function<T,R> mapper);
+```
+
+⭐**同步**转换操作。
+
+**示例**：名字转换为大写
+
+这是一个简单的 1-1 转换，没有延迟，可以采用 `map` operator。下面将 `User` 的所有名称转换为大写：
+
+```java
+mono.map(user -> new User(user.getUsername().toUpperCase(),
+            user.getFirstname().toUpperCase(),
+            user.getLastname().toUpperCase()));
+```
+
+
+- **Flux**
 
 ```java
 public final <V> Flux<V> map(Function<T,V> mapper)
 ```
 
-对 `Flux` 的每个元素应用同步函数进行转换。
+⭐对 `Flux` 的每个元素应用同步函数进行转换。
+
+**示例**：对 `Flux` 的每个名称，将名字转换为大写
+
+```java
+flux.map(user -> new User(user.getUsername().toUpperCase(),
+            user.getFirstname().toUpperCase(),
+            user.getLastname().toUpperCase()));
+```
 
 **示例**：每个值 +1
 
@@ -679,7 +721,7 @@ StepVerifier.create(numbersFlux)
             .verifyComplete();
 ```
 
-示例：如果数字 >0，返回 `>`；等于 0 返回 "="；小于 0 返回  "<"
+**示例**：如果数字 >0，返回 `>`；等于 0 返回 "="；小于 0 返回  "<"
 
 ```java
 Flux<Integer> numbersFlux = Flux.just(100, -1, 0, 78, 1);
@@ -723,8 +765,23 @@ public final <R> Flux<R> flatMapMany(Function<T,Publisher<R>> mapper)
 public final <R> Flux<R> flatMap(Function<T,Publisher<R>> mapper)
 ```
 
-⭐将此 `Flux` emit 的元素异步转换为 publishers，然后通过合并将内部 publishers 展开为单个 `Flux`。
+⭐将此 `Flux` emit 的元素**异步**转换为 publishers，然后通过合并将内部 publishers 展开为单个 `Flux`。
 
+**示例**：假设你需要调用一个 Web 服务来将字符串大写。这个调用可能会有延迟，因此不能使用 `map`，而是用 `flatMap`。
+
+`flatMap` 采用一个 trans `Function`，返回 `Publisher<U>` 而不是 `U`。`flatMap`订阅内部 publisher，合并为一个全局输出，得到 `Flux<U>`。
+
+注意：内部 publisher 生成的值因达到时间不同，得到的结果在 `Flux` 中可能交错。
+
+```java
+Mono<User> asyncCapitalizeUser(User u) {
+    return Mono.just(new User(u.getUsername().toUpperCase(),
+            u.getFirstname().toUpperCase(),
+            u.getLastname().toUpperCase()));
+}
+
+flux.flatMap(user -> asyncCapitalizeUser(user));
+```
 
 
 ### cast
@@ -753,14 +810,14 @@ StepVerifier.create(numbersFlux)
 ### Flux.collectList
 
 ```java
-public final Mono<java.util.List<T>> collectList();
+public final Mono<List<T>> collectList();
 ```
 
-收集 `Flux` emit 的所有元素到一个 `List`，以 `Mono` 的形式返回。如果序列为空，返回空 `List`。
+⭐收集 `Flux` emit 的所有元素到一个 `List`，以 `Mono` 形式返回。如果序列为空，返回空 `List`。
 
 <img src="./images/image-20250318164205353.png" alt="image-20250318164205353" style="zoom:50%;" />
 
-示例：`collectList()` 组合 `block()` 获取值
+**示例**：`collectList()` 组合 `block()` 获取值
 
 ```java
 Flux<String> serviceResult = fortuneTop5();
@@ -793,7 +850,7 @@ StepVerifier.create(result)
         .verifyComplete();
 ```
 
-#### Flux.reduce
+### Flux.reduce
 
 ```java
 public final <A> Mono<A> reduce(A initial,
@@ -814,7 +871,7 @@ StepVerifier.create(sum)
         .verifyComplete();
 ```
 
-#### Flux.scan
+### Flux.scan
 
 ```java
 public final <A> Flux<A> scan(A initial,
@@ -856,7 +913,7 @@ StepVerifier.create(sumEach)
         .verifyComplete();
 ```
 
-#### Flux.startWith
+### Flux.startWith
 
 ```java
 public final Flux<T> startWith(java.lang.Iterable<? extends T> iterable);
@@ -878,7 +935,7 @@ StepVerifier.create(result)
         .verifyComplete();
 ```
 
-#### repeat
+### repeat
 
 - **Mono**
 
@@ -888,7 +945,7 @@ public final Flux<T> repeat();
 
 
 
-#### Flux.repeat
+### Flux.repeat
 
 ```java
 public final Flux<T> repeat(long numRepeat,
@@ -956,6 +1013,34 @@ Repeat:
 10
 ```
 
+### then
+
+- **Mono**
+
+```java
+public final Mono<Void> then();
+```
+
+⭐返回一个 `Mono<Void>`，只转发该 `Mono` 的 complete 和 error 信号。
+
+
+
+- **Flux**
+
+```java
+public final Mono<Void> then();
+```
+
+⭐返回一个 `Mono<Void>`，当该 `Flux` complete，它也 complete。简而言之，忽略序列，只转播 completion 或 error 信号。
+
+**示例**：将 `Flux<User>` 转换为代表完成的 `Mono<Void>`
+
+```java
+flux.then();
+```
+
+
+
 
 
 ## 3. 查看
@@ -995,6 +1080,26 @@ lifecycle hooks 用于添加额外的行为（side effect）并查看序列，�
       - 回到 `onNext`: `dematerialize`(Flux|Mono)
 
   - 作为日志的一行：`log`(Flux|Mono)
+
+
+如果希望指定自定义操作，而不是修改序列中的元素，则可以使用以 `do` 或 `doOn` 开头的带副作用的方法。
+
+例如，如果希望operator 每次收到 request 都打印 "Requested"，则可以使用 `doOnRequest`。
+
+如果每次收到 `subscription`，在发出任何信号之前先打印 "Starting"，则可以使用 `doFirst`。
+
+每个 `doOn` 方法都采用一个 callback 表示相应事件的自定义操作。
+
+在这些 callbacks 中不应该调用具有延迟的操作。
+
+**示例**：所有用户，先打印 "Starring:"，然后对每个元素打印 "firstname lastname"，完成后输出 "The end!"。
+
+```java
+repository.findAll()
+    .doFirst(() -> System.out.println("Starring:"))
+    .doOnNext(user -> System.out.println(user.getFirstname() + " " + user.getLastname()))
+    .doOnComplete(() -> System.out.println("The end!"));
+```
 
 ### doFirst
 
@@ -1038,7 +1143,7 @@ StepVerifier.create(temperatureFlux
 assertEquals(hooksTriggered, Arrays.asList("before subscribe", "subscribe"));
 ```
 
-#### doOnNext
+### doOnNext
 
 **Flux**
 
@@ -1074,7 +1179,7 @@ StepVerifier.create(temperatureFlux)
 assertEquals(20, counter.get());
 ```
 
-#### doOnSubscribe
+### doOnSubscribe
 
 - **Flux**
 
@@ -1105,7 +1210,7 @@ StepVerifier.create(temperatureFlux.take(5))
 assertEquals(hooksTriggered, List.of("subscribe"));
 ```
 
-#### doOnComplete
+### doOnComplete
 
 ```java
 public final Flux<T> doOnComplete(Runnable onComplete);
@@ -1130,7 +1235,7 @@ StepVerifier.create(temperatureFlux.skip(20))
 assertTrue(completed.get());
 ```
 
-#### doOnCancel
+### doOnCancel
 
 ```java
 public final Flux<T> doOnCancel(Runnable onCancel);
@@ -1155,7 +1260,7 @@ StepVerifier.create(temperatureFlux.take(0))
 assertTrue(canceled.get());
 ```
 
-#### doOnTerminate
+### doOnTerminate
 
 ```java
 public final Flux<T> doOnTerminate(Runnable onTerminate)
@@ -1193,7 +1298,7 @@ StepVerifier.create(temperatureFlux.skip(20)
 assertEquals(2, hooksTriggeredCounter.get());
 ```
 
-#### doFinally
+### doFinally
 
 ```java
 public final Flux<T> doFinally(Consumer<SignalType> onFinally)
@@ -1227,7 +1332,7 @@ StepVerifier.create(temperatureFlux.skip(20)
 assertEquals(3, hooksTriggeredCounter.get());
 ```
 
-#### doOnEach
+### doOnEach
 
 ```java
 public final Flux<T> doOnEach(Consumer<Signal<T>> signalConsumer)
@@ -1252,9 +1357,44 @@ StepVerifier.create(flux)
 assertEquals(signals, Arrays.asList("ON_NEXT", "ON_NEXT", "ON_NEXT", "ON_COMPLETE"));
 ```
 
+### log
+
+- **Mono**
+
+```java
+public final Mono<T> log();
+```
+
+⭐观察所有 reactive stream，并使用 `Logger` 记录。默认使用 `java.util.logging` 和 `Level.INFO`。如果 SLF4J 可用，则转用 SLF4J。
+
+默认日志类别为 `reactor.Mono`，然后根据 operator 添加后缀，如 `reactor.Mono.Map`。
 
 
-## 6.4 过滤
+- **Flux**
+
+**示例**：下面使用 `log` operator 来输出序列内部状态。
+
+`repository` 是包含多个 `User` 的 `Flux`。
+
+```java
+repository
+        .findAll()
+        .log();
+```
+
+```
+15:04:00.116 [main] INFO reactor.Flux.Zip.1 - onSubscribe(FluxZip.ZipCoordinator)
+15:04:00.116 [main] INFO reactor.Flux.Zip.1 - request(1)
+15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='swhite', firstname='Skyler', lastname='White'})
+15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - request(1)
+15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='jpinkman', firstname='Jesse', lastname='Pinkman'})
+15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - request(2)
+15:04:00.426 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='wwhite', firstname='Walter', lastname='White'})
+15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='sgoodman', firstname='Saul', lastname='Goodman'})
+15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onComplete()
+```
+
+## 4. 过滤
 
 - 过滤序列：
   - 基于任何规则：`filter`(Flux|Mono)
@@ -1478,7 +1618,7 @@ StepVerifier.create(numbers)
 
 
 
-## 处理 Errors
+## 5. 处理 Errors
 
 - **创建 error 序列**：`error(Flux|Mono)`
 
@@ -1490,10 +1630,101 @@ StepVerifier.create(numbers)
 
   - lazy: `error(Supplier<Throwable>)(Flux|Mono)`
 
+- try/catch 等价
+  - 抛出异常：`error`(Flux|Mono)
+  - 捕获异常
+    - 出错时回退到默认值：`onErrorReturn`(Flux|Mono)
+    - 完成：`onErrorComplete`(Flux|Mono)
+    - 回退到另一个 Flux 或 Mono：`onErrorResume`(Flux|Mono)
+    - 包装后抛出异常：`.onErrorMap(t → new RuntimeException(t))`（Flux|Mono）
+
+  - finally block: `doFinally`(Flux|Mono)
+  - 使用 java 7 pattern: `using`(Flux|mono) factory 方法
+
+- 从错误恢复
+  - 回退
+    - 回退到某个值：`onErrorReturn`(Flux|Mono)
+    - 回退到 completion: `onErrorComplete`(Flux|Mono)
+    - 回退到 Publisher 或 Mono：`Flux#onErrorResume` 和 `Mono#onErrorResume`
+
+  - 重新尝试
+    - 简单策略：`retry()` (Flux|Mono), `retry*long`(Flux|Mono)
+    - 由一个伴侣 Flux 触发：`retryWhen`(Flux|Mono)
+    - 使用一个标准的回退策略：`retryWhen(Retry.backoff(...))`(Flux|Mono)
+
+- 处理反压错误（从上游请求最大值，当下游不能生成足够 request 应用该策略）
+  - 抛出一个特殊的 `IllegalStateException`异常：`Flux#onBackpressureError`
+  - 删除多余的值：`Flux#onBackpressureDrop`
+    - 除了最后一个：`Flux#onBackpressureLatest`
+
+  - 缓冲多余的值：`Flux#onBackpressureBuffer`
+    - buffer 也溢出时采取的策略：`Flux#onBackpressureBuffer` 与 `BufferOverflowStrategt`
+
+### onErrorReturn
+
+- **Mono**
+
+```java
+public final Mono<T> onErrorReturn(T fallbackValue);
+```
+
+⭐当 `Mono` 出错时，返回指定的默认值。
+
+**示例**：当输入 `Mono` 出错时，返回默认 `User.SAUL`，否则不变。
+
+```java
+mono.onErrorReturn(User.SAUL);
+```
 
 
 
-## 6.6 处理 Time
+
+
+- **Flux**
+
+
+
+### onErrorResume
+
+- **Mono**
+
+
+
+- **Flux**
+
+```java
+public final Flux<T> onErrorResume(Function<Throwable,Publisher<T>> fallback);
+```
+
+在 `Flux` 出错时回退到另一个 `Publisher`，使用函数根据错误选择后备 `Publisher`。
+
+**示例**：出错时返回包含 `User.SAUL` 和 `User.JESSE` 的 `Flux<User>`，否则不改变输入 flux
+
+```jva
+flux.onErrorResume(throwable -> Flux.just(User.SAUL, User.JESSE));
+```
+
+`onErrorReturn` 只能返回一个值，`onErrorREsume` 则可以返回多个值。
+
+### Exceptions
+
+处理异常稍微复杂一些。最简单的方式是在 lambda 表达式中使用 `try-catch` 将其转换为 `RuntimeException`，向下游发出信号。
+
+`Exceptions#propagate` 工具可以将异常包装成一个特殊的 runtime 异常，该异常可以由 Reactor Subscriber 和 `StepVerifier` 解包，从而避免在堆栈中看到不相关的 `RuntimeException`。
+
+**示例**：`capitalizeUser` 会抛出 `GetOutOfHereException`，在 catch 中用 `Exceptions.propagate(e)` 进行包装。
+
+```java
+flux.map(user -> {
+        try {
+            return capitalizeUser(user);
+        } catch (GetOutOfHereException e) {
+            throw Exceptions.propagate(e);
+        }
+    });
+```
+
+## 6. 处理 Time
 
 - 希望将 emit 与时间关联
 - 固定时间间隔：`Flux#interval`
@@ -1501,6 +1732,18 @@ StepVerifier.create(numbers)
 - 引入延迟
   - 在每个 `onNext` 信号之前：`Mono#delayElement`, `Flux#delayElements`
   - 订阅之前：`delaySubscription`(Flux|Mono)
+
+
+
+### Mono.delay
+
+```java
+public static Mono<Long> delay(Duration duration)
+```
+
+⭐创建一个 `Mono`，它会在默认 scheduler 上延迟一个 `onNext` 信号 `duration` 时间。如果无法满足要求，发出 `onError` 信号。`delay` 通过默认的 `parallel` Scheduler 引入。
+
+
 
 ### Flux.interval
 
@@ -1517,6 +1760,18 @@ public static Flux<Long> interval(Duration delay,
 - 在正常情况下，`Flux` 不会完成，一直执行
 
 <img src="./images/image-20250318104423187.png" alt="image-20250318104423187" style="zoom:50%;" />
+
+**示例**：创建一个 `Flux`，包含 0 到 9，每 100 ms emit 一个值
+
+```java
+Flux<Long> flux = Flux.interval(Duration.ofMillis(100))
+        .take(10);
+StepVerifier.create(flux)
+        .expectNext(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L)
+        .verifyComplete();
+```
+
+
 
 ```java
 public static Flux<Long> interval(Duration period,
@@ -1633,11 +1888,11 @@ public final <U> Flux<T> delaySubscription(Publisher<U> subscriptionDelay);
 
 
 
-## 拆分 Flux
+## 7. 拆分 Flux
 
 
 
-## 转到同步
+## 8. 同步和异步
 
 阻塞 operator 通常用于测试，或者在没有其它方法可用，只能返回同步。
 
@@ -1660,7 +1915,9 @@ public final <U> Flux<T> delaySubscription(Publisher<U> subscriptionDelay);
   - 加一个 timeout: `Mono#block(Duration)`
 - `CompletableFuture<T>`: `Mono#toFuture`
 
-#### Flux.blockFirst
+
+
+### Flux.blockFirst
 
 ```java
 public final T blockFirst();
@@ -1691,21 +1948,29 @@ public final T blockFirst(java.time.Duration timeout);
 
 <img src="./images/image-20250318172815985.png" alt="image-20250318172815985" style="zoom:50%;" />
 
-#### Flux.blockLast
+### Flux.blockLast
 
-#### Flux.toIterable
-
-#### Flux.toStream
-
-#### Mono.block
-
-**block**
+### Flux.toIterable
 
 ```java
-public T block()
+public final Iterable<T> toIterable();
 ```
 
-`block()` 订阅 `Mono`，阻塞直到收到下一个信号:
+⭐将该 `Flux` 转换为 lazy `Iterable`，在 `Iterator.next()` 调用上阻塞。reactive->阻塞转换。
+
+> [!NOTE]
+>
+> 不允许在标记为 "non-blocking only" 的线程中迭代，否则会抛出 `IllegalStateException`，不过在这些线程中获取 `Iterable` 是可以的。
+
+### Flux.toStream
+
+### Mono.block
+
+```java
+public T block();
+```
+
+⭐`block()` 订阅 `Mono`，阻塞直到收到下一个信号：
 
 - 返回 `Mono` 的值
 - 如果 `Mono` 为空则返回 `null`
@@ -1713,7 +1978,7 @@ public T block()
 
 <img src="./images/image-20250318171628422.png" alt="image-20250318171628422" style="zoom:50%;" />
 
-例如：
+示例：
 
 ```java
 Mono<String> serviceResult = Mono.just("Hello World!");
@@ -1722,13 +1987,13 @@ String result = serviceResult.block();
 assertEquals("Hello World!", result);
 ```
 
-**block(timeout)**
+
 
 ```java
 public T block(java.time.Duration timeout)
 ```
 
-加了时间限制。订阅 `Mono`，阻塞直到收到下一个信号，或者超时。超时也会抛出 `RuntimeException `。其它同上。
+⭐加了时间限制。订阅 `Mono`，阻塞直到收到下一个信号，或者超时。超时也会抛出 `RuntimeException `。其它同上。
 
 另外，每个 `block()` 会触发一个新订阅，因此，对 hot-publisher，该操作可能错过信号。
 
@@ -1747,7 +2012,7 @@ String actualMessage = exception.getMessage();
 assertTrue(actualMessage.contains(expectedMessage));
 ```
 
-#### Mono.blockOptional
+### Mono.blockOptional
 
 ```java
 public java.util.Optional<T> blockOptional();
@@ -1756,9 +2021,7 @@ public java.util.Optional<T> blockOptional(java.time.Duration timeout);
 
 同 `Mono#block`，只是以 `Optional` 的形式返回。
 
-### 将 Flux 多播到多个 Subscriber
-
-### 合并
+## 9. 合并
 
 - 合并 publishers
   - 按顺序：`Flux#concat` 或 `.concatWith(Other)(Flux|Mono)`
@@ -1781,25 +2044,14 @@ public java.util.Optional<T> blockOptional(java.time.Duration timeout);
   - 由 source 序列中的元素触发：`switchMap` （每个 source 元素映射到一个 `Publisher`）
   - 由 publisher 序列中的下一个启动的 publisher 触发：`switchOnNext`
 
-- `mergeWith`
 
-将当前 `Flux` 和一个 `Publisher` 的数据合并，得到一个**交错**合并的序列。
-
-```java
-public final Flux<T> mergeWith(Publisher<? extends T> other);
-```
-
-<img src="./images/image-20250318142605266.png" alt="image-20250318142605266" style="zoom:50%;" />
-
-
-
-#### Flux.concat
+### Flux.concat
 
 ```java
 public static <T> Flux<T> concat(Iterable<Publisher<T>> sources);
 ```
 
-静态方法 `concat` 串联 `sources` 提供的所有 `Publisher` 的元素。
+⭐静态方法 `concat` 串联 `sources` 提供的所有 `Publisher` 的元素。
 
 - **按顺序**合并，先订阅第一个 source 的元素，完成到下一个
 - 任何错误都会导致序列中断，并立即转发到下游
@@ -1818,7 +2070,11 @@ StepVerifier.create(numbers)
             .verifyComplete();
 ```
 
-#### Flux.concatWith
+### concatWith
+
+- **Mono**
+
+- **Flux**
 
 ```java
 public final Flux<T> concatWith(Publisher<T> other);
@@ -1830,7 +2086,7 @@ public final Flux<T> concatWith(Publisher<T> other);
 
 <img src="./images/image-20250318142843507.png" alt="image-20250318142843507" style="zoom:50%;" />
 
-#### Flux.concatMap
+### Flux.concatMap
 
 ```java
 public final <V> Flux<V> concatMap(Function<T,Publisher<V>> mapper);
@@ -1860,7 +2116,7 @@ assertEquals(10, taskCounter.get());
 
 
 
-#### Flux.merge
+### Flux.merge
 
 ```java
 public static <T> Flux<T> merge(Publisher<Publisher<T>> source);
@@ -1886,7 +2142,29 @@ public static <I> Flux<I> merge(int prefetch, Publisher<I>... sources);
 
 <img src="./images/image-20250318142305355.png" alt="image-20250318142305355" style="zoom:50%;" />
 
-#### Flux.firstWithValue
+### firstWithValue
+
+- **Mono**
+
+```java
+public static <T> Mono<T> firstWithValue(Iterable<Mono<T>> monos);
+```
+
+⭐选择第一个发出值的 `Mono`。
+
+包含值的 source 比空 source (仅发出 `onComplete`)或失败的 source（仅发出 `onError`）优先级高。
+
+如果没有任何 source 提供值，`firstWithValue` 失败并抛出 `NoSuchElementException`（前提是至少有两个 sources）。
+
+<img src="./images/image-20250318162717366.png" alt="image-20250318162717366" style="zoom:50%;" />
+
+**示例**：选择返回值更快的 Mono
+
+```java
+Mono.firstWithValue(mono1, mono2);
+```
+
+- **Flux**
 
 ```java
 public static <I> Flux<I> firstWithValue(Iterable<Publisher<I>> sources);
@@ -1927,187 +2205,43 @@ StepVerifier.create(stonks)
 (GRPC) Got stock, price: 5$
 ```
 
-#### Mono.firstWithValue
+
+### mergeWith
+
+- **Mono**
+
+
+
+- **Flux**
 
 ```java
-public static <T> Mono<T> firstWithValue(java.lang.Iterable<? extends Mono<? extends T>> monos)
+public final Flux<T> mergeWith(Publisher<T> other);
 ```
 
-选择第一个发出任意值的 `Mono`。
+⭐将当前 `Flux` 与另一个 `Publisher` 序列合并（允许交错）。
 
-包含值的 source 比空 source (仅发出 `onComplete`)或失败的 source（仅发出 `onError`）优先级高。
+<img src="./images/image-20250318142605266.png" alt="image-20250318142605266" style="zoom:50%;" />
 
-如果没有任何 source 提供值，`firstWithValue` 失败并抛出 `NoSuchElementException`（前提是至少有两个 sources）。
-
-<img src="./images/image-20250318162717366.png" alt="image-20250318162717366" style="zoom:50%;" />
-
-
-### Transform
-
-Reactor 提供了多个 operators，可用于转换数据。
-
-- 示例：将字符串转换为大写
-
-这是一个简单的 1-1 转换，没有延迟，可以采用 `map` operator。下面将 `User` 的所有名称转换为大写：
+**示例**：将 `flux1` 和 `flux2` 合并，值交错
 
 ```java
-mono.map(user -> new User(user.getUsername().toUpperCase(),
-            user.getFirstname().toUpperCase(),
-            user.getLastname().toUpperCase()));
+flux1.mergeWith(flux2);
 ```
 
-- 对 `Flux`，也可以用相同代码映射每个元素
+
+### Flux.zip
 
 ```java
-flux.map(user -> new User(user.getUsername().toUpperCase(),
-            user.getFirstname().toUpperCase(),
-            user.getLastname().toUpperCase()));
+public static <T1,T2,T3> Flux<Tuple3<T1,T2,T3>> zip(Publisher<T1> source1,
+                                                    Publisher<T2> source2,
+                                                    Publisher<T3> source3)
 ```
 
-- 异步映射
-
-现在，假设你需要调用一个 Web 服务来将字符串大写。这个调用可能会有延迟，因此不能使用 `map`，而是用 `Flux` 或 `Mono` 来表示异步调用，使用 `flatMap`。
-
-`flatMap` 采用一个 trans `Function`，返回 `Publisher<U>` 而不是 `U`。`flatMap`订阅内部 publisher，合并为一个全局输出，得到 `Flux<U>`。注意：内部 publisher 生成的值达到时间不同，得到的结果在 `Flux` 中可能交错。
-
-```java
-Mono<User> asyncCapitalizeUser(User u) {
-    return Mono.just(new User(u.getUsername().toUpperCase(),
-            u.getFirstname().toUpperCase(),
-            u.getLastname().toUpperCase()));
-}
-
-flux.flatMap(user -> asyncCapitalizeUser(user));
-```
-
-### Request
-
-反压（backpressure）是一种反馈机制，`Subscriber` 向 `Publisher` 发出信号，告知其能够处理多少数据，从而限制 `Publisher` 生成数据的速率。
-
-这种需求控制在 `Subscription` 水平完成：每次调用 `subscribe()` 都会创建一个 `Subscription`，通过对 `Subscription` 的操作可以取消数据流，或使用 `request(long)` 调整数据需求。
-
-`request(Long.MAX_VALUE)` 表示无限制需求，因此 `Publisher` 会尽可能快地生成数据。
-
-- 示例：`StepVerifier` 也可以调整需求，通过使用相关参数为初始 request `create` 或 `withVirtualTime`，然后在期望中使用 `thenRequest(long)` 进一步 request。
-
-下面使用 `StepVerifier` 先 request 所有值，然后期望收到 4 个值。
-
-```java
-StepVerifier.create(flux)
-        .expectNextCount(4)
-        .expectComplete();
-```
-
-- 一次 request 一个元素
-
-初始 request 1 个元素；收到并断言第一个元素后，再 request 1 个元素
-
-```java
-StepVerifier.create(flux, 1)
-        .expectNext(User.SKYLER)
-        .thenRequest(1)
-        .expectNext(User.JESSE)
-        .thenCancel();
-```
-
-如果 request 数不够，source 无法 complete，除非直接取消。如果想确保在指定时间内没有传入信号，可以使用 `.expectTimeout(Duration)`。
-
-- `log`
-
-下面使用 `log` operator 来输出序列内部状态。
-
-`repository` 是包含多个 `User` 的 `Flux`。
-
-```java
-repository
-        .findAll()
-        .log();
-```
-
-```
-15:04:00.116 [main] INFO reactor.Flux.Zip.1 - onSubscribe(FluxZip.ZipCoordinator)
-15:04:00.116 [main] INFO reactor.Flux.Zip.1 - request(1)
-15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='swhite', firstname='Skyler', lastname='White'})
-15:04:00.225 [parallel-1] INFO reactor.Flux.Zip.1 - request(1)
-15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='jpinkman', firstname='Jesse', lastname='Pinkman'})
-15:04:00.336 [parallel-1] INFO reactor.Flux.Zip.1 - request(2)
-15:04:00.426 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='wwhite', firstname='Walter', lastname='White'})
-15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onNext(User{username='sgoodman', firstname='Saul', lastname='Goodman'})
-15:04:00.531 [parallel-1] INFO reactor.Flux.Zip.1 - onComplete()
-```
-
-- `do` / `doOn`
-
-如果希望指定自定义操作，而不是修改序列中的元素，则可以使用以 `do` 或 `doOn` 开头的带副作用的方法。
-
-例如，如果希望operator 每次收到 request 都打印 "Requested"，则可以使用 `doOnRequest`。
-
-如果每次收到 `subscription`，在发出任何信号之前先打印 "Starting"，则可以使用 `doFirst`。
-
-每个 `doOn` 方法都采用一个 callback 表示相应事件的自定义操作。
-
-在这些 callbacks 中不应该调用具有延迟的操作。
-
-下面：所所有用户，先打印 "Starring:"，然后对每个元素打印 "firstname lastname"，完成后输出 "The end!"。
-
-```java
-repository.findAll()
-    .doFirst(() -> System.out.println("Starring:"))
-    .doOnNext(user -> System.out.println(user.getFirstname() + " " + user.getLastname()))
-    .doOnComplete(() -> System.out.println("The end!"));
-```
-
-### Error
-
-Reactor 提供了几个用于处理错误的 operators。
-
-- 出错时采用默认值：`onErrorReturn`
-
-当输入 `Mono` 出错时，返回默认 `User.SAUL`，否则不变。
-
-```java
-mono.onErrorReturn(User.SAUL);
-```
-
-- 出错时采用另一个 `Publisher<T>`：`onErrorResumeWith`
-
-```jva
-flux.onErrorResume(throwable -> Flux.just(User.SAUL, User.JESSE));
-```
-
-`onErrorReturn` 只能返回一个值，`onErrorREsume` 则可以返回多个值。
-
-- 处理异常
-
-处理异常稍微复杂一些。最简单的方式是在 lambda 表达式中使用 `try-catch` 将其转换为 `RuntimeException`，向下游发出信号。
-
-`Exceptions#propagate` 工具可以将一个异常包装成一个特殊的 runtime 异常，该异常可以由 Reactor Subscriber 和 `StepVerifier` 解包，从而避免在堆栈中看到不相关的 `RuntimeException`。
-
-例如：`capitalizeUser` 会抛出 `GetOutOfHereException`，在 catch 中用 `Exceptions.propagate(e)` 进行包装。
-
-```java
-flux.map(user -> {
-        try {
-            return capitalizeUser(user);
-        } catch (GetOutOfHereException e) {
-            throw Exceptions.propagate(e);
-        }
-    });
-```
-
-### zip
-
-```java
-public static <T1,T2,T3> Flux<Tuple3<T1,T2,T3>> zip(Publisher<? extends T1> source1,
-                                                    Publisher<? extends T2> source2,
-                                                    Publisher<? extends T3> source3)
-```
-
-将三个 source 合并在一起，将等待所有 source 生成一个元素，然后合并这些元素为一个 `Tuple3`。持续该操作，直到任何一个 source 完成。
+⭐将三个 source 合并在一起，即等待所有 source 生成一个元素，然后合并这些元素为一个 `Tuple3`。持续该操作，直到其中一个 source 完成。
 
 <img src="./images/image-20250318160602519.png" alt="image-20250318160602519" style="zoom:50%;" />
 
-例如，使用三个 `Flux<String>` 创建用户：`zip` 得到一个 `Tuple3`，然后用 `Tuple3` 创建 `User`：
+**示例**：使用三个 `Flux<String>` 创建用户：`zip` 得到一个 `Tuple3`，然后用 `Tuple3` 创建 `User`：
 
 ```java
 Flux.zip(usernameFlux, firstnameFlux, lastnameFlux)

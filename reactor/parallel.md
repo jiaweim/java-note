@@ -74,7 +74,7 @@ parallel-1 -> 9
 
 线程通常被定义为轻量级进程，但它也可以看作是程序的执行路径。每个 Java 应用至少在 一个线程运行，即 main 线程。
 
-获取 `Flux` 或 `Mono` 并不表示它一定会在专门的 `Thread` 运行。相反，大多数 operator 会继续在前一个 operator 执行的线程中工作。
+Reactor 和 RxJava 一样，不强制并发模型，而是由开发人员控制。获取 `Flux` 或 `Mono` 并不表示它一定会在专门的 `Thread` 运行。相反，大多数 operator 会继续在前一个 operator 执行的线程中工作。
 
 Reactor 一切从订阅开始，所以最顶层（source）会在调用 `subscribe()` 的 `Thread` 运行。
 
@@ -118,7 +118,7 @@ flatMap(50) - main
 subscribe(500) - main
 ```
 
-可以看到，所有步骤都在 main 线程执行（即订阅所在的线程）。
+可以看到，所有步骤都在 **main** 线程执行（即订阅所在的线程）。
 
 如果在其它线程订阅？
 
@@ -164,7 +164,7 @@ flatMap(50) - Thread-0
 subscribe(500) - Thread-0
 ```
 
-此时，`Flux` 的所有步骤都在 Thread-0 执行，而不是 main 线程。
+此时，`Flux` 的所有步骤都在 **Thread-0** 执行，而不是 main 线程。
 
 
 有些 operator 会修改执行的线程，如 `delayElements` 默认在 `parallel` Scheduler 执行。
@@ -284,16 +284,188 @@ subscribe(500) - boundedElastic-1
 - `publishOn`
 - `subscribeOn`
 
+两者都接受一个 `Scheduler`  参数，将执行 context 切换到该 `Scheduler`。但是 `publishOn` 在 chain 中的位置很重要，而 `subscribeOn` 的位置则无关紧要。只要理解在 subscribe 之前什么都不会发生，就能理解这种差异。
+
+在 Reactor 中，在链接 operator 时，可以根据需要将很多 `Flux` 和 `Mono` 包装到彼此内部。在订阅后，将创建一个 `Subscriber` 对象 chain，沿链向上到第一个 publisher。下面来详细看看 `publishOn` 和 `subscribeOn`。
+
 ### publishOn
 
-`publishOn` 可以修改 operator-chain 下游 operators 的 `Scheduler`。其定义如下：
+`publishOn` 的使用方式与 subcriber-chain 中其它 operator 相同。它从上游获取信号，并在关联的 `Scheduler` 执行 callback，将信号重播到下游。因此，它会影响**下游** operator 的执行位置，直到**下一个** `publishOn`：
+
+- 将执行 context 更改为 `Scheduler` 选择的 `Thread`
+- 根据规范，`onNext` 按顺序发生，因此这会占用单个线程
+- 除非在特定 `Scheduler` 工作，否则 `publishOn` 之后的 operator 会继续在同一线程执行
+
+`publishOn` 可以修改 operator-chain 下游 operators 的 `Scheduler`，即 `onNext`, `onComplete` 和 `onError` 会在指定 `Scheduler` 运行。其定义如下：
 
 ```java
 public final Flux<T> publishOn(Scheduler scheduler);
 public final Flux<T> publishOn(Scheduler scheduler,
                                int prefetch);
+public final Flux<T> publishOn(Scheduler scheduler,
+                               boolean delayError,
+                               int prefetch);
 ```
 
+`publishOn` 通常用于 publisher 快、而 consumer(s) 慢的情况：
+
+```java
+flux.publishOn(Schedulers.single()).subscribe();
+```
+
+`prefetch` 参数指定异步边界容量；`delayError` 指在转发错误之前是否先消耗完 buffer。
+
+**示例**：`publishOn` 示例
+
+```java
+Scheduler s = Schedulers.newParallel("parallel-scheduler", 4); // ➊
+
+final Flux<String> flux = Flux
+    .range(1, 2)
+    .map(i -> 10 + i) // ➋
+    .publishOn(s) // ➌
+    .map(i -> "value " + i); // ➍
+
+new Thread(() -> flux.subscribe(System.out::println)); // ➎
+```
+
+➊ 创建一个包含 4 个 `Thread` 的 `Scheduler`
+
+➋ 第一个 `map` 在 <5> 的匿名线程上运行
+
+➌ `publishOn` 将整个序列切换到 <1> 中的线程
+
+➍ 第二个 `map` 在 <1> 中的线程运行
+
+➎ 该匿名线程为 subscription 发生的地方。打印发生在最新的 context 中，即来自 `publishOn` 的 context。
+
+**示例**：修改 scheduler
+
+```java
+Flux.just(1, 2, 3, 4, 5)
+        .map(i -> {
+            System.out.format("map(%d) - %s\n",
+                    i, Thread.currentThread().getName());
+            return i * 10;
+        })
+        .publishOn( // ➊
+                Schedulers.newSingle("singleScheduler")
+        )
+        .flatMap(i -> {
+            System.out.format("flatMap(%d) - %s\n",
+                    i, Thread.currentThread().getName());
+            return Mono.just(i * 10);
+        })
+        .subscribe(i -> System.out.format(
+                        "subscribe(%d) - %s\n",
+                        i, Thread.currentThread().getName()
+                )
+        );
+Thread.sleep(1000);
+```
+
+➊ 将 `Scheduler` 修改为一个单线程 `Scheduler`
+
+```
+map(1) - main
+map(2) - main
+flatMap(10) - singleScheduler-1
+map(3) - main
+subscribe(100) - singleScheduler-1
+map(4) - main
+map(5) - main
+flatMap(20) - singleScheduler-1
+subscribe(200) - singleScheduler-1
+flatMap(30) - singleScheduler-1
+subscribe(300) - singleScheduler-1
+flatMap(40) - singleScheduler-1
+subscribe(400) - singleScheduler-1
+flatMap(50) - singleScheduler-1
+subscribe(500) - singleScheduler-1
+```
+
+**示例**：在 `map` 前再加一个 `publishOn`
+
+```java
+Flux.just(1, 2, 3, 4, 5)
+        .publishOn( // ➊
+                Schedulers.newParallel("parallelScheduler")
+        )
+        .map(i -> {
+            System.out.format("map(%d) - %s\n",
+                    i, Thread.currentThread().getName()
+            );
+            return i * 10;
+        })
+        .publishOn( // ➋
+                Schedulers.newSingle("singleScheduler")
+        )
+        .flatMap(i -> {
+            System.out.format("flatMap(%d) - %s\n",
+                    i, Thread.currentThread().getName()
+            );
+            return Mono.just(i * 10);
+        })
+        .subscribe(i -> System.out.format("subscribe(%d) - %s\n",
+                i, Thread.currentThread().getName())
+        );
+Thread.sleep(1000);
+```
+
+➊ 使得 `map` 在 parallelScheduler 执行
+
+➋ 使得 `flatMap` 和 `subscribe` 在 singleScheduler 执行
+
+```
+map(1) - parallelScheduler-1
+map(2) - parallelScheduler-1
+flatMap(10) - singleScheduler-1
+map(3) - parallelScheduler-1
+map(4) - parallelScheduler-1
+subscribe(100) - singleScheduler-1
+map(5) - parallelScheduler-1
+flatMap(20) - singleScheduler-1
+subscribe(200) - singleScheduler-1
+flatMap(30) - singleScheduler-1
+subscribe(300) - singleScheduler-1
+flatMap(40) - singleScheduler-1
+subscribe(400) - singleScheduler-1
+flatMap(50) - singleScheduler-1
+subscribe(500) - singleScheduler-1
+```
+
+> [!WARNING]
+>
+> 切换线程会降低性能，因此只有真正需要将序列的执行切换到另一个 `Scheduler` (线程) 才应使用 `publishOn`。
+
+### subscribeOn
+
+```java
+public final Flux<T> subscribeOn(Scheduler scheduler);
+```
+
+在指定 `Scheduler` 运行 subscribe, onSubscribe 和 request。因此，该 operator 影响从 chain 的开头到下一次 `publishOn` 的 `onNext`, `onError`, `onComplete` 的 `Scheduler`。
+
+
+
+```java
+public final Flux<T> subscribeOn(Scheduler scheduler,
+                                 boolean requestOnSeparateThread);
+```
+
+在指定 `Scheduler` 运行 subscribe 和 onSubscribe。`requestOnSeparateThread` 参数决定是否在相同线程运行 request，`subscribeOn(Scheduler scheduler)` 版本中默认为 true。
+
+该 operator 影响从 chain 开头到下一个 `publishOn` 的 `onNext`, `onError`, `onComplete` 的执行 `Scheduler`。
+
+
+
+
+
+用于慢速 publisher，如阻塞 IO 和快速 consumer 的场景：
+
+```java
+flux.subscribeOn(Schedulers.single()).subscribe() 
+```
 
 
 ## 参考
