@@ -467,8 +467,41 @@ public final Flux<T> subscribeOn(Scheduler scheduler,
 flux.subscribeOn(Schedulers.single()).subscribe() 
 ```
 
+## 示例
+
+并行任务的常见流程：
+
+```java
+var result = Flux.fromIterable(list)
+                 .parallel(PARALLELISM, PARALLELISM)
+                 .runOn(scheduler)
+                 .map(Worker::call)
+                 .sequential()
+                 .toIterable();
+```
+
+采用 Stream API：
+
+```java
+var result = data.parallelStream()
+                 .map(Worker::call)
+                 .toList();
+```
+
+`parallelStream` 使用一个默认的 `ForkJoinPool.common` 线程池，可以通过修改 `java.util.concurrent.ForkJoinPool.common.parallelism` 进行设置。 
+
+对并行任务：
+
+- 对微秒级别的任务，Flux 性能较差，大约为 Stream API 的 1/5
+- 对毫秒级别的任务，Flux, Stream 和 `ExecutorService` 性能相当，此时创建 `Flux` 或 `parallelStream` 的开销相对任务可以忽略不计
+
+总结：
+
+- 如果并行任务非常小（微秒），推荐使用 `parallelStream`
+- 对大型任务（毫秒以上），使用 `Flux` 可以带来更多便利的功能
 
 ## 参考
 
 - https://docs.spring.io/projectreactor/reactor-core/docs/current-SNAPSHOT/reference/html/advancedFeatures/advanced-parallelizing-parralelflux.html
 - https://eherrera.net/project-reactor-course/06-schedulers-and-threads/
+- https://medium.com/@jhumper68/java-parallel-in-practice-887b907a42e9

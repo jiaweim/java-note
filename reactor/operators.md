@@ -850,16 +850,28 @@ StepVerifier.create(result)
         .verifyComplete();
 ```
 
+### Flux.hasElement
+
+```java
+public final Mono<Boolean> hasElement(T value);
+```
+
+⭐如果 `Flux` 的任何元素等于提供的值，返回 true。
+
+该实现采用短路逻辑，任何元素匹配该值，立即返回 true 并完成。
+
+
+
 ### Flux.reduce
 
 ```java
 public final <A> Mono<A> reduce(A initial,
-                                java.util.function.BiFunction<A,? super T,A> accumulator)
+                                BiFunction<A,T,A> accumulator)
 ```
 
-将 Flux 序列的值缩减为与 `initial` 类型匹配的单个值。缩减由 `BiFunction` 执行。
+⭐将 Flux 序列的值缩减为与 `initial` 类型匹配的单个值。缩减操作由 `BiFunction` 执行。
 
-示例：计算数字加和
+**示例**：计算数字加和
 
 ```java
 Flux<Integer> numerical_service = Flux.range(1, 10);
@@ -1741,7 +1753,7 @@ flux.map(user -> {
 public static Mono<Long> delay(Duration duration)
 ```
 
-⭐创建一个 `Mono`，它会在默认 scheduler 上延迟一个 `onNext` 信号 `duration` 时间。如果无法满足要求，发出 `onError` 信号。`delay` 通过默认的 `parallel` Scheduler 引入。
+⭐创建一个 `Mono`，在默认 scheduler 延迟 `onNext` 信号，`duration` 为延迟时间。如果无法满足要求，发出 `onError` 信号。`delay` 通过默认 `parallel` Scheduler 引入。
 
 
 
@@ -1835,9 +1847,7 @@ Interval:
 public final Flux<T> delayElements(Duration delay);
 ```
 
-⭐对 Flux 的每个元素（`Subscriber.onNext(T)` 信号）延迟给定 `Duration`。信号被延迟并在默认 `parallel` Scheduler 执行，空序列和错误信号不会被延迟。
-
-**示例**：
+⭐延迟 Flux 每个元素的`Subscriber.onNext(T)` 信号，`delay` 为延迟时间。信号的延迟和执行在默认 `parallel` Scheduler 上，空序列和错误信号不会被延迟。
 
 
 
@@ -1871,6 +1881,10 @@ public final Flux<T> delaySequence(Duration delay,
 public final Flux<T> delaySubscription(Duration delay);
 ```
 
+⭐延迟该 Flux 的 `subscription`。该延迟通过默认的 `parallel` `Scheduler` 引入。
+
+
+
 
 
 ```java
@@ -1878,19 +1892,28 @@ public final Flux<T> delaySubscription(Duration delay,
                                        Scheduler timer)
 ```
 
+⭐延迟 `Flux` 的 `subscription`。延迟时间通过指定 `Scheduler` 衡量。
+
 
 
 ```java
 public final <U> Flux<T> delaySubscription(Publisher<U> subscriptionDelay);
 ```
 
-
+⭐延迟 `Flux` 的 `subscription`，直到另一个 `Publisher` 发出一个值或完成。
 
 
 
 ## 7. 拆分 Flux
 
-
+- 通过规则将 `Flux<T>` 拆分为 `Flux<Flux<T>>`：
+  - 大小：`window(int)`
+    - 重叠或删除: `window(int,int)`
+  - 时间：`window(Duration)`
+    - 重叠或删除：`window(Duration,Duration)`
+  - size or time (达到计数或时间到了)：`windowTimeout(int,Duration)`
+  - 基于元素的 predicate: `windowUntil`
+    - 
 
 ## 8. 同步和异步
 

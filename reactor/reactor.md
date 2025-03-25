@@ -251,8 +251,6 @@ Reactive Stream 则随时间推动生成数据或时间序列：
 
 ## 3. Reactive 编程简介
 
-
-
 Reactor 实现 reactive 编程范式，可以概括为：
 
 > [!NOTE]
@@ -1490,6 +1488,54 @@ new Thread(() -> flux.subscribe(System.out::println)); // ⑤
 
 ## 5. Reactive
 
+仅在 main 线程订阅，真正异步代码无法很好执行，因为在订阅完成后，立即返回 main 线程，退出应用，而在其它线程执行的任务可能还没完成。例如：
+
+```java
+Flux<String> helloPauseWorld = Mono.just("Hello")
+        .concatWith(Mono.just("world")
+                .delaySubscription(Duration.ofMillis(500)));
+helloPauseWorld.subscribe(System.out::println);
+```
+
+该代码仅输出 "Hello"。因为在 main 线程订阅后，`Mono.just("Hello")` 在 main 线程执行，而 `Mono.just("world")` 的订阅在 `parallel` Scheduler 延迟，main 线程迅速执行完成，退出应用，此时 `Mono.just("world")` 还没订阅。
+
+为了输出 "world"，需要将其转换为阻塞行为，可以选择创建一个 `CountDownLatch`，然后在 `subscriber` 的 `onError` 和 `onComplete` 中调用 `countDown`，但这不 reactive。
+
+所以 Reactor 提供了第二种选择：转回 non-reactive 的 operators。例如，`toIterable` 和 `toStream` 都能得到一个阻塞实例。例如：
+
+```java
+Flux<String> helloPauseWorld = Mono.just("Hello")
+        .concatWith(Mono.just("world")
+                .delaySubscription(Duration.ofMillis(500)));
+helloPauseWorld.toStream()
+        .forEach(System.out::println);
+```
+
+```
+Hello
+world
+```
+
+此时打印 `Hello`，短暂停顿，然后打印 “world”。
+
+**示例**：下面 `Mono` 的订阅延迟 450 ms；`Flux` 每个元素的 emit 延迟 400 ms。使用 `firstWithValue` 选择，因此 `Flux` 的第一个元素先到，所以最后执行 `Flux` 序列
+
+```java
+Mono<String> a = Mono.just("oops I'm late")
+        .delaySubscription(Duration.ofMillis(450));
+Flux<String> b = Flux.just("let's get", "the party", "started")
+        .delayElements(Duration.ofMillis(400));
+Flux.firstWithValue(a, b)
+        .toIterable()
+        .forEach(System.out::println);
+```
+
+```
+let's get
+the party
+started
+```
+
 ### Reactive to Blocking
 
 有时候，我们只能把部分代码迁移为响应式的，然后在命令式代码中重用响应式序列。
@@ -1648,17 +1694,44 @@ window-operator 会生成 `Flux<Flux<T>>`：main `Flux` 通知每个 window 的�
 
 ### 何时使用 Reactor
 
-与普通同步 java 代码相比，创建 Reactor 的 `Publisher` Flux/Mono 具有明显的性能开销。Reactor 主要用于处理异步调用，对非异步调用不需要用 Reactor。
+是否应该将 Java 8 `Stream` 和 `CompletableFuture` 都转换为 `Flux/Mono`？并非如此。当用于装饰 IO 等昂贵操作，`Flux` 或 `Mono` 装饰的间接成本可以忽略不计，但在其它场景，与普通同步 java 代码相比，创建 Reactor 的 `Publisher` Flux/Mono 具有明显的性能开销。Reactor 主要用于处理异步调用，对非异步调用不需要用 Reactor，使用 `Stream` 足够了。
+
+另外，`Mono` 和 `Flux` 也提供了字面量和简单对象的工厂方法，但它们主要为了与更高级别的 flow 合并。因此，`long getCount()` 这样的代码没必要转换为 `Mono<Long> getCount()`。
 
 > [!WARNING]
 >
 > 创建 Reactor 的开销大概是 for 循环的 5 倍。因此，只在需要时使用 Reator，Reactor 用于异步调用，因此仅在需要异步调用时使用 Reactor。
 
+### 反压（backpressure）
+
+Reactive Streams 规范以及 Reactor 的重点之一（不是唯一重点）反压。反压的核心思想是：在 push 场景中，producer 的速度比 consumer 快，consumer 跟 producer 说 “你慢一点，我忙不过来”。这样 producer 就可以控制速度，而不用丢失数据（采样）甚至导致失败。
+
+那么，`Mono` 会出现反压么：什么样的 consumer 会因单个值就歇菜了？应该没有，不过 `Mono` 的工作原理与 `CompletableFuture` 有一个关键区别。`CompletableFuture` 是 push-only：如果引用 `Future`，这意味着异步处理任务已经在执行，而启用反压的 `Flux` 或 `Mono` 是延迟的 pull-push 相互作用：
+
+- 延迟：因为在调用 `subscribe()` 前不是执行任何内容
+- pull：因为在订阅和 request 步骤，`Subscriber` 向上游 source 发送信号，pull 下一批数据
+- push：在 request 元素范围内，producer 向 consumer push 数据
+
+对 `Mono`，调用 `subscribe()` 表示 consumer 准备接收数据。对 `Flux`，`request(n)` 表示准备好接收 `n` 个数据。
+
+`Mono` 是一个 `Publisher`，通常用于昂贵任务（IO，延迟等）：如果不订阅，则不执行，没有任何消耗。由于 `Mono` 通常与反压 `Flux` 一起使用，可能用于合并来自多个异步 sources 的结果，因此按需触发订阅是避免阻塞的关键。
+
+反压有助于区分最后一个操作和另一个 `Mono`：异步将 `Flux` 的数据汇总到一个 `Mono`。`reduce` 和 `hasElement` 等 operators 能够消耗 `Flux` 的所有元素，从而汇总数据，并以 `Mono` 类型返回。此时，上有的反压为 `Long.MAX_VALUE`，即不限制上游全力 push。
+
+反压还可以限制内存占用：
+
+- 当 `Publisher` 很慢，此时下游 request 数量可以超出可用数据量，此时，整个 stream 处于 push 模型，每个元素都通知 consumer；
+- 当 `Publisher` 加速，超出 cosumer 的水平，此时，整个 stream 就转换为 pull 模型。
+
+对两种场景，最多 `N` 的数据在内存中（`request` 量）。
+
+可以通过 request 量 `N` 和每个元素消耗的内存 `W` 来推理异步处理所需内存：`W*N`。实际上，Reactor 会利用已知的 `N` 进行优化：常见相应的有界队列（queue），应用合适的预取策略（prefetch），当收到 3/4 的数据，会自动 request(N*0.75) 数据。
+
+最后，operators 有时会更改反压信号，以与 operator 的操作匹配。一个典型示例是  `buffer(10)`：对下游的 `request(N)`，该 operator 从上游 `request(10N)` 来填充 buffer。这称为主动反压（active backpressure），开发人员可以利用它实现批处理方案。
+
 ## 参考
 
 - https://projectreactor.io/docs/core/release/reference/gettingStarted.html
 - https://gist.github.com/Lukas-Krickl/50f1daebebaa72c7e944b7c319e3c073
-- https://projectreactor.io/learn
 - https://github.com/schananas/practical-reactor
 - https://eherrera.net/project-reactor-course/
-- https://github.com/reactor/lite-rx-api-hands-on

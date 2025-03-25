@@ -56,6 +56,7 @@ module java.module {
     requires hipparchus.optim;
     requires reactor.core;
     requires org.reactivestreams;
+    requires reactor.test;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -89,5 +90,5 @@ module java.module {
     opens mjw.javafx.animation;
     opens mjw.javafx.image;
     opens mjw.javafx.effect;
-
+    opens mjw.reactor;
 }
