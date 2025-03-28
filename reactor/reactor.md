@@ -1493,7 +1493,7 @@ new Thread(() -> flux.subscribe(System.out::println)); // ⑤
 ```java
 Flux<String> helloPauseWorld = Mono.just("Hello")
         .concatWith(Mono.just("world")
-                .delaySubscription(Duration.ofMillis(500)));
+        .delaySubscription(Duration.ofMillis(500)));
 helloPauseWorld.subscribe(System.out::println);
 ```
 
@@ -1506,7 +1506,7 @@ helloPauseWorld.subscribe(System.out::println);
 ```java
 Flux<String> helloPauseWorld = Mono.just("Hello")
         .concatWith(Mono.just("world")
-                .delaySubscription(Duration.ofMillis(500)));
+        .delaySubscription(Duration.ofMillis(500)));
 helloPauseWorld.toStream()
         .forEach(System.out::println);
 ```

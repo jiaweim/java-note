@@ -1,7 +1,5 @@
 # NIO
 
-## NIO 学习笔记
-
 - [简介](nio/intro.md)
 - [Path](path.md)
 - [Buffer](buffer.md)
@@ -14,7 +12,8 @@
 ## 参考
 
 - https://docs.oracle.com/javase/tutorial/essential/io/fileio.html
-- <https://www.javatpoint.com/java-nio>
-- <https://www.baeldung.com/tag/java-nio/>
-- <https://blog.csdn.net/u011381576/article/details/79876754>
+- https://www.javatpoint.com/java-nio
+- https://www.baeldung.com/tag/java-nio/
+- https://blog.csdn.net/u011381576/article/details/79876754
 - https://howtodoinjava.com/java-nio-tutorials/
+

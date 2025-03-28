@@ -826,6 +826,8 @@ List<String> results = serviceResult.collectList().block();
 assertEquals(Arrays.asList("Walmart", "Amazon", "Apple", "CVS Health", "UnitedHealth Group"), results);
 ```
 
+**示例**：
+
 ### defaultIfEmpty
 
 - **Mono**
@@ -1946,11 +1948,11 @@ public final <U> Flux<T> delaySubscription(Publisher<U> subscriptionDelay);
 public final T blockFirst();
 ```
 
-订阅 `Flux` 并阻塞，直到上游发出第一个值或完成。返回第一个值，如果  `Flux` 为空则返回 null。如果 Flux 出错，则抛出异常。
+⭐订阅 `Flux` 并阻塞，直到上游发出第一个值或完成。返回第一个值，如果  `Flux` 为空则返回 null。如果 Flux 出错，则抛出异常。
 
 <img src="./images/image-20250318172301627.png" alt="image-20250318172301627" style="zoom:50%;" />
 
-示例：
+**示例**：一个服务可能返回多个值，但我们只对第一个感兴趣，阻塞 Flux 直到获取第一个值
 
 ```java
 Flux<String> serviceResult = Flux.just("valid result")
@@ -2001,7 +2003,7 @@ public T block();
 
 <img src="./images/image-20250318171628422.png" alt="image-20250318171628422" style="zoom:50%;" />
 
-示例：
+**示例**：阻塞 `Mono` 直到获得结果
 
 ```java
 Mono<String> serviceResult = Mono.just("Hello World!");
@@ -2020,7 +2022,7 @@ public T block(java.time.Duration timeout)
 
 另外，每个 `block()` 会触发一个新订阅，因此，对 hot-publisher，该操作可能错过信号。
 
-示例：最多阻塞 1 秒，超时抛出异常
+**示例**：检索结果应该有时间限制，否则可能导致程序卡主。下面最多阻塞 1 秒来获取结果，超时抛出异常
 
 ```java
 Exception exception = assertThrows(IllegalStateException.class, () -> {
@@ -2038,11 +2040,22 @@ assertTrue(actualMessage.contains(expectedMessage));
 ### Mono.blockOptional
 
 ```java
-public java.util.Optional<T> blockOptional();
-public java.util.Optional<T> blockOptional(java.time.Duration timeout);
+public Optional<T> blockOptional();
+public Optional<T> blockOptional(Duration timeout);
 ```
 
-同 `Mono#block`，只是以 `Optional` 的形式返回。
+⭐同 `Mono#block`，只是以 `Optional` 的形式返回。
+
+**示例**：以 `Optional` 类型返回结果
+
+```java
+Mono<String> serviceResult = Mono.defer(() -> Mono.empty()) ;
+Optional<String> optionalServiceResult = serviceResult.blockOptional();
+
+assertTrue(optionalServiceResult.isEmpty());
+```
+
+
 
 ## 9. 合并
 
