@@ -6,13 +6,13 @@
 
 ## 简介
 
-`Stream` 使得批量操作并行化更容易。首先，需要一个并行 `Stream`，`Collection.parallelStream()` 可以从任何集合类型获得并行流：
+`Stream` 使得批量操作并行化更容易。首先创建并行 `Stream`，`Collection.parallelStream()` 可以从任何集合类型获得并行流：
 
 ```java
 Stream<String> parallelWords = words.parallelStream();
 ```
 
-另外，`parallel` 方法可以将串行流转换为并行流：
+另外，`parallel()` 方法可以将串行流转换为并行流：
 
 ```java
 Stream<String> parallelWords = Stream.of(wordArray).parallel();

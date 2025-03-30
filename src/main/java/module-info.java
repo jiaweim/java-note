@@ -57,6 +57,7 @@ module java.module {
     requires reactor.core;
     requires org.reactivestreams;
     requires reactor.test;
+    requires parallel.collectors;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
