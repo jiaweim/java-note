@@ -92,4 +92,5 @@ module java.module {
     opens mjw.javafx.image;
     opens mjw.javafx.effect;
     opens mjw.reactor;
+    opens mjw.java.concurrency;
 }
