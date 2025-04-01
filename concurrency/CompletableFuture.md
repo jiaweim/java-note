@@ -192,6 +192,20 @@ CompletableFuture<String> future = CompletableFuture
         .supplyAsync(() -> "Result from async task!", executor);
 ```
 
+### runAsync
+
+```java
+public static CompletableFuture<Void> runAsync(Runnable runnable);
+public static CompletableFuture<Void> runAsync(Runnable runnable,
+                                               Executor executor);
+```
+
+ 以 `Async` 结尾但不包含 `Executor` 参数的方法使用 `ForkJoinPool.commonPool()` 线程池执行任务。
+
+该方法与 `supplyAsync` 的唯一差别是不返回值。
+
+
+
 ## 任务组合
 
 ### thenApply
@@ -206,6 +220,8 @@ public <U> CompletionStage<U> thenApplyAsync(Function<T,U> fn,
 ⭐**串联任务**。指定 stage 完成后执行的动作。
 
 `thenApply` 与 `thenCompose` 的主要差别在于：`thenApply` 的 function 可以返回非 future 类型，而 `thenCompose` 的 function 直接返回 `CompletionStage` 类型。
+
+`Async` 与非 `Async` 版本的差异在于：`Async` 串联的 stage 在其它线程执行，而非 `Async` 串联的 stage 与当前 stage 在同一个线程执行。
 
 **示例**：`thenApply` 和 `thenCompose`
 
@@ -245,6 +261,10 @@ CompletableFuture.supplyAsync(() -> "Hello, World!")
 ```
 
 字符串 "Hello, World!" 异步生成，计算完成后，结果被打印到控制台。
+
+> [!TIP]
+>
+> `theAccept` 和 `thenRun` 通常为 future 管线的最后一步。`thenAccept` 使用最后生成的值。`thenRun` 则不需要最后生成的值。
 
 ### thenRun
 
@@ -346,41 +366,10 @@ CompletableFuture.allOf(c1, c2, c3).join();
 - 返回一个 `CompletableFuture`，当提供的所有 futures 完成，它才完成
 - 同步多个任务的便捷方法
 
-## 异常处理
-
-### exceptionally
-
-```java
-public CompletionStage<T> exceptionally(Function<Throwable, T> fn);
-public default CompletionStage<T> exceptionallyAsync(Function<Throwable, T> fn);
-public default CompletionStage<T> exceptionallyAsync(Function<Throwable, T> fn, 
-                                                     Executor executor);
-```
-
-⭐创建 一个新的 stage：
-
-- 若当前 stage 出现异常，新 stage 执行的`Function` 以异常为参数
-- 若当前 stage 正常完成，新 stage 的返回值与其相同
-
-**示例**：使用 `exceptionally` 捕获 `ArithmeticException`，使得出现该异常时程序能够继续执行
-
-```java
-CompletableFuture.supplyAsync(() -> {
-    if(true){
-        throw new ArithmeticException();
-    }
-    return 1;
-}).exceptionally(error -> {
-    System.out.println("Exception occurred:"+ error.getMessage());
-    return 0; // 默认值
-});
-```
-
-
 
 ## 任务取消
 
-## 任务完成
+## 完成或异常
 
 ### complete
 
@@ -408,6 +397,58 @@ public boolean completeExceptionally(Throwable ex);
 
 - 调用 `completeExceptionally(e)`：传入一个异常，`CompletableFuture` 
 
+### exceptionally
+
+```java
+public CompletionStage<T> exceptionally(Function<Throwable, T> fn);
+public default CompletionStage<T> exceptionallyAsync(Function<Throwable, T> fn);
+public default CompletionStage<T> exceptionallyAsync(Function<Throwable, T> fn, 
+                                                     Executor executor);
+```
+
+⭐创建 一个新的 stage：
+
+- 若当前 stage 出现异常，新 stage 执行的`Function` 以异常为参数
+- 若当前 stage 正常完成，新 stage 的返回值与其相同
+
+**示例**：使用 `exceptionally` 捕获 `ArithmeticException`，出现异常时提供默认值
+
+```java
+CompletableFuture.supplyAsync(() -> {
+    if(true){
+        throw new ArithmeticException();
+    }
+    return 1;
+}).exceptionally(error -> {
+    System.out.println("Exception occurred:"+ error.getMessage());
+    return 0; // 默认值
+});
+```
+
+### handle
+
+```java
+public <U> CompletionStage<U> handle(BiFunction<T,Throwable,U> fn);
+```
+
+`handle` 处理异常更灵活，提供结果和异常：
+
+- 当 stage 正常完成，提供结果，异常为 null
+- 当 stage 出现异常，提供异常，结果为 null
+
+示例：
+
+```java
+CompletableFuture<Integer> safe = future.handle((ok, ex) -> {
+    if (ok != null) {
+        return Integer.parseInt(ok);
+    } else {
+        log.warn("Problem", ex);
+        return -1;
+    }
+});
+```
+
 ## 并行
 
 ### defaultExecutor
@@ -418,7 +459,13 @@ public boolean completeExceptionally(Throwable ex);
 
 对未指定 `Executor` 的异步方法的默认 `Executor`。如果支持多个线程，则默认使用 `ForkJoinPool.commonPool()`，否则对每个异步任何使用一个线程的`Executor`。
 
+### join
 
+```java
+public T join();
+```
+
+类似 `get()`，阻塞并返回结果。
 
 
 
