@@ -168,4 +168,4 @@ rangeMap.remove(Range.closed(5, 11)); // {[1, 3] => "foo", (3, 5) => "bar", (11,
 ## 参考
 
 - https://www.baeldung.com/guava-rangeset
-- 
+- https://github.com/google/guava/wiki/NewCollectionTypesExplained#rangeset

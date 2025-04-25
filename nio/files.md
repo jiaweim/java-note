@@ -264,17 +264,17 @@ BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.
 
 许多文件读写方法都有 `OpenOptions` 可选参数，`OpenOptions` 支持如下 `StandardOpenOptions` enum 值：
 
-|选项|说明|
-|---|---|
-|`WRITE`|打开文件以写入|
-|`APPEND`|追加模式，打开文件以写入到文件末尾。和 `WRITE` 或 `CREATE` 选项联用|
-|`TRUNCATE_EXISTING`|将文件清空。和 `WRITE` 联用|
-|`CREATE_NEW`|创建新文件，如果已存在，抛出异常|
-|`CREATE`|如果文件已存在，打开文件；如果文件不存在，创建新文件|
-|`DELETE_ON_CLOSE`|在流关闭后删除文件。适合于临时文件|
-|`SPARSE`|提示新创建的文件是稀疏的。此功能在部分文件系统上（如NTFS）很有用，带有间隙的大文件可以更有效的存储，文件里的空白内容不会占用磁盘空间|
-|`SYNC`|文件和底层的存储设备同步（文件内容和元数据）|
-|`DSYNC`|文件内容和底层设备同步|
+| 选项                  | 说明                                                                   |
+| ------------------- | -------------------------------------------------------------------- |
+| `WRITE`             | 打开文件以写入                                                              |
+| `APPEND`            | 追加模式，打开文件以写入到文件末尾。和 `WRITE` 或 `CREATE` 选项联用                          |
+| `TRUNCATE_EXISTING` | 将文件清空。和 `WRITE` 联用                                                   |
+| `CREATE_NEW`        | 创建新文件，如果已存在，抛出异常                                                     |
+| `CREATE`            | 如果文件已存在，打开文件；如果文件不存在，创建新文件                                           |
+| `DELETE_ON_CLOSE`   | 在流关闭后删除文件。适合于临时文件                                                    |
+| `SPARSE`            | 提示新创建的文件是稀疏的。此功能在部分文件系统上（如NTFS）很有用，带有间隙的大文件可以更有效的存储，文件里的空白内容不会占用磁盘空间 |
+| `SYNC`              | 文件和底层的存储设备同步（文件内容和元数据）                                               |
+| `DSYNC`             | 文件内容和底层设备同步                                                          |
 
 ### 小文件读写
 
@@ -898,11 +898,11 @@ glob 相对正则表达式要简单许多，支持有限的一些规则。
 glob 语法类似于正则表达式，但是要简单许多。
 |语法|说明|
 |---|---|
-|`*`|匹配任意数目的字符|
+|`*`|匹配任意数目的字符，不能跨国目录边界|
 |`**`|类似于 `*`，但能跨越目录边界。该语法一般用于匹配完整路径|
 |`?`|匹配一个字符|
 |`{}`|花括号指定子模式的集合，例如：<br>- `{sun, moon, stars}` 匹配 "sun", "moon" 或 "stars";<br>- `{temp*, tmp*}` 匹配任意以 "temp" 或 "tmp" 的字符|
-|`[]`|方括号指定字符集合，用 `-` 指定字符范围。例如：<br>`[aeiou]` 匹配任意元音字母；<br>`[0-9]` 匹配任意数字；<br>`[A-Z]` 匹配任意大写字母；<br>`[a-z,A-Z]` 匹配大小和小写字母；<br>在方括号中，`*`, `?` 和 `\` 匹配自身|
+|`[]`|方括号指定字符集合，用 `-` 指定字符范围。例如：<br>`[aeiou]` 匹配任意元音字母；<br>`[0-9]` 匹配任意数字；<br>`[A-Z]` 匹配任意大写字母；<br>`[a-z,A-Z]` 匹配大小和小写字母；<br>`[!a-c]` 匹配a, b, c 以外的字符<br />在方括号中，`*`, `?` 和 `\` 匹配自身|
 
 另外：
 
@@ -911,18 +911,52 @@ glob 语法类似于正则表达式，但是要简单许多。
 
 示例：
 
+- `*.java`，匹配以 `.java` 结尾的 path
+- `*.*`，匹配包含 `.` 的文件名
+- `*.{java,class}`，匹配以 `.java` 或 `.class` 结尾的文件名
+- `foo.?`，匹配以 `foo.` 开始，单字符扩展名的文件名
+- `/home/*/*`，在 UNIX 平台匹配 `/home/gus/data`
+- `/home/**`，在 UNIX 平台匹配 `/home/gus` 和 `/home/gus/data`
+
 - `*.html`，匹配以 `.html` 结尾的字符串；
 - `???`，匹配任意三个字符或数字的字符串；
 - `*[0-9]*`，匹配包含一个数字的字符；
 - `*.{htm,html,pdf}`，匹配以 *.htm*, *.html*, *.pdf* 结尾的字符串；
 
-### 监控文件夹
-
 ### 列出文件夹内容
 
-我们经常需要循环访问目录里的内容。NIO.2 通过 `DirectoryStream` 提供该功能，`DirectoryStream` 扩展了 `Iterable` 接口，即可以通过 `for` 循环访问。可以直接通过 `Files.newDirectoryStream()` 方法访问目录流。
+2025年4月25日⭐
 
-#### 列出全部内容
+我们经常需要循环访问目录里的内容，NIO.2 通过 `DirectoryStream` 提供该功能，即 `DirectoryStream` 用于迭代目录中的对象，由于 `DirectoryStream`扩展了 `Iterable` 接口，因此可以通过 `for` 循环访问目录中的文件。
+
+> [!WARNING]
+>
+> 虽然 `DirectoryStream` 扩展了 `Iterable`，但它不是一个通用的 `Iterable`，因为它只支持一个 `Iterator`；重复调用 `iterator` 方法或抛出 `IllegalStateException`。
+
+`DirectoryStream`  `Iterator` 的 `hasNext` 方法会至少预读一个元素。如果 `hasNext` 返回 `true`，并且随后调用 `next` 方法，则保证 `next` 方法不会因为 I/O 错误或流已关闭而引发异常。另外，该 `Iterator` 不支持 `remove` 操作。
+
+`DirectoryStream` 在创建时打开，调用 `close` 关闭。关闭后会释放相关资源；关闭失败可能会导致资源泄露。建议使用 `try-with` 范式以确保其关闭：
+
+```java
+Path dir = ...
+try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+    for (Path entry: stream) {
+        ...
+    }
+}
+```
+
+`DirectoryStream` 关闭后使用 `Iterator`，其行为与到达流末尾一样。不过由于其预读特性，迭代器在关闭流后依然可能返回一个或多个元素。读取完缓存元素，继续调用 `hasNext` 将返回 `false`，后续调用 `next` 抛出 `NoSuchElementException`。
+
+`DirectoryStream` 不要求异步可关闭。如果一个线程在 `DirectoryStream` 的迭代器读取目录时被阻塞，而另一个现场调用其 `close` 方法，那么第二个线程可能会阻塞，直到读取操作完成。
+
+如果在访问目录时遇到 I/O 错误，则会导致 `Iterator` 的 `hasNext` 或 `next` 方法因为 `IOException ` 抛出 `DirectoryIteratorException `。另外，由于 `hasNext` 的预读特性，如果 `hasNext` 返回 `true`，那么可以保证随后调用 `next` 不会因 `DirectoryIteratorException` 而失败。
+
+`Iterator` 返回的元素没有特定顺序。某些文件系统会维护指向目录自身以及父目录的特殊 links。`DirectoryStream` 不会返回这些 links。
+
+该 `Iterator` 一致性较弱。它是线程安全的，但在迭代时不会冻结目录，因此它可能反映 `DirectoryStream` 创建后对目录的更新。
+
+**示例**：使用 `Files.newDirectoryStream(Path dir)` 创建 `DirectoryStream`
 
 ```java
 DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("D:\\data"));
@@ -931,7 +965,33 @@ for (Path path : stream) {
 }
 ```
 
-#### 使用 Glob 模式过滤
+**示例**：使用 `Files.newDirectoryStream(Path dir, String glob)` 过滤
+
+通过将文件名字符串与给定的通配符模式进行匹配，从而对迭代器返回的条目进行过滤。例如，遍历目录中以 `.java` 结尾的文件：
+
+```java
+Path dir = ...
+try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.java")) {
+    :
+}
+```
+
+**示例**：假设我们需要获取目录中源文件列表
+
+```java
+List<Path> listSourceFiles(Path dir) throws IOException {
+    List<Path> result = new ArrayList<>();
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{c,h,cpp,hpp,java}")) {
+        for (Path entry: stream) {
+            result.add(entry);
+        }
+    } catch (DirectoryIteratorException ex) {
+        // I/O error encountered during the iteration, the cause is an IOException
+        throw ex.getCause();
+    }
+    return result;
+}
+```
 
 ## 老版 File I/O
 
