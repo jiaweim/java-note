@@ -1,6 +1,6 @@
 # 并行 Stream
 
-2023-11-24, 17:21
+2023-11-24 ⭐
 @author Jiawei Mao
 ****
 
@@ -87,8 +87,9 @@ Map<Integer, Long> wordCounts
 
 并行流适合内存中大量数据的集合以及计算密集型任务。
 
-!!! tip
-    Java 9 之前，将 `Files.lines` 返回的 Stream 并行化没有任何意义，因为文件是按顺序读取的。现在该方法使用 memory-mapped 文件，能够有效分割任务，因此并行可能提高性能。
+> [!TIP]
+>
+> Java 9 之前，将 `Files.lines` 返回的 Stream 并行化没有任何意义，因为文件是按顺序读取的。现在该方法使用 memory-mapped 文件，能够有效分割任务，因此并行可能提高性能。
 
 并行流默认使用 `ForkJoinPool.commonPool` 返回全局 fork-join 线程池。如果操作不阻塞，并且没有与其它任务共享池，则没问题。
 
