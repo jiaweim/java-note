@@ -1,12 +1,13 @@
 # CompletableFuture
 
+2025-05-05⭐
+@author Jiawei Mao
+***
 ## 简介
 
-Java 5 引入 `Future` 表示异步计算结果，但它没有提供任何合并结果或处理错误的方法。使用 `Future` 获得异步执行结果时，要么调用阻塞方法 `get()`，要么轮询 `isDone`，这两种方法都会使主线程等待。
+Java 5 引入 `Future` 表示异步计算结果，但它没有提供任何合并结果与处理错误的方法。使用 `Future` 获得异步执行结果时，要么调用阻塞方法 `get()`，要么轮询 `isDone`，这两种方法都会使主线程等待。
 
-java 8 引入 `CompletableFuture`，除了实现 `Future` 接口，它还实现了 `CompletionStage` 接口。 该接口定义了与其它异步计算步骤合并的协议。另外，`CompletableFuture` 还是一个完成的框架，它提供了大约 50 个方法，用来组合、合并和执行异步计算步骤以及处理错误。
-
-简而言之，`CompletableFuture` 为异步、非阻塞服务。
+java 8 引入 `CompletableFuture`，它除了实现 `Future` 接口，还实现了 `CompletionStage` 接口。 该接口定义了与其它异步计算步骤合并的协议。另外，`CompletableFuture` 还是一个完成的框架，它提供了大约 50 个方法，用于组合、合并和执行异步计算步骤以及处理错误。简而言之，`CompletableFuture` 为异步、非阻塞服务。
 
 异步与并行：
 
@@ -21,9 +22,9 @@ JavaScript 采用 Promises 和 async/await 语法处理异步操作。`Promise` 
 
 ### CompletionStage
 
-`CompletionStage` 表示异步计算的一个步骤，在另一个 `CompletionStage` 完成时触发该步骤。一个 stage 在计算终止后完成，但其完成可能触发另一个 stages。该接口定义了几种基本形式的函数，可以扩展为一系列的用法：
+`CompletionStage` 表示异步计算的一个步骤，在另一个 `CompletionStage` 完成时触发该步骤。一个 stage 在计算终止后完成，但其完成可以触发另一个 stage。该接口定义了几种基本形式的函数，可以扩展为一系列的用法。
 
-- stage 执行的计算可以表示为 `Function`, `Consumer` 或 `Runnable`对应方法名称 `apply`, `accept` 和 `run`，具体取决于需要的参数和返回结果，例如
+stage 执行的计算可以表示为 `Function`, `Consumer` 或 `Runnable`对应方法名称 `apply`, `accept` 和 `run`，具体取决于需要的参数和返回结果，例如
 
 ```java
 stage.thenApply(x -> square(x))
@@ -31,13 +32,14 @@ stage.thenApply(x -> square(x))
     .thenRun(() -> System.out.println());
 ```
 
-- 一个 stage 的执行可能由一个 stage，两个 stage 同时，或两个 stages 任意一个完成触发。
-  - 对一个 stage 的依赖关系可以通过以 `then` 开头的方法实现
-  - 由两个 stages 同时完成触发的方法以 `combine` 方法实现
-- stages 之间的依赖关系控制计算的触发，但不能保证顺序。另外，一个新 stage 的执行由三种方式：
-  - 执行
-  - 异步执行（使用带 `async` 后缀的方法）
-  - 自定义：提供 `Executor`
+一个 stage 的执行可能由一个 stage，两个 stage 同时，或两个 stages 任意一个完成触发。
+- 对一个 stage 的依赖关系可以通过以 `then` 开头的方法实现
+- 由两个 stages 同时完成触发的方法以 `combine` 方法实现
+
+stages 之间的依赖关系控制计算的触发，但不能保证顺序。另外，一个新 stage 的执行有三种方式：
+- 执行
+- 异步执行（使用带 `async` 后缀的方法）
+- 自定义：提供 `Executor`
 
 默认执行和异步执行的属性由 `CompletionStage` 的实现指定，而非该接口。指定 `Executor` 参数的方法可能具有任意执行属性，甚至可能不支持并发，而是以其它异步方式进行处理。
 
@@ -142,7 +144,7 @@ System.out.println("总共用时" + (System.currentTimeMillis() - startTime) + "
 总共用时1120ms
 ```
 
-这里不用异步，需要 500+400+600=1500 毫秒，用 异步则只需要 500+600=1100 毫秒。
+这里不用异步，需要 500+400+600=1500 毫秒，用异步只需要 500+600=1100 毫秒。
 
 `CountDownLatch` 虽然能解决问题，但是不够优雅，对更复杂的异步会十分繁琐。
 
@@ -1258,10 +1260,6 @@ CompletableFuture<Integer> safe = future.handle((ok, ex) -> {
     }
 });
 ```
-
-
-
-
 
 ## 并行
 

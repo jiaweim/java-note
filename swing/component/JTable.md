@@ -1,6 +1,6 @@
 # 表格
 
-2024-01-19
+2024-01-19⭐
 @author Jiawei Mao
 ***
 ## 简介
@@ -13,17 +13,17 @@
 
 相关类在 `javax.swing.table` 包中：
 
-- `ListSelectionModel`：选择模型
-- `TableCellRenderer`：绘制 cell，默认实现 `DefaultTableCellRenderer` 为 `JLabel` 子类
+- `ListSelectionModel`：选择模型，支持按 row, column, row&column 以及单个 cell 进行选择
+- `TableCellRenderer`：渲染 cell，默认实现 `DefaultTableCellRenderer` 为 `JLabel` 子类
 - `TableModel`：管理数据
   - `AbstractTableModel` 提供了实现基础，实现了数据存储以外的部分
-  - `DefaultTableModel` 提供了 `TableModel` 的默认实现，采用 Vector 存储数据
-  - 如果数据存储类型不是 `Vector`，扩展 `AbstractTableModel` 是最佳选择
-- `TableColumnModel`：提供了按 column 管理数据的模型
+  - `DefaultTableModel` 提供了 `TableModel` 的默认实现，采用 `Vector` 存储数据
+  - 如果数据存储类型不是 `Vector`，**扩展** `AbstractTableModel` 是最佳选择
+- `TableColumnModel`：提供按 column 管理数据的模型
   - `DefaultTableColumnModel` 为默认实现
   - 与 `TableColumn` 类一起，用于 column 的管理和操作
   - `TableColumnModel` 使用另一个 `ListSelectionModel` 来管理 column 的选择
-- 每个 column 的顶部为标题。`TableColumn` 使用 `JTableHeader` 类绘制 column 标题文本。不过，必须将 `JTable` 放在 `JScrollPane` 中才能看到默认标题。
+- 每个 column 的顶部为标题。`TableColumn` 使用 `JTableHeader` 类绘制 column 标题。不过，必须将 `JTable` 放在 `JScrollPane` 才能看到标题。
 - `JTable` 中的 cell 可以编辑。对可编辑 cell，如何编辑取决于 `TableCellEditor` 实现，如 `DefaultCellEditor` 扩展 `AbstractCellEditor`，为 Table 和 Tree 提供 cell-editor。
 
 没有单独处理 row 的类，对 row 只能逐个 cell 处理。`JTable` 内部使用 `SizeSequence` 工具类处理可变高度 rows，不需要自己操作。
@@ -32,9 +32,9 @@
 
 ### 创建 JTable
 
-`JTable` 提供了 7 个构造函数。
+`JTable` 提供了 **7** 个构造函数。
 
-- `public JTable()`
+1. `JTable()`
 
 ```java
 JTable table = new JTable();
@@ -42,15 +42,15 @@ JTable table = new JTable();
 
 创建空表格。
 
-- `public JTable(int rows, int columns)`
+2. `JTable(int rows, int columns)`
 
 ```java
 JTable table = new JTable(2, 3);
 ```
 
-指定行数和列数的空表格。Table cell 默认可编辑，通过 `JTable.setValueAt(Object value, int row, int column)` 可以修改 cell 值。
+指定行数和列数的空表格。Table cell 默认可编辑，通过 `JTable.setValueAt(Object value, int row, int column)` 修改 cell 值。
 
-- `public JTable(Object rowData[][], Object columnNames[])`
+3. `JTable(Object rowData[][], Object columnNames[])`
 
 ```java
 Object rowData[][] = {
@@ -61,9 +61,9 @@ Object columnNames[] = {"Column One", "Column Two", "Column Three"};
 JTable table = new JTable(rowData, columnNames);
 ```
 
-当已有数据，可以直接使用数据创建 `JTable`，而无需创建 `TableModel`。
+使用已有数据创建 `JTable`，无需自定义 `TableModel`。
 
-- `public JTable(Vector rowData, Vector columnNames)`
+4. `JTable(Vector rowData, Vector columnNames)`
 
 ```java
 Vector rowOne = new Vector();
@@ -77,29 +77,31 @@ rowTwo.addElement("Row2-Column3");
 Vector rowData = new Vector();
 rowData.addElement(rowOne);
 rowData.addElement(rowTwo);
+
 Vector columnNames = new Vector();
 columnNames.addElement("Column One");
 columnNames.addElement("Column Two");
 columnNames.addElement("Column Three");
+
 JTable table = new JTable(rowData, columnNames);
 ```
 
-**直接使用数据创建 JTable** 很方便，**缺点**是：
+**使用数据创建 JTable** 很方便，**缺点**是：
 
 - cell 自动可编辑
 - 所有数据作为字符串处理，例如，对 boolean 数据，使用复选框可能更直观，但这种方式只能以字符串显示
 - 需要提前就数据转换为数组或向量
 
-如果想绕过这些问题，可以使用 `TableModel`。
+如果想绕过这些问题，建议使用 `TableModel`。下面三个构造函数均使用 `TableModel`。
 
-- `public JTable(TableModel model)`
+5. `JTable(TableModel model)`
 
 ```java
 TableModel model = new DefaultTableModel(rowData, columnNames);
 JTable table = new JTable(model);
 ```
 
-- `public JTable(TableModel model, TableColumnModel columnModel)`
+6. `JTable(TableModel model, TableColumnModel columnModel)`
 
 ```java
 // Swaps column order
@@ -113,7 +115,7 @@ columnModel.addColumn(secondColumn);
 JTable table = new JTable(model, columnModel);
 ```
 
-- `public JTable(TableModel model, TableColumnModel columnModel, ListSelectionModel selectionModel)`
+7. `JTable(TableModel model, TableColumnModel columnModel, ListSelectionModel selectionModel)`
 
 ```java
 // Set single selection mode
@@ -125,7 +127,7 @@ JTable table = new JTable(model, columnModel, selectionModel);
 使用 `TableModel`, `TableColumnModel` 和 `ListSelectionModel` 创建 `JTable`，缺少的参数使用默认设置。例如：
 
 - `TableColumnModel` 的默认值为 `DefaultTableColumnModel`，并使用 `TableModel` 的 column 顺序自动填充 `TableColumn`。
-- `ListSelectionModel` 默认实现为多选模式，可以选择不连续的 rows
+- `ListSelectionModel` 默认实现为**多选模式**，可以选择不连续的 rows
 
 ### 滚动 JTable
 
@@ -138,7 +140,7 @@ table.setFillsViewportHeight(true)
 
 `JTable.setFillsViewportHeight` 用于设置 `fillsViewportHeight` 属性。当该属性为 `true`，即使表格没有足够内容填充整个垂直空间，表格也会占据整个高度，
 
-`JScrollPane` 会自动将表格 header 放在视图顶部。滚动表格数据时，col-names 仍然在视图顶部。
+`JScrollPane` 会自动将表格 header 放在视图顶部。滚动表格数据时，column-names 仍然在视图顶部。
 
 如果不将表格放在 `JScrollPane`，则必须获取表格标题组件并手动放置。例如：
 
@@ -211,11 +213,11 @@ scrollPane.getViewport().setViewPosition(new Point(0,0));
 - `getScrollableBlockIncrement`
 - `getScrollableUnitIncrement`
 
-它们定义表格的块增量和单元增量。
+它们定义表格的 block-increment 和 unit-increment：
 
 - block-increment 值为 viewport 的可见宽度和高度
 - 对水平滚动，unit-increment 为 100 像素
-- 对垂直滚动，单元增量为单个 row 的高度
+- 对垂直滚动，unit-increment 为单个 row 的高度
 
 <img src="images/2024-01-08-22-22-52.png" alt="|500" style="zoom:50%;" />
 

@@ -18,8 +18,8 @@ public class SelectingComboSample {
     public static void main(String[] args) {
         Runnable runner = () -> {
             String[] labels = {"Chardonnay", "Sauvignon", "Riesling", "Cabernet",
-                    "Zinfandel", "Merlot", "Pinot Noir", "Sauvignon Blanc", "Syrah",
-                    "Gewürztraminer"};
+                    "Zinfandel", "Merlot", "Pinot Noir", "Sauvignon Blanc",
+                    "Syrah", "Gewürztraminer"};
             JFrame frame = new JFrame("Selecting JComboBox");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

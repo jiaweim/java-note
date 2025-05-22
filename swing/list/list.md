@@ -1,18 +1,7 @@
 # 列表类型控件
 
-- [列表类型控件](#列表类型控件)
-  - [简介](#简介)
-  - [ListModel 接口](#listmodel-接口)
-  - [AbstractListModel](#abstractlistmodel)
-  - [DefaultListModel 类](#defaultlistmodel-类)
-  - [ListDataListener 接口](#listdatalistener-接口)
-  - [ComboBoxModel 接口](#comboboxmodel-接口)
-  - [MutableComboBoxModel 接口](#mutablecomboboxmodel-接口)
-  - [DefaultComboBoxModel 类](#defaultcomboboxmodel-类)
-    - [自定义 ComboBoxModel](#自定义-comboboxmodel)
-    - [相同元素处理](#相同元素处理)
-
 2024-01-02, 20:10⭐
+@author Jiawei Mao
 ***
 ## 简介
 
@@ -24,9 +13,11 @@ Swing 提供两个显示列表数据的控件：`JList` 和 `JComboBox`。两者
 
 `JComboBox` 和 `JList` 共享数据模型接口 `ListModel`。`AbstractListModel` 实现了一组 `ListDataListener` 对象的管理和通知，提供了一个实现基础。
 
-- 对 `JList`，其数据模型默认实现为 `DefaultListModel`，内部以 `Vector` 存储数据
+- 对 `JList`，其默认数据模型为 `DefaultListModel`，内部以 `Vector` 存储数据
 - 对 `JComboBox`，其数据模型接口 `ComboBoxModel` 扩展 `ListModel`，添加了选择元素的概念，`MutableComboBoxModel` 进一步扩展 `ComboBoxModel`，支持添加和删除元素，默认实现为 `DefafultComboBoxModel`。
 
+> [!NOTE]
+>
 > `BasicDirectoryModel` 也实现了 `ListModel`，在 `JFileChooser` 中使用。
 
 `ListModel` 接口十分简单：
@@ -46,7 +37,7 @@ public interface ListModel<E>{
 
 ## AbstractListModel
 
-`AbstractListModel` 提供了 `ListModel` 接口的 `ListDataListener` 实现。扩展该类只需要提供数据结构和数据。该类提供 `ListDataListener` 对象的列表管理，以及在数据更改时通知 listeners。
+`AbstractListModel` 提供了 `ListModel` 接口的 `ListDataListener` 实现。扩展该类只需要提供数据结构和**数据**。该类提供 `ListDataListener` 对象的列表管理，以及在数据更改时通知 listeners。
 
 - 返回注册到 `AbstractListModel` 的所有 `ListDataListener`
 
@@ -56,6 +47,8 @@ public ListDataListener[] getListDataListeners()
 
 在修改数据后，需要调用合适的方法通知 listeners，通知的方法包括：
 
+> [!WARNING]
+>
 > 下面方法中 `index0` 和 `index1` 都是闭区间索引，即包含索引对应的元素。而且 `index0` 不需要比 `index1` 小，它们只是指定两个端点。
 
 - 添加一个或多个元素到模型后，调用该方法。这里 `index0` 和 `index1` 为闭区间。
@@ -70,7 +63,7 @@ protected void fireIntervalAdded(Object source, int index0, int index1)
 protected void fireIntervalRemoved(Object source, int index0, int index1)
 ```
 
-- 元素发生改变后调用该方法。
+- 元素内容发生改变后调用该方法。
 
 ```java
 protected void fireContentsChanged(Object source, int index0, int index1)
@@ -160,9 +153,7 @@ public interface ListDataListener extends EventListener {
 
     void intervalAdded(ListDataEvent e);
 
-
     void intervalRemoved(ListDataEvent e);
-
 
     void contentsChanged(ListDataEvent e);
 }
@@ -182,9 +173,9 @@ public interface ListDataListener extends EventListener {
 
 |类型|方法|
 |---|---|
-|`CONTENTS_CHANGED`|contentsChanged|
-|`INTERVAL_ADDED`|intervalAdded|
-|`INTERVAL_REMOVED`|intervalRemoved|
+|`CONTENTS_CHANGED`|`contentsChanged`|
+|`INTERVAL_ADDED`|`intervalAdded`|
+|`INTERVAL_REMOVED`|`intervalRemoved`|
 
 **示例：** 演示 `ListDataListener` 的用法，调用 `DefaultListModel` 的修改方法，将事件和 list 内容输出到 `JTextArea`
 
@@ -331,7 +322,7 @@ public class ModifyModelSample {
 
 <img src="images/2021-11-17-10-31-30.png" width="600"/>
 
-- 左侧显示的列表；
+- 左侧显示列表；
 - 右侧 `TextArea` 显示事件；
 - 下面的按钮用于修改列表，从而产生事件；
 - `listDataListener` 监听列表，并将时间信息输出到右侧的 `TextArea`。
@@ -370,7 +361,7 @@ public interface MutableComboBoxModel<E> extends ComboBoxModel<E> {
 
 ## DefaultComboBoxModel 类
 
-`DefaultComboBoxModel` 类扩展 `AbstractListModel`，为 `JComboBox` 提供数据模型。与 `DefaultListModel` 一样，`DefaultComboBoxModel` 内部以 `Vector` 存储数据，其内部实现有两个关键字段：
+`DefaultComboBoxModel` 类扩展 `AbstractListModel`，为 `JComboBox` 提供数据模型,并且实现了 `MutableComboBoxModel` 接口，因此是可修改的。与 `DefaultListModel` 一样，`DefaultComboBoxModel` 内部以 `Vector` 存储数据，其内部实现有两个关键字段：
 
 ```java
 Vector<E> objects;
@@ -383,7 +374,7 @@ Object selectedObject;
 
 另外，如果从数组创建 `DefaultComboBoxModel`，数组元素将被复制到内部的 `Vector`；如果使用 `Vector`，则不复制，而是直接使用该 `Vector`。
 
-`DefaultListModel` 构造函数：
+`DefaultComboBoxModel` 构造函数：
 
 ```java
 public DefaultComboBoxModel()
@@ -391,7 +382,7 @@ public DefaultComboBoxModel(final E[] items) {
 public DefaultComboBoxModel(Vector<E> v)
 ```
 
-`DefaultComboBoxModel` 足够灵活，一般不需要自定义 `ComboBoxModel` 实现，只需要创建 `DefaultComboBoxModel` 并填充数据。
+`DefaultComboBoxModel` 足够灵活，一般**不需要自定义** `ComboBoxModel` 实现，只需要创建 `DefaultComboBoxModel` 并填充数据。
 
 ### 自定义 ComboBoxModel
 

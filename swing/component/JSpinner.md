@@ -4,7 +4,12 @@ v1: 2024-01-16⭐😎
 ***
 ## 简介
 
-`JSpinner` 是复合组件，包含三部分：两个箭头按钮和一个 editor。editor 可以是任何 `JComponent`，默认实现为包含 `JFormattedTextField` 的 `JPanel`。使用 `JSpinner` 涉及多个类：
+`JSpinner` 是复合组件，包含三部分：
+
+- 2个箭头按钮
+- 1个 editor
+
+editor 可以是任何 `JComponent`，默认实现为包含 `JFormattedTextField` 的 `JPanel`。使用 `JSpinner` 涉及多个类：
 
 - `JSpinner`，主要类
 - `SpinnerModel`，数据模型

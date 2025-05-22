@@ -67,5 +67,5 @@ public class LabelTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230717155451.png)
+<img src="images/Pasted%20image%2020230717155451.png" style="zoom:67%;" />
 

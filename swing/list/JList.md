@@ -1,23 +1,9 @@
 # JList
 
-- [JList](#jlist)
-  - [简介](#简介)
-  - [创建 JList](#创建-jlist)
-  - [JList 属性](#jlist-属性)
-  - [滚动 JList](#滚动-jlist)
-  - [渲染 JList 元素](#渲染-jlist-元素)
-    - [更复杂的 ListCellRenderer 实现](#更复杂的-listcellrenderer-实现)
-  - [选择 JList 元素](#选择-jlist-元素)
-    - [ListSelectionModel 接口和 DefaultListSelectionModel 类](#listselectionmodel-接口和-defaultlistselectionmodel-类)
-    - [ListSelectionListener](#listselectionlistener)
-    - [手动选择 JList 事件](#手动选择-jlist-事件)
-  - [显示多个 columns](#显示多个-columns)
-  - [自定义 JList Laf](#自定义-jlist-laf)
-  - [示例：Dual List](#示例dual-list)
-  - [添加 Tooltip](#添加-tooltip)
-  - [参考](#参考)
+2025-05-19 ⭐
+2021-11-25⭐
+@author Jiawei Mao
 
-2021-11-25, 09:29⭐
 ***
 
 ## 简介
@@ -102,32 +88,34 @@ public JList(ListModel<E> dataModel)
 |valueIsAdjusting|boolean|Read-write|
 |visibleRowCount|int|Read-write bound|
 
-`JList` 的大多属性与选择有关。例如，`anchorSelectionIndex`, `leadSelectionIndex`, `maxSelectionIndex`, `minSelectionIndex`, `selectedIndex` 和 `selectedIndices` `处理所选行的索引；selectedValue` 和 `selectedValues` 与所选元素的内容有关。
+`JList` 的大多属性与选择有关，例如，`anchorSelectionIndex`, `leadSelectionIndex`, `maxSelectionIndex`, `minSelectionIndex`, `selectedIndex` 和 `selectedIndices` 处理所选行的索引；`selectedValue` 和 `selectedValues` 与所选元素的内容有关。
 
 `anchorSelectionIndex` 是 `ListDataEvent` 最近的 `index0` 值；`leadSelectionIndex` 是最近的 `index1` 值。
 
-`visibleRowCount` 属性控制限制的 row 数目，默认为 8。
+`visibleRowCount` 属性控制显示的 row 数目，默认为 8。
 
 ## 滚动 JList
 
-使用 `JList` 时，如果希望允许用户从所有可选项中选择，则必须将 `JList` 放在 `JScrollPane` 中。如果不将 JList 放在 `JScrollPane`，且默认显示的 rows 数小于数据个数，或没有足够空间，则无法显示余下选项。
+使用 `JList` 时，如果希望允许用户从所有可选项中选择，则必须将 `JList` 放在 `JScrollPane` 中。如果不将 `JList` 放在 `JScrollPane`，且默认显示的 rows 数小于数据个数，或没有足够空间，则无法显示余下选项。
 
+> [!TIP]
+>
 > 实现 `Scrollable` 接口的组件，都推荐放在 `JScrollPane` 中。
 
 `JScrollPane` 通过 `preferredScrollableViewportSize` 属性确定尺寸：
 
-- 当 JList 的数据模型为空，每个 row 默认尺寸为高 16 pixels，宽 256 pixels
-- 否则遍历所有数据，宽度设置为最宽的 cell 的宽度，高度为第一个 cell 的高度
+- 当 `JList` 的数据模型为空，每个 row 默认尺寸为高 16 pixels，宽 256 pixels
+- 否则遍历所有数据，宽度设置为最宽 cell 的宽度，高度为第一个 cell 的高度
 
 可以通过设置 `prototypeCellValue` 属性定义原型 cell 来加快 `JScrollPane` 调整大小过程。你必须确保原型 cell 的 toString() 值足够宽和高，以容纳 `JList` 的所有内容。`JScrollPane` 根据原型确定其 viewport 大小，不需要遍历所有数据。
 
-也可以通过设置 `fixedCellHeight` 和 `fixedCellWidth` 属性分配大小来提高性能。设置这两个属性也能避免 JList 遍历所有数据来确定 cell 尺寸，是让 JList 确定 viewport 最快的方式，但也最不灵活。因此它不会根据内容调整 cell 大小。但是，如果数据模型中有大量选项，那么损失这种灵活性来提高性能是值得的。
+也可以通过设置 `fixedCellHeight` 和 `fixedCellWidth` 属性指定大小来提高性能。设置这两个属性也能避免 `JList` 遍历所有数据来确定 cell 尺寸，是让 `JList` 确定 viewport 最快的方式，但也最不灵活。因此它不会根据内容调整 cell 大小。但是，如果数据模型中有大量选项，那么损失这种灵活性来提高性能是值得的。
 
 **示例：** 调整尺寸策略
 
-- 中间的 `JList` 包含 1000 个固定大小的 cells
-- 顶部的 `JList` 的使用 `setVisibleRowCount()` 设置可见 row 数
-- 下面的 `JList` 也用 `setVisibleRowCount()` 设置可选 row 数，但是 `JList` 没放在 `JScrollPane` 中，因此设置无效
+- 中间 `JList` 包含 1000 个固定大小的 cells
+- 顶部 `JList` 的使用 `setVisibleRowCount()` 设置可见 row 数
+- 下面 `JList` 也用 `setVisibleRowCount()` 设置可选 row 数，但是 `JList` 没放在 `JScrollPane` 中，因此设置无效
 
 ```java
 import javax.swing.*;
@@ -204,7 +192,7 @@ public interface ListCellRenderer<E>{
 }
 ```
 
-在需要绘制 cell 时将调用该接口的唯一方法。返回的 `Component` 为 `JList` 的单元格提供特定的渲染。
+在需要绘制 cell 时将调用该接口的唯一方法。返回的 `Component` 为 `JList` 的 cell 提供渲染。
 
 - `value` 为数据模型在 `index` 位置的值
 - `isSelected` 和 `cellHasFocus` 用于辅助定制 cell 外观，如突出显示选择的和持有焦点的 cell
@@ -252,11 +240,13 @@ public class FocusedTitleListCellRenderer implements ListCellRenderer {
 }
 ```
 
-!!! note
-    出于性能考虑，最好不要在 `getListCellRendererComponent()` 中创建组件。建议创建一个类变量持有 `Component`，在需要时返回。
+> [!NOTE]
+>
+> 出于性能考虑，最好不要在 `getListCellRendererComponent()` 中创建组件。建议创建一个类变量持有 `Component`，在需要时返回。
 
-!!! attention
-    自定义 cell-renderer 一个常见错误，是忘记将 renderer 组件设置 opaque。导致没有渲染 renderer 的背景，因此显示的是 list 的背景。使用 `DefaultListCellRenderer` 类，渲染组件已经设置 opaque。
+> [!NOTE]
+>
+> 自定义 cell-renderer 一个常见错误，是忘记将 renderer 组件设置 opaque。导致没有渲染 renderer 的背景，因此显示的是 list 的背景。使用 `DefaultListCellRenderer` 类，渲染组件已经设置 opaque。
 
 **示例：** 演示上例创建的 cell-renderer
 
@@ -289,7 +279,7 @@ public class CustomBorderSample {
 
 <img src="images/2024-01-02-21-28-28.png" width="250"/>
 
-### 更复杂的 ListCellRenderer 实现
+### 复杂的 ListCellRenderer 实现
 
 当数据模型中的数据较复杂时，自定义 cell-renderer 是必要的。
 
@@ -730,7 +720,7 @@ JList 默认自带键盘选择行为，即在键入时，JList 将找到与目�
 
 ## 示例：Dual List
 
-下面创建一个名为 `DualListBox` 的 Swing 组件。DualListBox 创建两个 JList，一个包含可选项，一个包含所选项。
+下面创建一个名为 `DualListBox` 的 Swing 组件。`DualListBox` 创建两个 JList，一个包含可选项，一个包含所选项。
 
 当可选项列表非常大时，这个组件非常有用。图示：
 

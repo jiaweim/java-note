@@ -12,16 +12,14 @@ import java.awt.event.ItemListener;
  * @version 1.0.0
  * @since 17 Nov 2021, 12:31 PM
  */
-public class JComboBoxDemo3 implements ItemListener, ActionListener
-{
+public class JComboBoxDemo3 implements ItemListener, ActionListener {
     String[] fontsize = {"12", "14", "16", "18", "20", "22", "24", "26", "28"};
     String defaultMessage = "请选择或直接输入文字大小!";
     Font font = null;
     JComboBox combo = null;
     JLabel label = null;
 
-    public JComboBoxDemo3()
-    {
+    public JComboBoxDemo3() {
         JFrame f = new JFrame("JComboBox");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Container contentPane = f.getContentPane();
@@ -46,13 +44,11 @@ public class JComboBoxDemo3 implements ItemListener, ActionListener
         f.setVisible(true);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new JComboBoxDemo3();
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
+    public void actionPerformed(ActionEvent e) {
         boolean isaddItem = true;
         int fontsize = 0;
         String tmp = (String) combo.getSelectedItem();

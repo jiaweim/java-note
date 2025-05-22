@@ -9,10 +9,8 @@ import java.util.Vector;
  * @version 1.0.0
  * @since 17 Nov 2021, 12:23 PM
  */
-public class JComboBoxDemo1
-{
-    public static void main(String[] args)
-    {
+public class JComboBoxDemo1 {
+    public static void main(String[] args) {
         JFrame f = new JFrame("JComboBox1");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -37,6 +35,7 @@ public class JComboBoxDemo1
 
         contentPane.add(combo1);
         contentPane.add(combo2);
+
 
         f.pack();
         f.setVisible(true);

@@ -4,16 +4,25 @@
 
 `JComboBox` 允许用户从多个选项中选择一个，有两种不同的形式：
 
-- 默认是不可编辑的选择框，具有一个按钮和一个下拉框
+- 默认是不可编辑的选择框，具有一个按钮和一个下拉框，用 `JLabel` 显示当前选项；
 - 另一种是可编辑选择框，具有一个 textField 和一个按钮。用户可以在 textField 中输入值，也可以点击按钮显示下拉列表
 
 以下是两种形式的组合框在 Java 中的默认外观：
 
 <img src="./images/image-20241218100546422.png" alt="image-20241218100546422" style="zoom: 67%;" />
 
-comboBox 占用的屏幕空间小，可编辑 textField 让用户可以快速选择值且不会限制值的范围。其它可以显示多个选项的组件还有 radioButtons 和 lists。一组 ratioButtons 最容易理解，但当空间有限或选项过多时，comboBox 更合适。当选项特别多，或者需要选择多个选项，list 则更合适。
+`JComboBox` 占用屏幕空间小，可编辑 textField 让用户可以快速选择值且不会限制值的范围。其它可以显示多个选项的组件还有 radioButtons 和 lists。一组 ratioButtons 最容易理解，但当空间有限或选项过多时，comboBox 更合适。当选项特别多，或者需要选择多个选项，list 则更合适。
 
 由于可编辑和不可编辑的 comboBox 有很大不同，下面分别介绍。
+
+`JComboBox` 包含四个基本组成：
+
+1. 持有数据的模型，由 `ListModel` 接口定义
+2. 用于渲染 `JComboBox` 元素的 cell-render，由 `ListCellRenderer` 接口定义
+3. 用于编辑数据的 editor，由 `ComboBoxEditor` 接口定义
+4. 用于处理
+
+
 
 ## 不可编辑 combo-box
 
