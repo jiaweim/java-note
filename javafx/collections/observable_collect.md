@@ -1,33 +1,17 @@
 # Observable 集合
 
-- [Observable 集合](#observable-集合)
-  - [1. 什么是 Observable 集合](#1-什么是-observable-集合)
-  - [2. ObservableList](#2-observablelist)
-    - [2.1. 创建 ObservableList](#21-创建-observablelist)
-    - [2.2. 监听 ObservableList 的 Invalidation](#22-监听-observablelist-的-invalidation)
-    - [2.3. 监听 ObservableList 的 Change 事件](#23-监听-observablelist-的-change-事件)
-      - [2.3.1. ListChangeListener.Change 类](#231-listchangelistenerchange-类)
-      - [2.3.2. Update 事件](#232-update-事件)
-      - [2.3.3. 完整示例](#233-完整示例)
-    - [2.4 FilteredList](#24-filteredlist)
-  - [3. ObservableSet](#3-observableset)
-  - [4. ObservableMap](#4-observablemap)
-
 2023-08-15, 09:36
 modify: 样式
 2023-07-04, 15:22
+@author Jiawei Mao
 ****
-## 1. 什么是 Observable 集合
+## 1. 简介
 
-JavaFX `Observable` 集合对 Java 集合进行扩展，支持三种可观察内容变化的集合：
+JavaFX `Observable` 集合对 Java 集合进行扩展，支持 4 种可观察内容变化的集合，类图如下：
 
-- `ObservableList`
-- `ObservableSet`
-- `ObservableMap`
+![image-20250523172027081](./images/image-20250523172027081.png)
 
-这三个接口分别继承 `java.util` 包中的 `List`, `Set` 和 `Map` 接口，同时继承 `javafx.collections.Observable` 接口。主要类图如下所示：
-
-![](images/2023-07-03-09-02-24.png){width="600px"}
+`ObservableMap`, `ObservableSet` 和 `ObservableList` 都是泛型实现，`ObservableArray` 主要用于 JavaFX 3D API，提供 float 和 int 两种类型实现。
 
 JavaFX `Observable` 集合具有两个额外功能：
 
@@ -36,22 +20,26 @@ JavaFX `Observable` 集合具有两个额外功能：
 
 `javafx.collections.FXCollections` 是 JavaFX 集合工具类，包含许多 `static` 方法，用于创建这些集合类。
 
-## 2. ObservableList
+## 2. 集合类型
+
+### ObservableList
 
 `ObservableList` 接口的类图如下：
 
-@import "images/2023-07-03-09-26-53.png" {width="600px" title=""}
+<img src="images/2023-07-03-09-26-53.png" style="zoom:50%;" />
 
 添加 `ListChangeListener` 监听 `ObservableList` 的变化，当 `ObservableList` 发生变化，会自动调用 `ListChangeListener` 的 `onChanged()` 方法。
 
-!!! note
-    `javafx.collections.transformation` 中包含 `FilteredList` 和 `SortedList` 类：
-      - `FilteredList` 也是 `ObservableList`，根据指定 `Predicate` 过滤内容
-      - `SortedList` 对内容进行排序
+`Change` 是 `ListChangeListener` 的内部类，用来表示 `ObservableList` 发生的变化。
 
-### 2.1. 创建 ObservableList
+`javafx.collections.transformation` 中包含 `FilteredList` 和 `SortedList` 类：
 
-使用 `FXCollections` 中的工厂方法创建  `ObservableList`：
+   - `FilteredList` 也是 `ObservableList`，根据指定 `Predicate` 过滤内容
+   - `SortedList` 对内容进行排序
+
+#### 创建 ObservableList
+
+使用 `FXCollections` 的工厂方法创建  `ObservableList`：
 
 ```java
 <E> ObservableList<E> emptyObservableList()
@@ -63,21 +51,21 @@ JavaFX `Observable` 集合具有两个额外功能：
 <E> ObservableList<E> observableList(List<E> list, Callback<E, Observable[]> extractor)
 ```
 
-`emptyObservableList()` 创建一个空的 unmodifiable `ObservableList`。该方法一般用来提供空 list 参数。
+- `emptyObservableList()` 创建一个空的 unmodifiable `ObservableList`。该方法一般用来提供空 list 参数
 
-**示例：** 创建空的 `String` 类型 `ObservableList`
+**示例：** 创建空 `String` 类型 `ObservableList`
 
 ```java
 ObservableList<String> emptyList = FXCollections.emptyObservableList();
 ```
 
-`observableArrayList()` 创建一个由 `ArrayList` 支持的 `ObservableList`。其它变体指定初始元素。
+- `observableArrayList()` 创建一个由 `ArrayList` 支持的 `ObservableList`。其它变体指定初始元素
 
 最后两个方法可以监听元素的更新。
 
-**示例：** 演示创建 `ObservableList`
+**示例：** 创建 `ObservableList`
 
-```java{.line-numbers}
+```java
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -133,11 +121,11 @@ list3 is [ten, twenty, thirty]
 After concatenating list2 and list3:[1, 2, 3, ten, twenty, thirty]
 ```
 
-### 2.2. 监听 ObservableList 的 Invalidation
+#### 监听 ObservableList 的 Invalidation
 
 `ObservableList` 支持 `InvalidationListener`。
 
-```java{.line-numbers}
+```java
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -148,7 +136,7 @@ public class ListInvalidationTest {
         // 创建 list
         ObservableList<String> list =
                 FXCollections.observableArrayList("one", "two");
-		
+        
         // 添加 InvalidationListener
         list.addListener(ListInvalidationTest::invalidated);
 
@@ -183,11 +171,12 @@ List is invalid.
 After replacing one with one.
 ```
 
-!!! tip
-    `InvalidationListener` 对所有改变 `ObservableList` 的操作，都触发一次 Invalid 事件。    
+> [!TIP]
+>
+>  `InvalidationListener` 对所有改变 `ObservableList` 的操作，都触发一次 Invalid 事件。       
 
 
-### 2.3. 监听 ObservableList 的 Change 事件
+#### 监听 ObservableList 的 Change 事件
 
 列表的元素可以重排、更新、替换、添加和删除，这些都属于 Change 事件。使用 `ObservableList.addListener()` 添加 `ListChangeListener` 来监听这些事件。例如：
 
@@ -204,11 +193,7 @@ list.addListener(new ListChangeListener<String>() {
 
 **示例：** 演示 `ListChangeListener`，添加 listener 后，操作 list 4 次，listener 每次都收到通知。
 
-```java{.line-numbers}
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-
+```java
 public class SimpleListChangeTest {
 
     public static void main(String[] args) {
@@ -224,7 +209,7 @@ public class SimpleListChangeTest {
         FXCollections.sort(list);
         list.clear();
     }
-	
+    
     public static void onChanged(ListChangeListener.Change<? extends String> change) {
         System.out.println("List has changed");
     }
@@ -238,13 +223,13 @@ List has changed
 List has changed
 ```
 
-#### 2.3.1. ListChangeListener.Change 类
+##### ListChangeListener.Change 类
 
 传递给 `onChanged()` 的 `ListChangeListener.Change` 类包含对 list 所作修改的详细信息。下表是 `ListChangeListener.Change` 类的相关方法：
 
-| 方法                               | 分类                                    |
+| 方法                               | 说明                                    |
 | ---------------------------------- | --------------------------------------- |
-| `ObservableList<E> getList()`      | General                                 |
+| `ObservableList<E> getList()`      | 返回生成事件的 list                     |
 | `boolean next()`                   | Cursor movement                         |
 | `void reset()`                     | Cursor movement                         |
 | `boolean wasAdded()`               | 修改：添加元素                          |
@@ -273,10 +258,10 @@ list.removeAll("one", "three");
 
 在该代码中，`ListChangeListener` 将收到两次通知：一次因为调用 `addAll()`，一次因为调用 `removeAll()`。调用 `removeAll()` 删除第 1,3 两个元素，因此 `Change` 包含这两次删除的信息：
 
-- 第一次删除 "one"，索引为 0，删除后 list 只包含 2 个元素
+- 第一次删除 "one"，索引为 0，**删除后** list 只包含 2 个元素
 - 第二次删除 "three"，索引为 1
 
-`Change` 包含一个 cursor，指向特定修改，便于迭代查看修改项。调用 `onChanged()` 时，cursor 指向第一个更改前面（即 `cursor=-1`），调用 `next()` 移动到下一个修改项。当 cursor 移动到有效修改项，`next()` 返回 `true`，否则返回 `false`。
+`Change` 包含一个 cursor，指向特定修改，便于查看修改项，`next()` 和 `reset()` 用于移动 cursor。调用 `onChanged()` 时，cursor 指向第一个更改前面（即 `cursor=-1`），调用 `next()` 移动到下一个修改项。当 cursor 移动到有效修改项，`next()` 返回 `true`，否则返回 `false`。
 
 `reset()` 重置 cursor 为 -1。`next() `一般在 while 循环中使用，例如：
 
@@ -294,13 +279,15 @@ list.addListener(new ListChangeListener<String>() {
 });
 ```
 
-**替换操作**可以看作删除元素后，在原位置再插入一个元素，所以如果 `wasReplaced()` 返回 `true`，`wasRemoved()` 和 `wasAdded()` 都返回 `true`。
+**替换操作**可以看作删除元素后，在原位置再插入一个元素，所以如果 `wasReplaced()` 返回 `true`，`wasRemoved()` 和 `wasAdded()` 也返回 `true`。
 
-`wasPermutated()` 表示是否发生重排操作。
+`wasPermutated()` 表示是否发生重排操作（没有删除、添加或更新）。
 
-```ad-note
-add, remove, replace, permutate, update 这五种修改事件，permutate 和 update 具有排他性，余下三种可能同时发生。
-```
+`wasUpdated()` 表示 list 的元素是否更新。
+
+> [!NOTE]
+>
+> add, remove, replace, permutate, update 这五种修改事件，permutate 和 update 具有排他性，余下三种可能同时发生。
 
 可以在 `onChanged() `方法中添加如下代码处理所有类型的 change 事件：
 
@@ -325,14 +312,24 @@ public void onChanged(ListChangeListener.Change change) {
 }
 ```
 
-`getFrom()` 和 `getTo()` 返回受影响的索引范围：
+`getFrom()` (inclusive) 和 `getTo()` (exclusive) 返回受影响范围的索引：
 
 - `wasPermutated()` 为 `true` 时，返回重排元素的范围
 - `wasUpdated()` 为 `true` 时，返回更新元素的索引范围
 - `wasAdded()` 为 `true` 时，返回添加元素的索引范围
 - `wasRemoved()` 为 `true` 且 `wasAdded()` 为 false 时，getFrom() 和 getTo() 的值相同，为删除元素的索引
 
-#### 2.3.2. Update 事件
+`getAddedSize()` 返回添加的元素个数。
+
+`getAddedSubList()` 返回包含添加的元素的 list。
+
+`getRemovedSize()` 返回删除的元素个数。
+
+`getRemoved()` 返回包含删除或替换的元素的 immutable-list。
+
+`getPermutation(int oldIndex)` 返回重排后元素的新索引。例如，如果元素从 index 2 移动到 5，那么 `getPermutation(2)`  返回 5.
+
+##### Update 事件处理
 
 `FXCollections` 有如下两个创建 `ObservableList` 的工厂方法：
 
@@ -349,14 +346,15 @@ public interface Callback<P,R> {
 }
 ```
 
-工厂方法中的参数 `Callback<E, Observable[]> extractor`，参数 `E` 是 list 的元素类型，第二个为 `Observable` 数组。
+参数 `Callback<E, Observable[]> extractor`，参数 `E` 是 list 的元素类型，第二个为 `Observable` 数组。
 
 - 从 `ObservableList` 添加或删除元素，不管是否使用 extractor 都会触发事件。
-- 但是，如果 `ObservableList` 中的元素是 `Observable` 属性、或者是对 `Observable` 属性的引用，那么只有在构造 `ObservableList` 时指定 extractor，返回对 `Observable` 属性数组，才能在这些元素发生变化时触发事件。
+- 但是，如果 `ObservableList` 中的元素是 `Observable` 属性、或者是对 `Observable` 属性的引用，那么只有在构造 `ObservableList` 时指定 extractor，`extractor` 从 list 元素提取 `Observable` 属性数组，才能在这些元素发生变化时触发事件。
+- 例如，list 元素类型为 `Shape`，`extractor` 提取其 `fill` 属性并监听。
 
-示例：演示 extractor 功能
+**示例**：演示 extractor 功能
 
-```java{.line-numbers}
+```java
 import javafx.beans.Observable;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -364,7 +362,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-
 
 public class ListExtractorDemo {
 
@@ -385,7 +382,7 @@ public class ListExtractorDemo {
         listWithoutExtractor.addAll(p1, p2);
         listWithExtractor.addAll(p1, p2);
 
-        // 此时只有配备 extractor 的 list 才能触发 change 事件
+        // 此时只有配备 extractor 的 list 才能触发 update 事件
         p2.set(3);
     }
 
@@ -413,9 +410,9 @@ listWithExtractor added: [IntegerProperty [value: 1], IntegerProperty [value: 2]
 listWithExtractor updated
 ```
 
-#### 2.3.3. 完整示例
+##### 完整示例
 
-```java{.line-numbers}
+```java
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -476,7 +473,7 @@ public class Person implements Comparable<Person> {
 }
 ```
 
-```java{.line-numbers}
+```java
 import javafx.collections.ListChangeListener;
 import java.util.List;
 
@@ -557,7 +554,7 @@ public class PersonListChangeListener implements ListChangeListener<Person> {
 }
 ```
 
-```java{.line-numbers}
+```java
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -683,13 +680,13 @@ Removed List: [Li Ho]
 After removeAll(): [Liz Na]
 ```
 
-### 2.4 FilteredList
+#### FilteredList
 
 `FilteredList` 实现了 `ObservableList`，根据 `Predicate` 过滤列表元素。对 ObservableList 的更改都会同步到 `FilteredList`。
 
 https://courses.bekwam.net/public_tutorials/bkcourse_filterlistapp.html
 
-## 3. ObservableSet
+### ObservableSet
 
 除了继承 `Set` 的所有方法，`ObservableSet` 的类图如下所示：
 
@@ -866,12 +863,11 @@ Before removing 123.
 After removing 123.
 ```
 
-## 4. ObservableMap
+### ObservableMap
 
 除了 `java.util.Map` 接口的相关方法，`ObservableMap` 的类图如下：
 
-![](Pasted%20image%2020230704110944.png)
-`FXCollections` 提供了如下创建 `ObservableMap` 的方法：
+<img src="images/Pasted%20image%2020230704110944.png" style="zoom:50%;" />`FXCollections` 提供了如下创建 `ObservableMap` 的方法：
 
 ```java
 <K,V> ObservableMap<K, V> observableHashMap()
@@ -1044,4 +1040,599 @@ Before calling clear()
 Map is invalid.
 Map is invalid.
 After calling clear()
+```
+
+## JavaFX 集合的属性和绑定
+
+`ObservableList`, `ObservableSet` 和 `ObservableMap` 集合都有对应的 `Property` 类型，支持高级和底层绑定 API。
+
+### 2. ObservableList 属性和绑定
+
+下面是 `ListProperty` 的类图。`ListProperty` 实现了 `ObservableValue` 和 `ObservableList` 接口。
+
+![](Pasted%20image%2020230704154836.png)
+使用 `SimpleListProperty` 类的构造函数创建 `ListProperty`：
+
+```java
+SimpleListProperty()
+SimpleListProperty(ObservableList<E> initialValue)
+SimpleListProperty(Object bean, String name)
+SimpleListProperty(Object bean, String name, ObservableList<E> initialValue)
+```
+
+使用 `ListProperty` 的一个常见错误是没有在构造函数中传入 `ObservableList`。`ListProperty` 内部使用 `ObservableList` 实现相关功能。例如：
+
+```java
+ListProperty<String> lp = new SimpleListProperty<String>();  
+// 内部没有 ObservableList，抛出异常
+lp.add("Hello");
+```
+
+```
+Exception in thread "main" java.lang.UnsupportedOperationException
+    at java.base/java.util.AbstractList.add(AbstractList.java:153)
+    at java.base/java.util.AbstractList.add(AbstractList.java:111)
+    at javafx.base/javafx.beans.binding.ListExpression.add(ListExpression.java:256)
+```
+
+**示例：** 创建和初始化 `ListProperty`
+
+```java
+ObservableList<String> list1 = FXCollections.observableArrayList();
+ListProperty<String> lp1 = new SimpleListProperty<String>(list1);
+lp1.add("Hello");
+
+ListProperty<String> lp2 = new SimpleListProperty<String>();
+lp2.set(FXCollections.observableArrayList());
+lp2.add("Hello");
+```
+
+### 2.1. 监听 ListProperty 事件
+
+`ListProperty` 支持三种类型的 listeners：
+
+- `InvalidationListener`
+- `ChangeListener`
+- `ListChangeListener`
+
+当 `ListProperty` 中封装的 `ObservableList` 发生变化，或 `ObservableList` 的内容发生变化，会触发这三种 listeners。
+
+`ChangeListener` 说明：
+
+- 当 `ObservableList` 的内容发生变化，`ChangeListener` 的 `changed()` 收到的 old 和 new 是对相同 `ObservableList` 的引用
+- 当封装的 `ObservableList` 替换为另一个 `ObservableList`，则 `changed()` 收到的 old 和 new ObservableList 不同
+
+**示例：** 处理 `ListProperty` 的这三类 listeners
+
+```java
+import javafx.beans.Observable;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+
+public class ListPropertyTest {
+
+    public static void main(String[] args) {
+        // 创建 ListProperty
+        ListProperty<String> lp =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        // 添加三种 listeners
+        lp.addListener(ListPropertyTest::invalidated);
+        lp.addListener(ListPropertyTest::changed);
+        lp.addListener(ListPropertyTest::onChanged);
+
+        System.out.println("Before addAll()");
+        lp.addAll("one", "two", "three");
+        System.out.println("After addAll()");
+
+        System.out.println("\nBefore set()");
+
+        // 替换封装的 ObservableList
+        lp.set(FXCollections.observableArrayList("two", "three"));
+        System.out.println("After set()");
+
+        System.out.println("\nBefore remove()");
+        lp.remove("two");
+        System.out.println("After remove()");
+    }
+
+    // An invalidation listener
+    public static void invalidated(Observable list) {
+        System.out.println("List property is invalid.");
+    }
+
+    // A change listener
+    public static void changed(
+                    ObservableValue<? extends ObservableList<String>> observable,
+                    ObservableList<String> oldList,
+                    ObservableList<String> newList) {
+        System.out.print("List Property has changed.");
+        System.out.print(" Old List: " + oldList);
+        System.out.println(", New List: " + newList);
+    }
+
+    // A list change listener
+    public static void onChanged(ListChangeListener.Change<? extends String> change) {
+        while (change.next()) {
+            String action = change.wasPermutated() ? "Permutated" : change.wasUpdated()
+                    ? "Updated" : change.wasRemoved() && change.wasAdded() ? "Replaced"
+                    : change.wasRemoved() ? "Removed" : "Added";
+
+            System.out.print("Action taken on the list: " + action);
+            System.out.print(". Removed: " + change.getRemoved());
+            System.out.println(", Added: " + change.getAddedSubList());
+        }
+    }
+}
+```
+
+```
+Before addAll()
+List property is invalid.
+List Property has changed. Old List: [one, two, three], New List: [one, two, three]
+Action taken on the list: Added. Removed: [], Added: [one, two, three]
+After addAll()
+
+Before set()
+List property is invalid.
+List Property has changed. Old List: [one, two, three], New List: [two, three]
+Action taken on the list: Replaced. Removed: [one, two, three], Added: [two, three]
+After set()
+
+Before remove()
+List property is invalid.
+List Property has changed. Old List: [three], New List: [three]
+Action taken on the list: Removed. Removed: [two], Added: []
+After remove()
+```
+
+```ad-tip
+`ListProperty` 采用 `ListChangeListener` 监听内容变化，与 `ObservableList` 完全相同，所以这方面的详细内容可以参考上一节。
+```
+
+### 2.2. 绑定 ListProperty 的 size 和 empty 属性
+
+`ListProperty` 继承的 `ListExpression` 包含两个 `public` 属性：
+
+```java
+ReadOnlyIntegerProperty sizeProperty()
+ReadOnlyBooleanProperty emptyProperty()
+```
+
+它们在 GUI 中非常有用。例如，GUI 应用中可能采用 `ListProperty` 存储信息，将这两个信息与 `Label` 的 `text` 属性绑定，这样在 `ListProperty` 变化时，`Label` 通过绑定可以自动更新。
+
+**示例：** size 和 empty 属性的使用
+
+```java
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+
+public class ListBindingTest {
+
+    public static void main(String[] args) {
+        ListProperty<String> lp = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        //将 ListProperty 的 size 和 empty 属性与 StringProperty 绑定
+        //以生成 ListProperty 的描述信息
+        StringProperty initStr = new SimpleStringProperty("Size: ");
+        StringProperty desc = new SimpleStringProperty();
+        desc.bind(initStr.concat(lp.sizeProperty())
+                .concat(", Empty: ")
+                .concat(lp.emptyProperty())
+                .concat(", List: ")
+                .concat(lp.asString()));
+
+        System.out.println("Before addAll(): " + desc.get());
+        lp.addAll("John", "Jacobs");
+        System.out.println("After addAll(): " + desc.get());
+    }
+}
+```
+
+```
+Before addAll(): Size: 0, Empty: true, List: []
+After addAll(): Size: 2, Empty: false, List: [John, Jacobs]
+```
+
+### 3. List 属性和内容绑定
+
+`ListProperty` 的高级绑定 API 在 `ListExpression` 和 `Bindings` 类中。底层 API 通过继承 `ListBinding` 实现。`ListProperty` 支持两类绑定：
+
+- 绑定封装的 `ObservableList` 引用
+- 绑定封装的 `ObservableList` 的内容
+
+`bind()` 和 `bindBidirectional()` 创建绑定引用。
+
+**示例：** `ObservableList` 引用绑定
+
+```java
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
+public class BindingListReference {
+
+    public static void main(String[] args) {
+        ListProperty<String> lp1 =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+        ListProperty<String> lp2 =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        lp1.bind(lp2);
+
+        print("Before addAll():", lp1, lp2);
+        lp1.addAll("One", "Two");
+        print("After addAll():", lp1, lp2);
+
+        // 修改 ObservableList 引用
+        lp2.set(FXCollections.observableArrayList("1", "2"));
+        print("After lp2.set():", lp1, lp2);
+
+        // Cannot do the following as lp1 is a bound property
+        // lp1.set(FXCollections.observableArrayList("1", "2"));
+        // 解绑 lp1
+        lp1.unbind();
+        print("After unbind():", lp1, lp2);
+
+        // lp1 和 lp2 双向绑定
+        lp1.bindBidirectional(lp2);
+        print("After bindBidirectional():", lp1, lp2);
+
+        lp1.set(FXCollections.observableArrayList("X", "Y"));
+        print("After lp1.set():", lp1, lp2);
+    }
+
+    public static void print(String msg, ListProperty<String> lp1, ListProperty<String> lp2) {
+        System.out.println(msg);
+        System.out.println("lp1: " + lp1.get() + ", lp2: " + lp2.get() +
+                ", lp1.get() == lp2.get(): " + (lp1.get() == lp2.get()));
+        System.out.println("---------------------------");
+    }
+}
+```
+
+```
+Before addAll():
+lp1: [], lp2: [], lp1.get() == lp2.get(): true
+---------------------------
+After addAll():
+lp1: [One, Two], lp2: [One, Two], lp1.get() == lp2.get(): true
+---------------------------
+After lp2.set():
+lp1: [1, 2], lp2: [1, 2], lp1.get() == lp2.get(): true
+---------------------------
+After unbind():
+lp1: [1, 2], lp2: [1, 2], lp1.get() == lp2.get(): true
+---------------------------
+After bindBidirectional():
+lp1: [1, 2], lp2: [1, 2], lp1.get() == lp2.get(): true
+---------------------------
+After lp1.set():
+lp1: [X, Y], lp2: [X, Y], lp1.get() == lp2.get(): true
+---------------------------
+```
+
+`bindContent()` 和 `bindContentBidirectional()` 将 `ListProperty` 中封装的 `ObservableList` 的内容与另一个 `ObservableList` 绑定。`unbindContent()` 和 `unbindContentBidirectional()` 分别用于解绑。`Bindings` 类也有对应的方法。
+
+**示例：** `ListProperty` 内容绑定
+
+```java
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
+public class BindingListContent {
+
+    public static void main(String[] args) {
+        ListProperty<String> lp1 =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+        ListProperty<String> lp2 =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        // 将 lp1 的内容与 lp2 的内容绑定
+        lp1.bindContent(lp2);
+
+        // 此时可以修改 lp1 的内容。但是不推荐，因为会打破内容绑定
+        // 使用 lp1 的内容不再与 lp2 的内容同步
+        // lp1.addAll("X", "Y");
+        
+        print("Before lp2.addAll():", lp1, lp2);
+        lp2.addAll("1", "2");
+        print("After lp2.addAll():", lp1, lp2);
+
+        lp1.unbindContent(lp2);
+        print("After lp1.unbindContent(lp2):", lp1, lp2);
+
+        // lp1 和 lp2 的内容双向绑定
+        lp1.bindContentBidirectional(lp2);
+
+        print("Before lp1.addAll():", lp1, lp2);
+        lp1.addAll("3", "4");
+        print("After lp1.addAll():", lp1, lp2);
+
+        print("Before lp2.addAll():", lp1, lp2);
+        lp2.addAll("5", "6");
+        print("After lp2.addAll():", lp1, lp2);
+    }
+
+    public static void print(String msg, ListProperty<String> lp1, ListProperty<String> lp2) {
+        System.out.println(msg + " lp1: " + lp1.get() + ", lp2: " + lp2.get());
+    }
+}
+
+```
+
+```
+Before lp2.addAll(): lp1: [], lp2: []
+After lp2.addAll(): lp1: [1, 2], lp2: [1, 2]
+After lp1.unbindContent(lp2): lp1: [1, 2], lp2: [1, 2]
+Before lp1.addAll(): lp1: [1, 2], lp2: [1, 2]
+After lp1.addAll(): lp1: [1, 2, 3, 4], lp2: [1, 2, 3, 4]
+Before lp2.addAll(): lp1: [1, 2, 3, 4], lp2: [1, 2, 3, 4]
+After lp2.addAll(): lp1: [1, 2, 3, 4, 5, 6], lp2: [1, 2, 3, 4, 5, 6]
+```
+
+### 4. List 元素绑定
+
+可以绑定 `ListProperty` 封装的 `ObservableList` 中的元素：
+
+```java
+ObjectBinding<E> valueAt(int index)
+ObjectBinding<E> valueAt(ObservableIntegerValue index)
+```
+
+第一个与 list 中指定索引处元素绑定，返回 `ObjectBinding`。第二个参数为 `ObservableIntegerValue`，索引可以变化。
+
+当索引超过 list 范围，返回的 `ObjectBinding` 封装内容为 `null`。
+
+```java
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
+public class BindingToListElements {
+    public static void main(String[] args) {
+        ListProperty<String> lp =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        // 与 list 的最后一个元素绑定
+        ObjectBinding<String> last = lp.valueAt(lp.sizeProperty().subtract(1));
+        System.out.println("List:" + lp.get() + ", Last Value: " + last.get());
+
+        lp.add("John");
+        System.out.println("List:" + lp.get() + ", Last Value: " + last.get());
+
+        lp.addAll("Donna", "Geshan");
+        System.out.println("List:" + lp.get() + ", Last Value: " + last.get());
+
+        lp.remove("Geshan");
+        System.out.println("List:" + lp.get() + ", Last Value: " + last.get());
+
+        lp.clear();
+        System.out.println("List:" + lp.get() + ", Last Value: " + last.get());
+    }
+}
+```
+
+```
+List:[], Last Value: null
+List:[John], Last Value: John
+List:[John, Donna, Geshan], Last Value: Geshan
+List:[John, Donna], Last Value: Donna
+List:[], Last Value: null
+```
+
+### 5. ObservableSet 属性和绑定
+
+`SetProperty` 封装 `ObservableSet`。`SetProperty` 的使用与 `ListProperty` 类似。要点：
+
+- `SetExpression` 和 `Bindings` 包含 `SetProperty` 的高级绑定 API，继承 `SetBinding` 自定义绑定
+- `SetProperty` 公开了 `size` 和 `empty` 属性
+- `SetProperty` 支持引用绑定和内容绑定
+- `SetProperty` 支持三种通知：Invalidation, Change 和 SetChange
+- 与 `ListProperty` 不同的是，`SetProperty` 是无序的，其元素没有索引，因此不支持与特定元素绑定，即没有 `valueAt()` 这类方法
+
+`SetProperty` 构造函数：
+
+```java
+SimpleSetProperty()
+SimpleSetProperty(ObservableSet<E> initialValue)
+SimpleSetProperty(Object bean, String name)
+SimpleSetProperty(Object bean, String name, ObservableSet<E> initialValue)
+```
+
+**示例：** 创建 `SetProperty` 并添加元素
+
+```java
+SetProperty<String> sp = new SimpleSetProperty<String>(FXCollections.observableSet());
+sp.add("two");
+
+// 获取封装的 ObservableSet
+ObservableSet<String> set = sp.get();
+```
+
+**示例：** `SetProperty` 绑定
+
+```java
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+
+public class SetBindingTest {
+
+    public static void main(String[] args) {
+        SetProperty<String> sp1 =
+                new SimpleSetProperty<>(FXCollections.observableSet());
+
+        // 绑定 SetProperty 的 size 和 empty 属性
+        StringProperty initStr = new SimpleStringProperty("Size: ");
+        StringProperty desc = new SimpleStringProperty();
+        desc.bind(initStr
+                .concat(sp1.sizeProperty())
+                .concat(", Empty: ")
+                .concat(sp1.emptyProperty())
+                .concat(", Set: ")
+                .concat(sp1.asString())
+        );
+
+        System.out.println("Before sp1.add(): " + desc.get());
+        sp1.add("John");
+        sp1.add("Jacobs");
+        System.out.println("After sp1.add(): " + desc.get());
+
+        SetProperty<String> sp2 =
+                new SimpleSetProperty<>(FXCollections.observableSet());
+
+        // sp1 与 sp2 内容绑定
+        sp1.bindContent(sp2);
+        System.out.println("Called sp1.bindContent(sp2)...");
+
+        // 此时可以修改 sp1，但是打破了内容绑定，使得 sp1 与 sp2 内容不同步
+        // 所以不推荐
+        // sp1.add("X");
+
+        print("Before sp2.add():", sp1, sp2);
+        sp2.add("1");
+        print("After sp2.add():", sp1, sp2);
+
+        sp1.unbindContent(sp2);
+        print("After sp1.unbindContent(sp2):", sp1, sp2);
+
+        // sp1 与 sp2 内容双向绑定
+        sp1.bindContentBidirectional(sp2);
+
+        print("Before sp2.add():", sp1, sp2);
+        sp2.add("2");
+        print("After sp2.add():", sp1, sp2);
+    }
+
+    public static void print(String msg, SetProperty<String> sp1, 
+                            SetProperty<String> sp2) {
+        System.out.println(msg + " sp1: " + sp1.get() + ", sp2: " + sp2.get());
+    }
+}
+
+```
+
+```
+Before sp1.add(): Size: 0, Empty: true, Set: []
+After sp1.add(): Size: 2, Empty: false, Set: [John, Jacobs]
+Called sp1.bindContent(sp2)...
+Before sp2.add(): sp1: [], sp2: []
+After sp2.add(): sp1: [1], sp2: [1]
+After sp1.unbindContent(sp2): sp1: [1], sp2: [1]
+Before sp2.add(): sp1: [1], sp2: [1]
+After sp2.add(): sp1: [1, 2], sp2: [1, 2]
+```
+
+### 6. ObservableMap 属性和绑定
+
+`MapProperty` 封装 `ObservableMap`。`MapProperty` 的使用与 `ListProperty` 类似。`MapProperty` 要点：
+
+- `MapExpression` 和 `Bindings` 类包含 `MapProperty` 高级绑定 API，继承 `MapBinding` 类自定义底层绑定
+- `MapProperty` 包含 `size` 和 `empty` 属性
+- `MapProperty` 包含引用和内容两种绑定
+- `MapProperty` 支持三种 notifications：Invalidation, change 和 map change
+- `MapProperty` 的 `valueAt()` 方法支持绑定特定 key 的 value
+
+`SimpleMapProperty` 构造函数：
+
+```java
+SimpleMapProperty()
+SimpleMapProperty(Object bean, String name)
+SimpleMapProperty(Object bean, String name, ObservableMap<K,V> initialValue)
+SimpleMapProperty(ObservableMap<K,V> initialValue)
+```
+
+**示例：** 创建 `MapProperty`，并添加值
+
+```java
+MapProperty<String, Double> mp = 
+        new SimpleMapProperty<String, Double>(FXCollections.observableHashMap());
+
+// Add two entries to the wrapped ObservableMap
+mp.put("Ken", 8190.20);
+mp.put("Jim", 8990.90);
+
+// Get the wrapped map from the mp property
+ObservableMap<String, Double> map = mp.get();
+```
+
+**示例：** `ObservableMap` 属性和绑定
+
+```java
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.MapProperty;
+import javafx.beans.property.SimpleMapProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+
+public class MapBindingTest {
+
+    public static void main(String[] args) {
+        MapProperty<String, Double> mp1 =
+                new SimpleMapProperty<>(FXCollections.observableHashMap());
+        
+        // Create an object binding to bind mp1 to the value of the key "Ken"
+        // 创建与 "Ken" 映射值 value 的绑定
+        ObjectBinding<Double> kenSalary = mp1.valueAt("Ken");
+        System.out.println("Ken Salary: " + kenSalary.get()); // 此时为 null
+
+        // 绑定 size 和 empty 属性
+        StringProperty initStr = new SimpleStringProperty("Size: ");
+        StringProperty desc = new SimpleStringProperty();
+        desc.bind(initStr.concat(mp1.sizeProperty())
+                .concat(", Empty: ")
+                .concat(mp1.emptyProperty())
+                .concat(", Map: ")
+                .concat(mp1.asString())
+                .concat(", Ken Salary: ")
+                .concat(kenSalary));
+
+        System.out.println("Before mp1.put(): " + desc.get());
+        mp1.put("Ken", 7890.90);
+        mp1.put("Jim", 9800.80);
+        mp1.put("Lee", 6000.20);
+        System.out.println("After mp1.put(): " + desc.get());
+
+        // 创建一个新的 MapProperty
+        MapProperty<String, Double> mp2 =
+                new SimpleMapProperty<>(FXCollections.observableHashMap());
+
+        // map1 和 map2 内容绑定
+        mp1.bindContent(mp2);
+        System.out.println("Called mp1.bindContent(mp2)...");
+
+        /* At this point, you can change the content of mp1. However,
+         * that will defeat the purpose of content binding, because the
+         * content of mp1 is no longer in sync with the content of mp2.
+         * Do not do this:
+         * mp1.put("k1", 8989.90);
+         */
+        System.out.println("Before mp2.put(): " + desc.get());
+        mp2.put("Ken", 7500.90);
+        mp2.put("Cindy", 7800.20);
+        System.out.println("After mp2.put(): " + desc.get());
+    }
+}
+```
+
+```
+Ken Salary: null
+Before mp1.put(): Size: 0, Empty: true, Map: {}, Ken Salary: null
+After mp1.put(): Size: 3, Empty: false, Map: {Ken=7890.9, Lee=6000.2, Jim=9800.8}, Ken Salary: 7890.9
+Called mp1.bindContent(mp2)...
+Before mp2.put(): Size: 0, Empty: true, Map: {}, Ken Salary: null
+After mp2.put(): Size: 2, Empty: false, Map: {Ken=7500.9, Cindy=7800.2}, Ken Salary: 7500.9
 ```

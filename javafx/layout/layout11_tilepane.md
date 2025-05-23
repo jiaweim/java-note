@@ -4,17 +4,17 @@
 ****
 ## 1. 简介
 
-TilePane 使用大小均匀的网格布局子节点，每个单元格成为 tile。TilePane 于 FlowPane 非常类似，只有一个区别：FlowPane 的 rows 和 columns 高、宽可以不一样，TilePane 所有 rows 高度相同，所有 columns 宽度相同。最宽子节点宽度和最高子节点的高度，定义单个网格的尺寸。
+TilePane 使用大小均匀的网格布局子节点，每个单元格成为 tile。`TilePane` 与 `FlowPane` 非常类似，只有一个区别：FlowPane 的 rows 和 columns 高、宽可以不一样，TilePane 所有 rows 高度相同，所有 columns 宽度相同。最宽子节点宽度和最高子节点的高度，定义单个网格的尺寸。
 
 于 FlowPane 一样，TilePane 也有水平和垂直两种选择，默认为水平方向。
 
 水平 TilePane:
 
-![|400](Pasted%20image%2020230710144147.png)
+<img src="images/Pasted%20image%2020230710144147.png" alt="|400" style="zoom:67%;" />
 
 垂直 TilePane:
 
-![|400](Pasted%20image%2020230710144206.png)
+<img src="images/Pasted%20image%2020230710144206.png" alt="|400" style="zoom:67%;" />
 
 通过 TilePane 的属性和约束来定义布局：
 

@@ -4,14 +4,14 @@
 ****
 ## 1. 简介
 
-AnchorPane 将 children 的 4 个边以指定距离锚定到自身的 4 个边。如下所示：
+`AnchorPane` 将 children 的 4 个边以指定距离锚定到自身的 4 个边。如下所示：
 
-![|450](Pasted%20image%2020230711105836.png)
+<img src="images/Pasted%20image%2020230711105836.png" alt="|450" style="zoom: 50%;" />
 
-AnchorPane 应用场景：
+`AnchorPane` 应用场景：
 
 - 沿 AnchorPane 一条边或多条边对齐 children
-- resizing AnchorPane 时拉伸 children
+- resizing `AnchorPane` 时拉伸 children
 
 children 的 edges 与 Anchor edges 的距离称为 *anchor* 约束。例如，children 的 top edges 与 AnchorPane 的 top edge 的距离称为 `topAnchor`。最多可以为 child 指定 4 个 anchor 约束值：`topAnchor`, `rightAnchor`, `bottomAnchor`, `leftAnchor`。
 
@@ -84,7 +84,7 @@ public class AnchorPaneDefaults extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230711113713.png)
+<img src="images/Pasted%20image%2020230711113713.png" alt="|400" style="zoom:67%;" />
 
 ## 3. 设置 Children 约束
 

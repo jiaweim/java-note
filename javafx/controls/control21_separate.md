@@ -91,7 +91,7 @@ Separator 包含一个 line 子结构，为 Region 类型。Separator 中看到�
 
 下图是水平 `SplitPane`，左右两个各包含一个 VBox，每个 `VBox` 包含一个 `Label` 和一个 `TextArea`。
 
-@import "images/Pasted%20image%2020230725132916.png" {width="400px" title=""}
+<img src="images/Pasted%20image%2020230725132916.png" style="zoom:67%;" />
 
 创建 `SplitPane`:
 
@@ -192,7 +192,7 @@ public class SplitPaneTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230725134220.png)
+<img src="images/Pasted%20image%2020230725134220.png" alt="|350" style="zoom:67%;" />
 
 ### 3.1. SplitPane CSS
 

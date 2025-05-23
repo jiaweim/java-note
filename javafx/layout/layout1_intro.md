@@ -29,7 +29,7 @@
 
 `Parent` 是所有容器的超类，类图如下：
 
-@import "images/Pasted%20image%2020230706155615.png" {width="600px" title=""}
+<img src="images/Pasted%20image%2020230706155615.png" style="zoom:50%;" />
 
 说明：
 
@@ -85,7 +85,7 @@ protected <E extends Node> List<E> getManagedChildren()
 - 构造时添加
 - 构造后添加
 
-```java{.line-numbers}
+```java
 // 创建两个按钮
 Button okBtn = new Button("OK");
 Button cancelBtn = new Button("Cancel");

@@ -1,24 +1,19 @@
-# Stage
+# JavaFX Stage
 
-2023-08-10, 15:22
-add: alwaysOnTop
-2023-08-09, 17:25
-modify: 样式
-2023-07-31, 23:02
-add: Stage 尺寸
-2023-07-06, 09:53
+2023-07-06
 @author Jiawei Mao
 ****
-## 1. 简介
+## 简介
 
-`Stage` 是 JavaFX 的顶层容器，用于托管 `Scene`。`Scene` 包含所有的可视化组件。和主屏幕对应的主 `Stage` 由 JavaFx 平台创建，传递给 `Application.start(Stage s)`方法。还可以根据需要创建其它 `Stage`。
+`Stage` 是 JavaFX 的顶层容器，用于托管 `Scene`，对桌面应用，`Stage` 就是 Window。`Scene` 包含所有的可视化组件。和主屏幕对应的主 `Stage` 由 JavaFx 平台创建，传递给 `Application.start(Stage s)`方法。还可以根据需要创建其它 `Stage`。
 
-!!! tip
-    `Stage` 是顶层容器不代表它必须单独显示，如在 Web 环境中，`Stage`都是内嵌在网页中显示。    
+> [!TIP]
+>
+> `Stage` 是顶层容器不代表它必须单独显示，如在 Web 环境中，`Stage`内嵌在网页中显示。
 
 下面是 `Stage` 的类图：
 
-@import "images/Pasted%20image%2020230704205908.png" {width="350px" title=""}
+<img src="images/Pasted%20image%2020230704205908.png" style="zoom:50%;" />
 
 `Window` 是窗口类容器的超类，包含窗口相关的通用功能：
 
@@ -32,7 +27,7 @@ add: Stage 尺寸
 
 `Stage` 的创建和修改必须在 JAT 线程进行。`Application.start()` 方法在 JAT 中调用，创建主 `Stage` 并传入该方法。主 `Stage` 默认不显示，需要显式调用 `show()` 方法。
 
-## 2. 显示主 Stage
+## 显示主 Stage
 
 JAT 线程在调用 `Platform.exit()` 方法或者所有 `stage` 被关掉才会终止。只有在所有非守护线程死掉，JVM才会终止。JavaFX 应用线程不是守护线程。
 
@@ -48,7 +43,7 @@ JAT 线程在调用 `Platform.exit()` 方法或者所有 `stage` 被关掉才会
 !!! note
     `Stage.close()` 和 `Window.hide()` 效果一样。如果窗口没有显示，调用 `close()` 无效。    
 
-## 3. 设置 Stage Bounds
+## 设置 Stage Bounds
 
 stage bounds 由 x, y, width, height 四个属性决定。
 
@@ -198,7 +193,7 @@ public void start(Stage stage) {
 }
 ```
 
-## 4. Stage 样式
+## Stage 样式
 
 `Stage` 的区域可以分为两块：内容区域（Content area）和装饰（Decoration）。
 
@@ -312,7 +307,7 @@ UNIFIED 和 DECORATED 主要差别：标题栏和内容之间没有边框，标�
 
 UTILITY 比较简洁，有标题栏，但是没有最小化、最大化按钮。
 
-## 5. 移动无装饰 Stage
+## 移动无装饰 Stage
 
 拖动 Stage 的标题栏可以移动 Stage。但 UNDECORATED 和 TRANSPARENT 两种样式的 Stage 没有标题栏。此时可以通过鼠标事件实现拖动功能：
 
@@ -370,7 +365,7 @@ public class DraggingStage extends Application {
 
 拖动鼠标时，更新 Stage 位置。
 
-## 6. Stage 模态
+## Stage 模态
 
 GUI应用的窗口可以分为两类：模态（modal）和非模态（modeless）。
 
@@ -476,7 +471,7 @@ public class StageModalityApp extends Application {
 }
 ```
 
-## 7. Stage 透明度
+## Stage 透明度
 
 `Stage` 超类 `Window` 提供了透明度设置功能：
 
@@ -499,7 +494,7 @@ Stage stage = new Stage();
 stage.setOpacity(0.5); // A half-translucent stage
 ```
 
-## 8. Stage 尺寸调节
+## Stage 尺寸
 
 Stage 的 `resizable` 属性用于设置是否可调整尺寸，默认为 `true`：
 
@@ -556,7 +551,7 @@ public class MaximizedStage extends Application {
 }
 ```
 
-## 9. Stage 全屏模式
+## Stage 全屏模式
 
 Stage 的 fullScreen 属性用于设置全屏模式。
 
@@ -568,7 +563,7 @@ public final void setFullScreen(boolean value)
 public final boolean isFullScreen()
 ```
 
-## 10. 关闭确认
+## 关闭确认
 
 在关闭 Stage 时，显示一个确认框，根据用户点击的按钮执行不同操作。
 
@@ -594,7 +589,7 @@ public class ShowAndWaitApp extends Application {
 
     protected static int counter = 0;
     protected Stage lastOpenStage;
-	
+    
     public static void main(String[] args) {
         Application.launch(args);
     }
@@ -649,7 +644,7 @@ public class ShowAndWaitApp extends Application {
 JavaFX 没有内置对话框功能，可以通过 `Stage.showAndWait()` 实现，设置适当的 Modality 即可。
 ```
 
-## 11. Stage 尺寸
+## Stage 尺寸
 
 JavaFX UI 控件的创建和显示之间存在时间差。在创建 UI 控件时，不管是通过 API 还是 FXML，都还不知道窗口的尺寸。在屏幕上显示时，窗口尺寸才可用，通过 `Stage.onShown` 属性可以监听窗口显示的事件。
 
@@ -719,7 +714,7 @@ public class StartVsShownJavaFXApp extends Application {
 
 @import "images/Pasted%20image%2020230731225832.png" {width="400px" title=""}
 
-## 12. alwaysOnTop
+## alwaysOnTop
 
 `Stage.alwaysOnTop` 属性指定当前 Stage 是否总是在其它窗口上面:
 
@@ -732,4 +727,111 @@ public class StartVsShownJavaFXApp extends Application {
 
 ```java
 primaryStage.setAlwaysOnTop(true);
+```
+
+##  Window
+
+`javafx.stage.Window` 的类图如下：
+
+<img src="images/Pasted%20image%2020230704205908.png" style="zoom:50%;" />
+
+`Window` 为顶层窗口，承载 `Scene`。如上图所示，`Stage`, `PopupWindow` 等都属于顶层窗口。
+
+只能在 JAT 创建和修改 `Window` 对象。
+
+
+## Screen
+
+`javafx.stage.Screen` 类用于获得屏幕的详细信息，如 DPI，尺寸、设置等。如果有多个屏幕，则一个称为主屏幕（primary），其他的为副屏幕。
+
+### 获得主屏幕
+
+```java
+Screen primaryScreen = Screen.getPrimary();
+```
+
+### 获得所有屏幕
+
+```java
+ObservableList<Screen> screenList = Screen.getScreens();
+```
+
+### 屏幕分辨率
+
+```java
+Screen primaryScreen = Screen.getPrimary();
+double dpi = primaryScreen.getDpi();
+```
+
+### 屏幕大小
+
+```java
+// 获得屏幕大小
+Rectangle2D getBounds()
+
+// 获得屏幕可视区域大小
+Rectangle2D getVisualBounds()
+```
+
+**可视区域**排除了系统本地窗口使用的区域（如任务栏和菜单栏）之后，屏幕剩余的区域，所以一般来说，可视区域小于整个屏幕区域。
+
+如果一个桌面跨越多个屏幕，则副屏的 bounds 是相对主屏幕定义的。例如，如果一个桌面跨越两个屏幕，主屏幕左上角坐标为 (0, 0)，宽度为 1600，则副屏幕左上角的坐标为 (1600, 0)。
+
+### 示例
+
+!!! note
+    虽然 `Screen` 类的API没有明说，但是 `Screen` 只能在 JavaFX 程序中使用。即在 JavaFX launcher 启动后才能使用，但是不需要在 JAT 线程中，在 `init()` 方法中也能使用。
+
+```java{.line-numbers}
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
+public class ScreenDetailsApp extends Application {
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
+
+    public void start(Stage stage) {
+        ObservableList<Screen> screenList = Screen.getScreens();
+        System.out.println("Screens Count: " + screenList.size());
+
+        // Print the details of all screens
+        for (Screen screen : screenList) {
+            print(screen);
+        }
+
+        Platform.exit();
+    }
+
+    public void print(Screen s) {
+        System.out.println("DPI: " + s.getDpi());
+
+        System.out.print("Screen Bounds: ");
+        Rectangle2D bounds = s.getBounds();
+        print(bounds);
+
+        System.out.print("Screen Visual Bounds: ");
+        Rectangle2D visualBounds = s.getVisualBounds();
+        print(visualBounds);
+        System.out.println("-----------------------");
+    }
+
+    public void print(Rectangle2D r) {
+        System.out.format("minX=%.2f, minY=%.2f, width=%.2f, height=%.2f%n",
+                r.getMinX(), r.getMinY(), r.getWidth(), r.getHeight());
+    }
+}
+```
+
+```
+Screens Count: 1
+DPI: 93.0
+Screen Bounds: minX=0.00, minY=0.00, width=2560.00, height=1440.00
+Screen Visual Bounds: minX=0.00, minY=0.00, width=2560.00, height=1392.00
+-----------------------
 ```

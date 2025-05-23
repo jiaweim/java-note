@@ -25,7 +25,7 @@ t1.setEffect(new DropShadow());
 
 创建 `Text` nodes，分别应用特效。
 
-```java{.line-numbers}
+```java
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.effect.Bloom;
@@ -87,7 +87,8 @@ public class EffectTest extends Application {
 }
 ```
 
-@import "images/2023-08-11-09-52-10.png" {width="500px" title=""}
+<img src="images/2023-08-11-09-52-10.png" style="zoom:67%;" />
 
-!!! tip
-    应用于 `Group` 的特效将应用于它所有的 children。也可以将多个特效串联起来，一个特效的输出作为下一个特效的输入。`Node` 的 `layoutBounds` 不受特效影响，但是 localBounds 和 boundsInParent 受影响。
+> [!TIP]
+>
+> 应用于 `Group` 的特效将应用于它所有的 children。也可以将多个特效串联起来，一个特效的输出作为下一个特效的输入。`Node` 的 `layoutBounds` 不受特效影响，但是 localBounds 和 boundsInParent 受影响。

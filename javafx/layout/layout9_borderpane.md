@@ -11,7 +11,7 @@ BorderPane 将其布局区域划分为 5 部分：top, right, bottom, left, cent
 
 每个区域最多只能放 1 个节点。下图在每个区域放置 1 个 Button：
 
-![|350](Pasted%20image%2020230710120035.png)
+<img src="images/Pasted%20image%2020230710120035.png" alt="|350" style="zoom:67%;" />
 
 典型的 Windows 应用使用 5 个区域：
 

@@ -9,14 +9,16 @@ modify: 样式
 
 `Group` 继承 `Parent`，具有容器特性：具有自己的布局策略和坐标系。
 
-@import "images/Pasted%20image%2020230706173058.png" {width="250px" title=""}
+<img src="images/Pasted%20image%2020230706173058.png" style="zoom:50%;" />
 
 但是，`Group` 更适合看作 node 集合，而非容器。它用于对多个 nodes 执行相同操作，对 `Group` 的转换、特效及属性，均会应用到其子节点。
 
-`Group` 的布局策略：将子节点尺寸设置为 preferred size。没有任何其它操作，也不设置 nodes 位置，主要特征：
+`Group` 的布局策略：将子节点尺寸设置为 preferred size。
+
+没有任何其它操作，也不设置 nodes 位置，主要特征：
 
 - 将子节点保存在 `ObservableList` 中， 按照添加顺序依次渲染子节点
-- 不设置子节点位置，所有子节点默认在 (0,0)。需要使用子节点的 `layoutX` 和 `layoutY` 属性手动设置子节点在 `Group` 中的位置；否则子节点会互相重叠
+- 不设置子节点位置，所有子节点默认在 **(0,0)**。需要使用子节点的 `layoutX` 和 `layoutY` 属性手动设置子节点在 `Group` 中的位置，否则子节点会互相重叠
 -  默认将 resizable 子节点尺寸设置为 preferred size，将 `autoSizeChildren` 属性设置为 false 取消该功能。取消该功能会使除 `Shape` 外的所有 nodes 不可见，因为默认尺寸为 0
 
 不能直接调整 Group 尺寸，`Group` 采用所有子节点边框的加和作为其大小。

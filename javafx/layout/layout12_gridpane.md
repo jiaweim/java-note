@@ -14,9 +14,9 @@ GridPane 默认不显示网格线。为了方便 debug，可以显示网格线�
 - 第 2 个显示 cell 位置
 - 第 3 个添加了 6 个 Buttons，其中一个 Button 占据 2 个 cells
 
-![|500](Pasted%20image%2020230710161956.png)
+<img src="images/Pasted%20image%2020230710161956.png" alt="|500" style="zoom:67%;" />
 
-GridPane 索引：
+`GridPane` 索引：
 
 - row 索引从上到下增加，从 0 开始
 - column 索引从左到右或从右到左，从 0 开始

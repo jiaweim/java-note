@@ -4,15 +4,15 @@
 ****
 ## 1. 简介
 
-`StackPane` 使用堆栈存储节点，子节点按照添加顺序渲染。
+`StackPane` 使用**堆栈**存储节点，子节点按照添加顺序，将子节点从后到前渲染。
 
 下图以 `StackPane` 为 root，依次添加 `Rectangle` 和 `Text`。因为后添加 `Text`，所有在 `Rectangle` 上显示：
 
-@import "images/Pasted%20image%2020230710133310.png" {width="250px" title=""}
+<img src="images/Pasted%20image%2020230710133310.png" style="zoom: 67%;" />
 
-
-!!! tip
-    使用 `StackPane` 叠加不同类型的 nodes，可以创建很多有意思的 GUI。    
+> [!TIP]
+>
+> 使用 `StackPane` 叠加不同类型的 nodes，可以创建很多有意思的 GUI。        
 
 `StackPane` 的 prefWidth 为最宽子节点的宽度。prefHeight 为最高字节点的高度。
 
@@ -40,7 +40,7 @@ StackPane spane2 = new StackPane(r, new Text("A Rectangle"));
 
 **示例：** 创建 StackPane，添加 1 个 Rectangle 和 1 个 Text
 
-```java{.line-numbers}
+```java
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -174,11 +174,11 @@ public class StackPaneOverlayTest extends Application {
 }
 ```
 
-@import "images/Pasted%20image%2020230710135050.png" {width="500px" title=""}
+<img src="images/Pasted%20image%2020230710135050.png" style="zoom: 67%;" />
 
 ## 3. StackPane Properties
 
-`StackPane` alignment 属性为 `ObjectProperty<Pos>` 类型，定义**所有子节点**在 content area 的对齐方式，默认为 Pos.CENTER。
+`StackPane` alignment 属性为 `ObjectProperty<Pos>` 类型，定义**所有子节点**在 content-area 的对齐方式，默认为 `Pos.CENTER`，即居中。
 
 单个子节点的对齐方式可以通过 alignment 约束来设置。如下一节所示。
 

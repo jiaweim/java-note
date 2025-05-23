@@ -36,7 +36,7 @@ JavaFX 默认使用线性插值器，即随着时间线性地改变属性。
 
 除了 `Duration` 类在 `javafx.util` 包中，其它动画相关的类都在 `javafx.animation` 包中。类图如下：
 
-@import "images/Pasted%20image%2020230727150514.png" {width="px" title=""}
+<img src="images/Pasted%20image%2020230727150514.png" style="zoom:50%;" />
 
 抽象类 `Animation` 包含动画相关的通用属性和方法。
 
@@ -100,7 +100,7 @@ Duration tenMillisNeg = Duration.valueOf("-10.0ms");
 
 **示例：** Duration
 
-```java{.line-numbers}
+```java
 import javafx.util.Duration;
 
 public class DurationTest {
