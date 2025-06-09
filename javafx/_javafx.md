@@ -58,7 +58,7 @@
     - [Snapping](layout/layout15_snapping.md)
 - [MVC](mvc/mvc1_intro.md)
     - [MVC 示例](mvc/mvc2_example.md)
-- [Control](controls/control1_control.md)
+- [Control](controls/control.md)
     - [Labeled](controls/control2_labeled.md)
     - [Label](controls/control3_label.md)
     - [Buttons](controls/control4_buttons.md)
@@ -86,6 +86,7 @@
     - [TabPane](controls/control26_tabpane.md)
     - [HTMLEditor](controls/control27_htmleditor.md)
     - [Chooser](controls/control28_filechooser.md)
+    - [Dialog](./controls/dialog.md)
 - [TableView 概述](table/table1_intro.md)
     - [创建 TableView](table/table2_create.md)
     - [Map 作为 item](table/table3_map.md)
@@ -140,7 +141,6 @@
   - [Chooser](chooser.md)
   - [TableView](tableview.md)
   - [Spinner](spinner.md)
-  - [Alert](08_alert.md)
   - [TabPane](11_tabpane.md)
 - [Transformation](11.transformation.md)
 
@@ -179,3 +179,4 @@ https://bitbucket.org/datafx/datafx
 - [ ] https://fxdocs.github.io/docs/html5/
 - [x] [Zetcode 教程](http://zetcode.com/gui/javafx/)
 - http://www.guigarage.com/javafx-training-tutorials/
+- https://github.com/mhrimaz/AwesomeJavaFX

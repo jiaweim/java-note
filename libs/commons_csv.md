@@ -15,7 +15,7 @@ PS：commons-csv GUIDE 写得不好。
 <dependency>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-csv</artifactId>
-    <version>1.10.0</version>
+    <version>1.14.0</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ for (CSVRecord record : CSVFormat.DEFAULT.parse(in)) {
 
 ### DEFAULT
 
-标准 CSV 格式，同 RFC4180，但是自动跳过空行。对应 `CSVFormat.Builder` 配置：
+标准 CSV 格式，同 RFC4180，允许空行（自动跳过）。对应 `CSVFormat.Builder` 配置：
 
 ```java
 setDelimiter(',')
@@ -202,11 +202,12 @@ public Builder setQuote(final Character quoteCharacter)
 
 ```java
 public Builder setRecordSeparator(final char recordSeparator)
-public Builder setRecordSeparator(final String recordSeparator)
+public Builder setRecordSeparator(final String recordSeparator)    
 ```
 
-!!! note
-    这里设置的换行符仅用于输出；解析则自动识别 `\n`, `\r` 或 `\r\n`，目前无法自定义。
+> [!NOTE]
+>
+> 这里设置的换行符仅用于输出；解析则自动识别 `\n`, `\r` 或 `\r\n`，目前无法自定义。
 
 - 忽略空行
 
@@ -247,7 +248,7 @@ public final class CSVParser
 
 ### 创建 CSVParser
 
-`CSVParser` 提供了多个工厂方法，以从不同输入类型读取数据：
+`CSVParser` 提供了多个 static 工厂方法，以从不同输入类型读取数据：
 
 ```java
 parse(java.io.File, Charset, CSVFormat)
@@ -394,9 +395,11 @@ for (CSVRecord record : records) {
 
 ```java
 Reader in = new FileReader("path/to/file.csv");
-Iterable<CSVRecord> records = CSVFormat.Builder.create(CSVFormat.RFC4180)
-        .setHeader().setSkipHeaderRecord(true)
-        .build().parse(in);
+Iterable<CSVRecord> records = CSVFormat.RFC4180.builder()
+        .setHeader()
+        .setSkipHeaderRecord(true)
+        .get()
+        .parse(in);
 for (CSVRecord record : records) {
     String id = record.get("ID");
     String customerNo = record.get("CustomerNo");
@@ -447,3 +450,6 @@ public enum DuplicateHeaderMode {
 }
 ```
 
+## 参考
+
+- https://commons.apache.org/proper/commons-csv/

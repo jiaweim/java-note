@@ -48,6 +48,18 @@ new Button("", new Glyph("FontAwesome","GEAR");
 
 也可以在 FXML 中使用上述 `Glyph`。
 
+## PopOver
+
+`PopOver` 用于显示弹窗。弹窗具有非常轻量级的外观（没有窗口装饰）和一个指向 owner 的箭头，如下图所示：
+
+![](images/2023-08-09-16-24-50.png)
+
+由于弹窗的性质，当用户拖动它时，弹窗随着父窗口移动。
+
+可以将 PopOver 从 owner node 拖离开，它不再显示箭头，而是显示标题和关闭图标。
+
+
+
 ## 参考
 
 - https://controlsfx.github.io/

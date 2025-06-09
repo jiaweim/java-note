@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class ChoiceBoxTest extends Application {
+public class ChoiceBoxDemo extends Application {
 
     public static void main(String[] args) {
         Application.launch(args);

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @version 0.0.1
  * @since 27 Nov 2023, 9:20 AM
  */
-public class Main {
+public class ChoiceDialogDemo {
 
     public static void main(String[] args) {
         List<Person2> persons = Person2Generator.generatePersonList(10000);

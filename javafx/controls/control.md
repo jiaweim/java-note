@@ -1,6 +1,7 @@
 # Control
 
 2023-07-17, 14:50
+@author Jiawei Mao
 ****
 ## 1. 简介
 
@@ -22,7 +23,7 @@ Control 的 `getChildrenUnmodifiable()` 返回其内部 children，为 `Observab
 
 Control 的部分类图如下：
 
-![](Pasted%20image%2020230717144029.png)
+![](images/Pasted%20image%2020230717144029.png)
 
 ## 3. Control 属性
 
