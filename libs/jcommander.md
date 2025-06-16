@@ -1,35 +1,6 @@
 # JCommander
 
-- [JCommander](#jcommander)
-  - [1. 简介](#1-简介)
-  - [2. 参数类型](#2-参数类型)
-    - [2.1 Boolean](#21-boolean)
-    - [2.2 List 和 Set](#22-list-和-set)
-    - [2.3 Password](#23-password)
-    - [2.4 Echo](#24-echo)
-  - [3. 自定义类型](#3-自定义类型)
-    - [3.1 单值](#31-单值)
-      - [by annotation](#by-annotation)
-      - [by factory](#by-factory)
-    - [3.2 List 值](#32-list-值)
-      - [by annotation](#by-annotation-1)
-    - [3.3 Splitting](#33-splitting)
-      - [by annotation](#by-annotation-2)
-  - [4. 参数验证](#4-参数验证)
-    - [4.1 单参数验证](#41-单参数验证)
-  - [5. Main parameter](#5-main-parameter)
-  - [参数分隔符](#参数分隔符)
-  - [18. Usage](#18-usage)
-  - [13. 必须参数和可选参数](#13-必须参数和可选参数)
-  - [14. 默认值](#14-默认值)
-  - [15. Help 参数](#15-help-参数)
-  - [16. 更复杂的语法](#16-更复杂的语法)
-  - [21.参数代理](#21参数代理)
-  - [22.动态参数](#22动态参数)
-  - [23.自定义 usage 格式](#23自定义-usage-格式)
-  - [参考](#参考)
-
-2021-03-13, 10:48
+2021-03-13 ⭐
 @author Jiawei Mao
 ***
 

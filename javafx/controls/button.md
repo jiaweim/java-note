@@ -1,40 +1,41 @@
-# Buttons
+# Button
 
-2023-07-21, 14:01
+2023-07-21
+
 ****
 ## 1. 简介
 
-JavaFX 提供了三种类型的 buttons：
+JavaFX 提供了三种类型的 button：
 
 - 用于执行命令的 button
 - 用于选择的 button
 - 可执行命令和做选择的 button
 
-所有的按钮类都继承自 `ButtonBase` 类，支持 `ActionEvent`，具有标签。激活 button 事件的方式有多种，如鼠标点击、助记符、快捷键或其它组合键。
+所有的按钮类都继承自 `ButtonBase` 类，支持 `ActionEvent`，包含标签。激活 button 事件的方式有多种，如鼠标点击、助记符、快捷键或其它组合键。
 
-![](Pasted%20image%2020230717160226.png)
+<img src="images/Pasted%20image%2020230717160226.png" style="zoom: 33%;" />
 
 **命令按钮**（*command button*）：激活时执行命令的按钮称为命令按钮。如 `Button`, `Hyperlink` 和 `MenuButton`。
 
-**选择按钮**（*choice button*）: 表示不同选择。如 `ToggleButton`, `CheckBox`, `RadioButton`。  
+**选择按钮**（*choice button*）: 向用户展示不同选择的按钮。如 `ToggleButton`, `CheckBox`, `RadioButton`。  
 
 **混合按钮**：同时具有以上两种功能，如 `SplitMenuButton`。
 
-```ad-tip
-所有 buttons 都是 Labeled 控件，因此可以设置 text 和 graphic。
-```
+> [!TIP]
+>
+> 所有 buttons 都是 `Labeled` 控件，因此可以设置 `text` 和 `graphic`。
 
-## 2. Command Buttons
+## 2. Command Button
 
-### 2.1. Button
+### Button 组件
 
-Button 类表示命令按钮。Button 一般包含 text，并注册一个 ActionEvent handler。Button 的 mnemonicParsing 默认为 true。
+`Button` 类表示命令按钮。`Button` 一般包含 text，并注册一个 `ActionEvent` handler。`Button` 的 `mnemonicParsing` 默认为 true。
 
-Button 有三种模式：
+`Button` 有三种模式：
 
-- normal, button 激活时执行 `ActionEvent`（默认）；
-- default button, 按 `Enter` 键激活 `ActionEvent`，且没有其它 node consume 该按键；
-- cancel button，按 `Esc` 键激活 `ActionEvent`，且没有其它 node consume 该按键。
+- normal button: 激活时执行 `ActionEvent`（默认）
+- default button: 按 `Enter` 键激活 `ActionEvent`，且 scene 中没有其它 node consume 该 key-press
+- cancel button: 按 `Esc` 键激活 `ActionEvent`，且 scene 中没有其它 node consume 该 key-press
 
 default 和 cancel 模式由 `defaultButton` 和 `cancelButton` 属性表示。将对应属性设置为 true，启用对应模式。这 2 个属性默认均为 false。
 
@@ -43,27 +44,23 @@ default 和 cancel 模式由 `defaultButton` 和 `cancelButton` 属性表示。�
 当激活 button，如用鼠标点击 button，`newDocument()` 被调用：
 
 ```java
-// A normal button
 Button newBtn = new Button("New");
 newBtn.setOnAction(e -> newDocument());
 ```
 
-**示例：** 创建 default Button，添加 ActionEvent handler
+**示例：** 创建 default Button，添加 `ActionEvent` handler
 
-激活 button 时，save() 方法被调用。按 Enter 键也可以激活 default Button
+激活 button 时，`save()` 方法被调用。按 Enter 键也可以激活 default Button
 
 ```java
-// A default button
 Button saveBtn = new Button("Save");
-saveBtn.setDefaultButton(true); // Make it a default button
+saveBtn.setDefaultButton(true);
 saveBtn.setOnAction(e -> save());
 ```
 
 **示例：** 演示 3 种 button
 
-创建 1 个 normal button, 1 个 default button, 1 个 cancel button。
-
-3 个 buttons 各添加 1 个 `ActionEvent` listeners，并设置助记符。
+创建 1 个 normal button, 1 个 default button, 1 个 cancel button。各添加 1 个 `ActionEvent` listeners，并设置助记符。
 
 激活按钮的方式有多种：
 

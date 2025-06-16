@@ -6,7 +6,8 @@
 
 `Task<V>` 表示一次性任务。任务结束、取消或者失败后，无法重启。其类图如下：
 
-![|400](Pasted%20image%2020230711213057.png)
+<img src="images/Pasted%20image%2020230711213057.png" alt="|400" style="zoom:50%;" />
+
 `Task<V>` 实现了 `Worker<V>` 接口，因此继承了 `Worker` 的属性和方法。
 
 `Task<V>` 继承自 `FutureTask<V>` 类，该类实现了 `Future<V>`, `RunnableFuture<V>` 以及 `Runnable` 接口，因此 `Task<V>` 也实现了所有这些接口。

@@ -12,7 +12,7 @@ J=\sum_iw_i(o_i-f_i)^2
 $$
 其中，$w_i$ 为权重，$o_i$ 为观测值，$f_i=f_i(p)$ 为模型计算值。$r_i=o_i-f_i$ 为残差，用于量化观测值与模型计算的理论值之间的偏差。
 
-目前有两个用于最小二乘的引擎：
+目前有两个最小二乘引擎：
 
 - Gauss-Newton
 - Levenberg-Marguardt
@@ -21,22 +21,28 @@ $$
 
 为了解决最小二乘拟合问题，用户需要提供：
 
-- 模型 $f(p)$ 及其雅可比矩阵实现 $\frac{\partial f}{\partial p}$，最好的方法是实现 `MultivariateJacobianFunction`
+1. 模型 $f(p)$ 及其雅可比矩阵实现 $\frac{\partial f}{\partial p}$，最好的方法是实现 `MultivariateJacobianFunction`
 
-- 观测值（目标）：$o$
-- 参数初始值：$s$
-- (可选)参数验证器，`ParameterValidator` 的实现
-- (可选)样本权重，$w$，默认为 1.0
-- 最大迭代次数
-- 模型评估的最大次数，对 Levenberg-Marquardt 可能与迭代次数不同
-- 收敛标准，[ConvergenceChecker](https://hipparchus.org/apidocs/org/hipparchus/optim/ConvergenceChecker.html) 实现
+2. 观测值（目标）：$o$
+
+3. 参数初始值：$s$
+
+4. (可选)参数验证器，`ParameterValidator` 的实现
+
+5. (可选)样本权重，$w$，默认为 1.0
+
+6. 最大迭代次数
+
+7. 模型评估的最大次数，对 Levenberg-Marquardt 可能与迭代次数不同
+
+8. 收敛标准，[ConvergenceChecker](https://hipparchus.org/apidocs/org/hipparchus/optim/ConvergenceChecker.html) 实现
 
 以上元素可以提供给  [LeastSquaresProblem](https://hipparchus.org/apidocs/org/hipparchus/optim/nonlinear/vector/leastsquares/LeastSquaresProblem.html) 接口的实现，但是一一设置很麻烦，因此 Hipparchus 提供了辅助类：
 
 - `LeastSquaresBuilder` 
 - `LeastSquaresFactory`。
 
-`LeastSquaresBuilder` 适合逐步构建，即首先创建一个空的 builder，然后调用 `start`, `target`, `model` 等方法逐步配置，配置完成后，调用 `build` 创建 `LeastSquaresProblem`。
+`LeastSquaresBuilder` 适合逐步构建，即先创建一个空 builder，然后调用 `start`, `target`, `model` 等方法逐步配置，配置完成后，调用 `build` 创建 `LeastSquaresProblem`。
 
 factory 适合于所有元素都一次，调用 `LeastSquaresFactory.create` 一次就能创建 `LeastSquaresProblem` 的场景。
 
@@ -46,18 +52,43 @@ factory 适合于所有元素都一次，调用 `LeastSquaresFactory.create` 一
 
 由于最小二乘引擎需要使用模型函数创建雅可比矩阵，因此模型函数值及其相对参数 $p_k$ 的导数都必须可用。有两种方法提供这些信息：
 
-- 提供一个 `MultivariateVectorFunction` 用于计算组分值，以及一个 `MultivariateMatrixFunction` 计算组分相对于参数的导数（即雅可比矩阵）；
-- 也可以提供一个 `MultivariateJacobianFunction` 同时计算组件值及其导数 
+1. 提供一个 `MultivariateVectorFunction` 用于计算组分值，以及一个 `MultivariateMatrixFunction` 计算组分相对于参数的导数（即雅可比矩阵）：适合计算量不大的模型，因为使用更模块化的代码，每种类型的计算都使用一种方法
 
-第一种方案适合计算量不大的模型，因为它允许使用更模块化的代码，每种类型的计算都使用一种方法。第二种方案适合计算量大的模型，一次性计算值和导数可以节省大量工作。
+2. 也可以提供一个 `MultivariateJacobianFunction` 同时计算组分值及其导数 ：适合计算量大的模型，一次性计算值和导数可以节省大量工作。
 
-`MultivariateVectorFunction`, `MultivariateMatrixFunction` 和 `MultivariateJacobianFunction` 接口中 `value` 方法的 `point` 参数包含参数 $p_k$。其中值为模型分量 $\text{model}_i$ 的值，导数是模型分量相对参数的导数 $\frac{\partial\text{model}_i}{\partial p_k}$。
+`MultivariateVectorFunction`, `MultivariateMatrixFunction` 和 `MultivariateJacobianFunction` 接口中 `value()` 方法的 `point` 参数包含**数据** $p_k$，其值为模型分量 $\text{model}_i$ 的值；导数是模型分量相对参数的导数 $\frac{\partial\text{model}_i}{\partial p_k}$。
 
 对如何计算模型值和导数没有任何要求。对复杂情况可以用`DerivativeStructure` 类辅助计算解析导数，但不强制要求，API 只要求导数为包含 double 值的雅可比矩阵。
 
 另外，builder 和 factory 都提供 lazy 求值功能。该功能将对模型函数的调用推迟到引擎真正需要它们的时候，可以减少计算模型值也雅克比矩阵的次数。但是，只有模型函数本身分离时才行，对应上述第一种方案。在 builder 或 factory 中将 `lazyEvaluation` 设置为 true，同时将模型函数设置为 `MultivariateJacobianFunction` 会触发异常。
 
+`MultivariateVectorFunction` 表示多元向量函数，其定义：
 
+```java
+public interface MultivariateVectorFunction {
+
+    // 计算函数在指定点的值
+    double[] value(double[] point) throws IllegalArgumentException;
+}
+```
+
+`MultivariateMatrixFunction` 表示多元矩阵函数，其定义为：
+
+```java
+public interface MultivariateMatrixFunction {
+    // 计算函数在指定点的值
+    double[][] value(double[] point) throws IllegalArgumentException;
+}
+```
+
+`MultivariateJacobianFunction` 用于计算函数值和倒数，其定义为：
+
+```java
+public interface MultivariateJacobianFunction {
+    // 计算函数值和 Jacobian
+    Pair<RealVector, RealMatrix> value(RealVector point);
+}
+```
 
 ## 参数验证
 
@@ -193,9 +224,74 @@ final Vector2D[] points = new Vector2D[]{
 定义 `MultivariateVectorFunction` 计算函数值，定义 `MultivariateMatrixFunction` 计算倒数；或者定义 `MultivariateJacobianFunction` 同时计算函数值和倒数：
 
 ```java
+MultivariateJacobianFunction distanceToCurrentCenter = new MultivariateJacobianFunction() {
+    @Override
+    public Pair<RealVector, RealMatrix> value(RealVector point) {
+        Vector2D center = new Vector2D(point.getEntry(0), point.getEntry(1));
+
+        RealVector value = new ArrayRealVector(points.length);
+        RealMatrix jacobian = new Array2DRowRealMatrix(points.length, 2);
+        for (int i = 0; i < points.length; i++) {
+            Vector2D o = points[i];
+            Vector2D diff = center.subtract(o);
+            double modelI = diff.getNorm();
+            value.setEntry(i, modelI);
+
+            jacobian.setEntry(i, 0, diff.getX() / modelI);
+            jacobian.setEntry(i, 1, diff.getY() / modelI);
+        }
+        return new Pair<>(value, jacobian);
+    }
+};
 ```
 
+3. 定义目标值
 
+其模型函数值，这里全部都是半径值：
+
+```java
+double[] targetValues = new double[points.length];
+Arrays.fill(targetValues, radius);
+```
+
+4. 定义最小二乘问题
+
+```java
+LeastSquaresProblem problem = new LeastSquaresBuilder()
+        .start(new double[]{100.0, 50.0})
+        .model(distanceToCurrentCenter)
+        .target(targetValues)
+        .lazyEvaluation(false)
+        .maxEvaluations(1000)
+        .maxIterations(1000)
+        .build();
+```
+
+5. 拟合
+
+```java
+LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+LeastSquaresOptimizer.Optimum optimum = optimizer.optimize(problem);
+```
+
+6. 查看结果
+
+```java
+RealVector point = optimum.getPoint();
+System.out.println(point.getEntry(0)+"\t"+point.getEntry(1));
+System.out.println(optimum.getRMS());
+System.out.println(optimum.getEvaluations());
+System.out.println(optimum.getIterations());
+```
+
+```
+96.12117992246894	48.15767082226515
+0.7909680497446719
+5
+4
+```
+
+这里，`point` 是圆心位置。
 
 ## 参考
 

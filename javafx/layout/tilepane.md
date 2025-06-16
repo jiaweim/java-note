@@ -1,32 +1,33 @@
 # TilePane
 
-2023-07-10, 16:05
+2025-06-11⭐
+@author Jiawei Mao
 ****
 ## 1. 简介
 
-TilePane 使用大小均匀的网格布局子节点，每个单元格成为 tile。`TilePane` 与 `FlowPane` 非常类似，只有一个区别：FlowPane 的 rows 和 columns 高、宽可以不一样，TilePane 所有 rows 高度相同，所有 columns 宽度相同。最宽子节点宽度和最高子节点的高度，定义单个网格的尺寸。
+`TilePane` 使用大小均匀的网格布局子节点，每个单元格称为 tile。`TilePane` 与 `FlowPane` 非常类似，只有一个区别：`FlowPane` 不同 rows 的高度和不同 columns 宽度可以不一样，`TilePane` 所有 rows 高度相同，所有 columns 宽度相同。最宽子节点宽度和最高子节点的高度，定义单个网格的尺寸。
 
-于 FlowPane 一样，TilePane 也有水平和垂直两种选择，默认为水平方向。
+与 `FlowPane` 一样，`TilePane` 也有水平和垂直两种选择，默认为水平方向，可以从左到右（默认），也可以从右到左。
 
-水平 TilePane:
+水平 `TilePane`:
 
 <img src="images/Pasted%20image%2020230710144147.png" alt="|400" style="zoom:67%;" />
 
-垂直 TilePane:
+垂直 `TilePane`:
 
 <img src="images/Pasted%20image%2020230710144206.png" alt="|400" style="zoom:67%;" />
 
-通过 TilePane 的属性和约束来定义布局：
+`TilePane` 自定义选项：
 
-- 可以覆盖 tiles 的默认尺寸
-- 定义 TilePane 整个内容的 alignment，默认为 Pos.TOP_LEFT
-- 定义单个节点在 tile 中的 alignment，默认为 Pos.CENTER
+- tiles 尺寸
+- `TilePane` 的 alignment，默认为 `Pos.TOP_LEFT`
+- 单个 tile 的 alignment，默认为 `Pos.CENTER`
 - 相邻 rows 和 columns 的间距，默认 0px
-- 可以指定水平 TilePane 的 preferred columns 数，垂直 TilePane 的 preferred rows 数。两者默认为 5
+- 水平 `TilePane` 的 preferred columns 数，垂直 `TilePane` 的 preferred rows 数，两者默认为 5
 
 ## 2. 创建 TilePane
 
-构造 TilePane，指定方向、水平和垂直 spacing，以及初始 children:
+构造 `TilePane`，指定方向、水平和垂直 spacing，以及初始 children:
 
 ```java
 // 水平空 TilePane, spacing=0px
@@ -45,7 +46,7 @@ TilePane tpane4 = new TilePane(Orientation.VERTICAL, 5, 10);
 TilePane tpane5 = new TilePane(new Button("Button 1"), new Button("Button 2"));
 ```
 
-**示例：** 创建 TilePane，添加 children
+**示例：** 创建 `TilePane`，添加 children
 
 ```java
 import javafx.application.Application;
@@ -92,11 +93,11 @@ public class TilePaneTest extends Application {
 }
 ```
 
-![|450](Pasted%20image%2020230710145203.png)
+<img src="images/Pasted%20image%2020230710145203.png" alt="|450" style="zoom:67%;" />
 
 ## 3. TilePane 属性
 
-TilePane 提供了下表所属布局相关属性：
+`TilePane` 提供了下表所示布局相关属性：
 
 | 属性 | 类型 | 说明 |
 | ---- | ---- | ---- |
@@ -111,26 +112,24 @@ TilePane 提供了下表所属布局相关属性：
 |`tileHeight`|`ReadOnlyDoubleProperty`|tile 实际高度的 read-only 属性
 |`tileWidth`|`ReadOnlyDoubleProperty`|tile 实际宽度的 read-only 属性
 
-### 3.1. alignment 属性
+### alignment
 
-TilePane 的 alignment 属性指定其内容相对 content area 的对齐方式。当 TilePane 大于其 content 时可看到效果。
+`TilePane` 的 `alignment` 属性指定其内容相对 content area 的对齐方式。当 `TilePane` 大于其 content 时可看到效果。
 
-该属性的工作方式与 FlowPane 相同。
+该属性的工作方式与 `FlowPane` 相同。
 
-### 3.2. tileAlignment 属性
+### tileAlignment
 
-tileAlignment 属性指定 tiles 中 children 的默认对齐方式：
+`tileAlignment` 属性指定 tile 内部 children 的默认对齐方式：
 
 - 该属性影响尺寸小于 tiles 的 children
-- 可以被 alignment 约束覆盖
+- 直接设置 children 的 `alignment` 属性可以覆盖该选项
 
 **示例：** tileAlignment
 
-内容：
-
-- 定义了 2 个 TilePane
-- 第 1 个 tileAlignment 为 Pos.CENTER
-- 第 2 个 tileAlignment 为 Pos.TOP_LEFT
+- 定义 2 个 `TilePane`
+- 第 1 个 `tileAlignment` 为 `Pos.CENTER`
+- 第 2 个 `tileAlignment` 为 `Pos.TOP_LEFT`
 
 ```java
 import javafx.application.Application;
@@ -181,17 +180,19 @@ public class TilePaneTileAlignment extends Application {
 }
 ```
 
-![](Pasted%20image%2020230710150857.png)
+<img src="images/Pasted%20image%2020230710150857.png" style="zoom:67%;" />
 
-### 3.3. hgap 和 vgap 属性
+### hgap 和 vgap
 
-hgap 和 vgap 属性指定相邻 columns 和 rows 的间距，默认为 0.
+`hgap` 和 `vgap` 属性分别指定相邻 columns 和 rows 的间距，默认为 0.
 
-可以在 TilePane 构造函数中指定，也可以使用 setHgap(double hg) 和 setVgap(double vg) 方法指定。
+可以在 `TilePane` 构造函数中指定，也可以使用 `setHgap(double hg)` 和 `setVgap(double vg)` 方法指定。
 
-### 3.4. Orientation 属性
+### orientation
 
-orientation 属性指定 TilePane 的方向。默认为 `Orientation.HORIZONTAL`。可以在构造函数中指定，也可以使用 `setOrientation()` 方法：
+`orientation` 属性指定 `TilePane` 的方向,默认为 `Orientation.HORIZONTAL`。
+
+可以在构造函数中指定，也可以使用 `setOrientation()` 方法：
 
 ```java
 // Create a horizontal TilePane
@@ -201,25 +202,25 @@ TilePane tpane = new TilePane();
 tpane.setOrientation(Orientation.VERTICAL);
 ```
 
-### 3.5. prefRows 和 prefColumns 属性
+### prefRows 和 prefColumns
 
-prefRows 属性指定垂直 TilPane 的 preferred rows 数，水平 TilePane 忽略该属性。
+`prefRows` 属性指定垂直 `TilPane` 的首选行数，水平 `TilePane` 忽略该属性。
 
-prefColumns 属性指定水平 TilePane 的 preferred columns 数，垂直 TilePane 忽略该属性。
+`prefColumns` 属性指定水平 TilePane 的首选列数，垂直 `TilePane` 忽略该属性。
 
-prefRows 和 prefColumns 默认为 5。
+`prefRows` 和 `prefColumns` 默认为 5。
 
-这两个属性仅用于计算 TilePane 的 preferred size。将 TilePane resize 为其它尺寸后，实际 rows 和 columns 数可能不同。
+这两个属性仅用于计算 `TilePane` 的 preferred size。将 `TilePane` resize 为其它尺寸后，实际 rows 和 columns 数可能不同。
 
-```ad-tip
-TilePane 的 prefRows 和 prefColumns 属性的功能与 FlowPane 的 prefWrapLength 功能一样。
-```
+> [!TIP]
+>
+> `TilePane` 的 `prefRows` 和 `prefColumns` 属性的功能与 `FlowPane` 的 `prefWrapLength` 功能一样。
 
-### 3.6. prefTileWidth 和 prefTileHeight 属性
+### prefTileWidth 和 prefTileHeight
 
-TilePane 根据最宽和最高 children 来计算 tile 的 preferred size。使用 prefTileWidth 和 prefTileHeight 属性可以覆盖计算的尺寸。
+`TilePane` 根据最宽和最高 children 来计算 tile 的 preferred size。使用 `prefTileWidth` 和 `prefTileHeight` 属性可以覆盖计算的尺寸。
 
-这俩属性的默认值为  `Region.USE_COMPUTED_SIZE`。TilePane 会尝试 resize 其 children 以填充 tile（如果 children 的 min 和 max sizes 允许）。
+这俩属性的默认值为  `Region.USE_COMPUTED_SIZE`。`TilePane` 会尝试 resize 其 children 以填充 tile（如果 children 的 min 和 max sizes 允许）。
 
 ```java
 // Create a TilePane and set its preferred tile width and height to 40px
@@ -228,33 +229,33 @@ tpane.setPrefTileWidth(40);
 tpane.setPrefTileHeight(40);
 ```
 
-### 3.7. tileWidth 和 tileHeight 属性
+### tileWidth 和 tileHeight
 
-tileWidth 和 tileHeight 为 read-only 属性，返回 tile 的实际尺寸。
+`tileWidth` 和 `tileHeight` 为 read-only 属性，返回 tile 的实际尺寸。
 
-如果指定了 prefTileWidth 和 prefTileHeight 属性，它们返回设置的值；否则返回计算的 tile 尺寸。
+如果指定了 `prefTileWidth` 和 `prefTileHeight` 属性，它们返回设置的值；否则返回计算的 tile 尺寸。
 
 ## 4. TilePane 约束
 
-TilePane 同样支持为每个 children 设置 alignment 和 margin 约束。
+`TilePane` 支持为每个 children 单独设置 `alignment` 和 `margin`。
 
-alignment 约束定义 child 相对 tile 的对齐方式。注意以下三者的区别：
+alignment 定义 child 相对 tile 的对齐方式。注意以下三者的区别：
 
-- TilePane 的 alignment 属性
-- TilePane 的 tileAlignment 属性
-- TilePane 对每个 children 的 alignment 约束
+- `TilePane` 的 `alignment` 属性
+- `TilePane` 的 `tileAlignment` 属性
+- `TilePane` 对每个 children 的 `alignment` 约束
 
-alignment 属性指定 content (所有 children) 相对 content area 的对齐方式。即将 TilePane 的 content 作为一个整体处理。
+`alignment` 属性指定 content (所有 children) 相对 content-area 的对齐方式。即将 `TilePane` 的 content 作为一个整体处理。
 
-tileAlignment 属性指定 children 相对其 tile 的默认对齐方式。修改该属性影响所有 children.
+`tileAlignment` 属性指定 children 相对其 tile 的默认对齐方式。修改该属性影响所有 children.
 
-alignment 约束设置单个 child 在 tile 内的对齐方式。它只影响设置该约束的 child，覆盖 tileAlignment 属性设置的默认对齐方式。
+`alignment` 约束设置单个 child 在 tile 内的对齐方式。它只影响设置该约束的 child，覆盖 `tileAlignment` 属性设置的默认对齐方式。
 
-```ad-tip
-TilePane 的 tileAlignment 属性默认值为 Pos.CENTER，而所有 children 的 alignment 约束默认为 null。
-```
+> [!TIP]
+>
+> `TilePane` 的 `tileAlignment` 属性默认值为 `Pos.CENTER`，而所有 children 的 `alignment` 约束默认为 null。
 
-使用 static TilePane.setAlignment(Node child, Pos value) 设置 children 的 alignment 约束。使用 static getAlignment(Node child) 查询 alignment 约束：
+使用 `static TilePane.setAlignment(Node child, Pos value)` 设置 children 的 `alignment` 约束。使用 `static getAlignment(Node child)` 查询 `alignment` 约束：
 
 ```java
 // Place a Text node in the top left corner in a tile
@@ -267,10 +268,10 @@ root.getChildren().add(topLeft);
 Pos alignment = TilePane.getAlignment(topLeft);
 ```
 
-**示例：** 添加 5 个 Button 到 TilePane。
+**示例：** 添加 5 个 `Button` 到 `TilePane`。
 
-- Button "Three" 的 alignment 约束设置为  Pos.BOTTOM_RIGHT
-- 其它 Button 使用默认的 tile alignment，为 Pos.CENTER
+- `Button` "Three" 的 `alignment` 约束设置为  `Pos.BOTTOM_RIGHT`
+- 其它 Button 使用默认的 tile alignment，即 `Pos.CENTER`
 
 ```java
 import javafx.application.Application;
@@ -314,7 +315,7 @@ public class TilePaneAlignmentConstraint extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230710155336.png)
+<img src="images/Pasted%20image%2020230710155336.png" alt="|250" style="zoom:67%;" />
 
 使用 static `TilePane.setMargin(Node child, Insets value)` 设置 children 的 margins 约束。static `TilePane.getMargin(Node child)` 返回指定 child 的 margin：
 
@@ -326,7 +327,7 @@ TilePane.setMargin(topLeft, new Insets(10));
 Insets margin = TilePane.getMargin(topLeft);
 ```
 
-设置为 null 重置约束为默认值。使用 static `TilePane.clearConstraints(Node child)` 重置指定 child 的所有约束：
+设置为 `null` 重置约束为默认值。使用 static `TilePane.clearConstraints(Node child)` 重置指定 child 的所有约束：
 
 ```java
 // Clear the tile alignment and margin constraints for the topLeft child node
@@ -334,4 +335,3 @@ TilePane.clearConstraints(topLeft);
 ```
 
 重置 child 约束后，对齐属性为 `tileAlignment` 属性的当前值，margin 为 0px。
-
