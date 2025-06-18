@@ -58,6 +58,7 @@ module java.module {
     requires org.reactivestreams;
     requires reactor.test;
     requires parallel.collectors;
+    requires eu.hansolo.fx.charts;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -93,4 +94,5 @@ module java.module {
     opens mjw.javafx.effect;
     opens mjw.reactor;
     opens mjw.java.concurrency;
+    opens mjw.hansolo;
 }
