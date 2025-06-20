@@ -76,6 +76,7 @@ module java.module {
     opens mjw.hamcrest.matcher;
     opens mjw.javafx.layout;
     opens mjw.javafx.canvas;
+    opens mjw.javafx.chart;
     opens mjw.javafx.node;
     opens mjw.javafx.css;
     opens mjw.javafx.color;

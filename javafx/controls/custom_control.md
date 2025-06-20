@@ -1,26 +1,8 @@
 # 自定义控件
 
-- [自定义控件](#自定义控件)
-  - [简介](#简介)
-  - [使用 CSS 重新定义控件样式](#使用-css-重新定义控件样式)
-    - [修改 checkmark](#修改-checkmark)
-    - [修改 box](#修改-box)
-    - [CheckBox 状态](#checkbox-状态)
-  - [扩展已有控件](#扩展已有控件)
-  - [扩展 Region](#扩展-region)
-  - [使用 Canvas](#使用-canvas)
-  - [示例](#示例)
-    - [LED 控件](#led-控件)
-    - [代码结构](#代码结构)
-    - [LED 属性](#led-属性)
-    - [LED 控件初始化](#led-控件初始化)
-    - [可视化代码](#可视化代码)
-    - [LED Control CSS](#led-control-css)
-    - [Resizing LED Control](#resizing-led-control)
-  - [参考](#参考)
-
 2023-11-14, 22:47
 @author Jiawei Mao
+
 ****
 ## 简介
 
@@ -106,7 +88,7 @@
 
 下面实现 [MaterialDesign](https://material.io/develop/web/components/input-controls/checkboxes#checkboxes "MaterialDesign") 样式的 `CheckBox`，需要对现有 CSS 样式进行一些修改：
 
-![](Pasted%20image%2020230727124128.png)
+<img src="images/Pasted%20image%2020230727124128.png" style="zoom: 50%;" />
 
 - 取消渐变，使 UI 更扁平化
 - 不同的 checkmark
@@ -218,7 +200,7 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 所以，我们现在自定义一个 MacOS 深色模式的按钮。按钮样式如下：
 
-@import "images/Pasted%20image%2020230807144222.png" {width="120px" title=""}
+<img src="images/Pasted%20image%2020230807144222.png" style="zoom:67%;" />
 
 当鼠标悬停在按钮上，会显示符号。
 
@@ -226,7 +208,7 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 对**复现**现有控件，可以将控件的截图作为背景图片加载到矢量绘图程序，然后在截图上绘制副本。这样可以获得正确的尺寸、位置和颜色：
 
-@import "images/Pasted%20image%2020230807144526.png" {width="400px" title=""}
+![](images/Pasted%20image%2020230807144526.png)
 
 确定圆的大小、距离和颜色后，还需要添加符号。这比较耗时，因为必须手动绘制这些符号。
 
@@ -242,7 +224,7 @@ checkmark 是使用 `-fx-shape` 定义的 SVGPath。modena.css 中的定义：
 
 - 定义所需变量
 
-```java{.line-numbers}
+```java
 public class RegionControl extends Region {
 
     public enum Type { CLOSE, MINIMIZE, ZOOM }
@@ -287,7 +269,7 @@ public class RegionControl extends Region {
 
 - 构造函数
 
-```java{.line-numbers}
+```java
 public RegionControl() {
         this(Type.CLOSE);
 }
@@ -486,11 +468,11 @@ MacOS 按钮看起来要么有一个 inner-shadow，要么有一个比 fill 深�
 
 Normal state:
 
-@import "images/2023-08-14-10-42-47.png" {width="250px" title=""}
+<img src="images/2023-08-14-10-42-47.png" style="zoom: 50%;" />
 
 Hovered state:
 
-@import "images/2023-08-14-10-43-22.png" {width="250px" title=""}
+<img src="images/2023-08-14-10-43-22.png" style="zoom:50%;" />
 
 完整代码：
 
@@ -709,10 +691,6 @@ public class RegionControl extends Region {
 为了理解 Canvas 及其优点，可以参考 [JavaFX 的渲染机制](../scene/scene2_rendering_mode.md)。
 
 直接在 Canvas 上绘图渲染非常快，缺点是事件处理起来比较麻烦。因此，只有控件非常复杂，直接在 Scene graph 上构建需要大量 nodes，才推荐使用 Canvas.
-
-
-
-在 Canvas 上的
 
 ## 示例
 

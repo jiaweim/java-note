@@ -1,6 +1,6 @@
 # JavaFX Chart
 
-1. [[1_chart_intro|概述]]
-2. [[2_css|CSS]]
-3. [[3_piechart|PieChart]]
+1. [概述](./1_chart_intro.md)
+2. [CSS](./2_css.md)
+3. [PieChart](./3_piechart.md)
 4. 
