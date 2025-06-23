@@ -73,6 +73,7 @@ module java.module {
     opens mjw.jgrapht;
     opens mjw.guava;
     opens mjw.dflib;
+    opens mjw.commons.math;
     opens mjw.hamcrest.matcher;
     opens mjw.javafx.layout;
     opens mjw.javafx.canvas;

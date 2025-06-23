@@ -1,20 +1,8 @@
-- [Junit 5 快速入门](#junit-5-快速入门)
-  - [相对 Junit 4的改变](#相对-junit-4的改变)
-  - [语法](#语法)
-  - [命名](#命名)
-- [Writing Tests](#writing-tests)
-  - [断言](#断言)
-  - [重复测试](#重复测试)
-- [扩展模型](#扩展模型)
-  - [注册扩展](#注册扩展)
-- [Junit 5 新特性 - 基础篇](#junit-5-新特性---基础篇)
-  - [@DisplayName](#displayname)
-- [API 演变](#api-演变)
-  - [API 版本和状态](#api-版本和状态)
-- [Reference](#reference)
-
 # Junit 5 快速入门
 
+2025-06-23
+@author Jiawei Mao
+***
 ## 相对 Junit 4的改变
 ## 语法
 

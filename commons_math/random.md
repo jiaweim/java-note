@@ -107,8 +107,6 @@ double[] randomVector = generator.nextVector();
 
 - `randomData.nextPermutation(n, k)` 返回长度为 `k` 的 `int[]` 数组，其元素从整数 0 到 n-1 随机选择，没有重复。简而言之，`randomData.nextPermutation(n, k)` 返回一个从 n 取 k 个元素的随机排列。
 
-
-
 ## 参考
 
 - https://hipparchus.org/hipparchus-core/random.html
