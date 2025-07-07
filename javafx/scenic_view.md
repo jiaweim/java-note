@@ -1,12 +1,14 @@
 # Scenic View
 
-2023-08-03, 14:29
+2023-08-03⭐
+@author Jiawei Mao
 ****
 ## 简介
 
-Scenic View 是一个 JavaFX 应用，用于 debugging JavaFX 程序，查看 `Node` 属性和 scenegraph 的状态非常方便。
+Scenic View 是一个 JavaFX 应用，用于 debugging JavaFX 程序，查看 `Node` 属性和 scene-graph 状态。
 
-![](Pasted%20image%2020230803125108.png)
+![](images/Pasted%20image%2020230803125108.png)
+
 ## ScenicView 运行
 
 运行 Scenic View 有三种方法。

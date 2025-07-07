@@ -140,7 +140,7 @@ f(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{\frac{-(x-\mu)^2}{2\sigma^2}}
 $$
 其参数化扩展形式为：
 $$
-f(x)=aexp(-\frac{(x-b)^2}{2c^2})
+f(x)=a\exp(-\frac{(x-b)^2}{2c^2})
 $$
 关于 $a$ 的偏导为：
 $$

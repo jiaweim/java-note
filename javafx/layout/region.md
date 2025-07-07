@@ -1,11 +1,12 @@
 # Region
 
-2025-06-18
+2025-06-18⭐
 modify: 完善
 2023-08-10
 modify: 修改样式，完善内容
 2023-07-07, 14:01
 @author Jiawei Mao
+
 ****
 ## 1. 简介
 
@@ -17,7 +18,7 @@ modify: 修改样式，完善内容
 
 `Region` 不直接作为容器，如果想自定义 layout-pane，则建议扩展 `Pane` 类，`Pane` 也是 `Region` 的子类。
 
-![image-20250618185535046](./images/image-20250618185535046.png)
+<img src="./images/image-20250618185535046.png" width="500px"/>
 
 > [!IMPORTANT]
 >

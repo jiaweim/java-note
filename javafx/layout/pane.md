@@ -2,14 +2,14 @@
 
 2023-08-10, 09:06
 add: Region vs. Pane, Clipping
-2023-07-07, 14:57
+2023-07-07⭐
 @author Jiawei Mao
 ****
 ## 1. 简介
 
 `Pane` 是 `Region` 的子类，它公开了 `Parent` 的 `getChildren()` 方法。所以 `Pane` 及其子类可以添加子节点。
 
-@import "images/Pasted%20image%2020230707143803.png" {width="300px" title=""}
+<img src="images/Pasted%20image%2020230707143803.png" width="300px"/>
 
 `Pane` 为绝对位置布局，其特征为：
 
