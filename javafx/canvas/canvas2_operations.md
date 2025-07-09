@@ -1,20 +1,5 @@
 # Canvas 操作
 
-- [Canvas 操作](#canvas-操作)
-  - [1. 创建 Canvas](#1-创建-canvas)
-  - [2. 绘制操作](#2-绘制操作)
-    - [2.1. 基本形状](#21-基本形状)
-    - [2.2. 绘制文本](#22-绘制文本)
-    - [2.3. 绘制路径](#23-绘制路径)
-    - [2.4. 绘制图像](#24-绘制图像)
-    - [2.5. 绘制像素](#25-绘制像素)
-  - [3. 清除 canvas 区域](#3-清除-canvas-区域)
-  - [4. 保存和恢复 GraphicsContext 配置](#4-保存和恢复-graphicscontext-配置)
-  - [5. Canvas 示例](#5-canvas-示例)
-  - [6. GraphicsContext 详解](#6-graphicscontext-详解)
-  - [7. GraphicsContext attributes](#7-graphicscontext-attributes)
-  - [8. 方法属性对照表](#8-方法属性对照表)
-
 2023-07-13, 14:37
 添加 GraphicsContext 详解
 2023-06-12
@@ -102,13 +87,15 @@ gc.strokeText("Drawing Text", 10, 10);
 gc.strokeText("Drawing Text", 100, 10, 40);
 ```
 
-```ad-note
-Font Smoothing 属性只能用于 `fillText` 方法
-```
+> [!NOTE]
+>
+> Font Smoothing 属性只能用于 `fillText` 方法
 
 ### 2.3. 绘制路径
 
-可以使用 path 命令和 SVG 路径字符串创建任意形状。一条路径由多条子路径组成。`GraphicsContext` 包含如下绘制路径的方法：
+可以使用 path 命令和 SVG 路径字符串创建任意形状。一条路径由多条子路径组成。
+
+`GraphicsContext` 包含如下绘制路径的方法：
 
 - `beginPath()`
 - `lineTo(double x1, double y1)`
@@ -122,7 +109,11 @@ Font Smoothing 属性只能用于 `fillText` 方法
 - `stroke()`
 - `fill()`
 
-`beginPath()` 和 `closePath()` 开始和关闭路径。`stroke()` 和 `fill()` 则确定是绘制轮廓还是填充，在最后调用。例如，绘制一个三角形：
+`beginPath()` 和 `closePath()` 开始和关闭路径。
+
+`stroke()` 和 `fill()` 则确定是绘制轮廓还是填充，在**最后调用**。
+
+例如，绘制一个三角形：
 
 ```java
 Canvas canvas = new Canvas(200, 50);
@@ -189,12 +180,12 @@ gc.clearRect(0, 0, 100, 100);
 
 ## 4. 保存和恢复 GraphicsContext 配置
 
-`GraphicsContext` 的当前配置用于随后所有的绘制操作。例如，如果设置 `linewidth=5px`，则随后绘制的线条宽度都是 5px。
+`GraphicsContext` 的当前配置用于随后所有绘制操作。例如，如果设置 `linewidth=5px`，则随后绘制的线条宽度都是 5px。
 
 有时候，我们需要暂时修改 `GraphicsContext` 的配置，执行某些操作后，再恢复原来的配置：
 
 - `save()` 方法用于保存当前配置
-- `restore()`用于将配置恢复到之前保存的状态
+- `restore()`将配置恢复到之前保存的状态
 
 例如，你需要按顺序执行如下操作：
 
@@ -216,9 +207,9 @@ gc.strokeRect(120, 10, 50, 20);
 
 由于没有将 `GraphicsContext` 配置复原，第二个矩形也有镜像特效。
 
-为了解决该问题，可以在绘制文本后将 `Effect` 设置为 `null`。但是，如果你需要修改多个属性，手动复原就比较麻烦；如果你收到的是 GraphicsContext 的引用，更是不知道之前的状态。这种手动设置的方法不实用。
+为了解决该问题，可以在绘制文本后将 `Effect` 设置为 `null`。但是，如果你需要修改多个属性，手动复原就比较麻烦；如果你收到的是 `GraphicsContext` 的引用，更是不知道之前的状态。这种手动设置方法不实用。
 
-`save()` 将 `GraphicsContext` 的当前状态保存在堆栈中，`restore()` 将 `GraphicsContext` 恢复上上次保存的状态。
+`save()` 将 `GraphicsContext` 的当前状态保存在堆栈中，`restore()` 将 `GraphicsContext` 恢复到上次保存的状态。
 
 正确实现上述功能：
 
@@ -355,7 +346,7 @@ public class CanvasTest extends Application {
 
 ```
 
-![[Pasted image 20230612095146.png]]
+<img src="images/Pasted image 20230612095146.png" style="zoom:67%;" />
 
 ## 6. GraphicsContext 详解
 
