@@ -1,14 +1,20 @@
 # ComboBox
 
-2023-08-01, 09:27
+2025-07-16⭐
+add class UML
+2023-08-01⭐
 modify: cellFactory
-2023-07-24, 11:02
+2023-07-24
+@author Jiawei Mao
+
 ***
 ## 1. 简介
 
-`ComboBox` 提供列表选项，可以看作 `ChoiceBox` 的升级版，高度可定制，且可编辑。
+`ComboBox` 通过下拉列表提供选项，可以看作 `ChoiceBox` 的升级版，高度可定制，可编辑。
 
 `ComboBox` 继承自 `ComboBoxBase`，`ComboBoxBase` 为类似 `ComboBox` 的控件提供通用功能，如 `ColorPicker` 和 `DatePicker`。如果需要自定义弹出列表控件，可以从继承 `ComboBoxBase` 开始。
+
+<img src="./images/image-20250716103414835.png" width="450px" />
 
 `ComboBox` 的列表可以包含任何类型的对象，`ComboBox` 是一个参数化类。参数类型为列表项的类型。
 
@@ -44,36 +50,29 @@ seasons.getItems().addAll("Spring", "Summer", "Fall", "Winter");
 
 ### 1.2. selectionModel
 
-和 `ChoiceBox` 一样，`ComboBox` 需要记录选择元素及其元素，`ComboBox` 使用 `SingleSelectionModel` 类实现该功能，`selectionModel` 属性存储该对象的引用。通过 selectionModel 可以从元素列表中选择指定元素，可以为选择元素添加 `ChangeListener`。
+和 `ChoiceBox` 一样，`ComboBox` 需要记录选择的元素及其索引，`ComboBox` 使用 `SingleSelectionModel` 类实现该功能，`selectionModel` 属性存储该对象的引用。通过 `selectionModel` 可以选择列表中指定元素，也可以添加 `ChangeListener` 跟踪选择的元素。
 
-与 `ChoiceBox` 不同，`ComboBox` 是可编辑的。其 `editable` 属性指定是否启用编辑功能，默认不启用。当 `ComboBox` 处于可编辑状态，使用 `TextField` 显示选择元素及输入项。
-
-`ComboBox` 的 editor 属性存储 TextField 的引用，当 ComboBox 不可编辑时 editor 属性为 null。例如：
+与 `ChoiceBox` 不同的是，`ComboBox` 是可编辑的。其 `editable` 属性指定是否启用编辑功能，默认不启用。当 `ComboBox` 处于可编辑状态，使用 `TextField` 显示选择的元素及输入项。`ComboBox` 的 `editor` 属性存储 `TextField` 的引用，当 `ComboBox` 不可编辑时 `editor` 属性为 `null`。例如：
 
 ```java
 ComboBox<String> breakfasts = new ComboBox<>();
-
-// Add some items to choose from
 breakfasts.getItems().addAll("Apple", "Banana", "Strawberry");
-
-// By making the control editable, let users enter an item
 breakfasts.setEditable(true);
 ```
 
-
-ComboBox 的 value 属性存储当前选择元素或输入值。在 editable `ComboBox` 中，用户输入的 `String` 值被转换为 `T` 类型。如果输入的不是 String 类型，就需要 `StringConverter<T>` 将 String 值转换为 T 类型。
+`ComboBox` 的 `value` 属性存储当前选择的元素或输入值。在可编辑 `ComboBox` 中，用户输入的 `String` 值被转换为 `T` 类型。如果 `ComboBox` 的元素类型不是 `String` 类型，就需要 `StringConverter<T>` 将 `String` 值转换为 T 类型。
 
 ### 1.3. 提示文本
 
-editable ComboBox 可以设置提示文本。提示文本存储在 promptText 属性，为 StringProperty 类型：
+可编辑 `ComboBox` 可以设置提示文本，当控件处于可编辑状态，未获得焦点，且 `value` 属性值为 `null` 时，会显示该文本。提示文本存储在 `promptText` 属性，为 `StringProperty` 类型，设置方法：
 
 ```java
-breakfasts.setPromptText("Select/Enter an item"); // Set a prompt text
+breakfasts.setPromptText("Select/Enter an item");
 ```
 
 ### 1.4. placeholder
 
-ComboBox 的 placeholder 属性存储 Node 引用，当元素 list 为空或 null，在 pop-up area 显示该 Node。
+`ComboBox` 的 `placeholder` 属性存储 `Node` 引用，当元素 list 为空或 null，在弹出列表区域显示该 `Node`。下面将一个 `Label` 设置为占位符：
 
 ```java
 Label placeHolder = new Label("List is empty.\nPlease enter an item");
@@ -82,7 +81,7 @@ breakfasts.setPlaceholder(placeHolder);
 
 ### 1.5. 示例
 
-创建 2 个 ComboBox：seasons 和 breakfast。
+创建 2 个 `ComboBox`：seasons 和 breakfast。
 
 - seasons 不能编辑
 - breakfasts 可编辑
@@ -142,15 +141,15 @@ public class ComboBoxTest extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230724093806.png)
+<img src="images/Pasted%20image%2020230724093806.png" width="500" />
 
 ## 2. 监听所选元素
 
-对不可编辑 ComboBox，为 selectionModel 的 selectedIndex 或 selectedItem 属性添加 ChangeListener 即可监听所选元素。
+对不可编辑 `ComboBox`，为 `selectionModel` 的 `selectedIndex` 或 `selectedItem` 属性添加 `ChangeListener` 即可监听所选元素，与 `ChoiceBox` 相同。
 
-对 editable ComboBox，依然可以为 selectedItem 属性添加 ChangeListener 监听所选元素。在输入新值时，selectedIndex 属性不变，不适合用来监听。
+对可编辑 `ComboBox`，只能为 `selectedItem` 属性添加 `ChangeListener` 监听所选元素。在输入新值时，`selectedIndex` 属性不会发生变化，不适合用来监听。
 
-当 ComboBox 的值发生变化，如通过代码设置、从元素列表选择、输入新的值，可以为值的变化添加 ActionEvent handler:
+如果在 `ComboBox` 的值发生变化（如通过代码设置、从元素列表选择、输入新的值）时执行某种操作，，可以为值的变化添加 `ActionEvent` handler:
 
 ```java
 ComboBox<String> list = new ComboBox<>();
@@ -159,13 +158,18 @@ list.setOnAction(e -> System.out.println("Value changed"));
 
 ## 3. 自定义类型
 
-当 `ComboBox<T>` 的类型 T 不是 String 类型，需要设置 converter 属性。
+当 `ComboBox<T>` 的类型 `T` 不是 `String` 类型，需要设置 `converter` 属性。
 
-converter 属性为 `StringConverter<T>` 类型，其 `toString(T object)` 将元素 `object` 转换为字符串，在弹窗列表中显示；其 `fromString(String s)` 将输入的字符串 `s` 转换为 T 类型。
+`converter` 属性为 `StringConverter<T>` 类型:
 
-当输入的字符串被成功转换为 T 类型，`value` 属性更新，如果转换失败，value 属性不更新。
+- 其 `toString(T object)` 方法将元素 `object` 转换为字符串，便于在弹窗列表中显示
+- 其 `fromString(String s)` 将输入的字符串 `s` 转换为 `T` 类型
 
-**示例：** 在 ComboBox 中使用 converter
+当输入的字符串被成功转换为 `T` 类型，`value` 属性更新；如果转换失败，`value` 属性不更新。
+
+**示例：** 在 `ComboBox` 中使用 `converter`
+
+`Person` 为自定义类型，`PersonStringConverter` 执行转换操作。
 
 ```java
 import javafx.application.Application;
@@ -204,7 +208,7 @@ public class ComboBoxWithConverter extends Application {
         persons.getSelectionModel().selectedIndexProperty()
                 .addListener(this::indexChanged);
 
-        // 为 value 变化添加监听器
+        // 为 value 变化添加监听器，执行 action
         persons.setOnAction(e -> valueChanged(persons));
 
         GridPane root = new GridPane();
@@ -246,21 +250,21 @@ public class ComboBoxWithConverter extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230724095147.png)
+<img src="images/Pasted%20image%2020230724095147.png" width="400" />
 
 ## 4. 自定义弹窗列表高度
 
-ComboBox 在弹窗列表中默认显示前 10 个元素：
+`ComboBox` 在弹窗列表中默认显示前 10 个元素：
 
 - 当元素超过 10 个，弹窗列表会显示一个滚动条
 - 当元素少于 10 个，缩短弹窗列表高度
 
-ComboBox 的 visibleRowCount 属性设置弹窗列表可见的行数：
+`ComboBox` 的 `visibleRowCount` 属性设置弹窗列表可见的行数：
 
 ```java
 ComboBox<String> states = new ComboBox<>();
 ...
-// Show five rows in the popup list
+// 弹窗列表显示 5 行
 states.setVisibleRowCount(5);
 ```
 
@@ -268,24 +272,24 @@ states.setVisibleRowCount(5);
 
 `ComboBox` 有两个区域：
 
-- button 区域显示选择的元素
-- pop-up 区域显示元素列表
+- button-area 显示选择的元素
+- pop-up-area 显示元素列表
 
-两个区域都使用 `ListCell` 显示元素。`ListCell` 为 `Labeled` 子类，类图如下：
+两个区域都使用 `ListCell` 显示元素。`ListCell` 为 `Labeled` 子类，而 `Labeled` 控件支持 text 和 graphic。类图如下：
 
-![](Pasted%20image%2020230724100319.png)
+<img src="images/Pasted%20image%2020230724100319.png" width="750" />
 
 pop-up 区域为 `ListView`，每个元素以 `ListCell` 显示。
 
-`ComboBox` 的元素可以为任意类型，包括 `Node`。但是不建议直接将 `Node` 添加到 items 列表。将 `Node` 作为 items 时，它们会作为 graphics 添加到 cells。Scene graph 要求一个 node 不能在两个地方同时显示，即一个 node 一次只能在一个容器中。在 item list 中选择一个 node，该 node 从 `ListView` pop-up 中移除，添加到 button 区域。再次点开 pop-up `ListView`，被选择的 node 不显示，因为它已经在 button 区域中。所以为了避免这种情况，不要将 nodes 直接作为 `ComboBox` 的元素。
+`ComboBox` 的元素可以是任意类型，包括 `Node`。但是不建议直接将 `Node` 添加到 items 列表。将 `Node` 作为 items 时，它们会作为 graphics 添加到 cells。Scene graph 要求一个 node 不能在两个地方同时显示，即一个 node 一次只能在一个容器中。在 item list 中选择一个 node，该 node 从 `ListView` pop-up 移除，添加到 button 区域。再次点开 pop-up `ListView`，被选择的 node 不显示，因为它已经在 button 区域中。所以为了避免这种情况，**不要将 nodes 直接**作为 `ComboBox` 的元素。
 
-**示例：** Node 作为元素
+**示例：** `Node` 作为元素
 
-将 3 个 HBox 添加到 ComboBox：
+将 3 个 `HBox` 添加到 `ComboBox`：
 
 - #1 是第一次点开 pop-up 时的视图，三个元素正常显示
-- #2 是选择第二个元素后的视图，在 button 区域可以看到正常显示的元素
-- #3 是再次点开 pop-up 的视图，此时第二个元素从 ListView 移到 button 区域，在 ListView 中无法正常显示
+- #2 是选择第二个元素后的视图，在 button 区域可以看到正常显示的元素，此时 list 的第二个元素已经从 `ListView` 中移出，添加到了 button 区域
+- #3 是再次点开 pop-up 的视图，由于第二个元素从 `ListView` 移到 button 区域，在 `ListView` 中缺失
 
 ```java
 Label shapeLbl = new Label("Shape:");
@@ -295,9 +299,12 @@ shapes.getItems().addAll(new HBox(new Line(0, 10, 20, 10), new Label("Line")),
                          new HBox(new Circle(20, 20, 10), new Label("Circle")));
 ```
 
-![|400](Pasted%20image%2020230724102143.png)
+<img src="images/Pasted%20image%2020230724102143.png" width="400" />
 
-如果确实需要自定义列表元素的显示样式，可以通过 CellFactory 实现。
+如果需要自定义列表元素的显示样式，可以通过 `CellFactory` 实现：
+
+- 将正常非 node 元素添加到 list
+- 提供一个 cell-factory 创建合适的 node 显示元素值
 
 ## 6. CellFactory
 
@@ -317,9 +324,9 @@ public interface Callback<P,R> {
 
 `ComboBox` 的 `cellFactory` 属性定义的 Callback，参数类型为 `ListView<T>`，返回类型为 `ListCell<T>`。在 `call()` 方法中需要创建 `ListCell<T>` 并覆盖 `ListCell` 的 `updateItem(T item, boolean empty)` 方法。
 
-```ad-summary
-`cellFactory` 的使用要点是在 `Callback` 的 `updateItem()` 方法中设置 `ListCell` 的 `text` 和 `graphic`（可选）。记得调用 super 方法。
-```
+> [!TIP]
+>
+> `cellFactory` 的使用要点是在 `Callback` 的 `updateItem()` 方法中设置 `ListCell` 的 `text` 和 `graphic`（可选）。记得调用 super 方法。
 
 **示例：** cellFactory
 
@@ -402,7 +409,6 @@ shapes.setCellFactory(new ShapeCellFactory());
 `cellFactory` 解决了在 pop-up 区域的显示问题，还需要设置在 button 区域的显示和编辑问题。即设置 buttonCell 属性：
 
 ```java
-// Set the buttonCell property
 shapes.setButtonCell(new StringShapeCell());
 ```
 
@@ -430,8 +436,6 @@ public class ComboBoxCellFactory extends Application {
 
         // Set the cellFactory property
         shapes.setCellFactory(new ShapeCellFactory());
-
-        // Set the buttonCell property
         shapes.setButtonCell(new StringShapeCell());
 
         HBox root = new HBox(shapeLbl, shapes);
@@ -450,7 +454,7 @@ public class ComboBoxCellFactory extends Application {
 }
 ```
 
-![|400](Pasted%20image%2020230724104723.png)
+<img src="images/Pasted%20image%2020230724104723.png" width="400" />
 
 在 `ComboBox` 中使用自定义 `cellFactory` 和 `buttonCell` 可以完整控制 pop-up 列表和选择元素。
 
@@ -463,13 +467,13 @@ public class ComboBoxCellFactory extends Application {
 - `onHiding`
 - `onHidden`
 
-这些属性均为 `ObjectProperty<EventHandler<Event>>` 类型，可以添加 event handler，分别在弹窗显示时前、显示后、隐藏前、隐藏后被调用。例如，添加 `onShowing` event handler 可用于定义 pop-up 的样式。
+这些属性均为 `ObjectProperty<EventHandler<Event>>` 类型，可以添加 event-handler，分别在弹窗显示时前、显示后、隐藏前、隐藏后被调用。例如，添加 `onShowing` event handler 可用于定义 pop-up 的样式。
 
 ## 7. CSS
 
-ComboBox 的 CSS style class name 默认为 combo-box。ComboBox 包含多个 CSS 子结构，如下图所示：
+`ComboBox` 的 CSS style class name 默认为 `combo-box`。`ComboBox` 包含多个 CSS 子结构，如下图所示：
 
-![|400](Pasted%20image%2020230724105401.png)
+<img src="images/Pasted%20image%2020230724105401.png" width="400" />
 
 这些子结构的  CSS 名称分别为：
 

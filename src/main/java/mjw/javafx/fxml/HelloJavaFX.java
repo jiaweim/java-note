@@ -1,4 +1,3 @@
-// HelloJavaFX.java
 package mjw.javafx.fxml;
 
 import javafx.application.Application;

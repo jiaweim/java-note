@@ -1,23 +1,28 @@
 # Accordion
 
-2023-07-24, 23:02
+2025-07-14 update
+2023-07-24⭐
+@author Jiawei Mao
+
 ****
 ## 1. 简介
 
-`Accordion` 是一个简单的控件。它显示一组 [TitledPane](control16_titledpane.md) 控件，只有一个 TitledPane 处于展开状态。
+`Accordion` 是一个简单的控件。它显示一组 [TitledPane](control16_titledpane.md) 控件，每次只有一个 `TitledPane` 处于展开状态。
 
-下图的 `Accordion` 包含 3 个 TitledPane，其中 General TitledPane 展开，Address 和 Phone TitledPanes 折叠。
+下图的 `Accordion` 包含 3 个 `TitledPane`，其中 General `TitledPane` 展开，Address 和 Phone TitledPanes 折叠。
 
-![|300](Pasted%20image%2020230724224533.png)
+<img src="images/Pasted%20image%2020230724224533.png" width="300" />
 
-Accordion 只有一个无参构造函数：
+`Accordion` 有两个构造函数：
 
 ```java
-// Create an Accordian
+// 创建空 Accordion
 Accordion root = new Accordion();
+// 指定包含的 TitledPane
+Accordion(TitledPane... titledPanes)
 ```
 
-Accordion 将 TitledPane list 存储在 `ObservableList<TitledPane>`，调用 `getPanes()` 返回该 list。通过该 list 添加和删除 TitledPane：
+`Accordion` 将 `TitledPane` 存储在 `ObservableList<TitledPane>`，调用 `getPanes()` 返回该 list。通过该 list 添加和删除 `TitledPane`：
 
 ```java
 TitledPane generalPane = new TitledPane();
@@ -28,9 +33,11 @@ Accordion root = new Accordion();
 root.getPanes().addAll(generalPane, addressPane, phonePane);
 ```
 
-Accordion 包含一个 `expandedPane` 属性，存储当前展开 TitledPane 的引用。Accordion 默认以折叠状态显示所有 TitledPane，此时 expandedPane 属性值为 null。
 
-点击 TitledPane 的标题栏或使用 setExpandedPane() 方法展开 TitledPane。为 expandedPane 属性添加 ChangeListener 可监听展开的 TitledPane。
+
+`Accordion` 包含一个 `expandedPane` 属性，存储当前展开 `TitledPane` 的引用。`Accordion` 默认以折叠状态显示所有 `TitledPane`，此时 `expandedPane` 属性值为 null。
+
+点击 `TitledPane` 的标题栏或使用 `setExpandedPane()` 方法展开 `TitledPane`。为 `expandedPane` 属性添加 `ChangeListener` 可监听展开的 `TitledPane`。
 
 **示例：** Accordion
 
@@ -102,17 +109,17 @@ public class AccordionTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230724225737.png)
+<img src="images/Pasted%20image%2020230724225737.png" width="350" />
 
 ## 2. CSS
 
-Accordion 的 CSS 样式类名默认为 accordion。
+`Accordion` 的 CSS 样式类名默认为 `accordion`。
 
-Accordion 没有添加额外的 CSS 属性。
+`Accordion` 没有添加额外的 CSS 属性。
 
-Accordion  包含一个 first-titled-pane 子结构，表示第一个 TitledPane。
+`Accordion`  包含一个 first-titled-pane 子结构，表示第一个 `TitledPane`。
 
-下面的样式为所有 TitlePane 设置 background 和标题栏的 insets：
+下面的样式为所有 `TitlePane` 设置 background 和标题栏的 insets：
 
 ```css
 .accordion > .titled-pane > .title {
@@ -121,7 +128,7 @@ Accordion  包含一个 first-titled-pane 子结构，表示第一个 TitledPane
 }
 ```
 
-下面设置 Accordion 的第一个 TitledPane 标题栏的 background：
+下面设置 `Accordion` 的第一个 `TitledPane` 标题栏的 background：
 
 ```css
 .accordion > .first-titled-pane > .title {

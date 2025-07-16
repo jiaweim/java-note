@@ -58,13 +58,14 @@
     - [Snapping](layout/layout15_snapping.md)
 - [MVC](mvc/mvc1_intro.md)
     - [MVC 示例](mvc/mvc2_example.md)
-- [Control](controls/control.md)
-    - [Labeled](controls/control2_labeled.md)
+- [组件](controls/1_control.md)
+    - [Labeled](controls/labeled.md)
     - [Label](controls/control3_label.md)
     - [Buttons](controls/control4_buttons.md)
     - [List Controls](controls/control5_list.md)
     - [ChoiceBox](controls/control6_choicebox.md)
-    - [ComboBox](controls/control7_combobox.md)
+    - [ComboBox](controls/combobox.md)
+    - [Spinner](./controls/Spinner.md)
     - [ListView](controls/control8_listview.md)
     - [ColorPicker](controls/control9_colorpicker.md)
     - [DatePicker](controls/control10_datepicker.md)
@@ -73,8 +74,8 @@
     - [PasswordField](controls/control13_passwordfield.md)
     - [TextArea](controls/control14_textarea.md)
     - [任务进度](controls/control15_progress.md)
-    - [TitledPane](controls/control16_titledpane.md)
-    - [Accordion](controls/control17_accordion.md)
+    - [TitledPane](controls/16_titledpane.md)
+    - [Accordion](controls/17_accordion.md)
     - [Pagination](controls/control18_pagination.md)
     - [Tooltip](controls/control19_tooltip.md)
     - [Scrolling](controls/control20_scrolling.md)
@@ -140,7 +141,6 @@
 - [组件](8.controls.md)
   - [Chooser](chooser.md)
   - [TableView](tableview.md)
-  - [Spinner](spinner.md)
   - [TabPane](11_tabpane.md)
 - [Transformation](11.transformation.md)
 
@@ -148,7 +148,6 @@
 
 - JavaFX [下载地址](https://gluonhq.com/products/javafx/)
 - [Scenic View](./scenic_view.md)
-
 
 ### DataFX
 

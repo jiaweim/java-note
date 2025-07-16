@@ -1,4 +1,3 @@
-// MnemonicTest.java
 package mjw.javafx.controls;
 
 import javafx.application.Application;

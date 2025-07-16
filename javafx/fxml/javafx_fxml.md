@@ -1,14 +1,15 @@
 # FXML
 
+2025-07-14 update
 2023-07-12⭐
 @author Jiawei Mao
 ***
 
 ## FXML 概述
 
-FXML 是基于 FXML 的标记语言，用于构建 JavaFX 界面。使用 FXML 构建界面，可以将 UI 构建从软件逻辑中分离出来。如果要修改 UI，不需要重新编译 JavaFX 代码，只需修改 FXML 文件。
+FXML 是基于 FXML 的标记语言，用于构建 JavaFX 界面。使用 FXML 构建界面，可以将 UI 构建从业务逻辑中分离出来。如果要修改 UI，不需要重新编译 JavaFX 代码，只需修改 FXML 文件。
 
-JavaFX scene graph 是 Java 对象的树形结构，和 XML 格式完美契合。除了构建 scene graph，FXML 还可以创建 Java 对象。
+JavaFX scene-graph 是 Java 对象的树形结构，和 XML 格式完美契合。除了构建 scene-graph，FXML 还可以创建 Java 对象。
 
 现在构建一个`VBox`，包含 `Label` 和 `Button`，使用代码构建的方式如下：
 
@@ -37,13 +38,13 @@ root.getChildren().addAll(new Label("FXML is cool"), new Button("Say Hello"));
 </VBox>
 ```
 
-第一行是标准 XML 声明，由 XML 解析器使用，为可选项。没有指定时，默认为 1 和 UTF-8.
+第一行是标准 XML 声明，由 XML 解析器使用，为**可选项**。没有指定时，默认为 1 和 UTF-8.
 
-下面 3 行与 Java 中的 import 语句功能一样。UI 元素名称，如 VBox, Label 和 Button 和 JavaFX 类名一样。`<children>` tag 指定 VBox 的 children。
+下面 3 行与 Java 中的 import 语句功能一样。UI 元素名称，如 `VBox`, `Label` 和 `Button` 和 JavaFX 类名一样。`<children>` tag 指定 `VBox` 的 `children`。
 
-### 2. Scene Builder
+## Scene Builder
 
-FXML 文件后缀为 `.fxml`，是纯文本文件，所以可以直接编辑。但是，当 XML 变大，直接用文本编辑器编辑很麻烦。
+FXML 文件后缀为 `.fxml`，是纯文本文件，可以直接编辑。但是，当文件较大，直接用文本编辑器编辑很麻烦。
 
 Gluon 公司提供了一个可视化编辑器 SceneBuilder，基于FXML构建 JavaFX 界面，下载链接：
 
@@ -51,9 +52,9 @@ Gluon 公司提供了一个可视化编辑器 SceneBuilder，基于FXML构建 Ja
 
 ## FXML 基础
 
-下面通过构建一个简单的 JavaFX 应用来介绍 FXML 基础。
+下面通过构建一个简单的 JavaFX 应用来介绍 FXML 基础知识。
 
-UI 包含一个 VBox，一个 Label，一个 Button。VBox 的 spacing=10px。Label 的 text 为 "FXML is cool!"，Button 的 text 为 "Say Hello"。点击 Button，Label 的 text 变为 "Hello from FXML!"。
+UI 包含一个 `VBox`，一个 `Label`，一个 `Button`。`VBox` 的 `spacing=10px`。`Label` 的 `text` 为 "FXML is cool!"，`Button` 的 `text` 为 "Say Hello"。点击 `Button`，`Label` 的 `text` 变为 "Hello from FXML!"。
 
 代码实现：
 
@@ -105,19 +106,19 @@ public class HelloJavaFX extends Application {
 
 初始界面：
 
-![|200](images/Pasted%20image%2020230712130606.png)
+<img src="images/Pasted%20image%2020230712130606.png" width="250" />
 
 点击 Button 后的界面：
 
-![|200](images/Pasted%20image%2020230712130621.png)
+<img src="images/Pasted%20image%2020230712130621.png" width="250" />
 
-### 2. 创建 FXML 文件
+### 1. 创建 FXML 文件
 
 创建 `sayhello.fxml` 文件，将文件保存到 `resources/fxml` 目录。
 
-### 3. 添加 UI 元素
+### 2. 添加 UI 元素
 
-FXML 文件的 root 元素是 scene graph 的 root 容器，这里为 VBox，所以 FXML 的 root 元素为：
+FXML 文件的 root 元素是 scene-graph 的 root 容器，这里为 `VBox`，所以 FXML 的 root 元素为：
 
 ```xml
 <VBox>
@@ -130,14 +131,14 @@ FXML 文件的 root 元素是 scene graph 的 root 容器，这里为 VBox，所
 <?import javafx.scene.layout.VBox?>
 ```
 
-要么使用 VBox 的完全限定名称：
+要么使用 `VBox` 的完全限定名称：
 
 ```xml
 <javafx.scene.layout.VBox>
 </javafx.scene.layout.VBox>
 ```
 
-为 VBox 添加 children:
+为 `VBox` 添加 `children`:
 
 ```xml
 <VBox>
@@ -146,9 +147,9 @@ FXML 文件的 root 元素是 scene graph 的 root 容器，这里为 VBox，所
 </VBox>
 ```
 
-这样就定义好了 scene graph 的基本框架。
+这样就定义好了 scene-graph 的基本框架。
 
-VBox 的 children 从技术上归属于 `children` 树形，不直接属于 VBox。所以上面的 FXML 还可以写成：
+`VBox` 的 children 从技术上将归属于 `children` 属性，不直接属于 `VBox`。所以上面的 FXML 还可以写为：
 
 ```xml
 <VBox>
@@ -159,22 +160,22 @@ VBox 的 children 从技术上归属于 `children` 树形，不直接属于 VBox
 </VBox>
 ```
 
-那么，我们如何直到是否可以忽略 `<children>` tag？`javafx.beans` 包中有一个 `DefaultProperty` annotation 用于注释 class。该 annotation 有一个 String 类型的值，指定被注释类在 FXML 中的默认属性。
+那么，我们如何知道是否可以忽略 `<children>` tag？`javafx.beans` 包中有一个 `DefaultProperty` annotation 用于注释 class。该 annotation 有一个 `String` 类型的值，指定被注释类在 FXML 中的**默认属性**。
 
-如果 FXML 中某个 child 元素不属于其 parent 元素的属性，那么必然属于 parent 默认属性的 child 元素。VBox 继承 Pane，Pane 的声明如下：
+如果 FXML 中某个 child 元素不属于其 parent 元素的属性，则该属性属于 parent 默认属性的 child 元素。`VBox` 继承 `Pane`，`Pane` 的声明如下：
 
 ```java
 @DefaultProperty(value="children")
 public class Pane extends Region {...}
 ```
 
-该注释使 `children` 属性成为  `Pane` 在 FXML 中的默认属性。VBox 从 Pane 继承了该注释。所以在上面的 FXML 中可以忽略 `<children>` tag，
+该注释使 `children` 属性成为  `Pane` 在 FXML 中的默认属性。`VBox` 从 `Pane` 继承了该注释。所以在上面的 FXML 中可以忽略 `<children>` tag。
 
-### 4. 在 FXML 中导入 Java 类型
+### 3. 在 FXML 中导入 Java 类型
 
-为了在 FXML 中使用 Java 类的简单名称，必须和 Java 一样导入类。另外，在 Java 中可以不导入 java.lang 包，在 FXML 中任何类都需要导入。
+为了在 FXML 中使用 Java 类的简单名称，必须和 Java 一样导入类。另外，在 Java 中可以不导入 `java.lang` 包，在 FXML 中任何类都需要导入。
 
-下面导入 VBox, Label 和 Button 类：
+下面导入 `VBox`, `Label` 和 `Button` 类：
 
 ```xml
 <?import javafx.scene.layout.VBox?>
@@ -182,7 +183,7 @@ public class Pane extends Region {...}
 <?import javafx.scene.control.Button?>
 ```
 
-下面导入 `javafx.scene.control` 和 java.lang 中的所有类：
+下面导入 `javafx.scene.control` 和 `java.lang` 中的所有类：
 
 ```xml
 <?import javafx.scene.control.*?>
@@ -191,7 +192,7 @@ public class Pane extends Region {...}
 
 FXML 不支持静态导入，末尾不需要分号。
 
-### 5. 在 FXML 中设置属性
+### 4. 在 FXML 中设置属性
 
 属性声明符合 JavaBean 约定的对象，可以在 FXML 中设置属性值。设置方式有两种：
 
@@ -200,13 +201,13 @@ FXML 不支持静态导入，末尾不需要分号。
 
 property 元素的 attribute 名称和属性名称一样。
 
-使用 attribute 设置 Label 的 `text` property：
+- 使用 attribute 设置 `Label` 的 `text` 属性
 
 ```xml
 <Label text="FXML is cool!"/>
 ```
 
-使用 property 元素设置 Label 的 text property:
+- 使用 property 元素设置 `Label` 的 `text` 属性
 
 ```xml
 <Label>
@@ -214,15 +215,15 @@ property 元素的 attribute 名称和属性名称一样。
 </Label>
 ```
 
-创建 Rectangle，使用 attributes 设置 x, y, width, height 和 fill 属性：
+示例：创建 `Rectangle`，使用 attributes 设置 x, y, width, height 和 fill 属性：
 
 ```xml
 <Rectangle x="10" y="10" width="100" height="40" fill="red"/>
 ```
 
-FXML 中所有 attributes 都是 String 类型。JavaFX 在解析 FXML 时会自动将 String 转换为所需类型。如，上面的 fill 属性值 "red" 被转换为 Color 对象，width 属性值 "100" 被转换为 double 值。
+FXML 中所有 attributes 都是 `String` 类型。JavaFX 在解析 FXML 时会自动将 `String` 转换为所需类型。如，上面的 `fill` 属性值 "red" 被转换为 `Color` 对象，`width` 属性值 "100" 被转换为 `double` 值。
 
-使用 property 元素设置对象属性更灵活。可以从 String 自动转换为所需类型时使用 attributes。假设你要将 Person 类设置为对象的属性值，可以使用 property 元素实现：
+使用 property 元素设置对象属性更灵活。可以从 `String` 自动转换为所需类型时使用 attributes。不能自动转换的，例如将 `Person` 类设置为对象的属性值，可以使用 property 元素实现：
 
 ```xml
 <MyCls>
@@ -234,12 +235,12 @@ FXML 中所有 attributes 都是 String 类型。JavaFX 在解析 FXML 时会自
 </MyCls>
 ```
 
-read-only property 只有 getter。在 FXML 中有两种特殊的 read-only properties 可以使用 property 元素设置：
+read-only property 指只有 getter 但没有 setter 函数的属性。在 FXML 中有两种特殊的 read-only properties 可以使用 property 元素设置：
 
-- read-only List property
-- read-only Map property
+- read-only `List` property
+- read-only `Map` property
 
-例如，设置 VBox 的 read-only children property:
+例如，设置 `VBox` 的 read-only `children` property:
 
 ```xml
 <VBox>
@@ -250,7 +251,7 @@ read-only property 只有 getter。在 FXML 中有两种特殊的 read-only prop
 </VBox>
 ```
 
-下面定义了一个 Item 类，包含一个 read-only map property:
+下面定义了一个 `Item` 类，包含一个 read-only map property:
 
 ```java
 public class Item {
@@ -269,9 +270,9 @@ public class Item {
 </Item>
 ```
 
-#### 5.1. static property
+#### 4.1 static property
 
-static property 不在对象的类上声明，而是用另一个类的静态方法设置。如，在 VBox 中设置 Button 的 margin，JavaFX 代码如下：
+静态 property 不在对象的类上声明，而是用另一个类的静态方法设置。如，在 `VBox` 中设置 `Button` 的 `margin`，JavaFX 代码如下：
 
 ```java
 Button btn = new Button("OK");
@@ -296,9 +297,9 @@ VBox vbox = new VBox(btn);
 </VBox>
 ```
 
-因为不能直接从 String 创建 Insets，所以不能使用 attribute 设置 margin property。
+因为不能直接从 `String` 创建 Insets，所以不能使用 attribute 设置 margin property。
 
-在 FXML 中设置 GridPane 的 rowIndex 和 columnIndex 的方法：
+在 FXML 中设置 `GridPane` 的 rowIndex 和 columnIndex 静态属性的方法：
 
 ```xml
 <?import javafx.scene.layout.GridPane?>
@@ -312,7 +313,7 @@ VBox vbox = new VBox(btn);
 </GridPane>
 ```
 
-因为 rowIndex 和 columnIndex properties 可以用 String 表示，所以可以用 attributes 设置：
+因为 `rowIndex` 和 `columnIndex` properties 可以用 `String` 表示，所以可以用 attributes 设置：
 
 ```xml
 <GridPane>
@@ -320,7 +321,7 @@ VBox vbox = new VBox(btn);
 </GridPane>
 ```
 
-### 6. FXML 命名空间
+### 5. FXML 命名空间
 
 FXML 没有 XML schema，而是使用前缀 "fx" 指定命名空间，如：
 
@@ -342,30 +343,32 @@ FXML 版本可以包含点号、下划线和短线。FXML 解析器只看第一�
 <VBox xmlns:fx="http://javafx.com/fxml/1.0-rc1-2014_03_02">...</VBox>
 ```
 
-### 7. 识别符
+### 6. 识别符
 
 使用 `fx:id` attribute 为 JavaFX 对象分配识别符，`Node` 的 `id` property 与其对应。
 
-示例：为 Label 设置 `fx:id`
+示例：为 `Label` 设置 `fx:id`
 
 ```xml
 <Label fx:id="msgLbl" text="FXML is cool!"/>
 ```
 
-### 8. 添加 Event Handler
+在 FXML 文件中可以通过 id 引用创建的对象。
 
-在 FXML 中可以添加 eventHandler。设置 eventHandler 的方式与设置 properties 类似。JavaFX 类定义了 `onXxx` 属性用于为 Xxx 事件设置 event handler。例如，Button 包含一个 onAction property 用于设置 ActionEvent handler。在 FXML 中可以设置两类 event handlers:
+### 7. 添加 Event Handler
 
-- Script event handlers
-- Controller event handlers
+在 FXML 中可以添加 event-handler。设置 event-handler 的方式与设置 properties 类似。JavaFX 类定义了 `onXxx` 属性用于为 Xxx 事件设置 event-handler。例如，`Button` 包含一个 `onAction` property 用于设置 `ActionEvent` handler。在 FXML 中可以设置两类 event handlers:
+
+- Script event-handlers
+- Controller event-handlers
 
 Controller event handlers 能够更好的分离 UI 和事件逻辑，为首选。
 
-### 9. 加载 FXML 文件
+### 8. 加载 FXML 文件
 
-FXML 文件定义 JavaFX 应用的 view。需要加载 FXML 文件，获取 scene graph。使用 `FXMLLoader` 类加载 FXML 文件。
+FXML 文件定义 JavaFX 应用的 view。需要加载 FXML 文件，获取 scene-graph。使用 `FXMLLoader` 类加载 FXML 文件。
 
-FXMLLoader 类提供了多个构造函数，可以指定 FXML 位置、字符集、资源包等内容。加载 FXML 文件：
+`FXMLLoader` 类提供了多个构造函数，可以指定 FXML 位置、字符集、资源包等内容。加载 FXML 文件：
 
 ```java
 String fxmlDocUrl = "file:///C:/resources/fxml/test.fxml";
@@ -375,14 +378,15 @@ loader.setLocation(fxmlUrl);
 VBox root = loader.<VBox>load();
 ```
 
-`load()` 方法返回类型为泛型。上面指定泛型参数为 VBox 使 load() 返回 VBox。忽略泛型参数也没问题：
+
+
+`load()` 方法返回类型为泛型。上面指定泛型参数为 `VBox` 使 `load()` 返回 `VBox`。忽略泛型参数也没问题：
 
 ```java
-// Will work
 VBox root = loader.load();
 ```
 
-FXMLLoader 也可以从 InputStream 加载 FXML 文件：
+`FXMLLoader` 也可以从 `InputStream` 加载 FXML 文件：
 
 ```java
 FXMLLoader loader = new FXMLLoader();
@@ -391,7 +395,7 @@ FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
 VBox root = loader.<VBox>load(fxmlStream);
 ```
 
-FXMLLoader 包含多个 load() 版本。有些为实例方法，有些为静态方法。如，用静态方法加载 FXML 文件：
+`FXMLLoader` 包含多个 `load()` 版本。有些为实例方法，有些为静态方法。如，用静态方法加载 FXML 文件：
 
 ```java
 String fxmlDocUrl = "file:///C:/resources/fxml/test.fxml";
@@ -401,9 +405,9 @@ VBox root = FXMLLoader.<VBox>load(fxmlUrl);
 
 `FXMLLoader` 内部使用 `javax.xml.stream` API 读取FXML文件。
 
-```ad-note
-`FXMLLoader` 不区分大小写，所以 fxml 文件命名最好都采用小写
-```
+> [!NOTE]
+>
+> `FXMLLoader` 不区分大小写，所以 fxml 文件命名最好都采用小写。
 
 加载 FXML 文件后，FXML 的任务就完成了。
 
@@ -463,11 +467,13 @@ public class SayHelloFXML extends Application {
 
 ```
 
-<img src="images/Pasted%20image%2020230712144710.png" alt="|200" style="zoom: 67%;" />
+<img src="images/Pasted%20image%2020230712144710.png" width="200" />
 
-### 10. Controller
+### 9. Controller
 
-controller 主要用于定义 UI 元素的事件监听器。FXML 文件中使用 `fx:controller` attribute 指定控制器类，只能在 FXML 的 root 元素中声明该 attribute，一个FXML文件只允许指定一个 controller。例：
+controller 的对象由 FXML 创建并初始化 UI 元素。controller 主要用于定义 UI 元素的事件监听器。
+
+FXML 文件中使用 `fx:controller` attribute 指定 controller 类，只能在 FXML 的 root 元素中声明该 attribute，一个FXML文件只允许指定一个 controller。例：
 
 ```xml
 <VBox fx:controller="com.jdojo.fxml.SayHelloController"
@@ -479,10 +485,10 @@ controller 主要用于定义 UI 元素的事件监听器。FXML 文件中使用
 
 controller 具有如下特征：
 
-- controller 类由 FXML loader 实例化
+- controller 类由 `FXMLLoader` 实例化
 - 必须有无参 public 构造函数
-- controller 的 accessible 方法可以在  FXML 文件中用作 event handler
-- FXML loader 会自动查找 controller 包含的实例变量，如果变量名和 `fx:id` 一致，则会自动将FXML 中的对象引用复制给 controller 的实例变量，便于在 controller 中使用 UI 元素
+- controller 的 accessible 方法可以在  FXML 文件中用作 event-handler
+- `FXMLLoader` 会自动查找 controller 包含的实例变量，如果变量名和 `fx:id` 一致，则会自动将FXML 中的对象引用复制给 controller 的实例变量，便于在 controller 中使用 UI 元素
 - controller 可以定义一个 `initialize()` 方法，在载入 FXML 文件后自动运行该方法
 
 **示例：** controller
@@ -525,15 +531,15 @@ public class SayHelloController {
 }
 ```
 
-#### 10.1. @FXML
+#### 9.1 @FXML
 
-上面 controller 的部分成员包含 @FXML 注释。@FXML 注释可用于字段和方法，不能用于类和构造函数。
+上面 controller 的部分成员包含 `@FXML` 注释。`@FXML` 注释可用于字段和方法，不能用于类和构造函数。
 
-含义：FXML loader 可以访问该成员，即使是 private 成员。
+功能：FXML loader 可以访问该成员，即使是 `private` 成员。
 
-public 成员无需 @FXML 注释，FXMLLoader 也可以访问。为 public 成员添加 @FXML 注释也不算错。建议将 FXMLLoader 使用的所有成员，不管使 private 还是 public，都用 @FXML 标记。
+`public` 成员无需 `@FXML` 注释，`FXMLLoader` 也可以访问。为 public 成员添加 `@FXML` 注释也不算错。建议将 `FXMLLoader` 使用的所有成员，不管是 `private` 还是 `public`，都用 `@FXML` 标记。
 
-下面的 FXML 将 controller 的 sayHello() 方法设置为 Button 的 eventHandler：
+下面的 FXML 将 controller 的 `sayHello()` 方法设置为 `Button` 的 eventHandler：
 
 ```xml
 <VBox fx:controller="com.jdojo.fxml.SayHelloController"
@@ -543,7 +549,7 @@ xmlns:fx="http://javafx.com/fxml">
 </VBox>
 ```
 
-在 controller 中可以声明两个特殊的实例变量，它们会由 FXMLLoader 自动注入：
+在 controller 中可以声明两个特殊的实例变量，它们会由 `FXMLLoader` 自动注入：
 
 ```java
 @FXML
@@ -554,18 +560,18 @@ private ResourceBundle resources;
 
 `location` 是 FXML 文件的位置。`resources` 是 FXML 中可能使用的 `ResourceBundle` 的引用。
 
-#### 10.2. eventHandler
+#### 9.2 eventHandler
 
-当 FXML 中的 eventHandler attribute 以 `#` 开头，表示该 eventHandler 在 controller 中定义。controller 中定义的 eventHandler 方法应符合以下规则：
+当 FXML 中的 event-handler attribute 以 `#` 开头，表示该 event-handler 在 controller 中定义。controller 中定义的 event-handler 方法应符合以下规则：
 
-- 没有参数或一个参数。如果有一个参数，则参数类型要与处理的事件兼容
-- 如果同时定义了无参和一个参数两个版本，则 FXMLLoader 使用一个参数的版本
-- eventHandler 方法通常返回 void
-- eventHandler 方法对 FXMLLoader 必须 accessible，要么是 public，要么以 @FXML 注释
+- 没有参数或一个参数。如果有一个参数，参数类型要与处理的事件兼容
+- 如果同时定义了无参和一个参数两个版本，则 `FXMLLoader` 使用一个参数的版本
+- event-handler 方法通常返回 `void`
+- event-handler 方法对 `FXMLLoader` 必须 accessible，要么是 `public`，要么以 `@FXML` 注释
 
-#### 10.3. initialize
+#### 9.3 initialize
 
-controller 包含一个 `initialize()` 方法，FXMLLoader 载入 fxml 文件后，会调用该方法。可用于执行 GUI 元素的个性化设置等、载入资源文件等。该方法也需要对 FXMLLoader accessible，即为 public 方法或以 @FXML 注释。
+controller 包含一个 `initialize()` 无参方法，`FXMLLoader` 载入 fxml 文件后，会自动调用该方法。可用于执行 GUI 元素的个性化设置等、载入资源文件等。该方法也需要对 `FXMLLoader` accessible，即为 `public` 方法或以 `@FXML` 注释。
 
 执行顺序：
 
@@ -574,11 +580,11 @@ controller 包含一个 `initialize()` 方法，FXMLLoader 载入 fxml 文件后
 3. `@FXML` 字段
 4. `initialize()` 方法
 
-#### 10.4. 设置 controller
+#### 9.4 设置 controller
 
-在代码中可以使用 FXMLLoader.setController() 设置 controller，使用 FXMLLoader.getController() 返回 controller。
+在代码中可以使用 `FXMLLoader.setController()` 为 root 元素设置 controller，使用 `FXMLLoader.getController()` 返回 controller。
 
-FXMLLoader 有 7 个 load() 方法，其中 5 个为 static 方法。使用 getController() 必须使用 FXMLLoader 对象，并使用 load() 实例方法而非 static 方法。否则FXMLLoader.getController() 返回 null。例如：
+`FXMLLoader` 有 7 个 `load()` 方法，其中 5 个为 static。调用 `getController()` 必须使用 FXMLLoader 对象，并使用 `load()` 实例方法而非 `static` 方法。否则 `FXMLLoader.getController()` 返回 null。例如：
 
 ```java
 URL fxmlUrl = new URL("file:///C:/resources/fxml/test.fxml");
@@ -664,7 +670,7 @@ public class SayHelloFXMLMain extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230712154531.png)
+<img src="images/Pasted%20image%2020230712154531.png" width="250" />
 
 ```
 Initializing SayHelloController...
@@ -674,11 +680,11 @@ Resources = null
 
 ## 在 FXML 中创建对象
 
-FXML 用于创建 object graph。不同类创建对象的方式不同，如使用构造函数、valueOf() 方法、factory 方法等。FXML 支持这些创建对象的方式。
+FXML 的主要目的是创建 object-graph。不同类型创建对象的方式不同，如使用构造函数、valueOf() 方法、factory 方法等。FXML 支持这些创建对象的方式。
 
-### 2. 无参构造函数
+### 1. 无参构造函数
 
-在 FXML 中使用无参构造函数创建对象很容易。如果元素名称为类名，同时该类有无参构造函数，FXML 通过该元素名创建对象。例如，VBox 具有无参构造函数，下面创建 VBox 对象：
+在 FXML 中使用无参构造函数创建对象很容易。如果元素名称为类名，同时该类有无参构造函数，FXML 通过该元素名创建对象。例如，`VBox` 具有无参构造函数，下面创建 `VBox` 对象：
 
 ```xml
 <VBox>
@@ -686,9 +692,9 @@ FXML 用于创建 object graph。不同类创建对象的方式不同，如使�
 </VBox>
 ```
 
-### 3. static valueOf() 方法
+### 2. static valueOf() 方法
 
-一些 immutable 类提供 valueOf() 方法创建对象。如果 valueOf() 为 static 方法，则接受单个 String 参数，返回一个对象。
+一些 immutable 类提供 `valueOf()` 方法创建对象。如果 `valueOf()` 为 static 方法，则接受单个 `String` 参数，返回一个对象。
 
 通过该方法，可以使用 `fx:value` attribute 创建对象。假设有一个 `Xxx` 类，包含一个 static `valueOf(String s)` 方法。Java 代码：
 
@@ -703,7 +709,7 @@ Xxx x = Xxx.valueOf("a value");
 ```
 
 
-例如，创建 Long 和 String 对象：
+例如，创建 `Long` 和 `String` 对象：
 
 ```xml
 <Long fx:value="100"/>
@@ -717,9 +723,9 @@ Xxx x = Xxx.valueOf("a value");
 <String/>
 ```
 
-在 FXML 中使用上述内容，需要导入对应类，如 Long 和 String。
+在 FXML 中使用上述内容，需要导入对应类，如 `Long` 和 `String`。
 
-还有一点需要注意，使用 `fx:value` attribute 创建对象的类型不是元素类型而是 valueOf() 返回对象类型。例如：
+还有一点需要注意，使用 `fx:value` attribute 创建对象的类型不是元素类型而是 `valueOf()` 返回类型。例如：
 
 ```java
 public static Zzz valueOf(String arg);
@@ -731,9 +737,9 @@ public static Zzz valueOf(String arg);
 <Yyy fx:value="hello"/>
 ```
 
-`fx:value` 创建的对象类型为 Zzz，而不是 Yyy。
+`fx:value` 创建的对象类型为 `Zzz`，而不是 `Yyy`。
 
-### 4. Factory 方法
+### 3. Factory 方法
 
 如果一个类包含创建对象的无参静态方法，就可以在 FXML 中用 `fx:factory` attribute 创建对象。例如，使用 `LocalDate` 的 `now()` 工厂方法创建 `LocalDate`：
 
@@ -792,9 +798,9 @@ public static Zzz valueOf(String arg);
 <TextFields fx:factory="createClearableTextField"/>
 ```
 
-### 5. Builder
+### 4. Builder
 
-当使用以上方法都无法创建对象时，FXMLLoader 将查找可以创建该对象的 builder。builder 实现 `javafx.util.Builder` 接口：
+当使用以上方法都无法创建对象时，`FXMLLoader` 将查找可以创建该对象的 builder。builder 实现 `javafx.util.Builder` 接口：
 
 ```java
 public interface Builder<T> {
@@ -802,7 +808,7 @@ public interface Builder<T> {
 }
 ```
 
-FXMLLoader 使用其它方法无法创建类的对象时，会调用 `BuilderFactory` 的 getBuilder() 查找对应类的 Builder 实现。BuilderFactory 接口定义如下：
+`FXMLLoader` 使用其它方法无法创建类的对象时，会调用 `BuilderFactory` 的 `getBuilder()` 查找对应类的 `Builder` 实现。`BuilderFactory` 接口定义如下：
 
 ```java
 package javafx.util;
@@ -814,16 +820,16 @@ public interface BuilderFactory {
 }
 ```
 
-FXMLLoader 使用 `JavaFXBuilderFactory` 作为 BuilderFactory 的默认实现。
+`FXMLLoader` 使用 `JavaFXBuilderFactory` 作为 `BuilderFactory` 的默认实现。
 
-FXMLLoader 支持两类 Builder：
+`FXMLLoader` 支持两类 `Builder`：
 
-- 如果 Builder 实现 Map 接口，则使用 put() 方法将 object properties 传递给 Builder。
-- 如果 Builder 没有实现 Map 接口，Builder 必须按照 JavaBean 规则提供 getter 和 setter 方法
+- 如果 `Builder` 实现 `Map` 接口，则使用 put() 方法将 object properties 传递给 Builder。
+- 如果 `Builder` 没有实现 `Map` 接口，Builder 必须按照 JavaBean 规则提供 getter 和 setter 方法
 
-#### 5.1. Builder 的 JavaBean 实现
+#### 4.1 Builder 的 JavaBean 实现
 
-以下面的 Item 类为例：
+以下面的 `Item` 类为例：
 
 ```java
 public class Item {
@@ -859,11 +865,11 @@ public class Item {
 }
 ```
 
-Item 没有无参构造函数，也没有  valueOf() 方法，更没有 factory 方法。所以 FXML 默认无法创建 Item 对象。
+`Item` 没有无参构造函数，也没有 `valueOf()` 方法，更没有 factory 方法。所以 FXML 默认无法创建 `Item` 对象。
 
-Item 有两个属性，id 和 name。
+`Item` 有两个属性，`id` 和 `name`。
 
-下面的 FXML 文件创建了一个 ArrayList，其中包含 3 个 Item 对象。如果使用 FXMLLoader 加载该文件，由于无法实例化 Item，会报错：
+下面的 FXML 文件创建了一个 `ArrayList`，其中包含 3 个 `Item` 对象。如果使用 FXMLLoader 加载该文件，由于无法实例化 Item，会报错：
 
 ```xml
 <!-- items.fxml -->
@@ -877,7 +883,7 @@ Item 有两个属性，id 和 name。
 </ArrayList>
 ```
 
-所以，决定创建一个 Builder 来构建 Item 对象。ItemBuilder 类如下：
+所以，决定创建一个 `Builder` 来构建 Item 对象。`ItemBuilder` 类如下：
 
 ```java
 import javafx.util.Builder;
@@ -911,9 +917,9 @@ public class ItemBuilder implements Builder<Item> {
 }
 ```
 
-`ItemBuilder` 声明了 id 和 name 两个实例变量。FXMLLoader 遇到相关 properties 时，会调用对应的 setter 方法。setters 将解析值保存在实例变量中。最后调用 build() 获得 Item 对象。
+`ItemBuilder` 声明了 id 和 name 两个实例变量。`FXMLLoader` 遇到相关 properties 时，会调用对应的 setter 方法。setters 将解析值保存在实例变量中。最后调用 `build()` 获得 `Item` 对象。
 
-接下来还要实现与 Item 对应的 BuilderFactory。如下：
+接下来还要实现与 Item 对应的 `BuilderFactory`。如下：
 
 ```java
 import javafx.fxml.JavaFXBuilderFactory;
@@ -937,9 +943,9 @@ public class ItemBuilderFactory implements BuilderFactory {
 }
 ```
 
-#### 5.2. Builder 的 Map 实现
+#### 4.2 Builder 的 Map 实现
 
-Builder 通过扩展 AbstractMap 实现 Map 接口：
+`Builder` 通过扩展 `AbstractMap` 实现 `Map` 接口：
 
 ```java
 import javafx.util.Builder;
@@ -999,7 +1005,7 @@ public class ItemBuilderFactoryMap implements BuilderFactory {
 }
 ```
 
-#### 5.3. Builder 测试
+#### 4.3 Builder 测试
 
 ```java
 import javafx.fxml.FXMLLoader;
@@ -1036,15 +1042,15 @@ List:[id=100, name=Kishori, id=200, name=Ellen, id=300, name=Kannan]
 List:[id=100, name=Kishori, id=200, name=Ellen, id=300, name=Kannan]
 ```
 
-```ad-tip
-FXMLLoader.setBuilderFactory() 替换了默认的 BuilderFactory。
-```
+> [!TIP]
+>
+> `FXMLLoader.setBuilderFactory()` 替换了默认的 `BuilderFactory`。
 
 ## 创建可复用对象
 
-有时我们希望定义一个对象，如 `Insets` 或 `Color`，然后在 FXML 文件的多个位置使用。`ToggleGroup` 就是个典型，定义一次，在多个 `RadioButton` 处使用。
+有时我们需要定义一个对象，如 `Insets` 或 `Color`，然后在 FXML 文件的多个位置使用。`ToggleGroup` 就是个典型，定义一次，在多个 `RadioButton` 处使用。
 
-使用 `<fx:define>` 定义的对象不是 object graph 的一部分，但是可以在 object graph 中使用 `fx:id` 引用。属性值必须以 `$` 开始。
+使用 `<fx:define>` 定义的对象不是 object-graph 的一部分，但是可以在 object-graph 中使用 `fx:id` 引用。引用属性值必须以 `$` 开始。
 
 **示例：** `ToggleGroup` 复用
 
@@ -1069,7 +1075,11 @@ FXMLLoader.setBuilderFactory() 替换了默认的 BuilderFactory。
 </VBox>
 ```
 
-上面在 `<fx:define>` 中创建了两个对象，`Insets` 和 `ToggleGroup`，并分配了 `fx:id`。在 object graph 中引用这两个对象。
+上面在 `<fx:define>` 中创建了两个对象，`Insets` 和 `ToggleGroup`，并分配了 `fx:id`。在 object-graph 中引用这两个对象。
+
+> [!NOTE]
+>
+> 如果属性值以 `$` 符号开头，则该值被视为对象引用。如果要使用 `$` 符号作为值的一部分，则需要使用反斜杠进行转义，如 "\$hello"。
 
 ## 指定 Location
 
@@ -1098,11 +1108,32 @@ FXMLLoader.setBuilderFactory() 替换了默认的 BuilderFactory。
 
 ## ResourceBundle
 
-在 FXML 中使用 `ResourceBundle` 比在 Java 代码中使用容易。在属性值中
+在 FXML 中使用 `ResourceBundle` 比在 Java 代码中使用容易。在属性值中指定 `ResourceBundle` 中的 key 时，将使用默认 `Locale` 的相应值。如果属性值以 `%` 开头，则在将其视为 resource-boundle 中的 key 名称。在运行时，从 `FXMLLoader` 指定的 `ResourceBundle` 查找对应的属性指。如果需要在属性值中使用 `%` 符号，则需要转义，例如 `\%hello`。
 
 **示例：** 将 "%greetingText" 作为 `Label` 的 `text` 属性
 
-该属性值以 `%` 
+该属性值以 `%` 开头，所以 `FXMLLoader` 会在 `ResourceBundle`  中查找 "greetingText" 的值，并将其作为 `text` 属性。
+
+```xml
+<?import javafx.scene.control.Label?>
+<Label text="%greetingText"/>
+```
+
+下面为两个 ResourceBundle 文件的内容，一个名为 greetings.properties，用于默认 Locale；一个名为 greetings_hi.properties，用于印度 Locale。
+
+greetings.properties 文件：
+
+```properties
+greetingText = Hello
+```
+
+greetings_hi.properties 文件：
+
+```properties
+greetingText = Namaste
+```
+
+**示例**：`ResourceBundle` 从
 
 ## Including FXML 文件
 
