@@ -6,7 +6,7 @@
 ***
 ## 简介
 
-JavaFX 提供了一套用户向用户发出警报、查询和通知的 dialog api。
+JavaFX 在 JavaFX 8u40 引入了一套用户向用户发出警报、查询和通知的对话框 api。
 
 - `Alert`：使用方便的预定义 dialog，主要用于发出警告信息
 - `TextInputDialog`：提示用户输入文本
@@ -15,7 +15,7 @@ JavaFX 提供了一套用户向用户发出警报、查询和通知的 dialog ap
 
 类图如下：
 
-<img src="./images/image-20250604155012555.png" alt="image-20250604155012555" style="zoom:50%;" />
+<img src="./images/image-20250604155012555.png" width="450" />
 
 dialog 涉及两个术语：模态（modal）和阻塞（blocking）
 
@@ -283,11 +283,15 @@ public class Dialogs extends Application {
 
 ## Dialog
 
+在 JavaFX 8u40  中，`DialogPane` 在 `Stage` 中显示，但未来版本可能会提供其它选项，如轻量级或 internal 对话框。因此，`DialogPane` API 有意忽略底层实现，尝试为所有实现提供一个通用 API。
+
 `Dialog` 是 JavaFX 提供的最灵活的对话框选择，支持完整的自定义。如用户名、密码弹窗，表单等。
 
 实例化 `Dialog` 时可以指定泛型 `R`，代表 `result` 属性的类型，即 dialog 关闭时返回的类型。
 
-由于 `Dialog` 类不知道它显示的内容，因此也不知道如何将用户输入值转换为 `R` 类型，所以需要开发人员设置 `resultConverter` 属性。当 `R` 类型不是 `Void` 或 `ButtonType`，就需要设置该属性，否则会抛出 `ClassCastException`。
+> [!WARNING]
+>
+> 由于 `Dialog` 类不知道它显示的内容，因此也不知道如何将用户输入值转换为 `R` 类型，所以需要开发人员设置 `resultConverter` 属性。当 `R` 类型不是 `Void` 或 `ButtonType`，就需要设置该属性，否则会抛出 `ClassCastException`。
 
 `Dialog` 属性：
 
@@ -301,10 +305,14 @@ public class Dialogs extends Application {
 | `resultConverter` | `ObjectProperty<Callback<ButtonType, R>>` | 将用户点击按钮转换为结果的函数 |
 | `title`           | `StringProperty`                          | dialog 标题                    |
 
+`Dialog` 的 `contentText`, `graphic` 和 `headerText` 属性只是将值转发给 `DialogPane`。
+
 `Dialog` 的 layout 由 `DialogPane` 处理。实际上，`Dialog` 的许多属性都用于设置 `DialogPane`。
 
 示例：
 
 ```java
 ```
+
+
 
