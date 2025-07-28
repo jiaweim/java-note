@@ -161,9 +161,9 @@ public static void runLater(Runnable runnable)
 
 `isFxApplicationThread()` 判断当前线程是否为 JAT 线程；`runLater(Runnable runnable)` 将指定 `Runnable` 添加到 JAT 线程运行，用于在其它线程更新 UI 组件。
 
-```ad-tip
-JavaFX 的 `Platform.runLater()` 与 Swing 中的 SwingUtilities.invokeLater() 功能类似。
-```
+> [!TIP]
+>
+> JavaFX 的 `Platform.runLater()` 与 Swing 中的 `SwingUtilities.invokeLater()` 功能类似。
 
 下面是前面代码的正确版本：
 

@@ -3,7 +3,7 @@
 2023-06-25, 10:39
 ****
 
-可以使用选择器在 scene graph 中查找节点。
+可以使用选择器在 scene-graph 中查找节点。
 
 `Scene` 和 `Node` 都包含一个 `lookup(String selector)` 方法，返回匹配选择器的第一个 node；如果没有匹配到任何 node，返回 null。两个类的 `lookup(String selector)` 略有不同，`Scene.lookup` 搜索整个 scene graph，`Node.lookup` 搜索调用该方法的节点及其子节点。
 

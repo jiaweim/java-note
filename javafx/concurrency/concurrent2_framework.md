@@ -6,9 +6,10 @@
 
 JavaFX 并发框架构建在 `java.util.concurrent` 之上，单纯用于GUI 环境，其类图如下：
 
-![|350](Pasted%20image%2020230711203547.png)
+<img src="images/Pasted%20image%2020230711203547.png" width="350" />
 
-![](Pasted%20image%2020230711203858.png)
+<img src="images/Pasted%20image%2020230711203858.png" width="400" />
+
 该框架包含 1 个接口， 4 个类，1 个 enum。
 
 `Worker` 接口表示需要在后台线程执行的任务，任务的状态通过 observable 可以在 JAT 线程查看。

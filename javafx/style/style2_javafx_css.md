@@ -155,7 +155,7 @@ public class InlineStyles extends Application {
 
 Claudine Zillmann 创建了 native Mac OS X 风格的 skin [AquaFX](http://aquafx-project.com/)。
 
-@import "images/Pasted%20image%2020230726200740.png" {width="px" title=""}
+![](images/Pasted%20image%2020230726200740.png)
 
 Pedro Duque Vieira 创建了 Windows Metro 风格的样式 [JMetro](https://pixelduke.com/java-javafx-theme-jmetro/)。
 

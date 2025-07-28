@@ -136,7 +136,7 @@ public class ButtonTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230717163319.png)
+![|300](./images/Pasted%20image%2020230717163319.png)
 
 ```ad-note
 在一个 Scene 中可以将多个 button 设置为 default 或 cancel button，但只有第一个设置的有效。

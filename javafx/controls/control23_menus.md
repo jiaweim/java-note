@@ -182,7 +182,7 @@ public class MenuTest extends Application {
 }
 ```
 
-![|250](Pasted%20image%2020230725154448.png)
+![|250](images/Pasted%20image%2020230725154448.png)
 
 ## 4. Menu Items
 

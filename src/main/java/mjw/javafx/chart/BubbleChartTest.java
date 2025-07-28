@@ -3,26 +3,20 @@ package mjw.javafx.chart;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
+import javafx.scene.chart.BubbleChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * @author JiaweiMao
- * @version 0.0.1
- * @since 20 4月 2022, 10:29
+ * @author Jiawei Mao
+ * @version 1.0.0
+ * @since 28 Jul 2025, 11:39 AM
  */
-public class ScatterChartTest extends Application {
-
-    public static void main(String[] args) {
-        Application.launch(args);
-    }
-
+public class BubbleChartTest extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Year");
         xAxis.setAutoRanging(false);
@@ -33,17 +27,35 @@ public class ScatterChartTest extends Application {
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Population (in millions)");
 
-        ScatterChart<Number, Number> chart = new ScatterChart<>(xAxis, yAxis);
+        BubbleChart<Number, Number> chart = new BubbleChart<>(xAxis, yAxis);
         chart.setTitle("Population by Year and Country");
 
+        // Get the data for the chart
         ObservableList<XYChart.Series<Number, Number>> chartData =
                 XYChartDataUtil.getCountrySeries();
+
+        // Set the bubble radius
+        setBubbleRadius(chartData);
+
+        // Set the data for the chart
         chart.setData(chartData);
 
         StackPane root = new StackPane(chart);
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("A Scatter Chart");
+        stage.setTitle("A Bubble Chart");
         stage.show();
+    }
+
+    private void setBubbleRadius(ObservableList<XYChart.Series<Number, Number>> chartData) {
+        for (XYChart.Series<Number, Number> series : chartData) {
+            for (XYChart.Data<Number, Number> data : series.getData()) {
+                data.setExtraValue(20); // Bubble radius
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

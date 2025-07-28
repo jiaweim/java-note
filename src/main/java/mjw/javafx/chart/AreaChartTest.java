@@ -3,26 +3,20 @@ package mjw.javafx.chart;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * @author JiaweiMao
- * @version 0.0.1
- * @since 20 4月 2022, 10:29
+ * @author Jiawei Mao
+ * @version 1.0.0
+ * @since 28 Jul 2025, 12:46 PM
  */
-public class ScatterChartTest extends Application {
-
-    public static void main(String[] args) {
-        Application.launch(args);
-    }
-
+public class AreaChartTest extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Year");
         xAxis.setAutoRanging(false);
@@ -33,7 +27,7 @@ public class ScatterChartTest extends Application {
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Population (in millions)");
 
-        ScatterChart<Number, Number> chart = new ScatterChart<>(xAxis, yAxis);
+        AreaChart<Number, Number> chart = new AreaChart<>(xAxis, yAxis);
         chart.setTitle("Population by Year and Country");
 
         ObservableList<XYChart.Series<Number, Number>> chartData =
@@ -43,7 +37,11 @@ public class ScatterChartTest extends Application {
         StackPane root = new StackPane(chart);
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("A Scatter Chart");
+        stage.setTitle("An Area Chart");
         stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
