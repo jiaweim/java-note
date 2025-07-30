@@ -1,13 +1,13 @@
 # JavaFX 版本
 
-2025-05-23
+2025-07-30
 
 | JavaFX 版本 | 最新版|LTS    | JDK     |
 | ----------- | ------ | ------- |---|
 | 25 | early access | no | JDK 22+ |
 | 24 | 24.0.1 (April 2025) |no | JDK 22+ |
 |22|22.0.2|no|JDK 17+|
-| 21          | 21.0.7 (April 2025) | yes     | JDK 17+ |
+| 21          | 21.0.8 (July 2025) | yes     | JDK 17+ |
 | 20          | 20.0.2 (July 2023)|no     | JDK 17+ |
 | 19          | 19.0.2.1 (January 2023)|no     | JDK 11+ |
 | 18          | 18.0.2 (July 2022)|no     | JDK 11+ |
@@ -23,4 +23,5 @@
 ## 参考
 
 - https://gluonhq.com/products/javafx/
+- https://gluonhq.com/products/javafx/openjfx-21-release-notes/
 - https://github.com/openjdk/jfx/blob/master/doc-files/release-notes-16.md

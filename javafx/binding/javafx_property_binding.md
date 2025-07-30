@@ -1,24 +1,20 @@
 # JavaFX 属性和绑定
 
+2025-07-30😀
 2025-05-23⭐
 @author Jiawei Mao
-
 ***
-## 概述
-
-### 什么是属性
+## 1. 属性
 
 Java 类可以包含字段和方法两种类成员。字段表示对象的状态，一般声明为 `private`，然后提供 `public` 的 getter 和 setter 方法：
 
-- 对部分或所有字段提供 public getter 和 setter 的 Java 类称为 Java bean
+- 对部分或所有字段提供 public getter 和 setter 的 Java 类称为 **Java bean**
 - getter 和 setter 定义了 bean 的**属性**（property）
 - Java bean 可以通过属性定义其状态和行为
 
-Java bean 是可观察的（observable），支持属性变更通知。当 Java bean 的 `public` 属性发生变化，会向注册的监听器发送通知。本质上，Java bean 定义了可重用组件，这些组件甚至可以通过构建工具来创建 Java 应用。
+Java bean 是可观察的（observable），支持属性变更通知。当 Java bean 的 `public` 属性发生变化，会向注册的 listeners 发送通知。本质上，Java bean 定义了可重用组件，这些组件甚至可以通过构建工具来创建 Java 应用。
 
-属性包含 read-only, write-only 以及 read-write 类型：read-only 属性只有 getter 方法，write-only 属性只有 setter 方法。
-
-Java IDE 等构建工具通过内省（introspection）获取 bean 的属性列表。
+属性包含 read-only, write-only 以及 read-write 类型：read-only 属性只有 getter 方法，write-only 属性只有 setter 方法。Java IDE 等构建工具通过内省（introspection）获取 bean 的属性列表。
 
 JavaBeans API 在 `java.beans` 包中提供了创建和使用 Java beans 的功能及命名约定。下面是一个具有 `name` 属性的 `Person` bean：
 
@@ -35,7 +31,7 @@ public class Person {
 }
 ```
 
-按照**约定**，getter 和 setter 方法名称是在属性名称前添加 *get* 或 *set* 前缀：
+根据**约定**，getter 和 setter 方法名称是在属性名称前添加 *get* 或 *set* 前缀：
 
 - getter 方法没有参数，返回类型与字段相同
 - setter 方法的参数与字段类型相同，返回 `void`
@@ -77,13 +73,19 @@ public class Person {
 }
 ```
 
-```ad-tip
-属性（*property*）定义了对象的 `public` 状态，支持读写，是可观察的（observable），支持变更通知。
-```
+> [!TIP]
+>
+> 属性（*property*）定义了对象的 `public` 状态，支持读写，是可观察的（observable），支持变更通知。
 
-### 什么是数据绑定
+除了简单属性，Java 还支持索引属性、绑定属性和约束属性：
 
-**数据绑定**（*data binding*）定义程序中数据元素（通常是变量）之间的关系，保持它们同步。GUI 程序通常使用数据绑定同步数据模型元素和相应的 UI 元素。
+- 索引属性使用索引访问值的数字，使用数据实现
+- 绑定属性在更改时会通知所有 listeners
+- 约束属性也一种绑定属性，其 listener 可以否定更改
+
+## 2. 数据绑定
+
+**数据绑定**（*data binding*）定义程序中数据元素（通常是变量）之间的关系，保持它们**同步**。GUI 程序通常使用数据绑定同步数据模型元素和相应的 UI 元素。
 
 假设 x, y, z 是数值变量：
 
@@ -91,17 +93,15 @@ public class Person {
 x = y + z;
 ```
 
-该语句定义了 x, y, z 之间的数据绑定。执行时，x 的值与 y, z 的加和同步。
+该语句定义了 x, y, z 之间的数据绑定。执行该语句，x 的值与 y, z 的加和同步。绑定具有**时效性**，执行该语句之前和之后，x 的值不一定是 y 和 z 的加和。
 
-绑定具有**时效性**，执行该语句之前和之后，x 的值不一定是 y 和 z 的加和。
-
-有时候，希望绑定能持续一段时间。例如：
+有时候，希望绑定在一段时间内保持有效。例如：
 
 ```java
 soldPrice = listPrice - discounts + taxes;
 ```
 
-此时，希望绑定永远有效，这样当 `listPrice`、`discounts` 或 `taxes` 发生变化时，都能正确计算 `soldPrice`。其中，`listPrice`、`discounts` 和 `taxes` 称为**依赖项**，`soldPrice` 与这些依赖性绑定。
+此时，希望绑定永远有效，这样当 `listPrice`、`discounts` 或 `taxes` 发生变化时，都能正确计算 `soldPrice`。其中，`listPrice`、`discounts` 和 `taxes` 称为**依赖项**，`soldPrice` 与这些依赖项绑定。
 
 为了使绑定正确工作，必须在依赖项发生变化时通知绑定。当依赖项无效或发生变化，所有 listeners 收到通知。绑定收到通知后，将自己与其依赖项同步。
 
@@ -121,7 +121,7 @@ soldPrice = listPrice - discounts + taxes;
 
 在 GUI 应用程序中，GUI 控件显示的数据与底层数据模型同步，就可以使用双向绑定实现。
 
-### JavaBeans 绑定
+## 3. JavaBeans 绑定
 
 Java 很早就支持 bean 属性绑定。
 
@@ -234,13 +234,13 @@ Salary:6000.0, Tax:1200.0
 
 从输出可以发现，调用了三次 `setSalary()`，但只触发了两次 `salary` 变更通知。这是因为第二次调用 `setSalary()` 使用的 `salary` 值与第一次调用 `setSalary() `的值相同，而 `PropertyChangeSupport` 能够检测到这一点。
 
-## JavaFX 属性
+## 4. JavaFX 属性
 
-JavaFX 对属性、事件和绑定具有良好支持。JavaFX 的所有属性都是 observable，可以监听属性的失效或变更。JavaFX 属性包含 read-write 和 read-only 类型，所有 read-write 属性支持绑定。
+JavaFX 对属性、事件和绑定具有良好支持，相对 JavaBeans 有很大提升。JavaFX 的所有属性都是 observable，可以监听属性的失效和改变。JavaFX 属性包含 read-write 和 read-only 类型，所有 read-write 属性支持绑定。
 
-JavaFX 属性分为单值属性或集合属性。这里介绍单值属性，下一节介绍集合属性。
+JavaFX 属性分为单值属性和集合属性。下面先介绍单值属性，再介绍集合属性。
 
-JavaFX 属性均定义为单独的类。如 `IntegerProperty`, `DoubleProperty`, `StringProperty` 类分别定义 `int`, `double` 和 `String` 类型属性。这些都是抽象类，它们均有两种具体实现：
+JavaFX 为每种基础类型定义了属性类。如 `IntegerProperty`, `DoubleProperty`, `StringProperty` 类分别定义 `int`, `double` 和 `String` 类型属性。这些都是抽象类，它们均有两种具体实现：
 
 - read-write 实现，如 `SimpleDoubleProperty` 为 `DoubleProperty` 的 read-write 实现
 - read-only 实现，如 `ReadOnlyDoubleWrapper` 为 `DoubleProperty` 的 read-only 实现
@@ -260,7 +260,7 @@ getter 和 setter 统称为 accessor，`Property` 类提供了两种 accessors�
 
 > [!TIP]
 >
-> 对引用类型属性，如 `StringProperty` 和 `ObjectProperty<T>`，两种 accessors 都采用对象类型，即 `StringProperty` 的 `get()` 和 `getValue()` 都返回 `String`，`set()` 和 `setValue()` 的参数都是 `String`。基本类型由于自动装箱，采用哪种 accessor 都行，提供 `getValue()` 和 `setValue()` 是为了方便编写泛型代码。
+> 对引用类型属性，如 `StringProperty` 和 `ObjectProperty<T>`，两种 accessors 都采用对象类型，即 `StringProperty` 的 `get()` 和 `getValue()` 都返回 `String`，`set()` 和 `setValue()` 的参数都是 `String`。原始类型由于自动装箱，采用哪种 accessor 都行，提供 `getValue()` 和 `setValue()` 是为了方便编写泛型代码。
 
 **示例：** 演示 `IntegerProperty` 及其 accessor 的使用。
 
@@ -283,12 +283,7 @@ Counter:2
 
 ### read-only 属性
 
-read-only 属性的设计有点意思。`ReadOnlyXXXWrapper` 类包装了两个 `XXX` 类型属性：
-
-- 一个 read-only
-- 一个 read-write
-
-两个属性的值同步。`ReadOnlyXXXWrapper.getReadOnlyProperty()` 返回 `ReadOnlyXXXProperty`，为 read-only 属性。
+read-only 属性的设计有点意思。`ReadOnlyXXXWrapper` 类包装了两个 `XXX` 类型属性：一个 read-only，一个 read-write，两个属性的值同步。`ReadOnlyXXXWrapper.getReadOnlyProperty()` 返回 `ReadOnlyXXXProperty`，为 read-only 属性。
 
 **示例：** 创建 read-only `Integer` 属性
 
@@ -316,9 +311,9 @@ idWrapper:101
 id:101
 ```
 
-```ad-tip
-wrapper 属性一般作为 `private` 变量使用，这样可以在类的内部修改属性值。然后提供了一个 `public` 方法返回 wrapper 的 read-only 属性对象，这样该属性对外为 read-only。
-```
+> [!TIP]
+>
+> wrapper 属性一般作为 `private` 变量使用，这样在类的内部可以修改属性值。然后提供了一个 `public` 方法返回 wrapper 的 read-only 属性对象，这样该属性对外为 read-only。
 
 ### 属性类
 
@@ -328,17 +323,15 @@ wrapper 属性一般作为 `private` 变量使用，这样可以在类的内部�
 - read-only 类名为 `ReadOnlyXXXProperty`
 - wrapper 类名为 `ReadOnlyXXXWrapper`
 
-各个类型的 `XXX` 值列表：
-
-| 类型    | XXX 值  |
-| ------- | ------- |
-| int     | Integer |
-| long    | Long    |
-| float   | Float   |
-| double  | Double  |
-| boolean | Boolean |
-| String  | String  |
-| Object  | Object  |
+| 类型    | 属性基类        |
+| ------- | --------------- |
+| int     | IntegerProperty |
+| long    | LongProperty    |
+| float   | FloatProperty   |
+| double  | DoubleProperty  |
+| boolean | BooleanProperty |
+| String  | StringProperty  |
+| Object  | ObjectProperty  |
 
 如，int 类似属性，基类名为 `IntegerProperty`, read-only 类名为 `ReadOnlyIntegerProperty`, wrapper 类名为 `ReadOnlyIntegerWrapper`。
 
@@ -374,17 +367,19 @@ SimpleIntegerProperty(Object bean, String name, int initialValue)
 
 ```java
 public class Person {
-
+	// bean 引用，属性名称，属性值
     private StringProperty name = new SimpleStringProperty(this, "name", "Li");
     // More code goes here...
 }
 ```
 
-## JavaFX Bean
+## 5. JavaFX Bean
 
 主要内容：如何使用 JavaFX 属性。
 
 下面创建一个 `Book` 类，在其中定义三个属性：`ISBN`, `title` 和 `price`。
+
+在 JavaFX 中，类的属性使用 Property 定义，而不是原始类型。
 
 ### read-write 属性
 
@@ -440,9 +435,9 @@ public class Book {
 
 这里 `getTitle()` 和 `setTitle()` 内部使用 `title` 属性获取和设置 `title` 值。
 
-```ad-tip
-属性的 getter 和 setter 方法一般声明为 `final`。附加的 getter 和 setter 命名方法与 JavaBeans 一致，方便一些老的工具识别。
-```
+> [!TIP]
+>
+> 属性的 getter 和 setter 方法一般声明为 `final`。附加的 getter 和 setter 命名方法与 JavaBeans 一致，方便一些老的工具识别。
 
 ### read-only 属性
 
@@ -468,7 +463,7 @@ public class Book {
 - 使用 `ReadOnlyStringWrapper` 而非 `SimpleStringProperty`
 - 没有 setter 方法，你可以定义一个，但必须为 `private`
 - getter 方法与 read-write 属性一样
-- `ISBNProperty()` 返回 `ReadOnlyStringProperty` 类型，而不是 `ReadOnlyStringWrapper` 类型。即从 wrapper 获得一个 read-only 版本
+- `ISBNProperty()` 返回 `ReadOnlyStringProperty` 类型，而不是 `ReadOnlyStringWrapper` 类型，即从 wrapper 获得一个 read-only 版本
 
 对使用 `Book` API 的用户，`ISBN` 是 read-only；而在 `Book` 内部可以修改 `ISBN` 值，并且修改结果会自动同步到 read-only 版本。
 
@@ -578,7 +573,6 @@ public class BookPropertyTest {
         System.out.println(", Value:" + value + "]");
     }
 }
-
 ```
 
 ```
@@ -593,17 +587,17 @@ SimpleDoubleProperty[Name:price, Bean Class:Book, Value:9.49]
 ReadOnlyPropertyImpl[Name:ISBN, Bean Class:Book, Value:0123456789]
 ```
 
-## Property 类结构
+## 6. Property 类结构
 
 在使用 JavaFX 属性和绑定 API 前，了解其核心类和接口很重要。下图是属性 API 的核心接口和类：
 
-<img src="images/2023-06-27-16-57-59.png" style="zoom: 50%;" />
+<img src="images/2023-06-27-16-57-59.png" width="600" />
 
 JavaFX 属性 API 的类和接口分布在不同包中，包括 `javafx.beans`, `javafx.beans.binding`, `javafx.beans.property` 和 `javafx.beans.value`。
 
 ### Observable
 
-`Observable` 接口位于属性 API 顶层，为 `Property` 添加失效通知功能。使用 `Observable.addListener()` 添加 `InvalidationListener`，当 `Observable` 的内容失效时，调用 `InvalidationListener` 的 `invalidated() `方法。
+`Observable` 接口位于属性 API 顶层，为 `Property` 添加失效通知功能。使用 `Observable.addListener()` 添加 `InvalidationListener`，当 `Observable` 的内容失效时，会调用 `InvalidationListener` 的 `invalidated() `方法。
 
 ```java
 public interface Observable {
@@ -614,7 +608,7 @@ public interface Observable {
 
 所有 JavaFX 属性都是 `Observable`。
 
-注意：仅当 `Observable` 的状态从有效变为无效，才让 `Observable` 发出失效通知。如果同时发生多个失效操作，应该只生成一个失效通知。JavaFX 属性均遵循该原则。 
+**注意**：仅当 `Observable` 的状态从有效变为无效，才让 `Observable` 发出失效通知。如果同时发生多个失效操作，应该只生成一个失效通知。JavaFX 属性均遵循该原则。 
 
 > [!TIP]
 >
@@ -628,7 +622,6 @@ public interface Observable {
 public interface ObservableValue<T> extends Observable {
 
     void addListener(ChangeListener<? super T> listener);
-
     void removeListener(ChangeListener<? super T> listener);
 
     T getValue();
@@ -637,15 +630,15 @@ public interface ObservableValue<T> extends Observable {
 
 `ObservableValue` 可以生成两类通知：
 
-- 失效通知：当 `ObservableValue` 封装的值失效
-- 变更通知：当 `ObservableValue` 封装的值发生变化
+- 失效通知：当 `ObservableValue` 封装的**值失效**
+- 变更通知：当 `ObservableValue` 封装的**值发生变化**
 
 对重新计算值，`ObservableValue` 支持延迟和即时两种策略：
 
 - 延迟策略：`ObservableValue` 值失效后不立刻重新计算，而是等到下一次读取值才重新计算
 - 即时策略：值失效后立刻重新计算
 
-延迟策略的效率更高。不过，在生成变更通知时，会强制 `ObservableValue` 立即重新计算值，因为它必须将变更后的值传递给注册的 `ChangeListener`。
+延迟策略的效率更高，`InvalidationListener` 可以采用延迟策略。不过，对 `ChangeListener` 生成变更通知时，会强制 `ObservableValue` 立即重新计算值，因为它必须将变更后的值传递给注册的 `ChangeListener`。
 
 ### Property
 
@@ -661,9 +654,7 @@ public interface ObservableValue<T> extends Observable {
 
 ```java
 public interface ReadOnlyProperty<T> extends ObservableValue<T> {
-
     Object getBean(); // 返回包含属性对象的 bean 引用
-
     String getName(); // 返回属性名称
 }
 ```
@@ -674,14 +665,12 @@ public interface ReadOnlyProperty<T> extends ObservableValue<T> {
 
 ```java
 public interface WritableValue<T> {
-
     T getValue();
-
     void setValue(T value);
 }
 ```
 
-`Property` 接口继承了 `ReadOnlyProperty` 和 `WritableValue` 接口。添加了 5 个方法以支持绑定：
+`Property` 接口继承 `ReadOnlyProperty` 和 `WritableValue` 接口。添加了 5 个方法以支持绑定：
 
 ```java
 void bind(ObservableValue<? extends T> observable)
@@ -693,7 +682,6 @@ boolean isBound()
 
 - `bind()` 和 `unbind()` 用于添加和移除**单向绑定**
 - `bindBidirectional()` 和 `unbindBidirectional()` 添加和移除**双向绑定**
-- `unbind()` 释放绑定
 - `isBound()` 报告单向绑定是否生效
 
 注意 `bind()` 和 `bindBidirectional()` 参数的区别：
@@ -703,9 +691,9 @@ boolean isBound()
 
 > [!NOTE]
 >
-> 每个属性最多只能拥有哦一个 active 单向绑定，可以同时拥有多个双向绑定。`isBound()` 方法仅适用于单向绑定。
+> 每个属性最多只能有一个 active 单向绑定，可以同时拥有多个双向绑定。`isBound()` 方法仅适用于单向绑定。
 >
-> 使用摆脱那个 `ObservableValue` 再次调用 `bind()` 将解除前一个绑定，将其替换为新的 `ObservableValue`。
+> 使用 `ObservableValue` 调用 `bind()` 再次绑定，会自动解除前一个绑定，将其替换为新的 `ObservableValue`。
 
 下图是 JavaFX 中 `Integer` 属性的部分类图，说明了 JavaFX 属性 API 的复杂性。
 
@@ -785,13 +773,13 @@ Binding i->l->f->d
 1410065408
 ```
 
-## Property Event
+## 7. Property Event
 
 适用于 JavaFX 对象属性（非集合属性）的 listener 有两类：invalidation-listener 和 change-listener。
 
 ### Invalidation Event
 
-属性失效会生成一个 invalid-event。JavaFX 属性采用延迟计算策略处理 invalid-event，失效的属性再次失效，不会重复生成 invalid-event。失效属性在重新计算后变为生效，例如调用属性的 `get(`) 或 `getValue() `方法会迫使重新计算属性值，使属性生效。
+属性失效会生成一个 invalid-event。JavaFX 属性采用延迟计算策略处理 invalid-event，失效的属性再次失效，不会重复生成 invalid-event。失效属性在重新计算后变为有效，例如调用属性的 `get(`) 或 `getValue() `方法会迫使重新计算属性值，使属性生效。
 
 `InvalidationListener` 接口只有一个方法：
 
@@ -817,7 +805,7 @@ public class InvalidationTest {
         counter.addListener(InvalidationTest::invalidated);
 
         System.out.println("Before changing the counter value-1");
-        counter.set(101);
+        counter.set(101); // 失效
         System.out.println("After changing the counter value-1");
 
         // 此时 counter 属性失效，继续修改值也不会生成失效事件
@@ -975,9 +963,9 @@ counter.addListener(new ChangeListener() {
 
 前面的示例采用的第一种方式。
 
-```ad-note
-与失效事件不同，变更事件采用即时计算策略，因为它需要将变更后的值传递给 `ChangeListener`
-```
+> [!NOTE]
+>
+> 与失效事件不同，变更事件采用即时计算策略，因为它需要将变更后的值传递给 `ChangeListener`
 
 ### Invalidation 和 Change Event
 
@@ -988,8 +976,8 @@ counter.addListener(new ChangeListener() {
 
 但是，到底使用哪个 Listener 取决于具体情况。根据经验:
 
-- 如果在 `InvalidationListener` 中需要读取属性值，就应该改用 `ChangeListener`
-- 如果不需要读取属性值，使用 `InvalidationListener`
+- 如果在 `InvalidationListener` 中需要**读取属性值**，就应该改用 `ChangeListener`
+- 如果**不需要读取属性值**，使用 `InvalidationListener`
 
 **示例：** 为 `IntegerProperty` 添加一个 `InvalidationListener` 和一个 `ChangeListener`。
 
@@ -1066,7 +1054,7 @@ After changing the counter value-4
 
 ### Weak Listener
 
-为 `Observable` 添加 `InvalidationListener`，`Observable` 保存对 `InvalidationListener` 的强引用。`ObservableValue` 类似，对注册的 `ChangeListener` 保持强引用。对运行较短的小型应用，基本无法察觉差异；然而在长时间运行的大型应用中，可能会遇到内存泄漏问题。该问题由 `Observable` 对注册 listener 的强引用引起。
+为 `Observable` 添加 `InvalidationListener`，`Observable` 保存对 `InvalidationListener` 的强引用。`ObservableValue` 类似，对注册的 `ChangeListener` 保持强引用。对运行较短的小型应用，基本无法察觉差异；然而在长时间运行的大型应用中，可能会出现内存泄漏问题。该问题由 `Observable` 对注册 listener 的强引用引起。
 
 #### 1. 删除 Listener
 
@@ -1162,13 +1150,13 @@ Counter changed: old = 100, new = 200
 Counter changed: old = 200, new = 300
 ```
 
-第二行输出证明，在 `addStrongListener()` 执行完毕后，`counter` 属性仍然保持对 ChangeListener 的引用。问题是，`addStrongListener()` 执行完毕后，因为 `ChangeListener` 是局部变量，所以失去了对它的引用，因此都无法删除该 listener。
+第二行输出证明，在 `addStrongListener()` 执行完毕后，`counter` 属性仍然保持对 ChangeListener 的引用。问题是，`addStrongListener()` 执行完毕后，因为 `ChangeListener` 是局部变量，所以失去了对它的引用，此时无法删除该 listener。
 
 #### 3. 弱监听器
 
 解决方案是使用弱监听器。弱监听器为 `WeakListener` 接口的实例。JavaFX 提供了 `WeakInvalidationListener` 和 `WeakChangeListener` 两个实现，其类图如下：
 
-<img src="images/2023-06-28-15-52-02.png" style="zoom:50%;" />
+<img src="./images/image-20250730172052622.png" width="700" />
 
 `WeakListener` 接口的 `wasGarbageCollected()` 方法返回该 listener 是否被垃圾回收。下面主要讨论 `ChangeListener`，讨论内容也适用于 `InvalidationListener`。
 
@@ -1182,9 +1170,9 @@ WeakChangeListener<Number> wListener = new WeakChangeListener(cListener);
 counter.addListener(wListener);
 ```
 
-## JavaFX Binding
+## 8. JavaFX Binding
 
-在 JavaFX 中，binding 是一个求值表达式，由一个或多个 observable 类型的依赖项组成。binding 会观察依赖项的变化，并根据需要重新计算值。
+在 JavaFX 中，**binding 是**一个**求值表达式**，由一个或多个 observable 类型的依赖项组成。binding 会观察依赖项的变化，并根据需要重新计算值。
 
 JavaFX 对所有 binding 采用**延迟计算**策略：
 
@@ -1193,7 +1181,7 @@ JavaFX 对所有 binding 采用**延迟计算**策略：
 
 JavaFX 的所有 property 类都支持 binding。
 
-### 创建绑定
+### 创建 binding
 
 **示例：** 两个整数 x 和 y 的加和
 
@@ -1220,7 +1208,7 @@ IntegerProperty y = new SimpleIntegerProperty(200);
 NumberBinding sum = x.add(y);
 ```
 
-binding 的 `isValid()` 方法用于判断 binding 是否有效，有效时返回 `true`，失效时返回 `false`。
+binding 的 `isValid()` 方法用于判断 binding 是否有效，有效时返回 `true`，无效时返回 `false`。
 
 `NumberBinding` 的 `intValue()`, `longValue()`, `floatValue()` 和 `doubleValue()` 返回对应类型的 binding 值。
 
@@ -1238,7 +1226,7 @@ public class BindingTest {
         IntegerProperty y = new SimpleIntegerProperty(200);
 
         // 创建绑定: sum = x + y
-        NumberBinding sum = x.add(y); // 此时 binding 无效
+        NumberBinding sum = x.add(y); // 刚创建的 binding 无效
 
         System.out.println("After creating sum");
         System.out.println("sum.isValid(): " + sum.isValid());
@@ -1288,7 +1276,7 @@ sum = 450
 
 ### Property 绑定
 
-binding 在内部会给它的所有依赖项添加失效监听器。当它的任何依赖项失效，binding 将自身标记为失效。当然，binding 失效并不意味着它的值发生变化，只表示在下一次请求其值时，需要重新计算 binding 值。
+binding 在内部会给它的所有依赖项添加失效监听器。当它的任何依赖项失效，binding 将自身标记为无效。当然，binding 失效并不意味着它的值发生变化，只表示在下一次请求其值时，需要重新计算 binding 值。
 
 可以将 property 与 binding 绑定。binding 是一个自动与其依赖项同步的表达式，根据该定义，绑定的 property 的值基于 binding 表达式，当 binding 的依赖项发生变化时自动同步 property 值。假设有 `x`, `y`, `z` 三个属性：
 
@@ -1351,9 +1339,9 @@ After changing x and y: Bound = true, z = 34
 After unbinding z: Bound = false, z = 34
 ```
 
-```ad-summary
-将 `Property` 与 `Property` 表达式生成的 `Binding` 对象绑定。
-```
+> [!NOTE]
+>
+> 将 `Property` 与 `Property` 表达式生成的 `Binding` 对象绑定。
 
 ### 单向绑定
 
@@ -1376,7 +1364,7 @@ z = x + y
 z.bind(x.add(y)
 ```
 
-单向绑定限制一：`Property` 与 `Binding` 绑定后，不能直接设置 `Property` 值，它的值只能通过绑定自动计算。只有解除绑定，才能直接修改其值。例如：
+**单向绑定限制**一：`Property` 与 `Binding` 绑定后，不能直接设置 `Property` 值，它的值只能通过绑定自动计算。只有解除绑定，才能直接修改其值。例如：
 
 ```java
 IntegerProperty x = new SimpleIntegerProperty(10);
@@ -1394,7 +1382,7 @@ z.unbind(); // Unbind z first
 z.set(7878); // OK
 ```
 
-单向绑定限制二：一个属性一次只能有一个单向绑定。假设 `x`, `y`, `z`, `a`, `b` 都是 `IntegerProperty` 实例：
+**单向绑定限制**二：一个属性一次只能有一个单向绑定。假设 `x`, `y`, `z`, `a`, `b` 都是 `IntegerProperty` 实例：
 
 ```java
 z = x + y
@@ -1403,7 +1391,7 @@ z = a + b
 
 如果 `x`, `y`, `a`, `b` 是 4 个不同的属性，`z` 的两个绑定不能同时发生，否则可能出现冲突。
 
-对已有单向绑定的属性重新绑定，会自动解绑上一个绑定。例如：
+对已有单向绑定的属性重新绑定，会**自动解绑**上一个绑定。例如：
 
 ```java
 IntegerProperty x = new SimpleIntegerProperty(1);
@@ -1428,7 +1416,7 @@ z = 7
 
 双向绑定只能在相同类型的两个属性之间创建。即只有 $x=y$ 或 $y=x$ 两种形式，且 `x` 和 `y` 类型相同。
 
-一个属性可以有多个双向绑定；双向绑定属性可以独立修改值，修改会传递到所有绑定的属性中。例如：
+一个属性可以有**多个双向绑定**；双向绑定属性可以独立修改值，修改会传递到所有绑定的属性中。例如：
 
 ```java
 x = y
@@ -1518,9 +1506,9 @@ x.unbindBidirectional(y);
 x.unbindBidirectional(z);
 ```
 
-## Binding API
+## 9. Binding API
 
-前面几节简单介绍了 JavaFX 绑定的概念，下面详细介绍绑定 API。绑定 API 分为两类：
+前面几节介绍了 JavaFX 绑定的概念，下面详细介绍绑定 API。绑定 API 分为两类：
 
 - 高级绑定 API
 - 底层绑定 API
@@ -1533,7 +1521,7 @@ x.unbindBidirectional(z);
 2. 使用 `Bindings` 工厂方法
 3. 使用属性和 binding 类中的 fluent-api
 
-### 1. 高级 API
+### 高级 API
 
 高级绑定 API 分为两部分：Fluent API 和 `Bindings` 类，两者可以单独定义绑定，也可以组合起来定义绑定。
 
@@ -1570,13 +1558,9 @@ x.add(y).add(z);
 
 ```java
 public interface Binding<T> extends ObservableValue<T> {
-
     boolean isValid();
-
     void invalidate();
-
     ObservableList<?> getDependencies();
-
     void dispose();
 }
 ```
@@ -1587,7 +1571,7 @@ public interface Binding<T> extends ObservableValue<T> {
 
 `invalidate()` 使绑定失效，如果绑定有效，`isValid()` 返回 `true`。
 
-因此，`Binding` 表示具有多个依赖项的单向绑定。每个依赖项都可以给 `Binding` 发送 invalidation-event 使其失效。当通过 `get()` 或 `getValue()` 查询 `Binding` 值时，如果该值失效，则会根据依赖项的值重新计算，该值会缓存用于后续查询，直到 `Binding` 再次失效。
+`Binding` 表示具有多个依赖项的单向绑定。每个依赖项都可以给 `Binding` 发送 invalidation-event 使其失效。当通过 `get()` 或 `getValue()` 查询 `Binding` 值时，如果该值失效，则会根据依赖项的值重新计算，该值会缓存用于后续查询，直到 `Binding` 再次失效。
 
 ##### 2. NumberBinding 接口
 
@@ -2062,7 +2046,7 @@ DoubleProperty area = new SimpleDoubleProperty(0);
 area.bind(Bindings.multiply(Math.PI, radius.multiply(radius)));
 ```
 
-### 2. 底层 API
+### 底层 API
 
 当高级 API 不满足需求，或者高级绑定 API 变得太麻烦。例如，没有计算 `Observable` 数值平方根的方法，此时可以用底层绑定 API。底层绑定 API 更加灵活，代价是没那么方便。
 
@@ -2182,7 +2166,7 @@ Radius = 7.00, Area = 153.94
 Description is invalid.
 Radius = 14.00, Area = 615.75
 ```
-## 示例：使用绑定将 Circle 居中
+## 10. 示例：使用绑定将 Circle 居中
 
 这是在 GUI 中使用绑定的一个简单例子。
 
@@ -2190,7 +2174,7 @@ Radius = 14.00, Area = 615.75
 
 使用 binding 很容易实现该功能。`javafx.scene.shape` 包中的 `Circle` 表示圆，它包含三个属性：`centerX`, `centerY` 和 `radius`，均为 `DoubleProperty` 类型。
 
-```java{.line-numbers}
+```java
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Group;
@@ -2226,7 +2210,7 @@ public class CenteredCircle extends Application {
 }
 ```
 
-@import "images/2023-06-28-14-57-50.png" {width="250px" title=""}
+<img src="images/2023-06-28-14-57-50.png" width="250" />
 
 ### 登录对话框
 
@@ -2238,11 +2222,11 @@ public class CenteredCircle extends Application {
 2. 用户输入密码错误，右侧显示红色 X
 3. 用户输入密码正确，右侧显示绿色 √
 
-@import "images/2023-08-10-14-52-56.png" {width="360px" title=""}
+<img src="images/2023-08-10-14-52-56.png" width="360" />
 
 `User` 作为 domain 对象与 UI 交互：
 
-```java{.line-numbers}
+```java
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
