@@ -405,7 +405,7 @@ jpackage --name MyApp --input samples/myapp --main-jar MyApp.jar \
 
 ### 设置 JVM 选项
 
-在打包时使用 `--java-options` 设置 JVM 选项。用户无法为应用提供 JVM 选项。
+如果需要在程序启动时设置 JVM，可以在打包时使用 `--java-options` 设置 JVM 选项。用户无法为应用提供 JVM 选项。
 
 jpackage 生成的 app-image 的 `/app` 目录下的 `app-name.cfg` 文件中的 `[JavaOptions]` 部分包含定义的 JVM 选项。
 

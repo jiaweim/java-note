@@ -1,7 +1,6 @@
 # JDK 工具
 
 - [jpackage](./jpackage.md)
-
 - [jlink](./jlink.md)
 
 ## 概念
