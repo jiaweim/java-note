@@ -711,3 +711,4 @@ Default resource is *JavaApp.icns*
 ## 参考
 
 - https://docs.oracle.com/en/java/javase/21/docs/specs/man/jpackage.html
+- https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html

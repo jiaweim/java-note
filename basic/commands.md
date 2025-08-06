@@ -92,3 +92,4 @@ java -cp xxx.jar xxx.com.mainClass
 
 - [Oracle docs](https://docs.oracle.com/javase/10/tools/java.htm#JSWOR624)
 - https://help.aliyun.com/zh/sae/serverless-app-engine-classic/use-cases/best-practices-for-jvm-heap-size-configuration
+- https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html
