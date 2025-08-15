@@ -22,15 +22,15 @@ JavaFX 将图表分为两类：
 - legend
 - content
 
-不同类型的 chart 定义数据方式不同，下面是所有 `Chart` 的共同属性。。
+不同类型的 chart 定义数据方式不同，下面是所有 `Chart` 的共同属性。
 
 |属性|说明|
 |---|---|
 |title|标题|
-|titleSide|标题位置，默认上方，可用值 Side enum: TOP, RIGHT, BOTTOM, LEFT|
+|titleSide|标题位置，默认上方，可用值 `Side` enum: TOP, RIGHT, BOTTOM, LEFT|
 |legend|图例|
 |legendSide|指定 legend 位置|
-|legendVisible|legend 可见性|
+|`legendVisible`|legend 可见性|
 |animated|动画效果，default=True|
 
 chart 对不同类型的数据通常使用不同符号表示。legend 列出不同类型数据的符号和描述。`legend` 是 `Node` 类型，指定 chart 的图例，默认在 chart 下方。`legendSide` 属性指定 legend 位置。
@@ -38,6 +38,20 @@ chart 对不同类型的数据通常使用不同符号表示。legend 列出不�
 `legendVisible` 属性指定 legend 是否可见，默认可见。
 
 `animated` 属性指定 chart 内容变化是否以动画形式显示，默认 `true`。
+
+### 数据
+
+在定义 chart 的数据模型时，必须区分包含 Axis 和不包含 Axis 的 chart。
+
+`XYChart` 是所有包含两个坐标轴 chart 的超类，使用 `XYChart.Data` 指定这类 chart 的数据模型：
+
+- `xValue` 属性对应 x 轴
+- `yValue` 属性对应 y 轴
+- 还可以设置一个 `extraValue` 属性，可用于任何目的，比如用于 bubble-chart 的半径
+
+
+
+与 axis chart 不同，pie-chart 不需要定义 x 值和 y 值。pie-chart 有专门的 `PieChart.Data` 定义数据。
 
 ## CSS
 
@@ -193,9 +207,9 @@ public class PieChartTest extends Application {
 |PieChart 属性|说明|
 |---|---|
 |data|指定数据，类型为 `ObservableList<PieChart.Data>`|
-|startAngle|第一个 pie slice 起始角度，默认 0，对应三点钟方向；`startAngle` 为正数表示逆时针方向计算，例如 90° 表示从 12 点钟位置开始|
+|`startAngle`|第一个 pie slice 起始角度，默认 0，对应三点钟方向；`startAngle` 为正数表示逆时针方向计算，例如 90° 表示从 12 点钟位置开始|
 |clockwise|从 startAngle，顺时针或逆时针排列 slices，true 表示顺时针，默认为 true|
-|labelsVisible|slice labels 是否可见，label 在 slice 附近显示，通过 `PieChart.Data` 指定|
+|`labelsVisible`|slice labels 是否可见，label 在 slice 附近显示，通过 `PieChart.Data` 指定|
 |labelLineLength|label 和对应 slice 连线的长度，默认 20.0 px|
 
 PieChart 默认包含标签和 legend。
@@ -507,14 +521,37 @@ public class PieChartCustomSlice extends Application {
 legend 里的每一项都有样式类 `pie-legend-symbol` 加上对应的`data`，例如 `pie-legend-symbol.data0.default-color1` 表示第一个数据的第二种颜色。
 
 ### 事件处理
-虽然 pie chart slice 不是 Node 对象，但是每个 `PieChart.Data` 对象都有一个关联的 node ，可用于事件处理。
+虽然 pie chart slice 不是 `Node` 对象，但是每个 `PieChart.Data` 对象都可以关联一个 `Node` ，可用于事件处理。
+
+**示例**：为 pie-chart 的每个 slice 添加 `MOUSE_PRESSED` 事件处理
+
+```java
+final Label caption = new Label("");
+caption.setTextFill(Color.DARKORANGE);
+caption.setStyle("-fx-font: 24 arial;");
+
+for (final PieChart.Data data : chart.getData()) {
+    data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
+        new EventHandler<MouseEvent>() {
+            @Override public void handle(MouseEvent e) {
+                caption.setTranslateX(e.getSceneX());
+                caption.setTranslateY(e.getSceneY());
+                caption.setText(String.valueOf(data.getPieValue()) + "%");
+             }
+        });
+}
+```
+
+> [!TIP]
+>
+> 没有反复创建 `Label` 的开销。
 
 
 ## XYChart
 
 `XYChart<X.Y>` 定义包含两个坐标轴的 chart。泛型参数 `X` 和 `Y` 分别定义 x-axis 和 y-axis 的数据类型。
 
-### 坐标轴表示
+### 坐标轴
 
 `XYChart` 的坐标轴由抽象类 `Axis<T>` 定义。类图如下：
 
@@ -1060,11 +1097,19 @@ ScatterChart 中每个 legend 被赋予以下样式类名：
 
 ## LineChart
 
-折线图通过使用线段连接一系列数据来显示。数据点本身可以用符号表示。可以将折线图看作散点图，只是 symbols 之间用线段连接。折线图通常用于查看数据随时间或类别的变化趋势。
+折线图使用线段连接一系列数据来显示。数据点本身可以用符号表示。可以将折线图看作散点图，只是 symbols 之间用线段连接。折线图通常用于查看数据随时间或类别的变化趋势。
+
+> [!TIP]
+>
+> 色谱图可以用 LineChart 绘制。
 
 折线图由 `javafx.scene.chart.LineChart` 类实现。该类包含一个 `createSymbols` 属性，默认为 `true`，表示是否为数据创建 `symbol`。设置为 `false` 则只显示连接数据的直线。
 
-`LineChart` 类包含两个构造函数：
+```java
+chart.setCreateSymbols(false);
+```
+
+`LineChart` 类提供了两个构造函数：
 
 ```java
 LineChart(Axis<X> xAxis, Axis<Y> yAxis)
@@ -1074,11 +1119,7 @@ LineChart(Axis<X> xAxis, Axis<Y> yAxis,
 
 **示例**：创建折线图
 
-折线图和散点图非常类似，这里用圆圈表示数据的 symbols，使用以下语句可以去除这些 symbols：
-
-```java
-chart.setCreateSymbols(false);
-```
+折线图和散点图非常类似，这里用圆圈表示数据的 symbols
 
 ```java
 import javafx.application.Application;
@@ -1606,3 +1647,36 @@ public class CustomizingCharts extends Application {
 ```
 
 <img src="./images/image-20250728135009631.png" width="450" />
+
+## 事件处理
+
+### Chart Element 事件
+
+JavaFX 提供的所有 chart 都扩展了 Node 类，并继承了该类的所有方法好厄无属性，以便处理鼠标和键盘事件。如果需要处理的 chart-element 不是 `Node` 类型，则可以使用其 `node` 属性，通过 `setNode` 和 `getNode` 方法将特定 `Node` 与 chart-element 关联。接下来就可以像处理任何其它 `Node` 的事件一样处理 chart-element 事件。
+
+示例：
+
+```java
+for (final XYChart.Data data : chart.getData()) {
+    data.getNode().addEventHandler(
+       //Event handling 
+    );
+}
+```
+
+### 动画
+
+使用 `Chart` 的 `animated` 属性和 `setAnimated` 方法来设置动画功能。
+
+可以使用 `Axis` 的 `animated` 属性和 `setAnimated` 方法为坐标轴添加动画效果。
+
+## 自定义 Chart
+
+通过扩展 `Chart` 或 `XYChart` 类可以自定义实现新的 chart 类型。
+
+
+
+## 参考
+
+- https://docs.oracle.com/javafx/2/charts/jfxpub-charts.htm
+- https://github.com/extjfx/extjfx

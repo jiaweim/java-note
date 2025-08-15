@@ -1,34 +1,11 @@
 # poi-excel
 
-- [poi-excel](#poi-excel)
-  - [简介](#简介)
-  - [SXSSF](#sxssf)
-    - [限制方法](#限制方法)
-  - [功能索引](#功能索引)
-    - [创建 Workbook](#创建-workbook)
-    - [创建 Sheet](#创建-sheet)
-    - [创建 Cells](#创建-cells)
-    - [创建 Date Cells](#创建-date-cells)
-    - [不同 cell 类型](#不同-cell-类型)
-    - [Files vs InputStreams](#files-vs-inputstreams)
-    - [对齐](#对齐)
-    - [边框](#边框)
-    - [迭代 rows 和 cells](#迭代-rows-和-cells)
-    - [迭代空 cell](#迭代空-cell)
-    - [获得 cell 内容](#获得-cell-内容)
-    - [文本提取](#文本提取)
-    - [填充和颜色](#填充和颜色)
-    - [合并 cell](#合并-cell)
-    - [字体](#字体)
-  - [数据格式化](#数据格式化)
-  - [参考](#参考)
-
 2020-05-11, 14:01
 ***
 
 ## 简介
 
-POI 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF 和 XSSF 包含创建、修改和读写 EXCEL 电子表格的方法。包括：
+POI 提供了 HSSF 和 XSSF，分别用于 xls (Excel 97) 和 xlsx (Excel 2007 OOXML) 文件的读写。HSSF 和 XSSF 提供创建、修改和读写 EXCEL 电子表格的方法。包括：
 
 - 提供了底层结构
 - 只读高效事件模型 API
@@ -36,27 +13,27 @@ POI 提供了 HSSF 和 XSSF，分别用于 xls 和 xlsx 文件的读写。HSSF �
 
 使用说明：
 
-- 如果仅仅需要读取表格数据，可以使用 `org.apache.poi.hssf.eventusermodel` 或 `org.apache.poi.xssf.eventusermodel` 包中的事件模型API，可减少内存占用；
-- 如果需要修改或生成 excel，则应该使用 usermodel API；
-- usermodel 比 eventusermodel 的内存占用高，但是使用起来更简单；
-- .xlsx 基于 XML 格式，相对 .xls 基于二进制的格式，占用更多内存。
+- 如果只是读取表格数据，推荐使用 `org.apache.poi.hssf.eventusermodel` 或 `org.apache.poi.xssf.eventusermodel` 包中的事件模型API，可减少内存占用
+- 如果需要修改或生成 excel，则应该使用 usermodel API
+- usermodel 比 eventusermodel 的内存占用高，但是使用起来更简单
+- .xlsx 基于 XML 格式，相对基于二进制的 .xls 格式，占用更多内存
 - sxssf 是基于流的API，在XSSF基础上限制了内存中Row的数目，从而减少内存消耗。
 
 ## SXSSF
 
-POI 在 3.8 版之后，提供了 SXSSF API，该 API 在 XSSF 基础上基于流构建，内存占用低，在生成非常大的电子表格时使用。
+> [!TIP]
+>
+> SXSSF 用于生成大型 .xlsx 文件。
 
-使用限制：
+POI 在 3.8-beta3 引入 SXSSF API，该 API 在 XSSF 基础上基于流构建，内存占用低，在**生成**非常大的电子表格时使用。SXSSF 通过限制可访问 row 的数目减少内存占用，而 XSSF 可以访问所有 rows。使用限制：
 
-- 在一个时间点，只能访问有限的行
-- 不支持 Sheet.clone() 操作
+- 一次只能访问有限的行
+- 不支持 `Sheet.clone()` 操作
 - 不支持函数
 
 ![compare table](images/2020-05-11-14-04-58.png)
 
-SXSSF 作为XSSF 的流版本，通过限制可访问 row 的数目，减少内存占用。
-
-在自动刷新模式，可以指定保存在内存中 row 的数量。当达到 row 限制，创建新的 row 会使索引最小的行写入磁盘，不能再访问。
+在自动刷新模式，可以指定保存在内存中 row 的数量。当达到 row 限制，创建新的 row 会使索引最小的 row 写入磁盘，不能再访问。
 
 也可以将窗口设置为动态增长，可以根据需要显式调用 `flushRows(int keepRows)` 来定期调整。
 
@@ -129,9 +106,9 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 }
 
 // xlsx
-Workbook wb2 = new XSSFWorkbook();
+Workbook wb = new XSSFWorkbook();
 try (OutputStream fileOut = new FileOutputStream("workbook.xlsx")) {
-    wb2.write(fileOut);
+    wb.write(fileOut);
 }
 ```
 
@@ -152,6 +129,12 @@ Sheet sheet2 = wb.createSheet("second sheet");
 // forward slash (/)
 // opening square bracket ([)
 // closing square bracket (])
+
+// 也可以使用 org.apache.poi.ss.util.WorkbookUtil
+// #createSafeSheetName(String nameProposal) 创建有效 sheet-name，它将无效字符替换为空格
+// 下面 returns " O'Brien's sales   "
+String safeName = WorkbookUtil.createSafeSheetName("[O'Brien's sales*?]"); 
+Sheet sheet3 = wb.createSheet(safeName);
 
 try(OutputStream fileOut = new FileOutputStream("workbook.xls")){
     wb.write(fileOut);
@@ -185,6 +168,7 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 
 ```java
 Workbook wb = new HSSFWorkbook();
+// Workbook wb = new XSSFWorkbook();
 CreationHelper creationHelper = wb.getCreationHelper();
 Sheet sheet = wb.createSheet("new sheet");
 
@@ -276,8 +260,7 @@ pkg.close();
 ### 对齐
 
 ```java
-public static void main(String[] args) throws Exception
-{
+public static void main(String[] args) throws Exception{
     Workbook wb = new XSSFWorkbook(); //or new HSSFWorkbook();
     Sheet sheet = wb.createSheet();
     Row row = sheet.createRow(2);
@@ -305,8 +288,8 @@ public static void main(String[] args) throws Exception
     * @param halign the horizontal alignment for the cell.
     * @param valign the vertical alignment for the cell.
     */
-private static void createCell(Workbook wb, Row row, int column, HorizontalAlignment halign, VerticalAlignment valign)
-{
+private static void createCell(Workbook wb, Row row, int column, 
+		HorizontalAlignment halign, VerticalAlignment valign){
     Cell cell = row.createCell(column);
     cell.setCellValue("Align It");
     CellStyle cellStyle = wb.createCellStyle();
@@ -371,7 +354,7 @@ for (Sheet sheet : wb) {
 
 ### 迭代空 cell
 
-CellIterator 会自动跳过空 cell，要访问空 cell，可以先获取索引信息，然后调用 `getCell(int, MissingCellPolicy)` 访问 cell。使用 `MissingCellPolicy` 设置如何处理 blank 或 null cell。
+`CellIterator` 会自动跳过空 cell，要访问空 cell，可以先获取索引信息，然后调用 `getCell(int, MissingCellPolicy)` 访问 cell。使用 `MissingCellPolicy` 设置如何处理 blank 或 null cell。
 
 ```java
 // 确定要处理的 rows
@@ -404,13 +387,14 @@ DataFormatter formatter = new DataFormatter();
 Sheet sheet1 = wb.getSheetAt(0);
 for (Row row : sheet1) {
     for (Cell cell : row) {
-        CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
-        System.out.print(cellRef.formatAsString());
+        CellReference cellRef = new CellReference(row.getRowNum(), 
+                                                  cell.getColumnIndex());
+        System.out.print(cellRef.formatAsString()); // cell 引用，例如 A3
         System.out.print(" - ");
-        // get the text that appears in the cell by getting the cell value and applying any data formats (Date, 0.00, 1.23e9, $1.23, etc)
+        // 获取 cell 值，应用格式化
         String text = formatter.formatCellValue(cell);
         System.out.println(text);
-        // Alternatively, get the value and format it yourself
+        // 也可以获取 cell 值，自己格式化
         switch (cell.getCellType()) {
             case CellType.STRING:
                 System.out.println(cell.getRichStringCellValue().getString());
@@ -488,6 +472,7 @@ wb.close();
 ```java
 Workbook wb = new HSSFWorkbook();
 Sheet sheet = wb.createSheet("new sheet");
+
 Row row = sheet.createRow(1);
 Cell cell = row.createCell(1);
 cell.setCellValue("This is a test of merging");
@@ -509,21 +494,26 @@ wb.close();
 ```java
 Workbook wb = new HSSFWorkbook();
 Sheet sheet = wb.createSheet("new sheet");
+
 // Create a row and put some cells in it. Rows are 0 based.
 Row row = sheet.createRow(1);
+
 // Create a new font and alter it.
 Font font = wb.createFont();
 font.setFontHeightInPoints((short) 24);
 font.setFontName("Courier New");
 font.setItalic(true);
 font.setStrikeout(true);
+
 // Fonts are set into a style so create a new one to use.
 CellStyle style = wb.createCellStyle();
 style.setFont(font);
+
 // Create a cell and put a value in it.
 Cell cell = row.createCell(1);
 cell.setCellValue("This is a test of fonts");
 cell.setCellStyle(style);
+
 // Write the output to a file
 try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
     wb.write(fileOut);
@@ -531,6 +521,8 @@ try (OutputStream fileOut = new FileOutputStream("workbook.xls")) {
 wb.close();
 ```
 
+> [!NOTE]
+>
 > workbook 支持最大字体数为 32767，在应用中应该重用字体，而不是为每个 cell 创建字体，例如：
 
 错误示范：
@@ -561,6 +553,70 @@ for (int i = 0; i < 10000; i++) {
     cell.setCellStyle(style);
 }
 ```
+
+### 自定义颜色
+
+- HSSF
+
+```java
+HSSFWorkbook wb = new HSSFWorkbook();
+HSSFSheet sheet = wb.createSheet();
+HSSFRow row = sheet.createRow(0);
+HSSFCell cell = row.createCell(0);
+cell.setCellValue("Default Palette");
+
+// 从标准调色板中挑选一个颜色
+HSSFCellStyle style = wb.createCellStyle();
+style.setFillForegroundColor(HSSFColor.LIME.index);
+style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+HSSFFont font = wb.createFont();
+font.setColor(HSSFColor.RED.index);
+style.setFont(font);
+
+cell.setCellStyle(style);
+
+// save with the default palette
+try (OutputStream out = new FileOutputStream("default_palette.xls")) {
+    wb.write(out);
+}
+//now, let's replace RED and LIME in the palette
+// with a more attractive combination
+// (lovingly borrowed from freebsd.org)
+cell.setCellValue("Modified Palette");
+//creating a custom palette for the workbook
+HSSFPalette palette = wb.getCustomPalette();
+//replacing the standard red with freebsd.org red
+palette.setColorAtIndex(HSSFColor.RED.index,
+        (byte) 153,  //RGB red (0-255)
+        (byte) 0,    //RGB green
+        (byte) 0     //RGB blue
+);
+//replacing lime with freebsd.org gold
+palette.setColorAtIndex(HSSFColor.LIME.index, (byte) 255, (byte) 204, (byte) 102);
+//save with the modified palette
+// note that wherever we have previously used RED or LIME, the
+// new colors magically appear
+try (out = new FileOutputStream("modified_palette.xls")) {
+    wb.write(out);
+}
+```
+
+- XSSF
+
+```java
+XSSFWorkbook wb = new XSSFWorkbook();
+XSSFSheet sheet = wb.createSheet();
+XSSFRow row = sheet.createRow(0);
+XSSFCell cell = row.createCell( 0);
+cell.setCellValue("custom XSSF colors");
+
+XSSFCellStyle style1 = wb.createCellStyle();
+style1.setFillForegroundColor(new XSSFColor(new java.awt.Color(128, 0, 128), new DefaultIndexedColorMap()));
+style1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+```
+
+
 
 ## 数据格式化
 

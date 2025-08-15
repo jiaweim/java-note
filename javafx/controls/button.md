@@ -474,7 +474,7 @@ public class ToggleButtonTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230717175428.png)
+![|350](images/Pasted%20image%2020230717175428.png)
 
 ### 3.2. RadioButton
 
@@ -565,7 +565,7 @@ public class RadioButtonTest extends Application {
 }
 ```
 
-![|350](Pasted%20image%2020230721132525.png)
+![|350](images/Pasted%20image%2020230721132525.png)
 
 ### 3.3. CheckBox
 

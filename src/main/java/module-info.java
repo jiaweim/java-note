@@ -58,6 +58,7 @@ module java.module {
     requires org.reactivestreams;
     requires reactor.test;
     requires parallel.collectors;
+    requires org.controlsfx.controls;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
@@ -70,6 +71,7 @@ module java.module {
     opens mjw.jcommander;
 
     opens mjw.jgrapht;
+    opens mjw.controlsfx;
     opens mjw.guava;
     opens mjw.dflib;
     opens mjw.commons.math;
