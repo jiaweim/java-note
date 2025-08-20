@@ -13,7 +13,7 @@
 - local 坐标系中的点 P 在平移前后坐标不变
 - local 坐标系原点在 parent 坐标系发生变化，从 (0, 0) 变为 (3, 2)
 
-![|400](Pasted%20image%2020230726164738.png)
+<img src="images/Pasted%20image%2020230726164738.png" width="400" />
 
 ## 2. Translation 类
 
@@ -88,4 +88,4 @@ public class TranslateTest extends Application {
 }
 ```
 
-![|300](Pasted%20image%2020230726172005.png)
+<img src="images/Pasted%20image%2020230726172005.png" width="300" />

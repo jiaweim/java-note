@@ -6,7 +6,7 @@
 
 在旋转变换中，坐标轴以 pivot 为中心进行旋转，坐标系中的点映射到新的坐标系。绕 Z 轴旋转30°的示意图：
 
-![|300](Pasted%20image%2020230726172217.png)
+<img src="images/Pasted%20image%2020230726172217.png" alt="|300" width="300" />
 
 ## 2. Rotate 类
 
