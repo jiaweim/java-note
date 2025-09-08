@@ -59,6 +59,8 @@ module java.module {
     requires reactor.test;
     requires parallel.collectors;
     requires org.controlsfx.controls;
+    requires org.apache.commons.rng.simple;
+    requires org.apache.commons.rng.api;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
