@@ -149,6 +149,43 @@ stats.getAsDouble(Statistic.MEAN);   // 15.0 / 4
 
 ## 概率分布
 
+`commons-statistics-distribution` 模块为一些常见的概率分布提供了框架和实现。连续单变量分布又 `ContinuousDistribution` 接口标识。离散分布则由 `DiscreteDistribution` 接口表示。
+
+分布框架为集中常见的离散分布（整数值）和连续概率分布提供计算概率密度和累计概率函数。还支持计算反向累计概率和从分布抽样功能。
+
+- 对分布 `F` 的实例 `f`，`f.cumulativeProbability(x)` 计算 `P(X <= x)` 的概率，即累计概率值
+- `f.survivalProbability(x)` 计算 `P(X > x)`，即累计概率的互补值，大约等于 `1-P(X <= x)`
+
+例如：
+
+```java
+TDistribution t = TDistribution.of(29);
+double lowerTail = t.cumulativeProbability(-2.656);   // P(T(29) <= -2.656)
+double upperTail = t.survivalProbability(2.75);       // P(T(29) > 2.75)
+```
+
+对离散分布 `F`，概率质量函数为 `f.probability(x)`。对连续分布 `F`，概率密度函数为 `f.density(x)`。另外还提供了 `f.probability(x1,x2)` 函数，计算 `P(x1 < X <=x2)`。
+
+```java
+PoissonDistribution pd = PoissonDistribution.of(1.23);
+double p1 = pd.probability(5);
+double p2 = pd.probability(5, 5);
+double p3 = pd.probability(4, 5);
+// p2 == 0
+// p1 == p3
+```
+
+`inverseCumulativeProbability` 和 `inverseSurvivalProbability` 根据概率计算 x 值。示例：
+
+```java
+NormalDistribution n = NormalDistribution.of(0, 1);
+double x1 = n.inverseCumulativeProbability(1e-300);
+double x2 = n.inverseSurvivalProbability(1e-300);
+// x1 == -x2 ~ -37.0471
+```
+
+
+
 ## 统计推断
 
 `commons-statistics-inference` 提供假设检验功能。
@@ -166,6 +203,10 @@ stats.getAsDouble(Statistic.MEAN);   // 15.0 / 4
 ## 排序转换
 
 `commons-statistics-ranking` 模块提供排序转换功能。
+
+> [!NOTE]
+>
+> commons-statistics-ranking 目前只提供了 `NaturalRanking` 这一种排序算法。
 
 - `NaturalRanking` 根据浮点数的自然排序提供排名。按输入数字的顺序分配 ranks，从 1 开始：
 
