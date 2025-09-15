@@ -1,5 +1,8 @@
 # Apache Commons Statistics
 
+2025-09-15
+@author Jiawei Mao
+***
 ## 简介
 
 Apache Commons Statistics 提供统计功能，其代码起源于 commons-math 项目，为了更好的维护而被提取到单独的项目，此后经历了许多改进。
@@ -76,6 +79,35 @@ commons-statistics 针对不同类型有不同实现，以保证最佳性能和�
 | `StandardDeviation` | 标准差       |
 | `Variance`          | 方差         |
 
+### Quantile 和 Median
+
+`Median` 计算中位数，`Quantile` 则计算分位数。计算这两个统计量需要对数据排序，所以单独列出来。
+
+**Median**
+
+对 `Median`，假设数组长度为 `n`，令 `k=n/2`，那么：
+
+- 如果 `n=0`，返回 `NaN`
+- 如果 `n` 为奇数，返回 `values[k]`，正中间
+- 如果 `n` 为偶数，返回 `(values[k-1]+values[k])/2`
+
+排序后 `NaN` 值的顺序默认与 `Double.compare(double, double)` 一致。
+
+如果所选中位数的位置包含 `NaN`，也返回 `NaN`。
+
+使用方式：
+
+```java
+double median = Median.withDefaults().evaluate(values);
+```
+
+**Quantile**
+
+对 `Quantile`，假设数组长度为 `n`，那么：
+
+- 如果 `n=0`，返回 `NaN`
+- 如果 `n=1`，返回 `values[0]`
+- 其它情况则根据 `EstimationMethod` 计算
 
 ### 计算单个统计量
 
@@ -146,6 +178,22 @@ stats.getAsDouble(Statistic.MEAN);   // 15.0 / 4
 ```
 
 ### 多个数组
+
+### 需要所有数据
+
+计算需要所有数据的统计量（如 `Median`）不支持 `Stream` API，使用对应的实例类计算：
+
+```java
+double[] data = {8, 7, 6, 5, 4, 3, 2, 1};
+// Configure the statistic
+double m = Median.withDefaults()
+                 .withCopy(true)          // do not modify the input array
+                 .with(NaNPolicy.ERROR)   // raise an exception for NaN
+                 .evaluate(data);
+// m = 4.5
+```
+
+
 
 ## 概率分布
 

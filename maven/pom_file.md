@@ -1,12 +1,8 @@
-# POM
+# POM 文件
 
-- [POM](#pom)
-  - [简介](#简介)
-  - [POM 文件内容](#pom-文件内容)
-  - [Properties](#properties)
-  - [配置 encoding](#配置-encoding)
-  - [Developers](#developers)
-
+2025-09-15: add scm
+@author Jiawei Mao
+***
 ## 简介
 
 POM (Project Object Model) 是 XML 文件，一般在项目的根目录，命名为 `pom.xml`.
@@ -149,3 +145,64 @@ POM 文件中通过 `<properties>` 元素定义的值。例如 `<properties><som
 - roles: A role should specify the standard actions that the person is responsible for. Like a single person can wear many hats, a single person can take on multiple roles.
 - timezone: A valid time zone ID like America/New_York or Europe/Berlin, or a numerical offset in hours (and fraction) from UTC where the developer lives, e.g., -5 or +1. Time zone IDs are highly preferred because they are not affected by DST and time zone shifts. Refer to the IANA for the official time zone database and a listing in Wikipedia.
 - properties: This element is where any other properties about the person goes. For example, a link to a personal image or an instant messenger handle. Different plugins may use these properties, or they may simply be for other developers who read the POM.
+
+## 环境设置
+
+### scm
+
+SCM (Source Code Management，就是版本控制) 是一个健康项目不可或缺的一部分。Maven 项目将 scm 信息放在 `<scm>` 元素下：
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  ...
+  <scm>
+    <connection>scm:svn:http://127.0.0.1/svn/my-project</connection>
+    <developerConnection>scm:svn:https://127.0.0.1/svn/my-project</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://127.0.0.1/websvn/my-project</url>
+  </scm>
+  ...
+</project>
+```
+
+- `<connection>`, `<developerConnection>`
+
+这两个 connection 元素指示如何通过 Maven 连接版本控制系统。其中：
+
+1. `<connection>` 要求 Maven 有读取权限查找源码
+
+2. `<developerConnection>` 需要 maven 有写入权限
+
+maven 项目催生了 maven-scm 项目，它为其它 maven 插件和工具提供使用 scm 工具的通用 API。支持的 scm 如下表所示：
+
+| **SCM**                                                    | **Provider ID** | **Provider Module**                                          |
+| ---------------------------------------------------------- | --------------- | ------------------------------------------------------------ |
+| [Git](https://maven.apache.org/scm/git.html)               | `git`           | [Git Executable Provider](https://maven.apache.org/scm/maven-scm-providers/maven-scm-providers-git/maven-scm-provider-gitexe/index.html) |
+| [Git](https://maven.apache.org/scm/git.html)               | `jgit`          | [JGit Provider](https://maven.apache.org/scm/maven-scm-providers/maven-scm-providers-git/maven-scm-provider-jgit/index.html) |
+| [Subversion](https://maven.apache.org/scm/subversion.html) | `svn`           | [SVN Executable Provider](https://maven.apache.org/scm/maven-scm-providers/maven-scm-providers-svn/maven-scm-provider-svnexe/index.html) |
+| [Mercurial](https://maven.apache.org/scm/mercurial.html)   | `hg`            | [Mercurial (Hg) Provider](https://maven.apache.org/scm/maven-scm-providers/maven-scm-provider-hg/index.html) |
+| [Local](https://maven.apache.org/scm/local.html)           | `local`         | [Local Provider](https://maven.apache.org/scm/maven-scm-providers/maven-scm-provider-local/index.html) |
+
+所有 scm connection 都通过一个通用 URL 结构进行：
+
+```url
+scm:[provider]:[provider_specific]
+```
+
+其中，provider 为 SCM 系统类型。例如，连接到 CVS 仓库的 url 大致如下：
+
+```url
+scm:cvs:pserver:127.0.0.1:/cvs/root:my-project
+```
+
+- `<tag>`
+
+指定项目所在的 tag，默认为 `HEAD`, 表示 scm-root
+
+- `<url>`
+
+公共可浏览的仓库地址。
+
+## 参考
+
+- https://maven.apache.org/pom.html
