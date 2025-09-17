@@ -43,7 +43,7 @@ pane.setPrefSize(100, 100);
 }
 ```
 
-![](Pasted%20image%2020230620171214.png)
+<img src="images/Pasted%20image%2020230620171214.png" style="zoom:50%;" />
 
 解释：
 

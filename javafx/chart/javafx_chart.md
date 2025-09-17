@@ -551,30 +551,6 @@ for (final PieChart.Data data : chart.getData()) {
 
 `XYChart<X.Y>` 定义包含两个坐标轴的 chart。泛型参数 `X` 和 `Y` 分别定义 x-axis 和 y-axis 的数据类型。
 
-### 坐标轴
-
-`XYChart` 的坐标轴由抽象类 `Axis<T>` 定义。类图如下：
-
-<img src="./images/image-20250619114708266.png" width="300" />
-
-泛型参数 `T` 表示数据类型，如 `String`, `Number` 等。
-
-axis 显示 tick 和 tick-labels，`Axis` 包含相关设置方法。
-
-`Axis` 的 `label` 属性定义轴标签。
-
-`CategoryAxis` 和 `NumberAxis` 分别用于绘制 `String` 和 `Number`。它们包含特定于数值的属性，例如，`NumberAxis` 继承 `ValueAxis<T>` 的 `lowerBound` 和 `upperBound` 属性，用于指定数据的最小值和最大值。默认情况下，`ValueAxis` 范围一般根据数据自动确定，可以将 `Axis<T>` 的 `autoRanging` 属性设置为 false 来关闭该行为。
-
-示例：分别创建 `CategoryAxis` 和 `NumberAixs`，并设置标签
-
-```java
-CategoryAxis xAxis = new CategoryAxis();
-xAxis.setLabel("Country");
-
-NumberAxis yAxis = new NumberAxis();
-yAxis.setLabel("Population (in millions)");
-```
-
 ### 添加数据
 
 `XYChart` 中的数据包含 $(x,y)$ 坐标。`XYChart` 的数据保存在 `ObservableList` 类型的命名 series 中，每个 series 包含多个数据。如何渲染数据点取决于图表类型。例如，散点图将数据点渲染为 symbol，而条形图将其渲染为一个 bar。
@@ -703,6 +679,165 @@ public class XYChartDataUtil {
         return data;
     }
 }
+```
+
+## 坐标轴
+
+`XYChart` 的坐标轴由抽象类 `Axis<T>` 定义。类图如下：
+
+<img src="./images/image-20250619114708266.png" width="300" />
+
+泛型参数 `T` 表示数据类型，如 `String`, `Number` 等。
+
+axis 显示 tick 和 tick-labels，`Axis` 包含相关设置方法。
+
+`Axis` 的 `label` 属性定义轴标签。
+
+`CategoryAxis` 和 `NumberAxis` 分别用于绘制 `String` 和 `Number`。它们包含特定于数值的属性，例如，`NumberAxis` 继承 `ValueAxis<T>` 的 `lowerBound` 和 `upperBound` 属性，用于指定数据的最小值和最大值。默认情况下，`ValueAxis` 范围一般根据数据自动确定，可以将 `Axis<T>` 的 `autoRanging` 属性设置为 false 来关闭该行为。
+
+示例：分别创建 `CategoryAxis` 和 `NumberAixs`，并设置标签
+
+```java
+CategoryAxis xAxis = new CategoryAxis();
+xAxis.setLabel("Country");
+
+NumberAxis yAxis = new NumberAxis();
+yAxis.setLabel("Population (in millions)");
+```
+
+### 坐标轴范围
+
+`NumberAxis` 会自动计算其范围和 tick-labels，其逻辑在 `NumberAxis.autoRange` 方法中：
+
+```java
+// minValue, 显示的最小值
+// maxValue, 显示的最大值
+// length, 坐标轴显示区域长度
+// labelSize, 标签的大致平均尺寸
+protected Object autoRange(double minValue, double maxValue, 
+                           double length, double labelSize) {
+    final Side side = getEffectiveSide();
+    // 1. 检查是否强制包含 0，并据此调整范围
+    if (isForceZeroInRange()) {
+        if (maxValue < 0) {
+            maxValue = 0;
+        } else if (minValue > 0) {
+            minValue = 0;
+        }
+    }
+    // 计算可以容纳的 tick-marks 数
+    int numOfTickMarks = (int)Math.floor(length/labelSize);
+    // 最少 2 个 tick marks
+    numOfTickMarks = Math.max(numOfTickMarks, 2);
+    // 最少 1 个 minor-ticks
+    int minorTickCount = Math.max(getMinorTickCount(), 1);
+
+    double range = maxValue-minValue;
+
+    if (range != 0 && range/(numOfTickMarks*minorTickCount) <= Math.ulp(minValue)) {
+        range = 0;
+    }
+    // pad min and max by 2%, checking if the range is zero
+    final double paddedRange = (range == 0)
+            ? minValue == 0 ? 2 : Math.abs(minValue)*0.02
+            : Math.abs(range)*1.02;
+    final double padding = (paddedRange - range) / 2;
+    // if min and max are not zero then add padding to them
+    double paddedMin = minValue - padding;
+    double paddedMax = maxValue + padding;
+    // check padding has not pushed min or max over zero line
+    if ((paddedMin < 0 && minValue >= 0) || (paddedMin > 0 && minValue <= 0)) {
+        // padding pushed min above or below zero so clamp to 0
+        paddedMin = 0;
+    }
+    if ((paddedMax < 0 && maxValue >= 0) || (paddedMax > 0 && maxValue <= 0)) {
+        // padding pushed min above or below zero so clamp to 0
+        paddedMax = 0;
+    }
+    // calculate tick unit for the number of ticks can have in the given data range
+    double tickUnit = paddedRange/numOfTickMarks;
+    // search for the best tick unit that fits
+    double tickUnitRounded = 0;
+    double minRounded = 0;
+    double maxRounded = 0;
+    int count = 0;
+    double reqLength = Double.MAX_VALUE;
+    String formatter = "0.00000000";
+    // loop till we find a set of ticks that fit length and result in a total of less than 20 tick marks
+    while (reqLength > length || count > 20) {
+        int exp = (int)Math.floor(Math.log10(tickUnit));
+        final double mant = tickUnit / Math.pow(10, exp);
+        double ratio = mant;
+        if (mant > 5d) {
+            exp++;
+            ratio = 1;
+        } else if (mant > 1d) {
+            ratio = mant > 2.5 ? 5 : 2.5;
+        }
+        if (exp > 1) {
+            formatter = "#,##0";
+        } else if (exp == 1) {
+            formatter = "0";
+        } else {
+            final boolean ratioHasFrac = Math.rint(ratio) != ratio;
+            final StringBuilder formatterB = new StringBuilder("0");
+            int n = ratioHasFrac ? Math.abs(exp) + 1 : Math.abs(exp);
+            if (n > 0) formatterB.append(".");
+            for (int i = 0; i < n; ++i) {
+                formatterB.append("0");
+            }
+            formatter = formatterB.toString();
+
+        }
+        tickUnitRounded = ratio * Math.pow(10, exp);
+        // move min and max to nearest tick mark
+        minRounded = Math.floor(paddedMin / tickUnitRounded) * tickUnitRounded;
+        maxRounded = Math.ceil(paddedMax / tickUnitRounded) * tickUnitRounded;
+        // calculate the required length to display the chosen tick marks for real, this will handle if there are
+        // huge numbers involved etc or special formatting of the tick mark label text
+        double maxReqTickGap = 0;
+        double last = 0;
+        count = (int)Math.ceil((maxRounded - minRounded)/tickUnitRounded);
+        double major = minRounded;
+        for (int i = 0; major <= maxRounded && i < count; major += tickUnitRounded, i++)  {
+            Dimension2D markSize = measureTickMarkSize(major, getTickLabelRotation(), formatter);
+            double size = side.isVertical() ? markSize.getHeight() : markSize.getWidth();
+            if (i == 0) { // first
+                last = size/2;
+            } else {
+                maxReqTickGap = Math.max(maxReqTickGap, last + 6 + (size/2) );
+            }
+        }
+        reqLength = (count-1) * maxReqTickGap;
+        tickUnit = tickUnitRounded;
+
+        // fix for RT-35600 where a massive tick unit was being selected
+        // unnecessarily. There is probably a better solution, but this works
+        // well enough for now.
+        if (numOfTickMarks == 2 && reqLength > length) {
+            break;
+        }
+        if (reqLength > length || count > 20) tickUnit *= 2; // This is just for the while loop, if there are still too many ticks
+    }
+    // calculate new scale
+    final double newScale = calculateNewScale(length, minRounded, maxRounded);
+    // return new range
+    return new Object[]{minRounded, maxRounded, tickUnitRounded, newScale, formatter};
+}
+```
+
+对 `ValueAxis`，要手动设置其坐标轴范围，首先需要关闭 `autoRanging`：
+
+```java
+xAxis.setAutoRanging(false);
+```
+
+然后设置的范围才能生效：
+
+```java
+yAxis.setLowerBound(-25);
+yAxis.setUpperBound(25);
+yAxis.setTickUnit(5);
 ```
 
 ## BarChart
@@ -1079,7 +1214,7 @@ public class ScatterChartTest extends Application {
 
 具体含义可以参考 [BarChart](#css-设置-barchart-样式)。
 
-ScatterChart 中每个 legend 被赋予以下样式类名：
+`ScatterChart` 中每个 legend 被赋予以下样式类名：
 
 - `chart-symbol`
 - `series<i>`
