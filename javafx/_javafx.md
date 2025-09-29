@@ -177,6 +177,6 @@ https://bitbucket.org/datafx/datafx
 - [ ] [JavaFX 11 API](https://openjfx.io/javadoc/11/index.html)
 - [ ] https://fxdocs.github.io/docs/html5/
 - [x] [Zetcode 教程](http://zetcode.com/gui/javafx/)
-- http://www.guigarage.com/javafx-training-tutorials/
-- https://github.com/mhrimaz/AwesomeJavaFX
-- https://github.com/jjenkov/javafx-examples
+- [ ] http://www.guigarage.com/javafx-training-tutorials/
+- [ ] https://github.com/mhrimaz/AwesomeJavaFX
+- [ ] https://github.com/jjenkov/javafx-examples

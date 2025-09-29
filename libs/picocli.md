@@ -6,10 +6,11 @@
 
 `Picocli` 是一个用于辅助创建命令行应用的工具包，支持多种 JVM 语言。包含如下特性：
 
-- 源码文件只有一个，把源码放在项目中就能使用；
-- 支持 `POSIX`, `GNU` 和 `MS-DOS`等多种命令行语法风格；
-- 生成的帮助信息可通过 ANSI 颜色和样式自定义；
-- 命令输入支持 TAB 自动补全。
+- 只有一个源文件，把源码放在项目中就能使用
+- 支持 `POSIX`, `GNU` 和 `MS-DOS`等多种命令行语法风格
+- 支持通过 ANSI 颜色和样式自定义帮助信息
+- 命令输入支持 TAB 自动补全
+- 可以为应用生成漂亮的文档，包括 HTML，PDF, Unix man pages 格式
 
 `picocli` 通过注释完成字段的识别，然后将输入转换为字段对应的类型。
 
@@ -56,8 +57,9 @@ class CheckSum implements Callable<Integer> {
 }
 ```
 
-上例调用 `CommandLine.execute` 解析命令行。
-## 快速入门
+实现 `Runnable` 或 `Callable`，一行代码就能解析并运行命令。上例在 `main` 中调用 `CommandLine.execute` 解析命令行。`mixinStandardHelpOptions` 属性添加 `--help` 和 `--version` 选项。
+
+## 入门
 
 picocli 可以作为外部依赖项使用，也可以直接包含其源代码。
 ### 添加外部依赖
@@ -66,7 +68,7 @@ picocli 可以作为外部依赖项使用，也可以直接包含其源代码。
 <dependency>
   <groupId>info.picocli</groupId>
   <artifactId>picocli</artifactId>
-  <version>4.7.5</version>
+  <version>4.7.7</version>
 </dependency>
 ```
 ### 包含源码
@@ -74,10 +76,19 @@ picocli 可以作为外部依赖项使用，也可以直接包含其源代码。
 从 [picocli GitHub](https://github.com/remkop/picocli/blob/main/src/main/java/picocli/CommandLine.java) 下载源码，直接添加到项目中。
 ### Annotation Processor
 
+`picocli-codegen` 模块包含一个注释处理器，该处理器可以在编译时从 picocli 注释构建模型。
+
+启用该注释处理器是可选的，但是强烈推荐。它支持：
+
+- **编译时错误检查**：注释处理器在编译时会立刻显示无效注释和属性，而不是到运行时才反馈错误，从而缩短了反馈周期
+- **GraalVm native images:** 注释处理器在编译时生成并更新 META-INF/native-image/picocli-generated/$project 下的 GraalVM 配置文件。包含发射、资源和动态代理的配置文件。通过嵌入这些文件，jar 可以快速启用 Graal。在大多数情况下不需要进一步配置就可以生成 native-imge。
+
+#### Processor 选项：`project`
+
+picocli 注释处理器支持许多选项，其中最重要的是设置输出子目录的 `project` 选项：生成的文件被写入 `META-INF/native-image/picocli-generated/${project}`。一个常用选择是设置为 Maven `${project.groupId}/${project.artifactId}`，
 
 
-
-# 选项（Options）和参数（Parameters）
+## 选项（Options）和参数（Parameters）
 命令行参数可以分为选项（*options*）和位置参数（*positional parameters*）两类。
 - 选项（option）具有名称的参数；
 - 位置参数（positional parameter）则是跟着选项后的参数值。
@@ -88,7 +99,7 @@ picocli 可以作为外部依赖项使用，也可以直接包含其源代码。
 
 对这两类参数，picocli 分别使用 `@Option` 和 `@Parameters` 进行注释。
 
-## 选项（Options）
+### 选项（Options）
 选项为命名参数，而且一个选项可以包含多个名称。例如：
 
 ```java
@@ -133,12 +144,12 @@ public class Tar
 - `create` 字段选项名称只有一个，即 `-c`；
 - `archive` 和 `helpRequested` 字段选项名称有两个
 
-## 交互式选项（Interactive Options, Password）
+### 交互式选项（Interactive Options, Password）
 
 对标记为 `interactive` 的选项和参数，会提示在控制台输入值。对 Java 6 以上的版本，
 picocli 使用 `Console.readPassword` 读取值，以防止密码在控制台显示。
 
-### 实例
+#### 实例
 
 下面演示使用交互式选项输入密码。例：
 
@@ -201,7 +212,7 @@ Enter value for --password (Passphrase):
 Hi user123, your password is hashed to pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM=.
 ```
 
-### 可选交互模式
+#### 可选交互模式
 交互选项，默认会使程序等待标准输入。对需要同时以交互模式和批处理模式运行的命令，
 
 在交互选项的`arity`的为默认值0，即不带参数。从 picocli 3.9.6 开始，设置 `arity="0..1"`后
