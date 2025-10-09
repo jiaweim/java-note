@@ -1,5 +1,6 @@
 # JCommander
 
+2025-10-09: 根据最新版 JCommander 3.0 更新
 2021-03-13 ⭐
 @author Jiawei Mao
 ***
@@ -80,7 +81,7 @@ $ java Main -l 512 --pattern 2
 
 ## 2. 参数类型
 
-JCommander 默认支持基本类型，对其它类型需要自定义类型转换器。不过，JCommander 已经为许多常用的特殊类型提供了转换器，如 `char[]`, `File`, `Path`, `URI` 等。
+JCommander 默认支持基本类型，对其它类型需要自定义类型转换器。JCommander 已经为许多常用类型提供转换器，如 `char[]`, `File`, `Path`, `URI` 等。
 
 ### 2.1 Boolean
 
@@ -89,9 +90,9 @@ JCommander 默认支持基本类型，对其它类型需要自定义类型转换
 @Parameter(names = "-debug", description = "Debug mode")
 private boolean debug = false;
 ```
-当 JCommander 检测到 `-debug` 选项，自动将 `debug` 设置为 true，`-debug` 后面不需要额外参数值。
+`arity=0` 类型参数在命令行中不需要添加参数值，在解析过程中检测到这类参数，会将相应字段设置为 `true`。所以，当 JCommander 检测到 `-debug` 选项，自动将 `debug` 设置为 true，`-debug` 后面不需要额外参数值。
 
-如果需要 `debug` 默认为 true，则可以设置 arity=1，这样 `-debug` 后面可以带参数，此时 `-debug` 选项后面就必须指定参数值：
+如果需要 `debug` 默认为 `true`，则可以设置 `arity=1`，这样 `-debug` 后面需要带参数，此时 `-debug` 选项后面就必须指定参数值：
 
 ```java
 @Parameter(names = "-debug", description = "Debug mode", arity = 1)
@@ -103,7 +104,7 @@ program -debug true
 program -debug false
 ```
 
-对 `String`, `Integer`, `int`, `Long`, `long` 类型，JCommander 会解析对应参数，并转换为对应类型：
+对 `String`, `Integer`, `int`, `Long`, `long` 类型字段，如果检测到 `Parameter` 注释，JCommander 会解析对应参数，并转换为对应类型：
 ```java
 @Parameter(names = "-log", description = "Level of verbosity")
 private Integer verbose = 1;
@@ -143,7 +144,7 @@ $ java Main -hosts host1,host2
 
 ### 2.3 Password
 
-如果参数为密码，可以将其类型设置为 password，这样在输入命令时，JCommander 会让你手动输入参数：
+如果参数为密码，或者不希望出现在历史记录中的值，则可以将其类型设置为 `password`，这样在输入命令时，JCommander 会让你在控制台中手动输入参数：
 ```java
 public class ArgsPassword {
   @Parameter(names = "-password", description = "Connection password", password = true)
@@ -151,14 +152,14 @@ public class ArgsPassword {
 }
 ```
 在运行程序时，会出现如下弹窗：
-```
+```sh
 Value for -password (Connection password):
 ```
 你需要输入对应的值，JCommander 才能继续执行。
 
-### 2.4 Echo
+### 2.4 Echo Input
 
-在 Java 6 中，默认无法看到在提示符处输入的密码（Java 5 以下则始终显示密码）。通过改变 `eachInput=true` 则可以显示密码（仅 `password=true` 该设置才有效）：
+在 Java 6+ 中，默认无法看到在提示符处输入的密码（Java 5 以下则始终显示密码）。通过设置 `eachInput=true` 则可以显示密码（仅 `password=true` 该设置才有效）：
 
 ```java
 public class ArgsPassword {
@@ -167,15 +168,15 @@ public class ArgsPassword {
 }
 ```
 
-## 3. 自定义类型
+## 3. 自定义类型（converter 和 splitter）
 
-将参数和自定义类型绑定，或者自定义参数分隔符（默认是逗号），JCommander 提供了两个接口 `IStringConverter` 和 `IParameterSplitter`。
-### 3.1 单值
+将参数和自定义类型绑定，或自定义**参数分隔符**（默认是逗号），JCommander 提供了两个接口 `IStringConverter` 和 `IParameterSplitter`。
+### 3.1 自定义类型：单值
 
 对单值参数，可以使用 `@Parameter` 的 `converter=` 属性，或者实现 `IStringConverterFactory`。
 #### by annotation
 
-JCommander 默认只将命令解析为基本类型。对复杂类型，可以实现如下接口：
+JCommander 默认只将命令解析为基本类型（string, boolean, integer 和 long）。对复杂类型，可以实现如下接口：
 
 ```java
 public interface IStringConverter<T> {
@@ -204,7 +205,7 @@ File file;
 >
 > JCommander 提供了许多常用的 converters，具体可参考 `IStringConverter` 的实现类。
 
-如果转换器用于 `List` 字段，如：
+如果转换器用于 `List` 类型字段，如：
 
 ```java
 @Parameter(names = "-files", converter = FileConverter.class)
@@ -256,7 +257,8 @@ class HostPortConverter implements IStringConverter<HostPort> {
 }
 ```
 
-定义工厂类：
+**定义工厂类**：
+
 ```java
 public class Factory implements IStringConverterFactory {
   public Class<? extends IStringConverter<?>> getConverter(Class forType) {
@@ -289,7 +291,7 @@ Assert.assertEquals(a.hostPort.port.intValue(), 8080);
 
 使用 `IStringConverterFactory` 的另一个优点是，该类可以来自依赖注入框架。
 
-### 3.2 List 值
+### 3.2 自定义类型：List
 
 为 `@Parameter` 添加 `listConverter=` 属性，并设置自定义 `IStringConverter` 实现将字符串转换为 `List`。
 
@@ -373,26 +375,130 @@ List<File> files;
 
 ## 4. 参数验证
 
+> [!TIP]
+>
+> 参数验证可以在类初始化中完成，JCommander 提供的功能属于锦上添花，不是太有必要。
+
 参数验证有两种方式：
 
 - 单个参数水平
-- 全局
+- 全局水平
 
 ### 4.1 单参数验证
 
-
-
-可以指定多个选项名称，如：
+通过实现以下接口来要求 JCommander 对参数执行早期验证：
 
 ```java
-@Parameter(names = { "-d", "--outputDirectory" }, description = "Directory")
-private String outputDirectory;
+public interface IParameterValidator {
+ /**
+   * Validate the parameter.
+   *
+   * @param name The name of the parameter (e.g. "-host").
+   * @param value The value of the parameter that we need to validate
+   *
+   * @throws ParameterException Thrown if the value of the parameter is invalid.
+   */
+  void validate(String name, String value) throws ParameterException;
+}
+```
+
+以下是一个示例实现，确保参数为正整数：
+
+```java
+public class PositiveInteger implements IParameterValidator {
+ public void validate(String name, String value)
+      throws ParameterException {
+    int n = Integer.parseInt(value);
+    if (n < 0) {
+      throw new ParameterException("Parameter " + name + " should be positive (found " + value +")");
+    }
+  }
+}
+```
+
+然后在 `@Parameter` 注释的 `validateWith` 属性指定实现类的名称：
+
+```java
+@Parameter(names = "-age", validateWith = PositiveInteger.class)
+private Integer age;
+```
+
+此时，如果传入负整数给 `age`，会抛出 `ParameterException` 异常。
+
+可以同时指定多个 validator：
+
+```java
+@Parameter(names = "-count", validateWith = { PositiveInteger.class, CustomOddNumberValidator.class })
+private Integer value;
+```
+
+### 4.2 全局参数验证
+
+使用 JCommander 解析参数后，可能需要对这些参数执行其它验证，例如，确保没有同时指定两个互斥的参数。通过实现 `IParametersValidator` 接口实现该功能：
+
+```java
+public interface IParametersValidator {
+    /**
+     * Validate all parameters.
+     *
+     * @param parameters
+     *            Name-value-pairs of all parameters (e.g. "-host":"localhost").
+     *
+     * @throws ParameterException
+     *             Thrown if validation of the parameters fails.
+     */
+    void validate(Map<String, Object> parameters) throws ParameterException;
+}
+```
+
+例如，确保 `--quiet` 和 `--verbose` 不会同时启用：
+
+```java
+public static class QuietAndVerboseAreMutualExclusive implements IParametersValidator {
+    @Override
+    public void validate(Map<String, Object> parameters) throws ParameterException {
+        if (parameters.get("--quiet") == TRUE && parameters.get("--verbose") == TRUE)
+            throw new ParameterException("--quiet and --verbose are mutually exclusive");
+    }
+}
+```
+
+然后在类的 `@Parameters` 注释的 `parametersValidators` 属性指定该实现类：
+
+```java
+@Parameters(parametersValidators = QuietAndVerboseAreMutualExclusive.class)
+class Flags {
+    @Parameter(names = "--quiet", description = "Do not output anything")
+    boolean quiet;
+
+    @Parameter(names = "--verbose", description = "Output detailed information")
+    boolean verbose;
+}
+```
+
+此时，同时启用 `--quiet` 和 `--verbose` 会抛出 `ParameterException`。
+
+可以同时指定多个 validators：
+
+```java
+@Parameters(paremetersValidators = { QuietAndVerboseAreMutualExclusive.class, VerboseNeedsLevel.class })
+class Flags {
+    @Parameter(names = "--quiet", description = "Do not output anything")
+    boolean quiet;
+
+    @Parameter(names = "--verbose", description = "Output detailed information")
+    boolean verbose;
+
+    @Parameter(names = "--level", description = "Detail level of verbose information")
+    Integer level;
+}
 ```
 
 
 ## 5. Main parameter
 
-main 参数相对其它参数的不同是，其 `@Parameter` 注释不需要 `names` 属性。最多只能定义一个 main 参数，可以是 `List<String>`，也可以是单个字段（`String` 或包含 Converter 的类型，如 `File`）：
+前面介绍的所有 `@Parameter` 注释都定义了一个 `names` 属性。我们可以定义一个（**最多一个**）没有 `names` 属性的参数，该参数称为 **main 参数**。该参数可以是 `List<String>`，也可以是单个字段（`String` 或包含 Converter 的类型，如 `File`）：
+
 ```java
 @Parameter(description = "Files")
 private List<String> files = new ArrayList<>();
@@ -409,11 +515,30 @@ $ java Main -debug file1 file2
 
 `files` 接受参数 "file1" 和 "file2"。
 
+## 6. Privage 参数
 
+参数可以是 private 的：
 
-## 参数分隔符
+```java
+public class ArgsPrivate {
+  @Parameter(names = "-verbose")
+  private Integer verbose = 1;
 
-参数默认以空格分隔，不过可以使用 `@`Parameters 设置不同的分隔符：
+  public Integer getVerbose() {
+    return verbose;
+  }
+}
+ArgsPrivate args = new ArgsPrivate();
+JCommander.newBuilder()
+    .addObject(args)
+    .build()
+    .parse("-verbose", "3");
+Assert.assertEquals(args.getVerbose().intValue(), 3);
+```
+
+## 7. Parameter separators
+
+参数默认以空格分隔，不过可以使用 `@Parameters` 注释设置不同的分隔符：
 ```java
 @Parameters(separators = "=")
 public class SeparatorEqual {
@@ -422,47 +547,158 @@ public class SeparatorEqual {
 }
 ```
 
-## 18. Usage
+## 8. Multiple descriptions
 
-通过 `JCommander` 实例的 `usage()` 方法可以输出参数相关的帮助信息，例如：
+可以将参数的描述分散到多个类中。例如，自定义以下两个类：
 
 ```java
-JCommander jCommander = JCommander.newBuilder().addObject(finder).build();
-try {
-    jCommander.parse(args);
-} catch (Exception e) {
-    jCommander.usage();
-    return;
+public class ArgsMaster {
+  @Parameter(names = "-master")
+  private String master;
+}
+
+public class ArgsSlave {
+  @Parameter(names = "-slave")
+  private String slave;
 }
 ```
 
-这样在参数不对时，就可以输出正确的参数信息。
+然后将这两个对象传递给 JCommander：
+
+```java
+ArgsMaster m = new ArgsMaster();
+ArgsSlave s = new ArgsSlave();
+String[] argv = { "-master", "master", "-slave", "slave" };
+JCommander.newBuilder()
+    .addObject(new Object[] { m , s })
+    .build()
+    .parse(argv);
+
+Assert.assertEquals(m.master, "master");
+Assert.assertEquals(s.slave, "slave");
+```
+
+## 9. @syntax
+
+JCommander 支持 @ 语法，将所有选项放入一个文件，然后将此文件作为参数传递：
+
+`/tmp/parameters` 参数文件内容：
+
+```
+-verbose
+file1
+file2
+file3
+```
+
+使用方法：
 
 ```sh
-Usage: <main class> [options]
-  Options:
-    -debug          Debug mode (default: false)
-    -groups         Comma-separated list of group names to be run
-  * -log, -verbose  Level of verbosity (default: 1)
-    -long           A long number (default: 0)
+$ java Main @/tmp/parameters
 ```
 
-带星号的必需参数。另外，可以使用 `JCommander.setProgramName()` 设置程序名称
+## 10. Arities (multiple values for parameters)
+
+> [!TIP]
+>
+> 作用有限，通过自定义 converter 或者自定义 splitter 也可以实现相同功能。
+
+### 10.1 Fixed arities
+
+如果某些参数需要多个值。例如，在 `-pairs` 后需要两个值：
+
+```sh
+$ java Main -pairs slave master foo.xml
+```
+
+此时，需要为参数设置 `arity` 属性，并将参数类型设置为 `List<String>` 类型：
+
+``` java
+@Parameter(names = "-pairs", arity = 2, description = "Pairs")
+private List<String> pairs;
+```
+
+不需要为 `boolean` 或 `Boolean` 设置 arity（默认为 0），也不需要为 `String`, `Integer`, `int`, `Long` 和 `long` 设置（默认为 1）。
+
+> [!IMPORTANT]
+>
+> 只支持为 `List<String>` 类型设置 arity。对其它类型需要自己手动转换（java 类型擦除的限制）。
+
+### 10.2 Variable arities
+
+可以将参数指定为接收无穷值，直到下一个选项。例如：
+
+```sh
+program -foo a1 a2 a3 -bar
+program -foo a1 -bar
+```
+
+这类参数有两种解析方式。
+
+#### 10.2.1 list
+
+如果参数的数量未知，则参数类型必须为 `List<String>`，并将 `variableArity` 设置为 `true`：
 
 ```java
-jCommander.setProgramName("Program Name");
+@Parameter(names = "-foo", variableArity = true)
+public List<String> foo = new ArrayList<>();
 ```
 
-通过设置 `@Parameter` 注释中的 `order` 属性，可以设置参数在 `usage()` 输出中的顺序：
+#### 10.2.2 class
+
+也可以定义一个类，根据参数出现的顺序存储参数：
 
 ```java
-class Parameters {
-    @Parameter(names = "--importantOption", order = 0)
-    private boolean a;
+static class MvParameters {
+  @SubParameter(order = 0)
+  String from;
 
-    @Parameter(names = "--lessImportantOption", order = 3)
-    private boolean b;
+  @SubParameter(order = 1)
+  String to;
+}
+
+@Test
+public void arity() {
+  class Parameters {
+    @Parameter(names = {"--mv"}, arity = 2)
+    private MvParameters mvParameters;
+  }
+
+  Parameters args = new Parameters();
+  JCommander.newBuilder()
+          .addObject(args)
+          .args(new String[]{"--mv", "from", "to"})
+          .build();
+
+  Assert.assertNotNull(args.mvParameters);
+  Assert.assertEquals(args.mvParameters.from, "from");
+  Assert.assertEquals(args.mvParameters.to, "to");
+}
 ```
+
+## 11.  Multiple option names
+
+可以指定多个选项名称：
+
+```java
+@Parameter(names = { "-d", "--outputDirectory" }, description = "Directory")
+private String outputDirectory;
+```
+
+支持如下两种语法：
+
+```sh
+$ java Main -d /tmp
+$ java Main --outputDirectory /tmp
+```
+
+## 12. 其它选项配置
+
+设置选项的查找方式：
+
+- `JCommander#setCaseSensitiveOptions(boolean)`：是否区分大小写，如果设置为 `false`，那么 "-param" 和 "-PARAM" 视为等价
+- `JCommander#setAllowAbbreviatedOptions(boolean)`: 用户是否可以使用缩写。如果将其设置为 `true`，那么用户可以使用 "-par" 来指定名为 "-param" 的选项。如果缩写出现重叠，JCommander 会抛出 `ParameterException`。
+
 
 ## 13. 必须参数和可选参数
 
@@ -480,7 +716,7 @@ private String host;
 private Integer logLevel = 3;
 ```
 
-对更复杂的情况，你可能希望多个类使用相同的默认参数，或者在统一的地方指定默认值，如 `.properteis` 或 XML 文件。此时可以使用 `IDefaultProvider`：
+对更复杂的情况，如希望多个类使用相同的默认参数，或者在统一的地方指定默认值，如 `.properteis` 或 XML 文件。此时可以使用 `IDefaultProvider`：
 ```java
 public interface IDefaultProvider {
   /**
@@ -511,13 +747,11 @@ JCommander jc = JCommander.newBuilder()
     .build()
 ```
 
-JCommander 对一些常见类型不需要实现 `IDefaultProvider`，因为 JCommander 提供了 `PropertyFileDefaultProvider` 和 `EnvironmentVariableDefaultProvider`，分别从属性文件（默认为 `jcommander.properties`）和环境变量（默认为 `JCOMMANDER_OPTS`）读取默认值。
-
-
+对一些常见类型不需要实现 `IDefaultProvider`，因为 JCommander 提供了 `PropertyFileDefaultProvider` 和 `EnvironmentVariableDefaultProvider`，分别从属性文件（默认为 `jcommander.properties`）和环境变量（默认为 `JCOMMANDER_OPTS`）读取默认值。
 
 ## 15. Help 参数
 
-可以采用一个参数显式帮助或用法信息，此时需要使用 `help` 属性：
+如果某个参数用于显示帮助或用法信息，此时需要使用 `help` 属性：
 
 ```java
 @Parameter(names = "--help", help = true)
@@ -569,7 +803,7 @@ public class CommandAdd {
 }
 ```
 
-然后通过 `JCommander` 对象注册这些 commands。解析之后，可以通过 `getParsedCommand()` 获得命令对象，然后根据返回的命令对象查看参数：
+然后通过 `JCommander` 注册这些 commands。解析之后，可以通过 `getParsedCommand()` 获得命令对象，然后根据返回的命令对象查看参数：
 
 ```java
 CommandMain cm = new CommandMain();
@@ -589,6 +823,92 @@ assertTrue(commit.amend);
 assertEquals(commit.author, "cbeust");
 assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
 ```
+
+## 17. Exception
+
+当 JCommander 检测到错误，会抛出 `ParameterException`。这是一个 Runtime 异常。
+
+另外，`ParameterException` 包含 JCommander 实例引用，因此出错后可以调用 `usage()` 显示帮助信息。
+
+## 18. Usage
+
+通过 `JCommander` 实例的 `usage()` 方法可以输出参数相关的帮助信息，例如：
+
+```java
+JCommander jCommander = JCommander.newBuilder().addObject(finder).build();
+try {
+    jCommander.parse(args);
+} catch (Exception e) {
+    jCommander.usage();
+    return;
+}
+```
+
+这样在参数不对时，就可以输出正确的参数信息。
+
+```sh
+Usage: <main class> [options]
+  Options:
+    -debug          Debug mode (default: false)
+    -groups         Comma-separated list of group names to be run
+  * -log, -verbose  Level of verbosity (default: 1)
+    -long           A long number (default: 0)
+```
+
+带星号的必需参数。
+
+- 可以使用 `JCommander.setProgramName()` 设置程序名称
+
+```java
+jCommander.setProgramName("Program Name");
+```
+
+- 通过设置 `@Parameter` 注释中的 `order` 属性，可以设置参数在 `usage()` 输出中的顺序
+
+```java
+class Parameters {
+    @Parameter(names = "--importantOption", order = 0)
+    private boolean a;
+
+    @Parameter(names = "--lessImportantOption", order = 3)
+    private boolean b;
+```
+
+- 可以使用 `defaultValueDescription` 设置默认值的描述信息
+
+```java
+@Parameter(names = "--start", defaultValueDescription = "The default value is a random number")
+int start = Math.random * 100;
+```
+
+## 19. 隐藏参数
+
+如果不希望某些参数出现在 usage 中，可以将其标记为 "hidden"：
+
+```java
+@Parameter(names = "-debug", description = "Debug mode", hidden = true)
+private boolean debug = false;
+```
+
+## 20.Internationalization
+
+可以将参数描述信息国际化。首先，在类的顶部使用 `@Parameters` 注释定义 message-bundle 的名称，然后使用 `descriptionKey` 属性指定 message 在 message-bundle 中的 key：
+
+```java
+@Parameters(resourceBundle = "MessageBundle")
+private class ArgsI18N2 {
+  @Parameter(names = "-host", description = "Host", descriptionKey = "host")
+  String hostName;
+}
+```
+
+在 bundle 中需要定义该 key：
+
+```properties
+host: Hôte
+```
+
+JCommander 会使用默认 locale 来解析描述信息。
 
 ## 21.参数代理
 
@@ -630,7 +950,7 @@ private Map<String, String> params = new HashMap<>();
 
 ## 23.自定义 usage 格式
 
-JCommander 支持自定义 `JCommander.usage()` 方法输出格式，即实现 `IUsageFormatter` 接口。
+JCommander 支持自定义 `JCommander.usage()` 方法的输出格式，即实现 `IUsageFormatter` 接口，然后调用 `JCommander#setUsageFormatter(IUsageFormatter)`。
 
 例如，下面仅打印参数名称：
 
