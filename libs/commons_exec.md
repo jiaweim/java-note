@@ -1,12 +1,31 @@
 # Apache Commons Exec
 
+
+
 ## 简介
 
-在 Java 执行外部进程是一个比较麻烦的问题，它依赖于平台，要求开发人员了解并测试平台相关的行为，JRE 对此执行非常有限。可靠地执行外部进程还需要在执行命令前了解环境变量。commons-exec 提供相关的辅助工具。
+在 Java 执行外部进程是一个比较麻烦的问题，它依赖于平台，要求开发人员了解并测试平台相关的行为，JRE 对此支持非常有限，如 `ProcessBuilder` 类。可靠地执行外部进程还需要在执行命令前了解环境变量。commons-exec 提供相关的辅助工具。
+
+目前有几个不同的库围绕 `Runtime.exec()` 实现框架处理上述问题。
+
+## 主要类
+
+- `CommandLine` 负责解析和构建命令行，处理参数引号，支持变量替换
+- 
 
 ## 指南
 
 下面通过示例来解释 commons-exec 的功能。
+
+首先添加 Maven 依赖项：
+
+```xml
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-exec</artifactId>
+    <version>1.5.0</version>
+</dependency>
+```
 
 ### 第一个进程
 
@@ -19,7 +38,7 @@ DefaultExecutor executor = DefaultExecutor.builder().get();
 int exitValue = executor.execute(cmdLine);
 ```
 
-这里成功打印了第一个 PDF 文档，但最后抛出了一场？Acrobat Reader 执行成功会返回 1，这通常被视为执行失败。因此，我们必须调整代码来解决该问题，即将 "1" 定义为成功执行：
+这里成功打印了第一个 PDF 文档，但最后抛出了异常？Acrobat Reader 执行成功会返回 1，这通常被视为执行失败。因此需要调整代码来解决该问题，即将 "1" 定义为成功执行：
 
 ```java
 String line = "AcroRd32.exe /p /h " + file.getAbsolutePath();
@@ -59,14 +78,15 @@ String line = "AcroRd32.exe /p /h \"" + file.getAbsolutePath() + "\"";
 CommandLine cmdLine = CommandLine.parse(line);
 DefaultExecutor executor = DefaultExecutor.builder().get();
 executor.setExitValue(1);
-ExecuteWatchdog watchdog = ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
+ExecuteWatchdog watchdog = 
+    ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
 executor.setWatchdog(watchdog);
 int exitValue = executor.execute(cmdLine);
 ```
 
 ### 逐步构建命令行
 
-逐步构建命令行不容易出错：
+前面由于路径包含空格导致解析命令出错。以增量的方式构建命令行不容易出错：
 
 ```java
 Map map = new HashMap();
@@ -78,14 +98,17 @@ cmdLine.addArgument("${file}"); // 不需要单独处理空格问题
 cmdLine.setSubstitutionMap(map);
 DefaultExecutor executor = DefaultExecutor.builder().get();
 executor.setExitValue(1);
-ExecuteWatchdog watchdog = ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
+ExecuteWatchdog watchdog = 
+    ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
 executor.setWatchdog(watchdog);
 int exitValue = executor.execute(cmdLine);
 ```
 
 ### 非阻塞
 
-上面构建的打印进程会导致当前工作线程阻塞，直到打印完成或被 watchdog 终结。因此，更合理的方式是异步执行，下面创建一个 `ExecuteResultHandler` 并传入 `Execute` 使得进程异步执行。`resultHandler` 捕获异常或进程的 exit-code。
+上面构建的打印进程会导致当前工作线程阻塞，直到打印完成或被 watchdog 终结。
+
+因此，更合理的方式是异步执行，下面创建一个 `ExecuteResultHandler` 并传入 `Execute` 使得进程异步执行。`resultHandler` 捕获异常或进程的 exit-code。
 
 ```java
 CommandLine cmdLine = new CommandLine("AcroRd32.exe");
@@ -98,7 +121,8 @@ cmdLine.setSubstitutionMap(map);
 
 DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 
-ExecuteWatchdog watchdog = ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
+ExecuteWatchdog watchdog = 
+    ExecuteWatchdog.builder().setTimeout(Duration.ofSeconds(60)).get();
 Executor executor = DefaultExecutor.builder().get();
 executor.setExitValue(1);
 executor.setWatchdog(watchdog);
@@ -201,3 +225,4 @@ cmdl.addArgument("/c:\"install.exe /l \"\"${FILE}\"\" /q\"", false);
 ## 参考
 
 - https://commons.apache.org/proper/commons-exec/index.html
+- https://github.com/apache/commons-exec
