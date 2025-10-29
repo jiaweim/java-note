@@ -3,6 +3,18 @@
 2025-10-29⭐
 @author Jiawei Mao
 ***
+## 示例
+
+```java
+List<Double> scores;
+Iterable<Double> belowMedianScores = Iterables.filter(scores, Range.lessThan(median));
+...
+Range<Integer> validGrades = Range.closed(1, 12);
+for(int grade : ContiguousSet.create(validGrades, DiscreteDomain.integers())) {
+  ...
+}
+```
+
 ## 简介
 
 range (范围)，有时也称为区间（interval），是特定 domain 的一个 convex (连续、不间断)。凸性（convexity）意味着对任意 `a <= b <= c`，`range.contains(a) && range.contains(c)` 意味着 `range.contains(b)`。
