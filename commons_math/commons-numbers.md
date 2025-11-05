@@ -16,6 +16,82 @@ Apache Commons Numbers 提供数字类型和工具。该库分为许多模块，
 - quaternions: commons-numbers-quaternion
 - root finding: commons-numbers-rootfinder
 
+## Array
+
+commons-numbers-arrays 提供数组工具。
+
+### SortInPlace
+
+`SortInPlace` 可以使用指定数组指定的顺序对多个数组进行排序：
+
+```java
+double[] x = {3, 1, 2};
+double[] y = {1, 2, 3};
+double[] z = {0, 5, 7};
+SortInPlace.ASCENDING.apply(x, y, z);
+// x == [1, 2, 3]
+// y == [2, 3, 1]
+// z == [5, 7, 0]
+```
+
+简而言之，通过第一个数组 `x` 获得顺序，`x` 按升序排序，元素顺序应为 `1,2,0`，后面两个数组使用该顺序排序元素。
+
+### MultidimensionalCounter
+
+`MultidimensionalCounter` 提供一维存储和多维概念数据结构之间的映射。
+
+```java
+MultidimensionalCounter c = MultidimensionalCounter.of(100, 50);
+int size = c.getSize();
+// size == 5000
+
+int index = 233;
+int[] indices1 = c.toMulti(index);
+int[] indices2 = c.toMulti(index + 1);
+// indices1 = [4, 33]  :  4 * 50 + 33 == 233
+// indices2 = [4, 34]  :  4 * 50 + 34 == 234
+
+int index1 = c.toUni(4, 33);      // varargs
+int index2 = c.toUni(indices1);
+// index == index1 == index2
+
+c.toMulti(49)     // [ 0, 49]
+c.toMulti(50)     // [ 1,  0]
+c.toMulti(4999)   // [99, 49]
+```
+
+### Selection
+
+`Selection` 实现 quick-sort 中的 partition 功能，对数组元素重新排序，使用索引 `k` 对应的 元素等效于完全排序数组中对应位置元素的值。即，对数组中任意元素索引 `i`，`Selection` 重排后满足：
+$$
+data[i<k]\le data[k] \le data[k<i]
+$$
+例如：
+
+```
+ data    [0, 1, 2, 1, 2, 5, 2, 3, 3, 6, 7, 7, 7, 7]
+
+ k=4   : [0, 1, 2, 1], [2], [5, 2, 3, 3, 6, 7, 7, 7, 7]
+ k=4,8 : [0, 1, 2, 1], [2], [3, 3, 2], [5], [6, 7, 7, 7, 7]
+```
+
+- `k=4`，`Selection` 重排后使得 `data[4]` 为数组中第 4 大的元素
+- `k=4,8`，`Selection` 重拍后使得 `data[4]=4`, `data[8]=5`
+
+`data` 排序后为：
+
+```
+ [0, 1, 1, 2, 2, 2, 3, 3, 5, 6, 7, 7, 7, 7]
+```
+
+`Selection` 实现可以一次选择多个索引，能处理重复和无序索引。该方法会检测索引顺序（支持重复项）并在处理过程中使用。如果顺序已知，那么建议有序传入索引；如等间距，或从中选择 top-n 或 bottom-n。
+
+对单个索引采用 quickselect adaptive 方法。根据每次划分后的分区大小更新算法。如果包含 target 的分区没有充分减小，则算法将逐步更改为使用能够保证边距的分区。从而确保每个步骤都消除了一定数量的数据，并在更糟糕的情况下实现线性运行时间。该方法通过定位范围 `[ka, kb]` 的开头 `ka` 选择较小的分隔来处理一系列索引。
+
+使用 introsort 方法对多个 keys 进行集体分区，该方法仅递归包含索引的分区。过度递归会触发对剩余索引范式使用 heapselect，确保不会出下二次最坏情况。任何 包含单个索引、相邻索引或具有较小分隔的索引范围的分区都将对单个 key 使用 quickselect-adaptive 方法。
+
+
+
 ## Core
 
 commons-numbers-core 提供一个通用功能。
