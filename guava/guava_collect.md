@@ -181,7 +181,7 @@ Guava 的 `Multiset` API 结合了这两种方式：
 `Multiset<E>` 不是 `Map<E, Integer>`，尽管这可能是 `Multiset` 实现的一部分。`Multiset` 是一个 `Collection` 类型，满足所有的相关接口。主要差异：
 
 - `Multiset<E>` 只包含计数为正数的元素。计数为负数或 0 的元素认为不包含 multiset 中，也不会出现在 `elementSet()` 和 `entrySet()` 视图中
-- `multiset.size()` 返回集合大小，是所有元素计数的综合。不同元素类型数，泗洪 `elementSet().size()` 获得。因此，`add(E)` 会将 `multiset.size()` 增加 1
+- `multiset.size()` 返回集合大小，是所有元素计数的总和。不同元素类型数使用 `elementSet().size()` 获得。因此，`add(E)` 会将 `multiset.size()` 增加 1
 - `multiset.iterator()` 迭代每个元素的每次出现，因此迭代的长度等于 `multiset.size()`
 - `Multiset<E>` 支持添加、删除元素，设置元素次数，`set(elem, 0)` 等效于删除元素的所有出现
 - `multiset.count(elem)` 对 multiset 中不存在的元素返回 0

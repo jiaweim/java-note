@@ -1,7 +1,9 @@
 # FastCSV
 
+2025-11-24: update to 4.1.0
 2024-09-30 ⭐
 @author Jiawei Mao
+
 ***
 
 ## 1. 简介
@@ -12,7 +14,7 @@ FastCSV 是一个高性能的 CSV IO 工具。
 <dependency>
     <groupId>de.siegmar</groupId>
     <artifactId>fastcsv</artifactId>
-    <version>3.4.0</version>
+    <version>4.1.0</version>
 </dependency>
 ```
 
@@ -55,7 +57,7 @@ try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(file))
 }
 ```
 
-`ofCsvRecord()` 和 `ofNamedCsvRecord()` 都提供了其它输入源的重载方法，包括 `Reader`, `String` 等。
+`ofCsvRecord()` 和 `ofNamedCsvRecord()` 都提供了其它输入源的重载方法，包括 `Reader`, `String`, `InputStream` 等。
 
 使用通用的 `build` 方法，还可以利用 callback 机制来处理 records。
 
@@ -76,16 +78,18 @@ try (IndexedCsvReader<CsvRecord> csv = IndexedCsvReader.builder().pageSize(10).o
 
 ## 3. 基础教程
 
+下面介绍 FastCSV 的基本用法。
+
 ### CsvReader 示例
 
-#### 从 String 读取 CSV 数据
+#### 从 String 读取
 
 ```java
 CsvReader.builder().ofCsvRecord("foo1,bar1\nfoo2,bar2")
     .forEach(System.out::println);
 ```
 
-#### 从 file 读取 CSV 数据
+#### 从 File 读取
 
 ```java
 try (CsvReader<CsvRecord> csv = CsvReader.builder().ofCsvRecord(file)) {
@@ -103,8 +107,9 @@ CsvReader.builder().ofNamedCsvRecord("header 1,header 2\nfield 1,field 2")
 #### 自定义 header
 
 ```java
-CsvCallbackHandler<NamedCsvRecord> callbackHandler =
-    new NamedCsvRecordHandler("header 1", "header 2");
+NamedCsvRecordHandler callbackHandler = NamedCsvRecordHandler.builder()
+    .header("header 1", "header 2")
+    .build();
 
 CsvReader.builder().build(callbackHandler, "field 1,field 2")
     .forEach(rec -> System.out.println(rec.getField("header 2")));
@@ -119,9 +124,11 @@ CsvReader.builder()
     .commentStrategy(CommentStrategy.SKIP)
     .commentCharacter('#')
     .skipEmptyLines(true)
-    .ignoreDifferentFieldCount(false)
-    .acceptCharsAfterQuotes(false)
-    .detectBomHeader(false);
+    .allowExtraFields(false)
+    .allowMissingFields(false)
+    .allowExtraCharsAfterClosingQuote(false)
+    .detectBomHeader(false)
+    .maxBufferSize(16777216);
 ```
 
 ### IndexedCsvReader 示例
@@ -172,8 +179,6 @@ CsvWriter.builder()
     .commentCharacter('#')
     .lineDelimiter(LineDelimiter.LF);
 ```
-
-
 
 ## 4. 架构和设计
 
@@ -609,9 +614,9 @@ public class ExampleCsvReaderWithBomHeader {
 
 ### Bean Mapping
 
-许多 csv 库都支持将 csv record 映射为 Java Bean。这是一个方便的功能，但大多数库使用基于发射的方法性能较低，这与 FastCsv 的设计目标矛盾。
+许多 csv 库都支持将 csv record 映射为 Java Bean。该功能很方便，但大多数库使用基于反射的方法性能较低，这与 FastCsv 的设计目标矛盾。
 
-FastCsv 通过 java stream mapping 提供类似功能，而无需牺牲性能。
+FastCSV 通过 java stream mapping 提供类似功能，而无需牺牲性能。
 
 ```java
 import java.io.IOException;
@@ -620,48 +625,45 @@ import java.util.stream.Stream;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
-/**
- * Example for reading CSV data with a mapping function.
- */
-public class ExampleCsvReaderMapping {
-
-    private static final String DATA = """
-            ID,firstName,lastName
-            1,John,Doe
-            2,Jane,Smith
-            """;
-
-    public static void main(final String[] args) throws IOException {
-        try (var persons = readPersons()) {
-            persons.forEach(System.out::println);
-        }
+/// Example for reading CSV data with a mapping function.
+///
+/// FastCSV supports Java 17 and later, but this code uses Java 25
+/// for brevity, leveraging newer language features.
+void main() throws IOException {
+    try (var persons = readPersons()) {
+        persons.forEach(IO::println);
     }
+}
 
-    private static Stream<Person> readPersons() throws IOException {
-        try (var csv = CsvReader.builder().ofNamedCsvRecord(DATA)) {
-            return csv.stream().map(ExampleCsvReaderMapping::mapPerson);
-        }
+Stream<Person> readPersons() throws IOException {
+    final String data = """
+        ID,firstName,lastName
+        1,John,Doe
+        2,Jane,Smith
+        """;
+
+    try (var csv = CsvReader.builder().ofNamedCsvRecord(data)) {
+        return csv.stream().map(this::mapPerson);
     }
+}
 
-    private static Person mapPerson(final NamedCsvRecord rec) {
-        return new Person(
-                Long.parseLong(rec.getField("ID")),
-                rec.getField("firstName"),
-                rec.getField("lastName")
-        );
-    }
+Person mapPerson(final NamedCsvRecord rec) {
+    return new Person(
+        Long.parseLong(rec.getField("ID")),
+        rec.getField("firstName"),
+        rec.getField("lastName")
+    );
+}
 
-    private record Person(long id, String firstName, String lastName) {
-    }
-
+record Person(long id, String firstName, String lastName) {
 }
 ```
 
-
-
 ### 自定义 callback
 
-一般用 `ofCsvRecord()` 或 `ofNamedCsvRecord` 读取 CSV 文件，分别返回 `CsvRecord` 和 `NamedCsvRecord` 对象。FastCSV 在底层使用 callback 处理数据。
+一般用 `ofCsvRecord()` 或 `ofNamedCsvRecord` 读取 CSV 文件，分别返回 `CsvRecord` 和 `NamedCsvRecord` 对象。
+
+FastCSV 在底层使用 callback 处理数据。
 
 使用自定义 callback 处理数据更灵活：
 
@@ -955,6 +957,28 @@ field 1,"field 2 with a # character","field 3
 第二个 `#` 不是标识注释，而是跨行 field 的内容。
 
 ### 跳过非 csv head
+
+有些 CSV 文件在实际 CSV 数据之前包含一行或多行文字。例如：
+
+```csv
+This is an example of a CSV file that contains
+three lines before the actual CSV records.
+
+header 1,header 2
+value 1,value 2
+```
+
+严格来说，这不是一个有效 CSV 文件。
+
+这些文件的主要问题：
+
+- 在处理字段名称时，将第一行作为标题
+- 除非设置 `allowExtraFields(true)`，否则报错
+
+FastCSV 提供了两个功能来处理此类文件：
+
+- `skipLines(int lineCount)`：跳过指定数量 `lineCount` 的 lines，不管其内容
+- `skipLines(Predicate<String> predicate, int maxLines)`：跳过 lines 直到找到特定 line。在特定行数后停止跳过
 
 
 

@@ -670,7 +670,7 @@ TableView 对已排序的 columns 会在标题显示符号：
 
 sort-order 表示 column 排序的优先级，如下所示：
 
-![|400](Pasted%20image%2020230801140922.png)
+![|400](images/Pasted%20image%2020230801140922.png)
 
 这里对 "Last Name" 降序，其它 columns 升序。按照 sort-order，先根据 "Last Name" column 的数据排序，此时前三个 Last Name 相同，继续使用 "First Name" 进行排序。
 
@@ -776,7 +776,7 @@ TableView 同时会监听 TableColumn 的 sortType 属性，根据 sortType 属�
 
 TableView 包含一个 read-only 属性 comparator，它是基于当前 sort-order-list 的 Comparator 实例。在代码中基本用不到 comparator 属性。
 
-如前所述，TableColumn 也有一个 comparator 属性，用于比较 TableColumn 中 cells 的顺序。 TableView 的 comparator 属性结合了 sort-order-list 中所有 TableColumn 的 comparator 属性。
+如前所述，`TableColumn` 也有一个 comparator 属性，用于比较 TableColumn 中 cells 的顺序。 TableView 的 comparator 属性结合了 sort-order-list 中所有 TableColumn 的 comparator 属性。
 
 #### 7. 指定 sort-policy
 
@@ -1566,7 +1566,7 @@ public class CustomTableCellTest extends Application {
 
 演示在 TableView 添加和删除 row。界面如下：
 
-![|300](Pasted%20image%2020230803194007.png)
+![|300](images/Pasted%20image%2020230803194007.png)
 
 包含三部分：
 

@@ -13,7 +13,7 @@
 
 ## 简介
 
-下面从绝对时间切换到人类时间。Java API 提供了两种人类时间：local date/time 和 zoned time。
+从绝对时间切换到人类时间，Java API 提供了两种人类时间：local date/time 和 zoned time。
 
 local date/time 有日期和/或时间，但没有时区信息。例如，1903年6月14日，该日期既没有一天里的时间，也没有时区信息，因此没有对应的精确 instant 时间。相反，如 1969 年 7 月 16 日，09:32:00 EDT 为 zoned date/time，代表了时间线上的一个精确 instant。
 
@@ -54,11 +54,12 @@ independenceDay.until(christmas)
 返回包含 5 个月 21 天的 `Period`。该方法其实不是很有用，因为每个月的天数不同。获取天数：
 
 ```java
-independenceDay.until(christmas, ChronoUnit.DAYS) // 174 days
+independenceDay.until(christmas, ChronoUnit.DAYS) // 174 days    
 ```
 
-!!! caution
-    `LocalDate` 的有些方法会创建不存在的日期。例如，1月31日增加一个月不应该返回2月31日。不过这些方法不会抛出异常，而是返回最后一个有效日期。
+> [!CAUTION]
+>
+> `LocalDate` 的有些方法会创建不存在的日期。例如，1月31日增加一个月不应该返回2月31日。不过这些方法不会抛出异常，而是返回最后一个有效日期。
 
 ```java
 LocalDate localDate = LocalDate.of(2016, 1, 31).plusMonths(1);

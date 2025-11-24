@@ -21,15 +21,18 @@ LocalTime.of(22, 30, 0);
 `LocalTime` 支持常见的时间操作。如 plus 和 minus：
 
 ```java
-LocalTime wakeup = bedtime.plusHours(8); // wakeup is 6:30:00
+LocalTime wakeup = bedtime.plusHours(8); // wakeup is 6:30:00    
 ```
 
-!!! note
-    `LocalTime` 不关心 AM/PM 问题，这是格式化的问题。
+> [!NOTE]
+>
+> `LocalTime` 不关心 AM/PM 问题，这是格式化的问题。
 
 ## LocalDateTime
 
 LocalDateTime 表示日期和时间。该类适合在固定时区中存储时间点。如果需要跨越夏令时的计算，或者需要在不同时区处理用户，那么建议使用 `ZonedDateTime`。
+
+
 
 ## 总结
 
