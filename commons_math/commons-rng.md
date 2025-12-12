@@ -11,21 +11,13 @@ Commons RNG 提供为随机数生成器。
 
 该工具包分为多个模块：
 
-- Client-API (Java 8+)
+- Client-API (Java 8+) - 提供用户接口。
 
-提供用户接口。
+- Core (Java 8+) - 包含多个伪随机数生成器的实现。该模块中的代码旨在 commons-rng 内部使用，用户代码不应该直接访问。随着 Java 模块化的出现，该库的未来版本可能会强制通过 `RandomSource` 工厂类访问。
 
-- Core (Java 8+)
+- Simple (Java 8+) - 提供创建 commons-rng-core 模块中生成器的工厂方法。
 
-包含多个伪随机数生成器的实现。该模块中的代码旨在 commons-rng 内部使用，用户代码不应该直接访问。随着 Java 模块化的出现，该库的未来版本可能会强制通过 `RandomSource` 工厂类访问。
-
-- Simple (Java 8+)
-
-提供创建 commons-rng-core 模块中生成器的工厂方法。
-
-- Sampling (Java 8+)
-
-根据指定概率分布生成数字序列；从几何形状中抽样坐标；从集合中抽样等。相当于 commons-rng-client-api 的使用示例。
+- Sampling (Java 8+) - 根据指定概率分布生成数字序列；从几何形状中抽样坐标；从集合中抽样等。相当于 commons-rng-client-api 的使用示例。
 
 - **Examples**：commons-rng 还提供了各种示例程序，用于演示各种用法。这些示例不是库的一部分，可以在 github 源码仓库查看。主要包括：
   - examples-jhm: JMH 基准测试，使用 JMH 基准框架评测生成器的相对性能。
@@ -375,8 +367,6 @@ public static SharedStateContinuousSampler of(UniformRandomProvider rng,
                                           double lo,
                                           double hi)
 ```
-
-
 
 ### Sampler
 
@@ -786,6 +776,69 @@ Dieharder 和 TestU01 测试套件包含许多测试，每个测试都需要大�
 | **L128_X1024_MIX**       | [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_54_1), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_54_2), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_54_3), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_54_4), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_54_5) | [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_54_1), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_54_2), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_54_3), [1](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_54_4), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_54_5) | [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_54_1), [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_54_2), [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_54_3) |
 | **L32_X64_MIX**          | [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_55_1), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_55_2), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_55_3), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_55_4), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/dh_55_5) | [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_55_1), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_55_2), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_55_3), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_55_4), [0](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/tu_55_5) | [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_55_1), [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_55_2), [-](https://commons.apache.org/proper/commons-rng/txt/userguide/stress/pr_55_3) |
 
+## RandomSource 的选择
+
+`RandomSource` 的选择取决于具体需求，不同生成器提供速度、质量和范围的权衡。
+
+| 类别                                               | 典型实现                                                     | 特点                                                         |
+| -------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Well Equidistributed Long-period Linear (WELL)** | `Well512a`, `Well1024a`, `Well19937c`, `Well44497b`          | 周期极长（如 219937），状态大，统计质量高，适合科学模拟      |
+| **Mersenne Twister**                               | `MersenneTwister`                                            | 经典算法，周期 219937−1，速度快，广泛使用，但存在高维相关性问题 |
+| **XORShift / Xoroshiro / Xoshiro**                 | `XoRoShiRo64StarStar`, `XoShiRo256Plus`, `XorShift1024StarPhi` | 极快，状态小，现代设计，通过 BigCrush 等测试，推荐用于一般用途 |
+| **ISAAC**                                          | `ISAACRandom`                                                | 加密风格（非加密安全），状态大，抗预测性强，适合游戏或需要不可预测性的场景 |
+| **SplitMix**                                       | `SplitMix64`                                                 | 快速、简单，常用于初始化其他 RNG（如作为 seed generator）    |
+| **PCG**（部分版本支持）                            | —                                                            | 若你使用较新版本或扩展，可能包含 PCG 家族（但 Commons RNG 官方主干未包含 PCG） |
+
+> [!WARNING]
+>
+> Commons RNG 不提供加密安全的 RNG，如 Java 的 `SecureRandom`。若需密码学安全，则推荐使用 `java.security.SecureRandom`。
+
+**应用场景 1：通用模拟、蒙特卡洛、贝叶斯采用**
+
+- **首选**：`XoShiRo256PlusPlus` 或 `XoShiRo256StarStar`
+  - 速度快 (sub-ns)
+  - 通过严格的统计测试（TestU01 BigCrush）
+  - 状态小（32 字节），内存友好
+  - 周期足够长（$2^{256}$），适合任何并行应用
+- **次选**：`Well19937c`（如果你需要与旧系统兼容，或特别看重理论周期）
+
+如果空间紧张，则 xoroshiro128++ /xoroshiro128** 和 xoroshiro128+ 速度相同，但只占用一半空间，只适用于小规模并行应用。
+
+如果需要更多状态，则可以使用 xoshiro512++ / `xoshiro512**` / xoshiro512+ 和xoroshiro1024++ / `xoroshiro1024**` / `xoroshiro1024*`
+
+✅ 场景 2：**需要强统计质量（如科研、金融风险模拟）**
+
+- 推荐：`Well44497b` 或 `Well19937c`
+  - WELL 系列在高维均匀性上优于 Mersenne Twister
+  - 但速度较慢，状态更大（如 WELL44497 需要 44497 bits ≈ 5.5 KB）
+- 如果你运行 TestU01 测试套件，WELL 表现优异
+
+✅ 场景 3：**高性能、低延迟（如游戏、实时系统）**
+
+- 推荐：`XorShift1024StarPhi` 或 `XoRoShiRo64StarStar`
+  - 极低 CPU 开销
+  - 每次调用只需几次位运算
+  - 虽然状态略大于 `XoShiRo256`，但速度更快（尤其在 64 位 JVM）
+
+✅ 场景 4：**需要可重现的并行/分片 RNG（如分布式模拟）**
+
+- 使用支持 **跳跃（jump）** 或 **分割（split）** 的 RNG：
+  - `XoShiRo256Plus` 支持 `jump()` 方法，可跳过 2128 个状态，用于生成不重叠的子序列
+  - 配合 `LongJumpableUniformRandomProvider` 接口使用
+- 避免使用 MT 或 WELL（它们的 jump 实现复杂或不存在）
+
+❌ 避免使用的场景
+
+- **不要用 `MersenneTwister` 作为默认选择**：虽然经典，但已被更新的算法（如 xoshiro）超越，且存在高维缺陷。
+- **不要用于加密**：所有 Commons RNG 都是**确定性 PRNG**，不可用于生成密钥、令牌等。
+
+**最佳实践建议**
+
+1. **默认选择**：`RandomSource.XO_SHI_RO_256_PLUS`
+   - 平衡了速度、质量和功能
+2. **需要极致速度**：`XOR_SHIFT_1024_S_PHI`
+3. **科研级质量要求**：`WELL_44497_B`
+
 ## 示例
 
 Apache Commons RNG 的仓库中包含用于演示库功能的示例。
@@ -812,3 +865,4 @@ generators 的主类型输出用来生成派生类型，如浮点数，byte 数�
 
 - https://commons.apache.org/proper/commons-rng/index.html
 - https://github.com/apache/commons-rng
+- https://prng.di.unimi.it/
