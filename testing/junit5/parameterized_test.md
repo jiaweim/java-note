@@ -1,14 +1,5 @@
 # 参数化测试
 
-- [参数化测试](#参数化测试)
-  - [简介](#简介)
-  - [配置](#配置)
-  - [Consuming Arguments](#consuming-arguments)
-  - [Sources of Arguments](#sources-of-arguments)
-    - [@ValueSource](#valuesource)
-    - [Null 和 Empty Sources](#null-和-empty-sources)
-    - [@MethodSource](#methodsource)
-
 
 ## 简介
 
@@ -251,3 +242,7 @@ static class IntegerResolver implements ParameterResolver {
     }
 }
 ```
+
+## 参考
+
+- https://docs.junit.org/current/writing-tests/parameterized-classes-and-tests

@@ -3,7 +3,6 @@
 2025-06-23
 @author Jiawei Mao
 ***
-## 相对 Junit 4的改变
 ## 语法
 
 - 测试方法 `public` 不是必须的，不过依然不能是 `static` 或 `private`。
