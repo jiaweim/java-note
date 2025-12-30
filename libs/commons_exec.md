@@ -1,6 +1,8 @@
 # Apache Commons Exec
 
-
+2025-12-30
+@author Jiawei Mao
+***
 
 ## 简介
 
@@ -11,7 +13,6 @@
 ## 主要类
 
 - `CommandLine` 负责解析和构建命令行，处理参数引号，支持变量替换
-- 
 
 ## 指南
 
@@ -23,13 +24,13 @@
 <dependency>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-exec</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
 ### 第一个进程
 
-实现从 Java 中打印 PDF 文档。调用 Adobe Acrobat 执行打印功能。假设在路径中可以找到 Acrobat Reader，打印命令为 "AcroRd32.exe /p /h file"：
+实现从 Java 打印 PDF 文档。调用 Adobe Acrobat 执行打印功能。假设在路径中可以找到 Acrobat Reader，打印命令为 "AcroRd32.exe /p /h file"：
 
 ```java
 String line = "AcroRd32.exe /p /h " + file.getAbsolutePath();
@@ -38,7 +39,7 @@ DefaultExecutor executor = DefaultExecutor.builder().get();
 int exitValue = executor.execute(cmdLine);
 ```
 
-这里成功打印了第一个 PDF 文档，但最后抛出了异常？Acrobat Reader 执行成功会返回 1，这通常被视为执行失败。因此需要调整代码来解决该问题，即将 "1" 定义为成功执行：
+这样成功打印了第一个 PDF 文档，但最后抛出了异常？Acrobat Reader 执行成功会返回 1，这通常被视为执行失败。因此需要调整代码来解决该问题，即将 "1" 定义为成功执行：
 
 ```java
 String line = "AcroRd32.exe /p /h " + file.getAbsolutePath();
@@ -65,7 +66,7 @@ int exitValue = executor.execute(cmdLine);
 
 ### 引号
 
-路径中包含空格会导致命令解析错粗，例如：
+路径中包含空格会导致命令解析出错，例如：
 
 ```sh
 > AcroRd32.exe /p /h C:\Document And Settings\documents\432432.pdf
@@ -103,6 +104,8 @@ ExecuteWatchdog watchdog =
 executor.setWatchdog(watchdog);
 int exitValue = executor.execute(cmdLine);
 ```
+
+注意，这里使用 `File` 实例扩展命令行参数，从而动态转换文件名以匹配操作系统。
 
 ### 非阻塞
 
@@ -219,8 +222,6 @@ cmdl.addArgument("/q:a", false);
 // 下面的 ${FILE} 引用 map 中的 File 对象
 cmdl.addArgument("/c:\"install.exe /l \"\"${FILE}\"\" /q\"", false);
 ```
-
-
 
 ## 参考
 
