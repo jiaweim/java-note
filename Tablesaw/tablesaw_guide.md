@@ -2,6 +2,14 @@
 
 ## 简介
 
+```xml
+<dependency>
+    <groupId>tech.tablesaw</groupId>
+    <artifactId>tablesaw-core</artifactId>
+    <version>0.44.4</version>
+</dependency>
+```
+
 
 
 
