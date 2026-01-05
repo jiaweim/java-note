@@ -24,8 +24,6 @@ fastutil 由三部分组成：
 
 fastutil 为 `HashSet`, `HashMap`, `LinkedHashSet`, `LinkedHashMap`, `TreeSet`, `TreeMap`, `IdentityHashMap`, `ArrayList`, `Stack` 针对基础类型提供了专门实现。此外，还有多种类型的 priority-queue 和大量的 static 对象和方法，如不可变的空容器，comparators，iterators 等。
 
-
-
 ### 支持大型集合
 
 fastutil 支持大小超过 $2^{31}$ 的大型集合：
@@ -44,11 +42,13 @@ fastutil 替代了一些 `java.io` 的 标准类，这些类存在许多问题�
 
 `BinIO` 和 `TextIO` 静态容器包含上十种方法，可以快速将大型数组读写到磁盘。
 
+### core
+
+标准 fastutil jar 太大，fastutil-core 只包含 integer, long 和 double，要小很多。
+
 ## 大型集合
 
 ### BigArrays
-
-
 
 
 

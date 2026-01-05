@@ -109,10 +109,93 @@ String s = String.format("Duke's Birthday: %1$tm %1$te,%1$tY", c);
 
 对 General,  Character, Numeric 和 Date/Time conversion，除非另有说明，否则当参数 `arg` 为 `null`，结果为 `null`。
 
+下表总结了支持的 conversions。大写字母（如 `'B'`, `'H'`, `'S'`, `'C'`, `'X'`, `'E'`, `'G'`, `'A'`, and `'T'`）和对应的小写字母功能相同，只是根据 `Locale` 规则将结果转换为大写。如果没有明确指定 locale，则使用默认 locale。
 
+| Conversion | 分类           | 说明                                                         |
+| ---------- | -------------- | ------------------------------------------------------------ |
+| 'b', 'B'   | general        | 如果 `arg` 为 `null`，则结果为 `"false"`。如果 `arg` 为 `boolean` 或 `Boolean`，则结果为 `String.valueOf(arg)` 返回的字符串。否则，结果为 "true" |
+| 'h', 'H'   | general        | `Integer.toHexString(arg.hashCode())`，即哈希值              |
+| 's', 'S'   | general        | 如果 `arg` 实现 `Formattable`，则调用 `arg.formatTo`。否则调用 `arg.toString()` |
+| 'c', 'C'   | character      | 一个 Unicode 字符                                            |
+| 'd'        | integral       | 十进制整数                                                   |
+| 'o'        | integral       | 格式化为八进制整数                                           |
+| 'x', 'X'   | integral       | 格式化为十六进制整数                                         |
+| 'e', 'E'   | floating point | 科学计数法表示的十进制数                                     |
+| 'f'        | floating point | 十进制浮点数                                                 |
+| 'g', 'G'   | floating point | 科学计数法和十进制格式，具体取决于精度和四舍五入后的值（`f` 和 `e` 中较短的） |
+| 'a', 'A'   | floating point | 带尾数和指数的十六进制浮点数。不支持 `BigDecimal`            |
+| 't', 'T'   | date/time      | data/time conversion 的前缀                                  |
+| '%'        | percent        | 结果为字面量 '%' ('\u0025')                                  |
+| 'n'        | line separator | 特定于平台的换行符                                           |
 
+### Date/Time Conversions
 
+以下日期和时间 conversion 后缀字符用于 't' 和 'T' conversions。
 
+**以下 conversion 字符用于格式化时间**
+
+| Conversion | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `'H'`      | Hour of the day for the 24-hour clock, formatted as two digits with a leading zero as necessary i.e. `00 - 23`. |
+| `'I'`      | Hour for the 12-hour clock, formatted as two digits with a leading zero as necessary, i.e. `01 - 12`. |
+| `'k'`      | Hour of the day for the 24-hour clock, i.e. `0 - 23`.        |
+| `'l'`      | Hour for the 12-hour clock, i.e. `1 - 12`.                   |
+| `'M'`      | Minute within the hour formatted as two digits with a leading zero as necessary, i.e. `00 - 59`. |
+| `'S'`      | Seconds within the minute, formatted as two digits with a leading zero as necessary, i.e. `00 - 60` ("`60`" is a special value required to support leap seconds). |
+| `'L'`      | Millisecond within the second formatted as three digits with leading zeros as necessary, i.e. `000 - 999`. |
+| `'N'`      | Nanosecond within the second, formatted as nine digits with leading zeros as necessary, i.e. `000000000 - 999999999`. |
+| `'p'`      | Locale-specific [morning or afternoon](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DateFormatSymbols.html#getAmPmStrings()) marker in lower case, e.g."`am`" or "`pm`". Use of the conversion prefix `'T'` forces this output to upper case. |
+| `'z'`      | [RFC 822](https://www.ietf.org/rfc/rfc822.txt) style numeric time zone offset from GMT, e.g. `-0800`. This value will be adjusted as necessary for Daylight Saving Time. For `long`, [`Long`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Long.html), and [`Date`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Date.html) the time zone used is the [default time zone](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/TimeZone.html#getDefault()) for this instance of the Java virtual machine. |
+| `'Z'`      | A string representing the abbreviation for the time zone. This value will be adjusted as necessary for Daylight Saving Time. For `long`, [`Long`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Long.html), and [`Date`](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Date.html) the time zone used is the [default time zone](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/TimeZone.html#getDefault()) for this instance of the Java virtual machine. The Formatter's locale will supersede the locale of the argument (if any). |
+| `'s'`      | Seconds since the beginning of the epoch starting at 1 January 1970 `00:00:00` UTC, i.e. `Long.MIN_VALUE/1000` to `Long.MAX_VALUE/1000`. |
+| `'Q'`      | Milliseconds since the beginning of the epoch starting at 1 January 1970 `00:00:00` UTC, i.e. `Long.MIN_VALUE` to `Long.MAX_VALUE`. |
+
+**格式化日期的 conversion 字符**
+
+| Conversion | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `'B'`      | Locale-specific [full month name](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DateFormatSymbols.html#getMonths()), e.g. `"January"`, `"February"`. |
+| `'b'`      | Locale-specific [abbreviated month name](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DateFormatSymbols.html#getShortMonths()), e.g. `"Jan"`, `"Feb"`. |
+| `'h'`      | Same as `'b'`.                                               |
+| `'A'`      | Locale-specific full name of the [day of the week](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DateFormatSymbols.html#getWeekdays()), e.g. `"Sunday"`, `"Monday"` |
+| `'a'`      | Locale-specific short name of the [day of the week](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DateFormatSymbols.html#getShortWeekdays()), e.g. `"Sun"`, `"Mon"` |
+| `'C'`      | Four-digit year divided by `100`, formatted as two digits with leading zero as necessary, i.e. `00 - 99` |
+| `'Y'`      | Year, formatted as at least four digits with leading zeros as necessary, e.g. `0092` equals `92` CE for the Gregorian calendar. |
+| `'y'`      | Last two digits of the year, formatted with leading zeros as necessary, i.e. `00 - 99`. |
+| `'j'`      | Day of year, formatted as three digits with leading zeros as necessary, e.g. `001 - 366` for the Gregorian calendar. |
+| `'m'`      | Month, formatted as two digits with leading zeros as necessary, i.e. `01 - 13`. |
+| `'d'`      | Day of month, formatted as two digits with leading zeros as necessary, i.e. `01 - 31` |
+| `'e'`      | Day of month, formatted as two digits, i.e. `1 - 31`.        |
+
+**格式化 data/time 组合的 conversion 字符**
+
+| Conversion | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `'R'`      | Time formatted for the 24-hour clock as `"%tH:%tM"`          |
+| `'T'`      | Time formatted for the 24-hour clock as `"%tH:%tM:%tS"`.     |
+| `'r'`      | Time formatted for the 12-hour clock as `"%tI:%tM:%tS %Tp"`. The location of the morning or afternoon marker (`'%Tp'`) may be locale-dependent. |
+| `'D'`      | Date formatted as `"%tm/%td/%ty"`.                           |
+| `'F'`      | [ISO 8601](http://www.w3.org/TR/NOTE-datetime) complete date formatted as `"%tY-%tm-%td"`. |
+| `'c'`      | Date and time formatted as `"%ta %tb %td %tT %tZ %tY"`, e.g. `"Sun Jul 20 16:17:00 EDT 1969"`. |
+
+### Flags
+
+下表为支持的 flags。`y` 表示支持对应参数类型
+
+| Flag | General | Character | Integral | Floating Point | Date/Time | Description                                                  |
+| ---- | ------- | --------- | -------- | -------------- | --------- | ------------------------------------------------------------ |
+| '-'  | y       | y         | y        | y              | y         | The result will be left-justified.                           |
+| '#'  | y1      | -         | y3       | y              | -         | The result should use a conversion-dependent alternate form  |
+| '+'  | -       | -         | y4       | y              | -         | The result will always include a sign                        |
+| ' '  | -       | -         | y4       | y              | -         | The result will include a leading space for positive values  |
+| '0'  | -       | -         | y        | y              | -         | The result will be zero-padded                               |
+| ','  | -       | -         | y2       | y5             | -         | The result will include locale-specific [grouping separators](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/DecimalFormatSymbols.html#getGroupingSeparator()) |
+| '('  | -       | -         | y4       | y5             | -         | The result will enclose negative numbers in parentheses      |
+
+1. 取决于 `Formattable` 的定义
+2. 只适用于 'd' conversion
+3. 只适用于 'o', 'x' 和 'X'
+4. 
 
 ## 细节
 
