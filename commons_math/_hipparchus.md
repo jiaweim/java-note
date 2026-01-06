@@ -20,3 +20,4 @@ Hipparchus 是一个数学/统计工具包，提供如下功能：
 
 - https://hipparchus.org/
 - https://hipparchus.org/hipparchus-stat/index.html
+- https://github.com/Hipparchus-Math/hipparchus
