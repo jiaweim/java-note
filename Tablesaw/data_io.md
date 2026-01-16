@@ -1,19 +1,5 @@
 # 导入和导出数据
 
-- [导入和导出数据](#导入和导出数据)
-  - [支持的格式](#支持的格式)
-  - [导入数据](#导入数据)
-  - [Column 类型](#column-类型)
-    - [指定 column 类型](#指定-column-类型)
-    - [查看猜测类型](#查看猜测类型)
-    - [跳过 column](#跳过-column)
-  - [处理缺失值](#处理缺失值)
-  - [处理日期时间](#处理日期时间)
-  - [Stream API](#stream-api)
-  - [Encoding](#encoding)
-  - [从 Database 导入](#从-database-导入)
-  - [从 HTML，JSON，Excel 导入](#从-htmljsonexcel-导入)
-
 2024-07-26
 @author Jiawei Mao
 ***

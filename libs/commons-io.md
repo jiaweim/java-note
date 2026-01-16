@@ -249,8 +249,12 @@ try (ReversedLinesFileReader reader = ReversedLinesFileReader.builder()
 
 #### PeekableInputStream
 
+## 8. Buffer
 
+### CircularByteBuffer
 
-## 8. 参考
+可以循环使用的 ByteBuffer：写入和读出循环使用。
+
+## 9. 参考
 
 - https://commons.apache.org/proper/commons-io/

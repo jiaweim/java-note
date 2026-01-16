@@ -50,8 +50,13 @@ fastutil 替代了一些 `java.io` 的 标准类，这些类存在许多问题�
 
 ### BigArrays
 
+## FIFOQueue
+
+### ArrayFIFOQueue
+
 
 
 ## 参考
 
 - https://fastutil.di.unimi.it/docs/
+- https://github.com/vigna/fastutil

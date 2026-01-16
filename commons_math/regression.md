@@ -117,7 +117,7 @@ System.out.println(regression.getInterceptStdErr() );
 
 ## 多元线性回归
 
-`OLSMultipleLinearRegression`, `GLSMultipleLinearRegression` 和 `MillerUpdatingRegression` 实现最小二乘回归拟合如下线性模型：
+`OLSMultipleLinearRegression`, `GLSMultipleLinearRegression` 和 `MillerUpdatingRegression` 实现最小二乘回归拟合，线性模型如下：
 $$
 Y = X\times b+\mu
 $$
