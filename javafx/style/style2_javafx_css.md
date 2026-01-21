@@ -153,19 +153,23 @@ public class InlineStyles extends Application {
 
 ### 5.1 Native laf
 
-Claudine Zillmann 创建了 native Mac OS X 风格的 skin [AquaFX](http://aquafx-project.com/)。
+- Claudine Zillmann 创建了 native Mac OS X 风格的 skin [AquaFX](http://aquafx-project.com/): 上次更新 2014-11-16
 
 ![](images/Pasted%20image%2020230726200740.png)
 
-Pedro Duque Vieira 创建了 Windows Metro 风格的样式 [JMetro](https://pixelduke.com/java-javafx-theme-jmetro/)。
+- Pedro Duque Vieira 创建了 Windows Metro 风格的样式 [JMetro](https://pixelduke.com/java-javafx-theme-jmetro/)：上次更新2022-09-07
 
 JMetro 下载地址： https://github.com/JFXtras/jfxtras-styles 
 
 JMetro 提供了浅色和深色两个主题。例如，下面是 `CheckBox` 的浅色和深色主题：
 
-@import "images/Pasted%20image%2020230726201620.png" {width="250px" title=""}
+<img src="images/Pasted%20image%2020230726201620.png" width="250" />
 
-@import "images/Pasted%20image%2020230726201628.png" {width="250px" title=""}
+<img src="images/Pasted%20image%2020230726201628.png" width="250" />
+
+- AtlantaFX：上次更新2025-07-12
+
+![](images/demo.gif)
 
 ### 5.2 Web laf
 
@@ -173,18 +177,20 @@ JMetro 提供了浅色和深色两个主题。例如，下面是 `CheckBox` 的�
 
 Material Design (Google)
 
-|项目|网址|
-|---|---|
-|GluonHQ|https://gluonhq.com/products/mobile/|
-|JFoenix|https://github.com/sshahine/JFoenix|
-|MaterialFX|https://github.com/palexdev/MaterialFX|
+|项目|网址|最新更新|
+|---|---|---|
+|GluonHQ|https://gluonhq.com/products/mobile/||
+|JFoenix|https://github.com/sshahine/JFoenix|2021-12-29|
+|MaterialFX|https://github.com/palexdev/MaterialFX|2024-06-29|
 
 Bootstrap (Twitter)
 
-|项目|网址|
-|---|---|
-|jbootx|https://github.com/dicolar/jbootx|
-|BootstrapFX|https://github.com/kordamp/bootstrapfx|
+|项目|网址|最新更新|
+|---|---|---|
+|jbootx|https://github.com/dicolar/jbootx|2024-04-10|
+|BootstrapFX|https://github.com/kordamp/bootstrapfx|2021-05-07|
+
+
 
 ## 6. 示例
 
