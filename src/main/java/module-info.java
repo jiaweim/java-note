@@ -40,9 +40,6 @@ module java.module {
     requires org.codehaus.stax2;
     requires univocity.parsers;
     requires org.jgrapht.core;
-    requires org.jgrapht.io;
-    requires org.jgrapht.ext;
-    requires de.siegmar.fastcsv;
     requires ch.randelshofer.fastdoubleparser;
     requires dflib;
     requires dflib.csv;
@@ -61,6 +58,8 @@ module java.module {
     requires org.controlsfx.controls;
     requires org.apache.commons.rng.simple;
     requires org.apache.commons.rng.api;
+    requires smile.deep;
+    requires org.bytedeco.pytorch;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;
