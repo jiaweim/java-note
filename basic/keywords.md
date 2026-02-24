@@ -1,17 +1,21 @@
 # Java 关键字
-- [Java 关键字](#java-关键字)
-  - [final](#final)
-  - [inner class](#inner-class)
-  - [volatile](#volatile)
-  - [static](#static)
-  - [native](#native)
+
+2026-02-24
+@author Jiawei Mao
+***
 
 ## final
 
 final 可以修饰非抽象类、非抽象成员变量和方法。
 final 方法不能被覆盖。
 
+不允许子类覆盖该方法。在如下情况下可以考虑使用：
+
+- 性能考虑 - 有些编译器可以分析优化操作，特别是没有副作用的操作。
+- 可靠性考虑
+
 ## inner class
+
 Variable is accessed from within inner class, needs to be final or effectively final.
 
 局部变量只能在声明该变量的方法中有效，离开方法就无效了。而内部类在离开方法后依然有效，所以在内部类中引用局部变量会出现该错误。
@@ -24,8 +28,7 @@ IntStream.range(0, params.size())
       idx,
       params.get(idx)
     )
-  )
-;
+  );
 ```
 
 ## volatile
@@ -35,6 +38,7 @@ IntStream.range(0, params.size())
 简而言之，`volatile` 关键字会阻止编译器对其优化。
 
 在 Java 中，volatile 关键字保证：
+
 - 变量的值在使用之前总是从主内存中再次读取出来；
 - 对变量值的修改总会在完成后写回主内存。
 - (所有Java版本) 对 `volatile` 变量的读写全局排序。即每个线程访问 `volatile` 变量时都会读取当前值，而不使用缓存值。不过读写的顺序没有保证，所以并不适合构造多线程应用。
@@ -54,3 +58,11 @@ IntStream.range(0, params.size())
 
 JNI 是 Java 本机接口（Java Native Interface）的缩写，允许 Java 代码使用其它语言编写的代码库。
 
+## transient
+
+- `transient` 只能修饰字段，不能修饰方法和类，不能修饰本地变量。
+- 被 `transient` 修饰的变量不能被序列化，静态变量不管是否被 `transient` 修饰，均不能被序列化。
+- 一旦被 `transient` 修饰，该变量不再是对象持久化的一部分，该变量内容在序列化后无法获得访问。即反序列后，被 `transient` 修饰的变量将初始化为默认值。
+- 在 Java 中，对象的序列化可以通过实现两种接口实现。对 `Serializable` 接口，所有的序列化将自动进行，对 `Externalizable` 接口，则需要在 `writeExternal` 方法中进行手动序列化，这与是否被 `transient` 修饰无关。
+
+总之，java 的 `transient` 关键字为我们提供了便利，你只需要实现 `Serilizable` 接口，将不需要序列化的属性前添加 `transient` 关键字，序列化对象的时候，这个属性就不会序列化。
