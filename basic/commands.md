@@ -70,13 +70,21 @@ JVM 会在每次垃圾回收（GC）时增大或缩小 heap-size，将可用空�
 
 ## 运行命令
 
-运行 jar 方法：
+- **运行 jar**
 
-```cmd
+```sh
 java -jar xxx.jar
 ```
 
-- `--class-path classpath`, `-classpath classpath` 或 `-cp classpath`
+- **指定主类**
+
+如果 jar 里没有 manifest，则需要指定主类，语法：
+
+```sh
+--class-path classpath
+-classpath classpath
+-cp classpath
+```
 
 指定搜索类文件位置，`classpath` 是由分号（;）分隔的目录，JAR文件和ZIP文件列表。
 
@@ -87,6 +95,8 @@ java -cp xxx.jar xxx.com.mainClass
 ```
 
 这里 `-cp xxx.jar` 表示把 xxx.jar 加入到 classpath，这样 class loader 就会在其中查找匹配的类。
+
+
 
 ## 参考
 

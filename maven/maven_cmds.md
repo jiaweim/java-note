@@ -1,20 +1,14 @@
 # Maven 命令
 
-- [Maven 命令](#maven-命令)
-  - [简介](#简介)
-  - [Maven 命令结构](#maven-命令结构)
-  - [实例](#实例)
-    - [安装本地 jar 到本地仓库](#安装本地-jar-到本地仓库)
+2026-02-24
+@author Jiawei Mao
+***
 
 ## 简介
 
-Maven 包含许多命令，其命令由 build life cycles, build phases and build goals 等组成。
+Maven 包含许多命令，其命令由 build life cycles, build phases and build goals 等组成。Maven 命令包含两部分：
 
-## Maven 命令结构
-
-Maven 命令包含两部分：
-
-- mvn
+- `mvn`
 - 一个或多个 build life cycles, build phases or build goals
 
 Maven 包含三个主要的 build life cycles:
@@ -22,15 +16,39 @@ Maven 包含三个主要的 build life cycles:
 - default
 - site
 
-每个 build life cycles 里面都包含多个 build phases, 每个 build phase 包含多个 build goals.
+每个 build life cycles 包含多个 build phases, 每个 build phase 包含多个 build goals.
 
-## 实例
+**install**
+
+```sh
+mvn install
+```
+
+该命令构建项目，并将生成的JAR文件复制到 local Maven repository。实际上，该命令会执行 install 前面的所有 phases。
+
+**执行多个 life cycle 或 phases**
+
+```sh
+mvn clean install
+```
+
+该命令首先执行 clean-life-cycle, 即删除 Maven 输出目录所有的编译类，然后执行 install-build-phase。
+
+**指定单个 goal**
+
+```sh
+mvn dependency:copy-dependencies	
+```
+
+该命令执行dependency-build-phase下的 copy-dependencies goal。
+
+## 示例
 
 ### 安装本地 jar 到本地仓库
 
 命令：
 
-```shell
+```sh
 mvn install:install-file -Dfile=<path-to-file> -DgroupId=<group-id> \
   -DartifactId=<artifact-id> -Dversion=<version> -Dpackaging=<packaging>
 ```
