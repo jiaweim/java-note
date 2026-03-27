@@ -1,6 +1,6 @@
 # Apache Commons Statistics
 
-2025-09-15
+2025-09-15⭐
 @author Jiawei Mao
 ***
 ## 简介
@@ -126,7 +126,7 @@ double m = Stream.of("one", "two", "three", "four")
 
 ### 计算多个统计量
 
-使用 enum 类 `Statistic` 指定要计算的统计量。有些统计量共享相同的计算过程，如方差、标准差和均值，此时哪怕没有制定该 `Statistic`，也会提供对应值。通过 `isSupported` 方法可以判断是否提供对应统计量的值：
+使用 enum 类 `Statistic` 指定要计算的统计量。有些统计量共享相同的计算过程，如方差、标准差和均值，此时哪怕没有指定该 `Statistic`，也会提供对应值。通过 `isSupported` 方法可以判断是否提供对应统计量的值：
 
 ```java
 double[] data = {1, 2, 3, 4, 5, 6, 7, 8};

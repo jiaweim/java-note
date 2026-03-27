@@ -1,8 +1,13 @@
 # Foreign Function and Memory API 指南
 
+2026-03-02
+@author Jiawei Mao
+***
 ## 简介
 
-外部函数与内存（Foreign Function and Memory, FFM）API 使 Java 程序能够与 Java runtime 以外的代码和数据互操。该 API 使 Java 程序能够调用 native 库以及处理 native 数据，且没有 JNI 的脆弱和危险性。该 API 可以调用外部函数、JVM 外部代码，安全地访问不由 JVM 管理的外部内存。
+**外部函数与内存**（Foreign Function and Memory, FFM）API 使 Java 程序能够与 Java runtime 以外的代码和数据进行互操。该 API 使 Java 程序能够调用 native 库以及处理 native 数据，且没有 JNI 的脆弱和危险性。该 API 可以调用外部函数（即 JVM 外部代码），安全地访问不由 JVM 管理的外部内存。
+
+FFM API 在 `java.lang.foreign` 包中。
 
 ## 堆内与堆外内存
 
@@ -1019,7 +1024,7 @@ MemorySegment mapped = fc.map(READ_ONLY, 0L, ptsLayout.byteSize(), arena);
 
 ## jextract
 
-`jextract`  工具从 native 库头文件生成 Java 班定。该工具生成的绑定依赖于 FFM API。有了该工具，就不需要为调用函数创建向下调用和向上调用句柄；`jextract` 工具会生成执行此操作的代码。
+`jextract`  工具从 native 库头文件生成 Java 绑定。该工具生成的绑定依赖于 FFM API。有了该工具，就不需要为调用函数创建下行调用（downcall）和上行调用（upcall）句柄；`jextract` 工具会自动生成响应的代码。
 
 
 

@@ -6,7 +6,7 @@
 
 ## Joiner
 
-使用分隔符连接字符串可能很麻烦。如果序列包含 null 值，则更麻烦。fluenty-style 的 `Joiner` 使其变得简单。
+使用分隔符连接字符串可能很麻烦。如果序列包含 `null` 值，则更麻烦。`Joiner` 的流式（fluent）写法使其变得简单：
 
 ```java
 Joiner joiner = Joiner.on("; ").skipNulls();
@@ -23,11 +23,11 @@ Joiner.on(",").join(Arrays.asList(1, 5, 7)); // returns "1,5,7"
 
 > [!WARNING]
 >
-> `Joiner` 是 immutable，其设置方法总是返回一个新的 `Joiner`。因为 `Joiner` 是线程安全的，可以作为 `static final` 常量使用。
+> `Joiner` 是 immutable，其配置方法总是返回一个新的 `Joiner` 实例。因此 `Joiner` 是线程安全的，可以作为 `static final` 常量使用。
 
 ## Splitter
 
-Java 内置的拆分字符串工具行为有点奇怪。例如，`String.split` 默认丢弃末尾分隔符，`StringTokenizer` 只支持 5 种空格字符串。
+Java 内置的拆分字符串工具行为有点奇怪。例如，`String.split` 默认丢弃末尾分隔符，而`StringTokenizer` 只支持 5 种空格字符串。
 
 例如，`",a,,b,".split(",")` 得到什么？
 
@@ -81,7 +81,7 @@ Splitter.on(',')
 
 ## CharMatcher
 
-可以将 `CharMatcher` 识别特定类别的字符，如数字、空格。实际上，`CharMatcher` 就是字符串的 `Predicate`，它实现了 `Predicate<Character>` 接口。
+`CharMatcher` 用于识别特定类别的字符，如数字、空格。实际上，`CharMatcher` 就是字符串的 `Predicate`，它实现了 `Predicate<Character>` 接口。
 
 通过 `CharMatcher` 可以对指定类别的字符串执行：修剪、折叠、删除、保留等操作。`CharMatcher` 表示：
 
