@@ -243,6 +243,100 @@ static class IntegerResolver implements ParameterResolver {
 }
 ```
 
+### @CsvSource
+
+2026-04-09⭐
+
+`@CsvSource` 以逗号分隔值的形式表示参数列表。通过 `@CsvSource` 的 `value` 属性提供的每个字符串对应一条 CSV 记录，并触发参数化测试类或测试方法的一次调用。第条记录可选择性地用作 CSV 表头（详情及示例请参阅 Javadoc 中关于 `useHeadersInDisplayName` 属性的说明）。
+
+```java
+@ParameterizedTest
+@CsvSource({
+	"apple,         1",
+	"banana,        2",
+	"'lemon, lime', 0xF1",
+	"strawberry,    700_000"
+})
+void testWithCsvSource(String fruit, int rank) {
+	assertNotNull(fruit);
+	assertNotEquals(0, rank);
+}
+```
+
+默认分隔符为逗号（,），但可以通过设置 `delimiter` 属性来使用其他字符。此外，通过 `delimiterString` 属性可以使用字符串作为分隔符，而非单个字符。但不能同时设置这两个分隔符属性。
+
+默认情况下，`@CsvSource` 使用单引号（'）作为引号字符，不过可以通过 `quoteCharacter` 属性修改这一设置。参见上文示例以及下表中 `'lemon, lime'` 这一取值。一个带引号的空值（`''`）会生成空字符串，除非设置了 `emptyValue` 属性；而完全空白的取值则会被解析为 `null` 引用。通过指定一个或多个 `nullValues`，可以将自定义的值解析为 `null` 引用（参见下表中的 NIL 示例）。如果 `null` 引用对应的目标类型是基本数据类型，则会抛出 `ArgumentConversionException` 异常。
+
+> [!NOTE]
+>
+> 无论是否通过 `nullValues` 属性配置了自定义值，**未加引号的空值都会被转换为 null 引用**。
+
+除在引号字符串内部之外，CSV 列中的首尾空白字符默认会被去除。可以通过将 `ignoreLeadingAndTrailingWhitespace` 属性设为 `true` 来改变这一行为。
+
+| Example Input                                                | Resulting Argument List       |
+| :----------------------------------------------------------- | :---------------------------- |
+| `@CsvSource({ "apple, banana" })`                            | `"apple"`, `"banana"`         |
+| `@CsvSource({ "apple, 'lemon, lime'" })`                     | `"apple"`, `"lemon, lime"`    |
+| `@CsvSource({ "apple, ''" })`                                | `"apple"`, `""`               |
+| `@CsvSource({ "apple, " })`                                  | `"apple"`, `null`             |
+| `@CsvSource(value = { "apple, banana, NIL" }, nullValues = "NIL")` | `"apple"`, `"banana"`, `null` |
+| `@CsvSource(value = { " apple , banana" }, ignoreLeadingAndTrailingWhitespace = false)` | `" apple "`, `" banana"`      |
+
+如果你所使用的编程语言支持 Java 文本块或类似的多行字符串字面量，你也可以使用 `@CsvSource` 的 `textBlock` 属性。文本块中的每一行对应一条 CSV 记录，并会触发参数化测试类或测试方法的一次调用。通过将 `useHeadersInDisplayName` 属性设为 `true`，可以选择将第一行用作 CSV 表头，如下例所示。
+
+借助文本块，前面的示例可以按如下方式实现。
+
+```java
+@ParameterizedTest
+@CsvSource(useHeadersInDisplayName = true, textBlock = """
+	FRUIT,         RANK
+	apple,         1
+	banana,        2
+	'lemon, lime', 0xF1
+	strawberry,    700_000
+	""")
+void testWithCsvSource(String fruit, int rank) {
+	// ...
+}
+```
+
+上一示例中生成的显示名称包含 CSV 表头名称。
+
+```
+[1] FRUIT = "apple", RANK = "1"
+[2] FRUIT = "banana", RANK = "2"
+[3] FRUIT = "lemon, lime", RANK = "0xF1"
+[4] FRUIT = "strawberry", RANK = "700_000"
+```
+
+与通过 `value` 属性提供的 CSV 记录不同，**文本块可以包含注释**。任何以 `commentCharacter` 属性值（默认为 `#`）开头的行，都会被当作注释并忽略。需要注意的是，这条规则有一个例外：如果注释字符出现在**带引号的字段内部**，它将失去特殊含义。
+
+注释字符必须是该行的**第一个字符**，前面不能有任何空白。因此建议将文本块的结束分隔符（`"""`）放在最后一行输入的末尾，或者另起一行、与其他输入内容左对齐（如下方示例所示，其格式排版类似表格形式）。
+
+```java
+@ParameterizedTest
+@CsvSource(delimiter = '|', quoteCharacter = '"', textBlock = """
+	#-----------------------------
+	#    FRUIT     |     RANK
+	#-----------------------------
+	     apple     |      1
+	#-----------------------------
+	     banana    |      2
+	#-----------------------------
+	  "lemon lime" |     0xF1
+	#-----------------------------
+	   strawberry  |    700_000
+	#-----------------------------
+	""")
+void testWithCsvSource(String fruit, int rank) {
+	// ...
+}
+```
+
+> [!NOTE]
+>
+> Java 的文本块特性在编译代码时会**自动去除多余的附带空格**。但其他 JVM 语言（如 Groovy 和 Kotlin）则不会这样做。因此，如果你使用的不是 Java 语言，并且文本块中包含注释或带引号字符串内的换行，就必须确保文本块内部**没有前导空格**。
+
 ## 参考
 
 - https://docs.junit.org/current/writing-tests/parameterized-classes-and-tests
