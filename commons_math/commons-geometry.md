@@ -14,6 +14,81 @@ commons-geometry 包含如下几个子模块：
 
 除了这些模块，commons-geometry 源码仓库中还提供了 commons-geometry-examples 模块，包含许多示例代码。
 
+所有支持的空间类型（Euclidean 3D, Euclidean 2D, Euclidean 1D, 2-Sphere, 1-Sphere）都提供表示复杂区域的类，如下表所示：
+
+| Space        | Region                                                       |
+| ------------ | ------------------------------------------------------------ |
+| Euclidean 1D | [IntervalsSet](https://hipparchus.org/apidocs/org/hipparchus/geometry/euclidean/oned/IntervalsSet.html) |
+| Euclidean 2D | [PolygonsSet](https://hipparchus.org/apidocs/org/hipparchus/geometry/euclidean/twod/PolygonsSet.html) |
+| Euclidean 3D | [PolyhedronsSet](https://hipparchus.org/apidocs/org/hipparchus/geometry/euclidean/threed/PolyhedronsSet.html) |
+| 1-Sphere     | [ArcsSet](https://hipparchus.org/apidocs/org/hipparchus/geometry/spherical/oned/ArcsSet.html) |
+| 2-Sphere     | [SphericalPolygonsSet](https://hipparchus.org/apidocs/org/hipparchus/geometry/spherical/twod/SphericalPolygonsSet.html) |
+
+所有 regions 都具有一些共性：
+
+- Region 可以由多个互不连通的部分构成。例如 Euclidean 2D（即平面）中的单个 `PolygonsSet`  实例，可以表示由多个彼此分离的多边形组成的区域。
+- Region 支持带孔洞（hole）。以二维球面上的球面多边形集合 `SphericalPolygonsSet` 为例：它可以表示地球上一块包含内陆海的陆地，其中内陆海范围内的电不归属该陆地区域。
+- 也可以构建更复杂的模型：比如定义一个由多块大陆组成的区域，大陆内的海域中包含独立岛屿，部分岛屿中又有湖泊，湖泊中还可以存在更小的岛屿，如此层层嵌套。
+- 在无限欧几里得空间中，Region 可以包含无限延伸的部分。例如，在一维空间中（一条直线），可以定义一个从横坐标 3 开始，向无穷远延伸的区间；二维、三维空间同样支持此类无界区域。
+- 对所有空间类型，也可以定义无边界 region，既可以表示整个完整空间，也可以表示空 region.
+
+所有类型都支持的操作：
+
+- 经典集合运算：并集、交集、异或、差集、补集。
+- 提供 region 谓词判断：点是否在 region 内/外，或边界上，region 是否为空，以及是否包含另一个 region。
+- 计算面积/体积，边界长度、表面积等几何属性，可求解欧式空间的质心
+- 所有 region 具备另一项重要功能：将点投影到最近的 region 边界，同时给出投影点坐标和该点到投影点的带符号距离：若点在 region 内，距离为负值，若点在 region 外，则距离为正值；若点在边界上，距离为 0。
+
+## 欧几里得空间
+
+`Vector1D`, `Vector2D` 和 `Vector3D` 提供基础的向量类型。这些类的实例均为 immutable 对象，从而简化状态动态变化系统的建模工作。
+
+已实现向量空间通用运算，包括**点积、归一化、正交向量求解**以及在三维空间中有特殊意义的**夹角计算**。还实现了三维几何特有的**叉积**。
+
+`Vector1DFormat`、`Vector2DFormat` 和 `Vector3DFormat` 是专用工具类，用于对向量的文本形式进行**格式化输出与输入**。
+
+`Rotation` 类表示三维旋转。与 `Vector3D` 一样，`Rotation` 实例也是**不可变对象**。
+
+旋转可以通过多种数学形式表达：**旋转矩阵、轴角、卡尔丹角 / 欧拉角、四元数**。本类做了高层抽象，更面向使用者，并屏蔽底层实现细节。开发者可以通过任意一种数学形式构造 `Rotation` 对象，也能从同一个 `Rotation` 实例获取任意一种表达形式。此外，也可以通过**一组原始向量及其旋转后的目标向量**隐式构造旋转。
+
+这意味着该类可用于**不同旋转表达形式之间的相互转换**。例如，只需一行代码即可将旋转矩阵转换为 Cardan 角：
+
+```java
+double[] angles = new Rotation(matrix, 1.0e-10).getAngles(RotationOrder.XYZ, RotationConvention.FRAME_TRANSFORM);
+```
+
+该类的设计侧重于**旋转本身的作用**，而非其底层数学表达。旋转对象一旦构造完成，无论内部采用何种存储形式，本质都是一个算子，可将一个三维向量变换为另一个三维向量。根据应用场景不同，向量的物理含义与旋转的语义解释也会有所差异。
+
+例如在航天器姿态仿真工具中：用户通常认为向量是固定的（如指向地球的方向），旋转将该向量在**惯性坐标系**下的坐标，转换为同一向量在**卫星本体坐标系**下的坐标。这种场景下，旋转定义了两个坐标系之间的变换关系（向量固定、坐标系运动）。
+
+再如望远镜控制应用：旋转将望远镜静止时的初始瞄准方向，变换为指向观测目标的期望观测方向。这种场景下，旋转是在**本地地平坐标系**内部，将初始方向变换为目标观测方向（坐标系固定、向量运动）。
+
+实际工程中往往会两种场景结合。以望远镜为例：通常还需要结合观测站位置与地球自转，将本地地平坐标系下的观测方向转换为惯性坐标系下的观测方向。
+
+为了自然兼容这两种语义解释，**3.6 版本**新增了枚举 `RotationConvention`，包含两个枚举值：
+
+- `VECTOR_OPERATOR`：向量算子模式，表示在**固定坐标系**内旋转向量；
+- `FRAME_TRANSFORM`：坐标系变换模式，表示**坐标系自身旋转**，固定不变的向量会因参考系改变而呈现不同坐标值。
+
+凡是依赖**欧拉角 / 旋转轴语义解释**的方法，都必须传入该枚举作为参数。
+
+以上示例说明：旋转的语义应由使用者自行定义。因此 `Rotation` 不强制限定某一种语义，也不提供诸如 `projectVectorIntoDestinationFrame`、`computeTransformedDirection` 这类绑定业务语义的专用方法。而是提供更简洁、通用的基础方法：
+
+```java
+applyTo(Vector3D);
+applyInverseTo(Vector3D);
+```
+
+旋转本质是向量算子，多个旋转可以**复合拼接**。
+
+复合运算 \(r = r_1 \circ r_2\) 含义：对任意向量 u，满足 \(r(u) = r_1(r_2(u))\)，复合结果仍然是一个合法旋转。
+
+因此除了作用于向量，旋转也可以作用于另一个旋转自身。
+
+沿用上述记号：将 \(r_1\) 作用于 \(r_2\)，得到复合旋转 \(r = r_1 \circ r_2\)。
+
+
+
 ## 概念
 
 ### 浮点数

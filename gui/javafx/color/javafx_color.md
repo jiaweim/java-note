@@ -206,7 +206,7 @@ public class ImagePatternApp extends Application {
 }
 ```
 
-![](Pasted%20image%2020230619213811.png)
+![](images/Pasted%20image%2020230619213811.png)
 
 ## 线性渐变色
 
@@ -235,15 +235,15 @@ LinearGradient(double startX, double startY, double endX, double endY,
     boolean proportional, CycleMethod cycleMethod, Stop... stops)
 ```
 
-startX 和 startY 定义了梯度线的起点坐标，endX 和 endY 定义梯度线的终点坐标。
+`startX` 和 `startY` 定义了梯度线的起点坐标，`endX` 和 `endY` 定义梯度线的终点坐标。
 
-proportional 指定处理起点和终点坐标的方式。true 表示起点和终点的坐标是相对填充形状的比例值，范围在 0 到 1 之间；false 则表示起点和终点的坐标是局部坐标系中的绝对坐标值。
+`proportional` 指定处理起点和终点坐标的方式。`true` 表示起点和终点的坐标是相对填充形状的比例值，范围在 0 到 1 之间；`false` 则表示起点和终点的坐标是局部坐标系中的绝对坐标值。
 
 `cycleMethod` 定义填充渐变色边界之外的区域，渐变色区域由起点和终点定义。例如，如果 proportional=true，起点为 (0.0, 0.0)，终点为 (0.5, 0.0)，那么渐变色区域为左边的一半。那么，剩下右边的一半如何处理？`cycleMethod` 就是为了处理该情况，其允许值由 `CycleMethod` enum 定义：
 
-- CycleMethod.NO_CYCLE
-- CycleMethod.REFLECT
-- CycleMethod.REPEAT
+- `CycleMethod.NO_CYCLE`
+- `CycleMethod.REFLECT`
+- `CycleMethod.REPEAT`
 
 `NO_CYCLE` 用渐变线末端的颜色填充余下区域：
 
@@ -294,9 +294,9 @@ Rectangle r = new Rectangle(200, 100);
 r.setFill(lg);
 ```
 
-![](Pasted%20image%2020230619224102.png)
+![](images/Pasted%20image%2020230619224102.png)
 
-这里 LinearGradient 的终点坐标为 (0.5, 0)，所以刚好填充到中间。
+这里 `LinearGradient` 的终点坐标为 (0.5, 0)，所以刚好填充到中间。
 
 采用了 `NO_CYCLE` 模式，所以右边余下的一般使用线性渐变色最右边的颜色填充。
 
@@ -324,11 +324,11 @@ Rectangle r = new Rectangle(200, 100);
 r.setFill(lg);
 ```
 
-![](Pasted%20image%2020230619224610.png)
+![](images/Pasted%20image%2020230619224610.png)
 
 下一个渐变色梯度总是上一个的镜像。
 
-- 50% 的 REPEAT 模式
+- 50% 的 `REPEAT` 模式
 
 ```java
 Stop[] stops = new Stop[]{new Stop(0, Color.WHITE), 
@@ -340,11 +340,11 @@ r.setFill(lg);
 
 ![](Pasted%20image%2020230619224751.png)
 
-- 10% 的 REPEAT 模式
+- 10% 的 `REPEAT` 模式
 
 将终点的 x 设置为 0.1.
 
-![](Pasted%20image%2020230619224826.png)
+![](images/Pasted%20image%2020230619224826.png)
 
 - 多个 stops
 

@@ -58,9 +58,9 @@ factory 适合于所有元素都一次，调用 `LeastSquaresFactory.create` 一
 
 `MultivariateVectorFunction`, `MultivariateMatrixFunction` 和 `MultivariateJacobianFunction` 接口中 `value()` 方法的 `point` 参数包含**数据** $p_k$，其值为模型分量 $\text{model}_i$ 的值；导数是模型分量相对参数的导数 $\frac{\partial\text{model}_i}{\partial p_k}$。
 
-对如何计算模型值和导数没有任何要求。对复杂情况可以用`DerivativeStructure` 类辅助计算解析导数，但不强制要求，API 只要求导数为包含 double 值的雅可比矩阵。
+对如何计算模型值和导数没有任何要求。对复杂情况可以用`DerivativeStructure` 类辅助计算导数的解析解，但不强制要求，API 只要求导数为包含 double 值的雅可比矩阵。
 
-另外，builder 和 factory 都提供 lazy 求值功能。该功能将对模型函数的调用推迟到引擎真正需要它们的时候，可以减少计算模型值也雅克比矩阵的次数。但是，只有模型函数本身分离时才行，对应上述第一种方案。在 builder 或 factory 中将 `lazyEvaluation` 设置为 true，同时将模型函数设置为 `MultivariateJacobianFunction` 会触发异常。
+另外，builder 和 factory 都提供 lazy 求值功能。该功能将对模型函数的调用推迟到引擎真正需要它们的时候，可以减少计算模型值和雅克比矩阵的次数。但是，只有模型函数本身分离时才行，对应上述第一种方案。在 builder 或 factory 中将 `lazyEvaluation` 设置为 true，同时将模型函数设置为 `MultivariateJacobianFunction` 会触发异常。
 
 `MultivariateVectorFunction` 表示多元向量函数，其定义：
 
@@ -92,11 +92,15 @@ public interface MultivariateJacobianFunction {
 
 ## 参数验证
 
-在某些情况下，模型函数要求参数满足特定要求。例如，一个参数可能用于平方根，因此必须为正数；或者一个参数表示角度的正弦值，因此要在 -1 到 +1 之间；或者多个参数需要在单位圆内，因此它们的平方和必须小于 1。commons-math 提供的最小二乘求解器目前不支持对参数设置约束。有两种方法可以解决该问题。
+在某些情况下，模型函数参数满足特定要求。例如：
 
-这两种方式都通过设置 `ParameterValidator` 实现。如果设置了 `ParameterValidator`，那么输入值和雅可比模型函数的输入都采用 `ParameterValidator` 的输出值。
+- 一个参数可能用于计算平方根，因此必须为正数
+- 或者一个参数表示角度的正弦值，因此要在 -1 到 +1 之间
+- 或者多个参数需要在单位圆内，因此它们的平方和必须小于 1
 
-约束参数的一种方法是建立最小二乘求解器处理的参数与模型参数之间的连续映射。使用类似 `logit` 和 `sigmoid` 这样的映射函数可以将有限范围映射到无限实数。使用基于 `log` 和 `exp` 的映射函数 ，可以将半无限范围映射到无限实数。使用这样的映射，引擎处理的是无界参数，而数学模型看到的始终是正确范围的参数。不过在映射时，要小心处理导数和收敛状态。
+commons-math 提供的最小二乘求解器目前不支持对参数设置约束。有两种方法可以解决该问题。这两种方式都通过设置 `ParameterValidator` 实现。如果配置了 `ParameterValidator`，那么输入值和雅可比模型函数的输入都采用 `ParameterValidator` 的输出值。
+
+约束参数的一种方法是建立最小二乘求解器处理的参数与模型参数之间的连续映射。使用类似 `logit` 和 `sigmoid` 这样的映射函数可以将有限范围映射到无限实数。使用基于 `log` 和 `exp` 的映射函数 ，可以将半无限范围映射到无限实数。使用这类映射，引擎处理的是无约束参数，而数学模型接受的始终是正确范围的参数。不过在映射时，要小心处理导数和收敛状态。
 
 约束参数的另一种方法是，当搜索点超出范围，直接将参数截断，不关心导数。只有解决方案位于 domain 内而非边界时该方案才有效。根据经验，只有当 domain 边界对应永远不会实现的不切实际的值（零距离、负质量等），才满足该条件。
 
