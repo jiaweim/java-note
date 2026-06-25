@@ -1,9 +1,10 @@
 # FastCSV
 
+
+2026-06-25: update to 4.3.0
 2025-11-24: update to 4.1.0
 2024-09-30 ⭐
 @author Jiawei Mao
-
 ***
 
 ## 1. 简介
@@ -14,7 +15,7 @@ FastCSV 是一个高性能的 CSV IO 工具。
 <dependency>
     <groupId>de.siegmar</groupId>
     <artifactId>fastcsv</artifactId>
-    <version>4.1.0</version>
+    <version>4.3.0</version>
 </dependency>
 ```
 
@@ -52,7 +53,8 @@ try (CsvReader<CsvRecord> csv = CsvReader.builder().ofCsvRecord(file)) {
 
 ```java
 Path file = Paths.get("input.csv");
-try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(file)) {
+try (CsvReader<NamedCsvRecord> csv = CsvReader.builder()
+     .ofNamedCsvRecord(file)) {
     csv.forEach(rec -> System.out.println(rec.getField("foo")));
 }
 ```
@@ -69,7 +71,8 @@ try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(file))
 
 ```java
 Path file = Paths.get("input.csv");
-try (IndexedCsvReader<CsvRecord> csv = IndexedCsvReader.builder().pageSize(10).ofCsvRecord(file)) {
+try (IndexedCsvReader<CsvRecord> csv = IndexedCsvReader.builder()
+     .pageSize(10).ofCsvRecord(file)) {
     CsvIndex index = csv.getIndex();
     int lastPage = index.getPageCount() - 1;
     List<CsvRecord> csvRecords = csv.readPage(lastPage);

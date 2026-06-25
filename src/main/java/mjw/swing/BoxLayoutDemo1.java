@@ -8,13 +8,11 @@ import java.awt.*;
  * @version 1.0.0
  * @since 15 Nov 2021, 10:18 PM
  */
-public class BoxLayoutDemo1 extends JFrame
-{
+public class BoxLayoutDemo1 extends JFrame {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 200;
 
-    public BoxLayoutDemo1()
-    {
+    public BoxLayoutDemo1() {
         setTitle("测试箱式布局管理器");//设置顶层容器名称、大小
         setSize(WIDTH, HEIGHT);
 
@@ -51,8 +49,7 @@ public class BoxLayoutDemo1 extends JFrame
         con.add(vbox, BorderLayout.CENTER); // 将垂直箱子添加到BorderLayout布局管理器中的中间位置
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         BoxLayoutDemo1 frame = new BoxLayoutDemo1();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);

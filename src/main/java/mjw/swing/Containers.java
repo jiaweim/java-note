@@ -12,7 +12,7 @@ public class Containers {
     static final int WIDTH = 300;
     static final int HEIGHT = 200;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         JFrame frame = new JFrame("添加内容面板");
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
