@@ -27,3 +27,4 @@
 - https://gluonhq.com/products/javafx/
 - https://gluonhq.com/products/javafx/openjfx-21-release-notes/
 - https://github.com/openjdk/jfx/blob/master/doc-files/release-notes-16.md
+- https://docs.gluonhq.com/

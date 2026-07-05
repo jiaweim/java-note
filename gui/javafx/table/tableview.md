@@ -263,7 +263,7 @@ table.getColumns().addAll(PersonTableUtil.getIdColumn(),
                             PersonTableUtil.getBirthDateColumn());
 ```
 
-![|300](Pasted%20image%2020230801102259.png)
+<img src="images/Pasted%20image%2020230801102259.png" alt="|300" style="zoom:60%;" />
 
 通过 TableView 的 `placeholder` 属性可以自定义占位符。`placeholder` 属性为 Node 类型。
 
