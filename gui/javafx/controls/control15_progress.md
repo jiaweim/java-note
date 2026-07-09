@@ -6,13 +6,13 @@
 
 JavaFX 提供了两个显示进度的控件：
 
-- ProgressIndicator
-- ProgressBar
+- `ProgressIndicator`
+- `ProgressBar`
 
 它们只是在显示进度的方式上不同。ProgressBar 继承 ProgressIndicator。`ProgressIndicator` 以圆形控件中显示进度，而 `ProgressBar` 使用长条。如下图所示：
 
 - ProgressIndicator 的确定和不确定状态
-- ProgressBar 的确定和不确定状态
+- `ProgressBar` 的确定和不确定状态
 
 ![](images/2022-11-28-16-54-32.png)
 
@@ -45,7 +45,7 @@ ProgressIndicator indeterminateInd = new ProgressIndicator(0.10);
 ProgressBar indeterminateBar = new ProgressBar(0.70);
 ```
 
-**示例：** ProgressIndicator 和 ProgressBar
+**示例：** `ProgressIndicator` 和 ProgressBar
 
 - 点击 "Make Progress" 进度增加 10%
 - 点击 "Complete Task" 完成不确定任务，将其进度设置为 100%

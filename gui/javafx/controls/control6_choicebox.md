@@ -35,7 +35,7 @@ seasons.getItems().addAll("Spring", "Summer", "Fall", "Winter");
 
 下图是 `CheckBox` 的不同状态。
 
-![|400](Pasted%20image%2020230723200559.png)
+<img src="images/Pasted%20image%2020230723200559.png" alt="|400" style="zoom:50%;" />
 
 - 图 #1 是初始状态，可以用鼠标或键盘打开列表
   - 点击控件内任意地方打开弹窗列表

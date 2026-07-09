@@ -86,7 +86,7 @@
     - [ToolBar](controls/control25_toolbar.md)
     - [TabPane](controls/control26_tabpane.md)
     - [HTMLEditor](controls/control27_htmleditor.md)
-    - [Chooser](controls/control28_filechooser.md)
+    - [FileChooser](./controls/filechooser.md)
     - [Dialog](./controls/dialog.md)
 - [TableView 概述](table/table1_intro.md)
     - [创建 TableView](table/table2_create.md)

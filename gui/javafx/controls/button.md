@@ -487,8 +487,8 @@ public class ToggleButtonTest extends Application {
 
 `RadioButton` 和 `ToggleButton` 的主要差别：
 
-- group 中 toggleButton 可以一个不选，RadioButton 必须选择一个
-- 点击选择的 toggleButton，会取消去选，而点击选择的 RadioButton 不会取消选择
+- group 中 toggleButton 可以一个不选，`RadioButton` 必须选择一个
+- 点击选择的 toggleButton，会取消去选，而点击选择的 `RadioButton` 不会取消选择
 
 ```ad-tip
 RadioButton 用于必须选择一个的场景；ToggleButton 用于选择一个或不选。
