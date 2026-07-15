@@ -1,12 +1,5 @@
 # PropertySheet
 
-- [PropertySheet](#propertysheet)
-  - [简介](#%e7%ae%80%e4%bb%8b)
-  - [基本类介绍](#%e5%9f%ba%e6%9c%ac%e7%b1%bb%e4%bb%8b%e7%bb%8d)
-    - [Mode](#mode)
-    - [Item](#item)
-    - [PropertyEditor](#propertyeditor)
-
 2020-05-20, 20:00
 ***
 
