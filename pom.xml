@@ -41,6 +41,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.ojalgo</groupId>
+            <artifactId>ojalgo</artifactId>
+            <version>57.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-rng-sampling</artifactId>
             <version>1.6</version>
