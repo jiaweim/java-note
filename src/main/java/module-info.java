@@ -60,6 +60,8 @@ module java.module {
     requires org.apache.commons.rng.api;
     requires smile.deep;
     requires org.bytedeco.pytorch;
+    requires xchart;
+    requires org.eclipse.collections.api;
 
     opens mjw.hipparchus;
     opens mjw.jackson.objectmapper;

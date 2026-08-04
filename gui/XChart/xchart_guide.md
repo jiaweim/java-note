@@ -1,29 +1,5 @@
 # XChart 指南
 
-- [XChart 指南](#xchart-指南)
-  - [1. 简单示例](#1-简单示例)
-  - [2. 稍微复杂的示例](#2-稍微复杂的示例)
-  - [3. 高级示例](#3-高级示例)
-  - [4. Chart Types](#4-chart-types)
-    - [4.1 XYChart](#41-xychart)
-    - [4.2 CategoryChart](#42-categorychart)
-    - [4.3 PieChart](#43-piechart)
-    - [4.4 BubbleChart](#44-bubblechart)
-    - [4.5 DialChart](#45-dialchart)
-    - [4.6 RadarChart](#46-radarchart)
-    - [4.7 OHLCChart](#47-ohlcchart)
-    - [4.8 BoxChart](#48-boxchart)
-    - [4.9 HeatMapChart](#49-heatmapchart)
-  - [5. 实时 Chart](#5-实时-chart)
-  - [6. 自定义样式](#6-自定义样式)
-    - [6.1 Axis Tick Label](#61-axis-tick-label)
-    - [6.2 Multiple Axes](#62-multiple-axes)
-    - [6.3 缩放](#63-缩放)
-    - [6.4 注释](#64-注释)
-    - [6.5 Tool Tips](#65-tool-tips)
-    - [6.6 Cursor](#66-cursor)
-  - [7. Chart 主题](#7-chart-主题)
-
 2024-06-13
 @author Jiawei Mao
 ***
