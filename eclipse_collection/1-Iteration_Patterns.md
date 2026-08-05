@@ -51,7 +51,7 @@ Eclipse Collections (EC) 对 Java 集合框架进行扩展，实现了 Smalltalk
 - ForEach：遍历执行
 - InjectInt：整数归约聚合
 
-### Select 与 Reject 范式
+### Select 与 Reject 范式（筛选）
 
 >  筛选集合并生成新集合：包括 select、reject 和 partition。
 
@@ -60,9 +60,26 @@ Eclipse Collections (EC) 对 Java 集合框架进行扩展，实现了 Smalltalk
 
 判断条件为单参数代码块形式的布尔表达式，通过 `Predicate` 接口的实现提供。
 
+```java
+package org.eclipse.collections.api.block.predicate;
+public interface Predicate<T>
+        extends java.util.function.Predicate<T>, Serializable
+{
+    boolean accept(T each);
+
+    @Override
+    default boolean test(T each)
+    {
+        return this.accept(each);
+    }
+}
+```
+
+其中 `accept()` 是需要实现的方法。
+
 #### Select 范式示例
 
-示例 1：Select 范式（伪代码）
+**示例 1：Select 范式（伪代码）**
 
 ```java
 create <newCollection>
@@ -189,7 +206,7 @@ selectWith(Predicate2, argument): RichIterable
 rejectWith(Predicate2, argument): RichIterable
 ```
 
-功能：遍历集合的每个元素时，使用**二元断言（Predicate2）**进行判定，集合元素作为第一个参数，调用者传入另一个参数；筛选后保留的元素，将以**同类型新集合**返回。
+功能：遍历集合的每个元素时，使用**二元断言（Predicate2）**进行判定，集合元素作为第一个参数，调用者传入另一个参数（即 `argument` 作为 `Predicate2` 的第二个参数）；筛选后保留的元素，将以**同类型新集合**返回。
 
 ```java
 selectWith(Predicate2, argument, targetCollection): targetCollection
@@ -266,9 +283,27 @@ partitionWith(Predicate2, argument): PartitionIterable
 
 ### Collect 范式
 
->  转换集合元素并生成新集合，相关方法包括 `collect`、`flatCollect` 和 `groupBy`。
+>  转换范式：转换集合元素并生成新集合，相关方法包括 `collect`、`flatCollect` 和 `groupBy`。
 
-实现转换范式的方法返回一个新集合，集合内元素由代码块运算得出。也就是说，源集合的每个元素都会映射为新对象，新对象的类型通常与原元素不同。传入 `collect` 系列方法作为参数的代码块需要实现 `Function` 接口。
+实现转换范式的方法返回一个新集合，集合内元素由代码块运算得到。简而言之，源集合的每个元素都会映射为新对象，新对象的类型通常与原元素不同。传入 `collect` 系列方法作为参数的代码块需要实现 `Function` 接口。
+
+```java
+package org.eclipse.collections.api.block.function;
+
+public interface Function<T, V>
+        extends java.util.function.Function<T, V>, Serializable
+{
+    V valueOf(T each);
+
+    @Override
+    default V apply(T each)
+    {
+        return this.valueOf(each);
+    }
+}
+```
+
+其中 `valueOf(T)` 方法执行转换逻辑。
 
 EC 为转换范式提供两种专用变体：
 
@@ -277,7 +312,7 @@ EC 为转换范式提供两种专用变体：
 
 和基础转换操作一样，这两类模式对应的方法接收单个 `Function` 作为入参。
 
-示例 15：转换范式（伪代码）
+**示例 15：转换范式（伪代码）**
 
 ```java
 create <newCollection>
@@ -286,7 +321,7 @@ create <newCollection>
      add <result> to <newCollection>
 ```
 
-示例 16：使用 Lambda 表达式与方法引用执行转换操作
+**示例 16：使用 Lambda 表达式与方法引用执行转换** （推荐）
 
 ```java
 MutableList<Address> addresses =
@@ -298,7 +333,7 @@ MutableList<Address> addresses =
     people.collect(Person::getAddress);
 ```
 
-示例 17：使用匿名内部类执行转换操作
+**示例 17：使用匿名内部类执行转换操作**
 
 ```java
 MutableList<Person> people =...;
@@ -494,7 +529,7 @@ for (Person person : people)
 
 ### GroupBy 范式
 
-> 分组范式使用选择或生成的 key 对集合元素分组，创建一个 Multimap。
+> 分组范式，使用选择或生成的 key 对集合元素分组，返回一个 Multimap。
 
 分组范式将集合中的元素收集到一种类似的 map 的容器 `Multimap` 中，该容器支持一个 key 关联多个值。`Function` 对每个元素执行转换，将返回的结果作为 key，使用 key 将元素存入 Multimap。
 
@@ -943,7 +978,7 @@ injectInto(doubleValue, DoubleObjectToDoubleFunction): double
 
 > 延迟运算：在真正需要结果时才执行。
 
-惰性迭代（lazy iteration）是一种优化范式：调用迭代方法时并不会立刻执行逻辑，直到后续方法需要使用该操作的执行动作或返回结果时，才真正开始运算。实际应用中，该机制的目的是避免不必要的运算、内存占用以及临时对象创建，只在确有需求时才执行。
+惰性迭代（lazy iteration）是一种优化范式：调用迭代方法时并不会立刻执行逻辑，直到后续方法需要使用该操作的执行动作或返回结果时，才开始运算。实际应用中，该机制的目的是避免不必要的运算、内存占用以及临时对象创建，只在确有需求时才执行。
 
 惰性迭代通过 `asLazy` 方法为当前 `RichIterable` 集合创建适配器实现：
 
@@ -955,7 +990,7 @@ richIterable.asLazy()
 
 惰性迭代与短路迭代范式相辅相成。短路迭代指一旦达成方法目标就立刻终止遍历。如下例最后一行，`anySatisfy` 在 `collect` 生成的地址列表中找到 "address2" 元素后便停止执行；列表中存在的第三个元素（address3）永远不会被 `anySatisfy` 检查。
 
-示例 51. 使用匿名内部类实现 anySatisfy 与 collect
+示例 51. 使用匿名内部类实现 `anySatisfy` 与 collect
 
 ```java
 Person person1 = new Person(address1);
@@ -1281,7 +1316,7 @@ min(): element
 
 基于自然排序返回最小值元素。
 
-示例 61. max 和 min
+**示例 61. max 和 min**
 
 ```java
 RichIterable<Integer> iterable = Lists.mutable.with(5, 4, 8, 9, 1);

@@ -1,5 +1,8 @@
-# 集合与容器
+# 集合类型
 
+2026-08-05⭐
+@author Jiawei Mao
+***
 ## 简介
 
 Eclipse Collections 集合类最具特色之处，是被良好封装隐藏起来的迭代模式的内部实现。借助这种封装机制，Eclipse Collections 能够为每一种容器，都提供经过针对性优化的方法实现。
@@ -73,7 +76,7 @@ Collections.sort(people, new Comparator<Person>()
 });
 ```
 
-示例 4. EC‑FastList，使用匿名内部类 `Comparator`
+**示例 4. EC‑FastList，使用匿名内部类 `Comparator`**
 
 ```java
 people.sortThis(new Comparator<Person>()
@@ -90,7 +93,7 @@ people.sortThis(new Comparator<Person>()
  });
 ```
 
-示例 5. EC‑FastList，使用 Lambda
+**示例 5. EC‑FastList，使用 Lambda**
 
 ```java
 people.sortThis((o1, o2) ->
@@ -106,7 +109,7 @@ people.sortThis((o1, o2) ->
 
 `MutableList` 新增 `sortThisBy` 方法：传入一个 `Function` 提取元素属性，依据该属性的自然顺序对列表排序。
 
-示例 6. JCF‑ArrayList，使用静态函数完成排序
+**示例 6. JCF‑ArrayList，使用静态函数完成排序**
 
 ```java
 Collections.sort(people, Functions.toComparator(Person.TO_AGE));
@@ -416,18 +419,14 @@ Assert.assertEquals(Integer.valueOf(2), inverse.put("2", 4));
 
 ### Bag
 
-> 允许元素重复的无序集合。
+> 允许元素重复的无序集合。从概念上 **Bag 等价于 Map<K, Integer>**。
 
 `Bag` 继承自 `RichIterable`，支持存放重复元素，并且可以高效查询每个元素的出现次数，分为有序与无序两种。
 
-- `SortedBag`：有序 Bag，元素维持排序顺序
-- `UnsortedBag`：无序 Bag，底层基于哈希表存储，迭代顺序不可预测
-
-`UnsortedBag` 包含两个子接口：`MutableBag`、`ImmutableBag`。
-
-`SortedBag` 包含两个子接口：`MutableSortedBag`、`ImmutableSortedBag`。
-
-从概念上理解，**Bag 等价于「元素 → 该元素出现次数」的映射 Map**。
+- `SortedBag`：有序 `Bag`，元素维持排序顺序，包含两个子接口
+  - `MutableSortedBag`、`ImmutableSortedBag`
+- `UnsortedBag`：无序 `Bag`，底层基于哈希表存储，迭代顺序不可预测，包含两个子接口
+  - `MutableBag`、`ImmutableBag`
 
 例如下面这份列表：
 
@@ -440,7 +439,7 @@ Apple
 Orange
 ```
 
-对应生成的 Bag 内部计数：
+对应生成的 `Bag` 内部计数：
 
 ```
 Pear      1
@@ -459,11 +458,11 @@ MutableBag<String> bag =
     Bags.mutable.with("Apple", "Pear", "Orange", "Apple", "Apple", "Orange");
 ```
 
-下面是 Bag 接口特有的方法：
+下面是 `Bag` 接口特有的方法：
 
 **Bag.occurrencesOf(Object item)**
 
-返回指定元素在 Bag 中的出现次数。
+返回指定元素在 `Bag` 中的出现次数。
 
 **Bag.forEachWithOccurrences(ObjIntProcedure)**
 
@@ -471,7 +470,7 @@ MutableBag<String> bag =
 
 **Bag.toMapOfItemToCount()**
 
-返回一个 Map，键为集合元素，值为该元素的出现次数（Integer 类型）。
+返回一个 `Map`，键为集合元素，值为该元素的出现次数（`Integer` 类型）。
 
 #### MutableBag
 
@@ -572,9 +571,9 @@ MutableStack mutableStack =
 
 ### Multimap
 
-在 `Multimap` 容器中，每个键可以关联多个值。从这个角度看它和 `Map` 相似，但 `Multimap` 的值本身是指定类型的集合，称为**底层存储集合（backing collection）**。当业务原本需要使用 `Map<K, Collection<V>>` 时，就适合使用 `Multimap`。
+在 `Multimap` 中，每个键可以关联多个值。从这个角度看它和 `Map` 相似，但 `Multimap` 的值是集合类型，称为**底层存储集合（backing collection）**。当业务原本需要使用 `Map<K, Collection<V>>` 时，就适合使用 `Multimap`。
 
-和 Eclipse Collections 的其他容器不同，`Multimap` **不继承 `RichIterable`**，它及其子接口属于一套独立 API；`RichIterable` 的相关方法由它内部的底层集合来提供。
+和 EC 的其他容器不同，`Multimap` **不继承 `RichIterable`**，它及其子接口采用一套独立 API；`RichIterable` 的相关方法由它内部的底层集合来提供。
 
 依据实现不同，`Multimap` 中的值可以存放在 `List`、`Set` 或者 `Bag` 中。例如 `FastListMultimap`，底层基于 `UnifiedMap`，每个键对应一个 `FastList`；该列表保留值的插入顺序，允许存放重复元素。
 
@@ -892,24 +891,24 @@ Assert.assertEquals(ByteIntHashMap.newWithKeysValues((byte) 0, 11), map);
 
 ## Immutable collections
 
->  集合的只读快照；一经创建之后便永远无法修改。
+>  集合的只读快照；一经创建便无法修改。
 
 Eclipse‑Collections 的所有基础容器都提供了可变接口与不可变接口。这一点和 Java 集合框架有所区别，JCF 绝大多数容器都是可变的。
 
-不可变集合顾名思义：实例初始化完毕之后就不能改动，在整个生命周期当中内部引用与存储的数据始终保持不变。如果可变集合和不可变集合存放一模一样的元素，二者可以相等；`MutableList` 和 `ImmutableList` 在内容一致时判定相等。
+不可变集合顾名思义：实例初始化后就不能改动，在整个生命周期中内部引用与存储的数据始终保持不变。如果可变集合和不可变集合存放元素相同，二者可以相等；即 `MutableList` 和 `ImmutableList` 在内容一致时判定相等。
 
-由于内部状态不会发生改动，不可变集合天然线程安全。条件允许时优先使用不可变集合，可以提升代码可读性与可维护性。
+由于内部状态不发生改动，不可变集合天然线程安全。条件允许时**优先使用不可变集合**，可以提升代码可读性与可维护性。
 
 前文介绍的容器类型均为可变版本，每一类容器都拥有对应的不可变接口，对照关系如下：
 
-| 可变类型        | 不可变类型        |
-| :-------------- | :---------------- |
-| MutableList     | ImmutableList     |
-| MutableSet      | ImmutableSet      |
-| MutableBag      | ImmutableBag      |
-| MutableMap      | ImmutableMap      |
-| MutableMultimap | ImmutableMultimap |
-| MutableStack    | ImmutableStack    |
+| 可变类型          | 不可变类型          |
+| :---------------- | :------------------ |
+| `MutableList`     | `ImmutableList`     |
+| `MutableSet`      | `ImmutableSet`      |
+| `MutableBag`      | `ImmutableBag`      |
+| `MutableMap`      | `ImmutableMap`      |
+| `MutableMultimap` | `ImmutableMultimap` |
+| `MutableStack`    | `ImmutableStack`    |
 
 所有容器都可以调用 `toImmutable()` 方法，得到对应的不可变集合实例：
 
@@ -919,56 +918,322 @@ MutableCollection.toImmutable(): ImmutableCollection
 
 返回源可变集合对应的不可变副本。
 
-1. `StackIterable.toImmutable(): ImmutableStack`
+```java
+StackIterable.toImmutable(): ImmutableStack
+```
 
-   
+从可变栈生成不可变栈；本身已经是不可变栈时直接返回自身。
 
-   从可变栈生成不可变栈；本身已经是不可变栈时直接返回自身。
+```java
+ListIterable.toImmutable(): ImmutableList
+```
 
-2. `ListIterable.toImmutable(): ImmutableList`
+从 `MutableList` 生成不可变列表副本；本身已经是 `ImmutableList` 时直接返回自身。
 
-   
+```java
+SortedMapIterable.toImmutable(): ImmutableSortedMap
+```
 
-   从可变列表生成不可变列表；本身已经是不可变列表时直接返回自身。
+生成 `MutableSortedMap` 的不可变副本；对 `ImmutableSortedMap` 直接返回自身。
 
-3. `SortedMapIterable.toImmutable(): ImmutableSortedMap`
+```java
+UnsortedMapIterable.toImmutable(): ImmutableMap
+```
 
-   
+生成 `MutableMap` 的不可变副本，对 `ImmutableMap` 返回自身。
 
-   生成有序映射的不可变副本；源对象不可变则直接返回。
+不可变集合接口不提供 `add`、`remove` 这类修改元素的方法。它依靠方法返回全新的不可变副本，以此实现新增、移除元素：
 
-4. `UnsortedMapIterable.toImmutable(): ImmutableMap`
+```java
+ImmutableCollection.newWith(element): ImmutableCollection
+```
 
-   
+生成一份全新不可变副本，往副本内加入指定元素。
 
-   生成普通哈希映射的不可变副本；源对象不可变则直接返回。
+```java
+ImmutableCollection.newWithAll(Iterable): ImmutableCollection
+```
 
-不可变集合接口并不提供 `add`、`remove` 这类修改元素的方法。
+生成新副本，批量添加传入迭代器中的全部元素。
 
-取而代之，它依靠方法返回全新的不可变副本，以此实现新增、移除元素：
+```java
+ImmutableCollection.newWithout(element): ImmutableCollection
+```
 
-- `ImmutableCollection.newWith(element): ImmutableCollection`
+生成新副本，移除指定元素。
 
-  
+```java
+ImmutableCollection.newWithoutAll(Iterable): ImmutableCollection
+```
 
-  生成一份全新不可变副本，往副本内加入指定元素。
+生成新副本，批量移除传入迭代器内的所有元素。
 
-- `ImmutableCollection.newWithAll(Iterable): ImmutableCollection`
+注意：`select`、`reject`、`collect` 这类迭代筛选转换方法，处理不可变容器之后，同样会产出全新的不可变集合。
 
-  
+### Immutable collection facory 类
 
-  生成新副本，批量添加传入迭代器中的全部元素。
+`Lists`、`Sets`、`Bags`、`Maps` 这些工厂类能够创建不可变集合。这些工厂原先还支持创建固定大小集合，现如今该类功能已经被不可变集合所替代。
 
-- `ImmutableCollection.newWithout(element): ImmutableCollection`
+**示例 40 不可变集合的工厂类用法**
 
-  
+```java
+ImmutableList<Integer> immutableList = Lists.immutable.of(1, 2, 3);
+ImmutableSet<Integer> immutableSet = Sets.immutable.of(1, 2, 3);
+Bag<Integer> immutableBag = Bags.immutable.of(1, 2, 2, 3);
+ImmutableMap<Integer, String> immutableMap =
+    Maps.immutable.of(1, "one", 2, "two", 3, "three");
+```
 
-  生成新副本，移除指定元素。
+这类工厂体现出不可变集合的另一项优势：可以依据存放元素数量，分配最合适容量的高效容器。
 
-- `ImmutableCollection.newWithoutAll(Iterable): ImmutableCollection`
+当程序存在大量（甚至上百万个）集合，并且每一个集合元素数量都小于 10 的时候，该特性带来的性能优势尤为关键。
 
-  
+### 扩容与缩减 immutable 集合
 
-  生成新副本，批量移除传入迭代器内的所有元素。
+Eclipse‑Collections 的不可变集合接口不提供 `add()`、`addAll()`、`remove()`、`removeAll()` 这类原地修改的方法。如果需要新增或者删除元素，可以使用 `newWith()`、`newWithout()`、`newWithAll()`、`newWithoutAll()`，该类方法会安全生成集合副本。针对 `ImmutableMap`，对应的方法名有所区别：`newWithKeyValue()`、`newWithAllKeyValues()`、`newWithoutKey()`、`newWithoutAllKeys()`。
 
-需要留意：`select`、`reject`、`collect` 这类迭代筛选转换方法，处理不可变容器之后，同样会产出全新的不可变集合。
+**示例 41 向不可变列表添加元素**
+
+```java
+// persons 为可变列表 MutableList<Person> persons
+// Person 实体含有 name、age、address 属性
+
+PartitionMutableList<Person> partitionedFolks =
+        persons.partition(person -> person.getAge() >= 18); // 使用分区模式
+
+ImmutableList<Person> list0 = Lists.immutable.empty();
+ImmutableList<Person> list1 = list0.newWith(new Person(...)); // 添加单个元素，返回全新不可变列表
+ImmutableList<Person> adults = list1.newWithAll(partitionedFolks.getSelected()); // 批量追加元素
+
+ImmutableSet<String> set0 = Sets.immutable.empty();
+ImmutableSet<String> set1 = set0.newWith("1");
+ImmutableSet<String> set2 = set1.newWithAll(Sets.mutable.with("2"));
+```
+
+映射容器专属方法：`newWithKeyValue()`、`newWithAllKeyValues()`、`newWithoutKey()`、`newWithoutAllKeys()`
+
+**示例 42 操作不可变 Map**
+
+```java
+ImmutableMap<String, String> map0 = Maps.immutable.empty();
+ImmutableMap<String, String> map1 = map0.newWithKeyValue("1", "1");
+ImmutableMap<String, String> map2 = map1.newWithAllKeyValues(Lists.mutable.with(Tuples.pair("2", "2")));
+```
+
+基础类型容器同样具备上述方法；但不可变基础类型映射存在功能不对称：现阶段原生不可变 Map **尚未实现 newWithAllKeyValues ()**，该功能已经提交需求工单等待后续迭代。
+
+**示例 43 不可变原生类型容器**
+
+```java
+ImmutableIntList list0 = IntLists.immutable.empty();
+ImmutableIntList list1 = list0.newWith(1);
+ImmutableIntList list2 = list1.newWithAll(IntLists.mutable.with(2));
+
+ImmutableIntSet set0 = IntSets.immutable.empty();
+ImmutableIntSet set1 = set0.newWith(1);
+ImmutableIntSet set2 = set1.newWithAll(IntSets.mutable.with(2));
+
+ImmutableIntIntMap map0 = IntIntMaps.immutable.empty();
+ImmutableIntIntMap map1 = map0.newWithKeyValue(1, 1);
+```
+
+## 创建集合
+
+Eclipse‑Collections 内置大量迭代方法，可以基于现有集合生成全新的容器实例。其中包含 `select`、`collect`，以及衍生专用方法，例如 `partition`（分区）、`groupBy`（分组）。除此之外还有多种实例化容器的途径：从零新建，或是由其他类型容器转换得到。
+
+### 创建 mutable 集合
+
+如果你清楚容器对应的实现类（例如 `FastList`、`UnifiedSet`），可以采用下面两种方式实例化：
+
+- 调用类构造器：`FastList<String> names = new FastList<>();`
+- 调用实现类自带的工厂方法，如 `newList`、`newListWith`：`MutableList<V> result = FastList.newList(this.size);`
+
+倘若不需要关心具体的底层实现类，则可以借助集合工厂类创建容器。Eclipse‑Collections 的工厂类命名为对应容器名称的复数形式：`List` 对应 `Lists`、`Set` 对应 `Sets`。
+
+你可以通过入参指定容器内元素与可变性；统一使用工厂方式创建集合，代码可读性更佳。
+
+> **示例 44 容器工厂类**
+
+```java
+MutableList<String> emptyList = Lists.mutable.empty();        // 创建空列表
+MutableList<String> list = Lists.mutable.with("a", "b", "c");
+MutableList<String> list_a = Lists.mutable.of("a", "b", "c");
+
+MutableSet<String> emptySet = Sets.mutable.empty();
+MutableSet<String> set = Sets.mutable.with("a", "b", "c");
+MutableSet<String> set_a = Sets.mutable.of("a", "b", "c");
+
+MutableBag<String> emptyBag= Bags.mutable.empty();
+MutableBag<String> bag = Bags.mutable.with("a", "b", "c");
+MutableBag<String> bag_a = Bags.mutable.of("a", "b", "c");
+```
+
+**容器‑工厂类对照表**
+
+| 容器类型  | 对应工厂类                |
+| :-------- | :------------------------ |
+| List      | `Lists`                   |
+| Set       | Sets、HashingStrategySets |
+| Bag       | Bags                      |
+| Stack     | Stacks                    |
+| SortedBag | SortedBags                |
+| SortedSet | SortedSets                |
+| Map       | Maps、HashingStrategyMaps |
+| SortedMap | SortedMaps                |
+| BiMap     | BiMaps                    |
+| Multimap  | Multimaps                 |
+
+你还可以基于现有集合实例，新建同类型可变容器：
+
+**newEmpty() : MutableCollection**
+
+创建一个全新的空可变容器，类型和源集合保持一致。举个例子：源对象是 `FastList`，该方法返回全新空 `FastList`。如果源实例属于不可变集合或者固定大小集合（例如单元素 List），方法会返回对应的可变实现。
+
+### 创建 immutable 集合
+
+有两种方式创建 `List`、`Set`、`Bag`、`Stack`、`Map` 这类容器的不可变实例：
+
+1. 先构造对应的可变容器（上一节已经讲解），接着调用 `toImmutable()` 获取它的不可变副本；
+2. 直接使用集合工厂类构造不可变对象。
+
+**示例 45 通过 toImmutable () 生成不可变容器**
+
+```java
+ImmutableList<String> list =
+    Lists.mutable.with("a", "b", "c").toImmutable();
+
+// 先转为集合再生成不可变实例
+ImmutableSet<String> set0 =
+    Lists.mutable.with("a", "b", "a", "c").toSet().toImmutable();
+
+ImmutableSet<String> set1 =
+    Sets.mutable.with("a", "b", "a", "c").toImmutable();
+
+ImmutableMap<Integer, String> map =
+    Maps.mutable.with(1, "a", 2, "b", 3, "c").toImmutable();
+```
+
+**示例 46 使用工厂类直接创建不可变容器**
+
+```java
+ImmutableList<String> emptyList_i =
+    Lists.immutable.empty();
+ImmutableList<String> list_b =
+    Lists.immutable.with("a", "b", "c");
+ImmutableList<String> list_c =
+    Lists.immutable.of("a", "b", "c");
+
+ImmutableSet<String> emptySet_i =
+    Sets.immutable.empty();
+ImmutableSet<String> set_b =
+    Sets.immutable.with("a", "b", "c");
+ImmutableSet<String> set_c =
+    Sets.immutable.of("a", "b", "c");
+
+ImmutableMap<Integer, String> emptyMap_i =
+    Maps.immutable.empty();
+ImmutableMap<Integer, String> map_b =
+    Maps.immutable.with(1, "a", 2, "b", 3, "c");
+ImmutableMap<Integer, String> map_c =
+    Maps.immutable.of(1, "a", 2, "b", 3, "c");
+```
+
+### 创建原生类型集合
+
+可变、不可变原生集合的创建方式和普通对象集合完全一致。
+
+1. 当你清楚具体实现类时，可以调用构造方法或是该类自带的工厂方法；
+2. 不清楚底层实现，则使用对应命名格式的工厂类：`<原生类型><容器类型>s`。举个例子：创建 `IntList`， 使用 `IntLists` 工厂；创建 `DoubleSet` 使用 `DoubleSets`。
+
+**示例 47 通过工厂类创建不可变原生类型容器**
+
+```java
+MutableIntList emptyList_pm =
+    IntLists.mutable.empty();       // 创建空可变整型列表
+MutableIntList list_d =
+    IntLists.mutable.with(1, 2, 3);
+MutableIntList list_e =
+    IntLists.mutable.of(1, 2, 3);
+
+ImmutableIntList emptyList_pi =
+    IntLists.immutable.empty();     // 创建空不可变整型列表
+ImmutableIntList list_f =
+    IntLists.immutable.with(1, 2, 3);
+ImmutableIntList list_g =
+    IntLists.immutable.of(1, 2, 3);
+```
+
+**全部原生类型对应的工厂类对照表**
+
+| 原生类型 \ 容器 | List         | Set         | Bag         | Stack         |
+| :-------------- | :----------- | :---------- | :---------- | :------------ |
+| boolean         | BooleanLists | BooleanSets | BooleanBags | BooleanStacks |
+| byte            | ByteLists    | ByteSets    | ByteBags    | ByteStacks    |
+| char            | CharLists    | CharSets    | CharBags    | CharStacks    |
+| short           | ShortLists   | ShortSets   | ShortBags   | ShortStacks   |
+| int             | IntLists     | IntSets     | IntBags     | IntStacks     |
+| float           | FloatLists   | FloatSets   | FloatBags   | FloatStacks   |
+| long            | LongLists    | LongSets    | LongBags    | LongStacks    |
+| double          | DoubleLists  | DoubleSets  | DoubleBags  | DoubleStacks  |
+
+## 集合之间的转换
+
+下述转换方法全部定义于 `RichIterable`，能够将容器转为其他集合类型。如果需要生成不可变集合、固定长度集合，可以查阅 [不可变集合](#immutable-collections) 部分。
+
+**toList() : MutableList**
+
+将集合转换成默认 `MutableList`  实现类 `FastList`。
+
+**toSet() : MutableSet**
+
+将集合转换成默认 `MutableSet` 实现类 `UnifiedSet`。
+
+**toBag() : MutableBag**
+
+将集合转换成默认 `MutableBag` 实现类 `HashBag`。
+
+**toMap(keyFunction, valueFunction): MutableMap**
+
+使用指定 `keyFunctions` 和 `valueFunctions` 将集合转换为默认 `MutableMap`  实现类 `UnifiedMap`。
+
+**toSortedList() : MutableList**
+
+将集合转换为默认 `MutableList` 实现 `FastList`，并依照元素自然排序。
+
+**toSortedList(Comparator) : MutableList**
+
+将集合转换为默认 `MutabeList` 实现 `FastList`，使用自定义比较器执行排序。
+
+以上所有转换方法都会返回全新的可变副本；例如在 `FastList` 对象上调用 `toList()`，会产生一个全新的 `FastList`，原集合不会受到改动。
+
+## 保护包装器
+
+> 包装类用于生成集合的只读视图或者线程安全视图。
+
+### 不可修改集合
+
+Java 原生集合框架 (JCF) 与 Eclipse‑Collections 都支持将集合设置为不可修改。Eclipse‑Collections 通过 `asUnmodifiable()` 方法获取原集合的只读视图。该视图依旧保留 `add`、`remove` 等修改方法，但一旦调用修改方法便会抛出异常。
+
+```java
+// 对象集合获取只读视图
+MutableCollection.asUnmodifiable(): MutableCollection（只读视图）
+
+// 原生类型集合获取只读视图
+MutableIntCollection.asUnmodifiable(): MutableIntCollection（只读视图）
+```
+
+八种基础数据类型均拥有对应的方法，例如 `MutableFloatCollection.asUnmodifiable()`。
+
+### 同步集合
+
+Eclipse‑Collections 提供同步包装器，包装后的集合依旧允许修改；执行任意方法时先上锁，方法执行结束之后释放锁，以此保障线程安全。
+
+```java
+// 对象集合线程安全包装
+MutableCollection.asSynchronized(): MutableCollection
+
+// 原生类型集合线程安全包装
+MutableIntCollection.asSynchronized(): MutableIntCollection
+```
+
+其余基础类型集合同样配有该 API，如 `MutableFloatCollection.asSynchronized()`。
