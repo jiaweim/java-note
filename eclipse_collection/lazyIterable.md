@@ -106,7 +106,7 @@ MutableList<String> lazy = lazy3.toList();
 Eager, fused 和 lazy 各有使用场景。下面是针对 EC 给出的使用准则：
 
 1. 只执行单次运算，或是处理小规模集合时，请选用 eager 求值方法
-2. 业务场景刚好适配复合操作（例如 `collectIf`），优先使用融合式方法
+2. 业务场景刚好适配融合操作（例如 `collectIf`），优先使用融合式方法
 3. 需要执行多步运算、采用 eager 模式会产生大量临时集合时，则启用 lazy 求值
 
 ### 适合使用 LazyIterable 的场景
