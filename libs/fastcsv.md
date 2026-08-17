@@ -1,6 +1,6 @@
 # FastCSV
 
-
+2026-08-17: update to 4.4.0
 2026-06-25: update to 4.3.0
 2025-11-24: update to 4.1.0
 2024-09-30 ⭐
@@ -9,13 +9,13 @@
 
 ## 1. 简介
 
-FastCSV 是一个高性能的 CSV IO 工具。
+FastCSV 是一个高性能的 CSV 文件读写工具。
 
 ```xml
 <dependency>
     <groupId>de.siegmar</groupId>
     <artifactId>fastcsv</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
 </dependency>
 ```
 
@@ -23,7 +23,7 @@ FastCSV 是一个高性能的 CSV IO 工具。
 
 ### 2.1 输出 CSV
 
-`CsvWriter` 类用于输出 CSV 文件，该类采用 fluent-API 设计。例如：
+`CsvWriter` 类提供流式调用 API 用于输出 CSV 文件。例如：
 
 ```java
 Path file = Paths.get("output.csv");
@@ -38,9 +38,9 @@ try (CsvWriter csv = CsvWriter.builder().build(file)) {
 
 FastCSV 提供了两个读取 CSV 记录的类：`CsvReader` 和 `IndexedCsvReader`。
 
-#### 顺次读取 record
+#### 顺序读取 CSV 记录
 
-`CsvReader` 按顺序读取 csv record。示例：
+`CsvReader` 按顺序读取 CSV 记录。示例：
 
 ```java
 Path file = Paths.get("input.csv");

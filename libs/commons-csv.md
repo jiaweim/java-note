@@ -21,7 +21,7 @@ PS：commons-csv GUIDE 写得不好。
 
 ### CSV 格式
 
-CSV 格式每行一条记录（record），每条记录由多个值组成。以下是 Commons CSV 特点：
+CSV 格式每行一条记录（record），每条记录由多个值组成，Apache Commons CSV 支持读写多种 CSV 变体格式。以下是 Commons CSV 特点：
 
 |特点|说明|
 |---|---|
