@@ -2,8 +2,7 @@
 
 ## 学习笔记
 
-- [简介](1_intro.md)
-- [连接数据库](2_connect.md)
+- [SQLite 快速入门](1_intro.md)
 - [SQLite 数据类型](datatype.md)
 - [主键](primary_key.md)
 
@@ -14,3 +13,4 @@
 - [DB Browser for SQLite](https://sqlitebrowser.org/about/)
 - [SQLite 在线语法编辑](https://sqliteonline.com/)
 - [SQLite 中文网](https://www.sqlite.net.cn/)
+- [SQLite 主页](https://www.sqlite.org/)
