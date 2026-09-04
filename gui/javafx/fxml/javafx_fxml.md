@@ -378,8 +378,6 @@ loader.setLocation(fxmlUrl);
 VBox root = loader.<VBox>load();
 ```
 
-
-
 `load()` 方法返回类型为泛型。上面指定泛型参数为 `VBox` 使 `load()` 返回 `VBox`。忽略泛型参数也没问题：
 
 ```java
