@@ -9,3 +9,5 @@
 
 - [javatpoint](https://www.javatpoint.com/java-jdbc)
 - [Tutorials](http://tutorials.jenkov.com/jdbc/overview.html)
+- https://docs.oracle.com/javase/tutorial/jdbc/index.html
+
