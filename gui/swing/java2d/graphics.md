@@ -1,19 +1,7 @@
 # Graphics2D
 
-- [Graphics2D](#graphics2d)
-  - [简介](#简介)
-  - [获取 Graphics 对象](#获取-graphics-对象)
-  - [Graphics2D 方法](#graphics2d-方法)
-  - [Graphics2D 属性](#graphics2d-属性)
-    - [渲染提示](#渲染提示)
-      - [图像缩放提示](#图像缩放提示)
-      - [反锯齿](#反锯齿)
-    - [clip](#clip)
-    - [Composite](#composite)
-    - [Paint](#paint)
-    - [Transform](#transform)
-
-2024-01-11, 09:33
+@since 2024-01-11
+@author Jiawei Mao
 ***
 
 ## 简介
@@ -53,21 +41,22 @@ protected void paintComponent(Graphics g) {
 }
 ```
 
-- 渲染到图像
+### 渲染到图像
 
-很多时候需要把图形（graphics）渲染到图像（image）。Image 对象没有可复写的 paintComponent() 方法，所以 Swing 不会自动创建一个 Graphics 对象。此时可以向 Image 要求一个：
+将图形渲染到图像，然而 `Image` 没有可复写的 `paintComponent()` 方法，所以 Swing 不会自动创建 `Graphics` 对象。此时可以向 `Image` 要求一个：
 
 ```java
 Image img = createImage(w, h);
 Graphics g = img.getGraphics();
 ```
 
-`getGraphics()` 返回一个直接渲染这个图像的 Graphics 对象。
+`getGraphics()` 返回一个直接渲染这个图像的 `Graphics` 对象。
 
-!!! note
-    有些 Image 是只读的，例如，通过 Toolkit.getImage() 装载图像数据创建的 Image，这些 Image 不能渲染。所以建议使用 BufferedImage。
+> [!NOTE]
+>
+> 有些 `Image` 是只读的（如通过 `Toolkit.getImage()` 加载的图像），无法渲染，因此建议使用 `BufferedImage`。
 
-从 BufferedImage 获取 Graphics2D:
+从 `BufferedImage` 获取 `Graphics2D`:
 
 ```java
 BufferedImage bImg;

@@ -1,10 +1,4 @@
 # TOC
-- [TOC](#toc)
-- [简介](#%e7%ae%80%e4%bb%8b)
-- [AWT](#awt)
-- [Swing](#swing)
-- [SWT](#swt)
-
 # 简介
 AWT/Swing 和 SWT/JFace 分属两种不同的体系，采取了不同的技术路线。
 - AWT作为Java语言的第一个GUI类库包，是最早的一个基础库。
