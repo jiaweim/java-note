@@ -5,7 +5,11 @@
 ***
 ## 1. 简介
 
-`Picocli` 是一个用于辅助创建命令行应用的工具包，支持多种 JVM 语言。包含如下特性：
+Picocli 旨在成为开发命令行应用最简便的方案，该应用既可在 JVM 上运行，也可脱离 JVM 运行。
+
+### 1.1 概述
+
+Picocli 特性如下：
 
 - 只有一个源文件，把源码放在项目中就能使用
 - 支持 `POSIX`, `GNU` 和 `MS-DOS`等多种命令行语法风格
@@ -16,13 +20,24 @@
 
 `picocli` 通过注释完成字段的识别，然后将输入转换为字段对应的类型。
 
-### 示例
+### 1.2 示例
 
 下面是一个简短但功能齐全的基于 picocli 的 `checksum` 命令行应用：
 
 ```java
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+import java.io.File;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.util.concurrent.Callable;
+
 @Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
-        description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
+         description = "Prints the checksum (SHA-256 by default) of a file to STDOUT.")
 class CheckSum implements Callable<Integer> {
 
     @Parameters(index = "0", description = "The file whose checksum to calculate.")
@@ -35,12 +50,13 @@ class CheckSum implements Callable<Integer> {
     public Integer call() throws Exception { // your business logic goes here...
         byte[] fileContents = Files.readAllBytes(file.toPath());
         byte[] digest = MessageDigest.getInstance(algorithm).digest(fileContents);
-        System.out.printf("%0" + (digest.length * 2) + "x%n", new BigInteger(1, digest));
+        System.out.printf("%0" + (digest.length*2) + "x%n", new BigInteger(1, digest));
         return 0;
     }
 
-    // 这里实现 Callable，因此解析、错误处理和帮助信息、版本都可以一行代码完成
-    static void main(String... args) {
+    // this example implements Callable, so parsing, error handling and handling user
+    // requests for usage help or version help can be done with one line of code.
+    public static void main(String... args) {
         int exitCode = new CommandLine(new CheckSum()).execute(args);
         System.exit(exitCode);
     }
@@ -76,7 +92,7 @@ dependencies {
 从 [picocli GitHub](https://github.com/remkop/picocli/blob/main/src/main/java/picocli/CommandLine.java) 下载源码，直接将 `CommandLine.java` 添加到项目。
 ### 2.3 Annotation Processor
 
-`picocli-codegen` 模块包含一个注释处理器，该处理器可以在编译时（而不是运行时）从 picocli 注释构建模型。
+`picocli-codegen` 模块包含一个注释处理器，它可以在编译时（不是运行时）从 picocli 注释构建命令模型。
 
 在项目中启用该注释处理器是可选的，但是**强烈推荐**。它支持：
 
@@ -91,11 +107,32 @@ picocli 注释处理器支持许多选项，其中最重要的是设置输出子
 
 #### 启用注释处理器
 
-skip
+- Maven
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
+  <version>${maven-compiler-plugin-version}</version>
+  <configuration>
+    <annotationProcessorPaths>
+      <path>
+        <groupId>info.picocli</groupId>
+        <artifactId>picocli-codegen</artifactId>
+        <version>4.7.7</version>
+      </path>
+    </annotationProcessorPaths>
+    <compilerArgs>
+      <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+    </compilerArgs>
+  </configuration>
+</plugin>
+```
 
 ### 2.4 运行应用
 
-编译 `CheckSum` 应用后，就可以运行了。在运行前，创建一个示例文件 hello.txt，包含文本 "hello"。
+编译 `CheckSum` 后，就可以运行了。在运行前，创建一个示例文件 hello.txt，包含文本 "hello"。
 
 假设我们创建了一个名为 `checksum.jar` 的 jar，包含编译后的 `CheckSum.class`，可以使用 `java -cp <classpath> <MainClass> [OPTIONS]` 运行。例如：
 
@@ -114,17 +151,17 @@ checksum --algorithm SHA-1 hello.txt
 
 ## 3. 选项和参数
 命令行参数可以分为选项（*options*）和位置参数（*positional parameters*）两类。
-- 选项（option）包含名称
-- 位置参数（positional parameter）则是跟着选项后的参数值，两者也可以混合
+- 选项（option）：包含名称
+- 位置参数（positional parameter）：跟着选项后的参数值，两者也可以混合
 
 如下图所示：
 
-<img src="picocli_1.png" width="450" />
+<img src="images/picocli_1.png" width="450" />
 
 对这两类参数，picocli 分别使用 `@Option` 和 `@Parameters` 进行注释。
 
 ### 3.1 选项（Options）
-选项为命名参数，至少要设置一个名称，默认区分大小写（可以设置）。
+选项为命名参数，至少设置一个名称，默认区分大小写（可以设置）。
 
 > [!TIP]
 >
